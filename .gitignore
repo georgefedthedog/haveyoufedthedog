@@ -1,0 +1,19 @@
+# Reference-only previous attempt. Do not commit.
+_old/
+
+# Editor / OS
+.DS_Store
+.idea/
+*.iml
+*.code-workspace
+
+# Secrets (per-sub-project gitignores also enforce these)
+**/firebase-service-account.json
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build outputs (per-sub-project gitignores cover the specifics)
+**/build/
+**/.dart_tool/
+**/node_modules/

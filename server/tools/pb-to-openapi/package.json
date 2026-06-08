@@ -1,0 +1,12 @@
+{
+  "name": "pb-to-openapi",
+  "version": "1.0.0",
+  "description": "Convert PocketBase pb_schema.json to OpenAPI 3.0 spec.",
+  "main": "convert.js",
+  "scripts": {
+    "convert": "node convert.js"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

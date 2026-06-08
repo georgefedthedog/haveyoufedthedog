@@ -1,0 +1,9 @@
+# Secrets — never commit
+services/push-notifier/firebase-service-account.json
+services/push-notifier/.env
+
+# Node
+**/node_modules/
+
+# Generated OpenAPI (we DO commit this, but ignore the intermediate cache)
+.openapi-generator/
