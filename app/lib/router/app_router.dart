@@ -7,8 +7,10 @@ import '../core/household/current_household_controller.dart';
 import '../core/household/household_memberships_controller.dart';
 import '../features/auth/auth_landing_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/household/create_household_screen.dart';
 import '../features/household/household_picker_screen.dart';
 import '../features/household/household_setup_screen.dart';
+import '../features/household/join_household_screen.dart';
 import '../features/splash/splash_screen.dart';
 import 'router_refresh_notifier.dart';
 import 'routes.dart';
@@ -44,6 +46,14 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const HouseholdPickerScreen(),
       ),
       GoRoute(
+        path: Routes.householdCreate,
+        builder: (context, state) => const CreateHouseholdScreen(),
+      ),
+      GoRoute(
+        path: Routes.householdJoin,
+        builder: (context, state) => const JoinHouseholdScreen(),
+      ),
+      GoRoute(
         path: Routes.home,
         builder: (context, state) => const HomeScreen(),
       ),
@@ -54,9 +64,6 @@ GoRouter appRouter(Ref ref) {
 /// Redirect logic. Reads the current state of the relevant providers and
 /// returns the route the user should be at, or `null` if they're already
 /// at the right place.
-///
-/// Step 4 in the plan calls for extracting this into a dedicated
-/// `auth_guard.dart`. For now the rules are simple enough to keep inline.
 String? _redirect(Ref ref, String loc) {
   // 1. Not signed in.
   final auth = ref.read(authControllerProvider);
@@ -64,39 +71,38 @@ String? _redirect(Ref ref, String loc) {
     return loc == Routes.auth ? null : Routes.auth;
   }
 
-  // 2. Memberships not loaded yet (or errored — show splash; we'll wire a
-  //    real error route later if needed).
+  // 2. Memberships not loaded yet (or errored — show splash).
   final memberships = ref.read(householdMembershipsControllerProvider);
   if (memberships.isLoading || memberships.hasError) {
     return loc == Routes.splash ? null : Routes.splash;
   }
   final list = memberships.requireValue;
 
-  // 3. Zero memberships → setup.
+  // 3. Zero memberships → forced to setup.
   if (list.isEmpty) {
     return loc == Routes.householdSetup ? null : Routes.householdSetup;
   }
 
-  // 4. Current household not yet resolved (auto-select runs as a side effect
-  //    on initial load when there's exactly one).
+  // 4. Current household not yet resolved.
   final current = ref.read(currentHouseholdControllerProvider);
   if (current.isLoading) {
     return loc == Routes.splash ? null : Routes.splash;
   }
   final currentValue = current.valueOrNull;
 
+  // 5. 2+ memberships with no valid persisted choice → forced to picker.
   if (currentValue == null) {
-    // We have 2+ memberships and no valid persisted choice → picker.
     return loc == Routes.householdPicker ? null : Routes.householdPicker;
   }
 
-  // 5. All set. Keep them out of the gate screens.
-  const gates = {
+  // 6. Fully set up. Bounce off "forced" gate screens, but NOT off the
+  //    picker, create, or join — those are also reachable voluntarily from
+  //    the home screen.
+  const forcedGates = {
     Routes.splash,
     Routes.auth,
     Routes.householdSetup,
-    Routes.householdPicker,
   };
-  if (gates.contains(loc)) return Routes.home;
+  if (forcedGates.contains(loc)) return Routes.home;
   return null;
 }

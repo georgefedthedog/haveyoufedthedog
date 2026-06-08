@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_memberships_controller.dart';
+import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 
-/// Placeholder home screen. Step 5b shows both the user's memberships and
-/// the resolved "current household" so we can verify the persistence logic.
+/// Placeholder home screen. Step 5 ends here. Step 6 will replace the body
+/// with the subjects list.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -21,7 +23,12 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Have You Fed The Dog?'),
         actions: [
-          // TODO(step-2): temporary, remove when proper menu lands.
+          // TODO(step-5): temporary, replace with proper menu in Step 16.
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Switch household',
+            onPressed: () => context.push(Routes.householdPicker),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Log out (temporary)',
@@ -49,8 +56,7 @@ class HomeScreen extends ConsumerWidget {
                 error: (e, _) => Text('Error: $e'),
                 data: (current) => Text(
                   current == null
-                      ? '(none — router will send you to setup or picker '
-                          'in Step 5c)'
+                      ? '(none)'
                       : '${current.householdName} (${current.role})',
                 ),
               ),
@@ -71,33 +77,17 @@ class HomeScreen extends ConsumerWidget {
                 child: Text('Could not load memberships: $e'),
               ),
             ),
-            data: (memberships) {
-              if (memberships.isEmpty) {
-                return const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text('No memberships.'),
-                  ),
-                );
-              }
-              return Column(
-                children: [
-                  for (final m in memberships)
-                    Card(
-                      child: ListTile(
-                        title: Text(m.householdName),
-                        subtitle: Text(m.role),
-                        // Step 5b: tapping a row switches current. Useful for
-                        // testing persistence. Removed in Step 5e when the
-                        // proper picker lands.
-                        onTap: () => ref
-                            .read(currentHouseholdControllerProvider.notifier)
-                            .setCurrent(m.householdId),
-                      ),
+            data: (memberships) => Column(
+              children: [
+                for (final m in memberships)
+                  Card(
+                    child: ListTile(
+                      title: Text(m.householdName),
+                      subtitle: Text(m.role),
                     ),
-                ],
-              );
-            },
+                  ),
+              ],
+            ),
           ),
         ],
       ),

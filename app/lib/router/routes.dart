@@ -10,12 +10,18 @@ class Routes {
   static const auth = '/auth';
 
   /// Authenticated but the user has no household memberships yet.
-  /// Offers Create / Join.
+  /// Forced landing: Create / Join only, nothing else to do.
   static const householdSetup = '/household-setup';
 
-  /// Authenticated, 2+ memberships, no current household selected.
-  /// Lists households for the user to pick.
+  /// List of the user's households. Forced when 2+ memberships and no current
+  /// selection; voluntary when invoked from the home screen's "switch" button.
   static const householdPicker = '/household-picker';
+
+  /// Standalone Create-a-new-household form, reachable from the picker.
+  static const householdCreate = '/household-create';
+
+  /// Standalone Join-by-invite-code form, reachable from the picker.
+  static const householdJoin = '/household-join';
 
   /// Authenticated with a current household resolved.
   static const home = '/';
