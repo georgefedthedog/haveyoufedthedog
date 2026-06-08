@@ -22,7 +22,18 @@ class HouseholdPickerScreen extends ConsumerWidget {
         ?.householdId;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Your households')),
+      appBar: AppBar(
+        title: const Text('Your households'),
+        // Manual back arrow because the auto-detected one disappears if the
+        // user is force-redirected here (no back stack). Always fall through
+        // to home so they can never get stranded.
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.canPop()
+              ? context.pop()
+              : context.go(Routes.home),
+        ),
+      ),
       body: asyncMemberships.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),

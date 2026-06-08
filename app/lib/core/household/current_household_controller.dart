@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../auth/auth_controller.dart';
 import '../storage/shared_preferences_provider.dart';
 import 'household_membership.dart';
 import 'household_memberships_controller.dart';
@@ -25,8 +26,17 @@ const _kPersistedKey = 'current_household_id_v1';
 class CurrentHouseholdController extends _$CurrentHouseholdController {
   @override
   Future<HouseholdMembership?> build() async {
+    // Watch auth synchronously before any await so the controller rebuilds
+    // when login state changes.
+    final auth = ref.watch(authControllerProvider);
     final memberships =
         await ref.watch(householdMembershipsControllerProvider.future);
+
+    // If the user is signed out, leave the persisted choice alone — it's
+    // still relevant when they sign back in. If we cleared it here, the
+    // logout-then-login cycle would always lose their last selection.
+    if (!auth.isAuthenticated) return null;
+
     final prefs = ref.read(sharedPreferencesProvider);
     final persistedId = prefs.getString(_kPersistedKey);
 
@@ -34,6 +44,8 @@ class CurrentHouseholdController extends _$CurrentHouseholdController {
       for (final m in memberships) {
         if (m.householdId == persistedId) return m;
       }
+      // Signed in, but the persisted choice isn't in this user's
+      // memberships any more. Drop it.
       await prefs.remove(_kPersistedKey);
     }
 

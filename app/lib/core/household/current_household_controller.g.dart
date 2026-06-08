@@ -7,7 +7,7 @@ part of 'current_household_controller.dart';
 // **************************************************************************
 
 String _$currentHouseholdControllerHash() =>
-    r'aa3a8b8a0b9b90ed736e4a28e343e6595d6926a1';
+    r'8b42f3441c4151ec2f3445d9139bbb8fb92a4da9';
 
 /// Picks the currently-active household for the signed-in user.
 ///

@@ -52,12 +52,20 @@ RoutingPhase routingPhase(Ref ref) {
   if (list.isEmpty) return RoutingPhase.needsHousehold;
 
   final currentAsync = ref.watch(currentHouseholdControllerProvider);
-  // `hasValue` is true on the *first* successful resolution and stays true
-  // afterwards (Riverpod preserves the previous value through subsequent
-  // `AsyncLoading` transitions). So this only treats the genuine initial
-  // load as "loading"; reloads triggered by membership churn use the
-  // previous value and keep the phase stable.
-  if (!currentAsync.hasValue) return RoutingPhase.loading;
+  // Treat as loading while a rebuild is in flight AND the previous value
+  // was null (or we have no value yet). This covers:
+  //   - fresh app start (no value yet)
+  //   - the login transition (previous value was null from signed-out state,
+  //     now resolving against the freshly-loaded memberships)
+  //
+  // Once we have a non-null membership, subsequent `AsyncLoading`
+  // transitions (e.g. membership churn from invalidations) keep the
+  // previous value, so this guard doesn't fire — the phase stays `ready`
+  // and the user isn't bounced off whatever screen they're on.
+  if (currentAsync.isLoading && currentAsync.valueOrNull == null) {
+    return RoutingPhase.loading;
+  }
+  if (currentAsync.hasError) return RoutingPhase.loading;
   if (currentAsync.valueOrNull == null) return RoutingPhase.needsToPick;
 
   return RoutingPhase.ready;
