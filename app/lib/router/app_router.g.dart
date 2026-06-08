@@ -6,7 +6,7 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'28a98914eb71d607de11ff1f1962df46ef75e184';
+String _$appRouterHash() => r'60e8841450e7314249c96e63567ecd744a9f4e8e';
 
 /// The app router. Built once; reacts to auth + household state changes via
 /// `refreshListenable` (so the router instance itself doesn't get torn down).

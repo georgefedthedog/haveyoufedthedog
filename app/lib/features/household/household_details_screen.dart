@@ -1,0 +1,332 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pocketbase/pocketbase.dart';
+
+import '../../core/auth/auth_controller.dart';
+import '../../core/household/household_actions.dart';
+import '../../core/household/household_member.dart';
+import '../../core/household/household_members_controller.dart';
+import '../../core/household/household_membership.dart';
+import '../../core/household/household_memberships_controller.dart';
+import '../../router/routes.dart';
+import '../../widgets/build_label.dart';
+
+/// View / edit one household the user is a member of.
+class HouseholdDetailsScreen extends ConsumerWidget {
+  final String householdId;
+  const HouseholdDetailsScreen({super.key, required this.householdId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncMemberships = ref.watch(householdMembershipsControllerProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Household')),
+      body: asyncMemberships.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (memberships) {
+          HouseholdMembership? membership;
+          for (final m in memberships) {
+            if (m.householdId == householdId) {
+              membership = m;
+              break;
+            }
+          }
+          if (membership == null) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  "You're no longer a member of this household.",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+          return _Body(membership: membership);
+        },
+      ),
+      bottomNavigationBar: const SafeArea(child: BuildLabel()),
+    );
+  }
+}
+
+class _Body extends ConsumerWidget {
+  final HouseholdMembership membership;
+  const _Body({required this.membership});
+
+  Future<void> _rename(BuildContext context, WidgetRef ref) async {
+    final controller = TextEditingController(text: membership.householdName);
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Rename household'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Name'),
+          onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (newName == null ||
+        newName.isEmpty ||
+        newName == membership.householdName) {
+      return;
+    }
+    try {
+      await ref.read(householdActionsProvider).renameHousehold(
+            householdId: membership.householdId,
+            newName: newName,
+          );
+    } on ClientException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text(e.response['message'] as String? ?? 'Rename failed'),
+        ));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text('$e'),
+        ));
+      }
+    }
+  }
+
+  Future<void> _leave(BuildContext context, WidgetRef ref) async {
+    final confirmed = await _confirm(
+      context,
+      title: 'Leave ${membership.householdName}?',
+      body: "You won't see this household's chores or completions any more. "
+          'You can re-join later with an invite code.',
+      action: 'Leave',
+    );
+    if (!confirmed) return;
+    try {
+      await ref.read(householdActionsProvider).leaveHousehold(
+            membershipId: membership.membershipId,
+          );
+      if (context.mounted) context.go(Routes.home);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text('$e'),
+        ));
+      }
+    }
+  }
+
+  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await _confirm(
+      context,
+      title: 'Delete ${membership.householdName}?',
+      body: 'All subjects, chores and history for this household will be '
+          'permanently removed for everyone in it. This cannot be undone.',
+      action: 'Delete',
+    );
+    if (!confirmed) return;
+    try {
+      await ref.read(householdActionsProvider).deleteHousehold(
+            householdId: membership.householdId,
+          );
+      if (context.mounted) context.go(Routes.home);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text('$e'),
+        ));
+      }
+    }
+  }
+
+  Future<bool> _confirm(
+    BuildContext context, {
+    required String title,
+    required String body,
+    required String action,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(action),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isOwner = membership.isOwner;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.home_outlined),
+            title: Text(membership.householdName),
+            subtitle: Text('Your role: ${membership.role}'),
+            trailing: isOwner
+                ? IconButton(
+                    icon: const Icon(Icons.edit_outlined),
+                    tooltip: 'Rename',
+                    onPressed: () => _rename(context, ref),
+                  )
+                : null,
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text('Members', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        _MembersList(
+          householdId: membership.householdId,
+          viewerIsOwner: isOwner,
+        ),
+        const SizedBox(height: 24),
+        if (isOwner)
+          FilledButton.icon(
+            icon: const Icon(Icons.delete_outline),
+            label: const Text('Delete household'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => _delete(context, ref),
+          )
+        else
+          FilledButton.icon(
+            icon: const Icon(Icons.logout),
+            label: const Text('Leave household'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => _leave(context, ref),
+          ),
+      ],
+    );
+  }
+}
+
+class _MembersList extends ConsumerWidget {
+  final String householdId;
+  final bool viewerIsOwner;
+  const _MembersList({required this.householdId, required this.viewerIsOwner});
+
+  Future<void> _kick(
+    BuildContext context,
+    WidgetRef ref,
+    HouseholdMember m,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Remove ${m.displayName}?'),
+        content: Text(
+          '${m.displayName} will lose access to this household immediately. '
+          'They can re-join later with an invite code.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(householdActionsProvider).kickMember(
+            membershipId: m.membershipId,
+            householdId: householdId,
+          );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text('$e'),
+        ));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncMembers =
+        ref.watch(householdMembersControllerProvider(householdId));
+    final myUserId = ref.watch(authControllerProvider).userId;
+
+    return asyncMembers.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text('Could not load members: $e'),
+        ),
+      ),
+      data: (members) => Column(
+        children: [
+          for (final m in members)
+            Card(
+              child: ListTile(
+                leading: const CircleAvatar(child: Icon(Icons.person)),
+                title: Text(m.userId == myUserId
+                    ? '${m.displayName} (you)'
+                    : m.displayName),
+                subtitle: Text(m.role),
+                trailing: (viewerIsOwner && m.userId != myUserId)
+                    ? IconButton(
+                        icon: const Icon(Icons.person_remove_outlined),
+                        tooltip: 'Remove from household',
+                        onPressed: () => _kick(context, ref, m),
+                      )
+                    : null,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

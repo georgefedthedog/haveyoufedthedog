@@ -23,6 +23,10 @@ class Routes {
   /// Standalone Join-by-invite-code form, reachable from the picker.
   static const householdJoin = '/household-join';
 
+  /// View/edit a single household. Path parameter `id` is the household id.
+  static const householdDetailsPattern = '/household/:id';
+  static String householdDetails(String id) => '/household/$id';
+
   /// Authenticated with a current household resolved.
   static const home = '/';
 }

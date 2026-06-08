@@ -44,6 +44,12 @@ class HouseholdPickerScreen extends ConsumerWidget {
                       : const Icon(Icons.circle_outlined),
                   title: Text(m.householdName),
                   subtitle: Text(m.role),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.info_outline),
+                    tooltip: 'View / edit',
+                    onPressed: () =>
+                        context.push(Routes.householdDetails(m.householdId)),
+                  ),
                   onTap: () async {
                     await ref
                         .read(currentHouseholdControllerProvider.notifier)

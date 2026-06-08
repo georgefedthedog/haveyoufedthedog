@@ -19,6 +19,14 @@ PocketBase auth, no extras. Tokens are JWT and live ~30 days.
 The user record has these fields the app cares about: `id`, `email`, `name`
 (display name), `fcm_token` (the app writes this).
 
+**Visibility:** the `users` collection has `listRule` / `viewRule` set to
+`@request.auth.id != ""` — any authenticated user can read any user's
+public fields (`id`, `name`, `avatar`). `email` is hidden by PocketBase's
+built-in `emailVisibility` flag (defaults to false). `update`/`delete` rules
+stay locked to `id = @request.auth.id` so you can only modify your own
+record. This is needed so household members can see each other's display
+names; we revisit this if/when we need a stricter privacy boundary.
+
 ## Resources
 
 All resource records have PocketBase system fields: `id` (text, 15 chars,

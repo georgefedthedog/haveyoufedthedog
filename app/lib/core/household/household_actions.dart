@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
 import 'current_household_controller.dart';
+import 'household_members_controller.dart';
 import 'household_memberships_controller.dart';
 
 part 'household_actions.g.dart';
@@ -97,5 +98,46 @@ class HouseholdActions {
     _ref.invalidate(householdMembershipsControllerProvider);
     await _ref.read(currentHouseholdControllerProvider.notifier)
         .setCurrent(householdId);
+  }
+
+  /// Renames a household. Only owners should call this — the server's
+  /// `updateRule` enforces auth but not role, so we gate in the UI.
+  Future<void> renameHousehold({
+    required String householdId,
+    required String newName,
+  }) async {
+    final pb = _ref.read(pocketbaseClientProvider);
+    await pb.collection('households').update(householdId, body: {
+      'name': newName,
+    });
+    _ref.invalidate(householdMembershipsControllerProvider);
+  }
+
+  /// Removes the current user from a household by deleting their membership
+  /// row. If this was the current household, `CurrentHouseholdController`
+  /// will detect the stale persisted ID on next rebuild and fall back.
+  Future<void> leaveHousehold({required String membershipId}) async {
+    final pb = _ref.read(pocketbaseClientProvider);
+    await pb.collection('household_members').delete(membershipId);
+    _ref.invalidate(householdMembershipsControllerProvider);
+  }
+
+  /// Permanently deletes a household. PB cascade-deletes the membership
+  /// rows, subjects, chores, and completions belonging to it. Owners only.
+  Future<void> deleteHousehold({required String householdId}) async {
+    final pb = _ref.read(pocketbaseClientProvider);
+    await pb.collection('households').delete(householdId);
+    _ref.invalidate(householdMembershipsControllerProvider);
+  }
+
+  /// Removes another member from a household. The UI enforces that only
+  /// owners can do this and that they can't kick themselves.
+  Future<void> kickMember({
+    required String membershipId,
+    required String householdId,
+  }) async {
+    final pb = _ref.read(pocketbaseClientProvider);
+    await pb.collection('household_members').delete(membershipId);
+    _ref.invalidate(householdMembersControllerProvider(householdId));
   }
 }

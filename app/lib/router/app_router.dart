@@ -8,6 +8,7 @@ import '../core/household/household_memberships_controller.dart';
 import '../features/auth/auth_landing_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/household/create_household_screen.dart';
+import '../features/household/household_details_screen.dart';
 import '../features/household/household_picker_screen.dart';
 import '../features/household/household_setup_screen.dart';
 import '../features/household/join_household_screen.dart';
@@ -52,6 +53,12 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.householdJoin,
         builder: (context, state) => const JoinHouseholdScreen(),
+      ),
+      GoRoute(
+        path: Routes.householdDetailsPattern,
+        builder: (context, state) => HouseholdDetailsScreen(
+          householdId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: Routes.home,
