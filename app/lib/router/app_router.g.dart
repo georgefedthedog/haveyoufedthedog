@@ -6,9 +6,12 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'9b15c8c3d7a2f27ecb11bbc156cd6d8e7e298282';
+String _$appRouterHash() => r'3c65fdcd2658c03794f9ae6e1811e651f7c73f90';
 
-/// See also [appRouter].
+/// The app router. Built once; reacts to auth + household state changes via
+/// `refreshListenable` (so the router instance itself doesn't get torn down).
+///
+/// Copied from [appRouter].
 @ProviderFor(appRouter)
 final appRouterProvider = Provider<GoRouter>.internal(
   appRouter,
