@@ -42,12 +42,17 @@ class HouseholdMembershipsController extends _$HouseholdMembershipsController {
       try {
         final h = await pb.collection('households').getOne(hhId);
 
+        final inviteCodeRaw = h.data['invite_code'] as String?;
         result.add(
           HouseholdMembership(
             membershipId: m.id,
             householdId: hhId,
             householdName: h.data['name'] as String? ?? 'Unnamed household',
             role: m.data['role'] as String? ?? 'member',
+            inviteCode: (inviteCodeRaw != null && inviteCodeRaw.isNotEmpty)
+                ? inviteCodeRaw
+                : null,
+            invitesOpen: (h.data['invites_open'] as bool?) ?? false,
           ),
         );
       } catch (e) {
@@ -60,4 +65,32 @@ class HouseholdMembershipsController extends _$HouseholdMembershipsController {
   }
 
   Future<void> refresh() async => ref.invalidateSelf();
+
+  /// Updates one membership in place without going through `AsyncLoading`.
+  /// Used for actions that change a household's fields (rename, invite
+  /// settings) but don't change the LIST of memberships — so the router
+  /// doesn't bump the user to splash and back.
+  void updateOneInPlace({
+    required String householdId,
+    String? householdName,
+    String? inviteCode,
+    bool? invitesOpen,
+    bool clearInviteCode = false,
+  }) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    final updated = current.map((m) {
+      if (m.householdId != householdId) return m;
+      return HouseholdMembership(
+        membershipId: m.membershipId,
+        householdId: m.householdId,
+        householdName: householdName ?? m.householdName,
+        role: m.role,
+        inviteCode:
+            clearInviteCode ? null : (inviteCode ?? m.inviteCode),
+        invitesOpen: invitesOpen ?? m.invitesOpen,
+      );
+    }).toList();
+    state = AsyncData(updated);
+  }
 }

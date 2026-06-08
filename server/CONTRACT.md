@@ -92,17 +92,38 @@ unique), `created`, `updated` (ISO 8601 UTC).
 ### households
 - `name` (text, required)
 - `created_by` (relation → users, required)
+- `invite_code` (text, optional, unique when non-empty) — the single rotating join code
+- `invites_open` (bool) — gates whether `/api/custom/join-household-by-code` accepts the code
 
 ### household_members
 - `household` (relation → households, cascade-delete)
 - `user` (relation → users, cascade-delete)
 - `role` (`owner` | `member`)
 
-### household_invites
-- `household` (relation → households, cascade-delete)
-- `code` (text, ~8 chars, e.g. `KIKO-7H4P`)
-- `expires_at` (date, optional)
-- `created_by` (relation → users)
+### Joining via invite code
+
+There is no `household_invites` collection — invites live as two fields on
+the `households` record. To join, the app POSTs to a custom server endpoint:
+
+```
+POST /api/custom/join-household-by-code
+Authorization: <token>
+Content-Type: application/json
+
+{ "code": "ABCD-EFGH" }
+```
+
+Returns:
+
+- `200 { "householdId": "..." }` — joined (or already a member).
+- `200 { "householdId": "...", "alreadyMember": true }` — idempotent re-join.
+- `400 { "message": "Invite code is required." }` — empty body.
+- `401 { "message": "..." }` — not signed in.
+- `404 { "message": "No open household with that code." }` — code unknown
+  or `invites_open` is false.
+
+The hook (`server/pb_hooks/join.pb.js`) runs with elevated privileges, so
+non-members never need to read the `households` collection directly.
 
 ### household_member_details (View)
 - Read-only. Joins `household_members` + `users`.

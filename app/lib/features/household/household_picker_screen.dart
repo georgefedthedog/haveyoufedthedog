@@ -16,8 +16,10 @@ class HouseholdPickerScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncMemberships = ref.watch(householdMembershipsControllerProvider);
-    final currentId =
-        ref.watch(currentHouseholdControllerProvider).valueOrNull?.householdId;
+    final currentId = ref
+        .watch(currentHouseholdControllerProvider)
+        .valueOrNull
+        ?.householdId;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Your households')),

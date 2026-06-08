@@ -2,9 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../core/auth/auth_controller.dart';
-import '../core/household/current_household_controller.dart';
-import '../core/household/household_memberships_controller.dart';
 import '../features/auth/auth_landing_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/household/create_household_screen.dart';
@@ -14,12 +11,12 @@ import '../features/household/household_setup_screen.dart';
 import '../features/household/join_household_screen.dart';
 import '../features/splash/splash_screen.dart';
 import 'router_refresh_notifier.dart';
+import 'routing_phase.dart';
 import 'routes.dart';
 
 part 'app_router.g.dart';
 
-/// The app router. Built once; reacts to auth + household state changes via
-/// `refreshListenable` (so the router instance itself doesn't get torn down).
+/// The app router. Built once; reacts to routing-phase changes only.
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
   final refresh = RouterRefreshNotifier(ref);
@@ -68,48 +65,33 @@ GoRouter appRouter(Ref ref) {
   );
 }
 
-/// Redirect logic. Reads the current state of the relevant providers and
-/// returns the route the user should be at, or `null` if they're already
-/// at the right place.
+/// One switch over [RoutingPhase]. The phase is the only thing the router
+/// reads, so any state churn that doesn't change the phase (e.g. an invite
+/// code rotation) leaves the redirect alone.
 String? _redirect(Ref ref, String loc) {
-  // 1. Not signed in.
-  final auth = ref.read(authControllerProvider);
-  if (!auth.isAuthenticated) {
-    return loc == Routes.auth ? null : Routes.auth;
-  }
+  switch (ref.read(routingPhaseProvider)) {
+    case RoutingPhase.loading:
+      return loc == Routes.splash ? null : Routes.splash;
 
-  // 2. Memberships not loaded yet (or errored — show splash).
-  final memberships = ref.read(householdMembershipsControllerProvider);
-  if (memberships.isLoading || memberships.hasError) {
-    return loc == Routes.splash ? null : Routes.splash;
-  }
-  final list = memberships.requireValue;
+    case RoutingPhase.signedOut:
+      return loc == Routes.auth ? null : Routes.auth;
 
-  // 3. Zero memberships → forced to setup.
-  if (list.isEmpty) {
-    return loc == Routes.householdSetup ? null : Routes.householdSetup;
-  }
+    case RoutingPhase.needsHousehold:
+      return loc == Routes.householdSetup ? null : Routes.householdSetup;
 
-  // 4. Current household not yet resolved.
-  final current = ref.read(currentHouseholdControllerProvider);
-  if (current.isLoading) {
-    return loc == Routes.splash ? null : Routes.splash;
-  }
-  final currentValue = current.valueOrNull;
+    case RoutingPhase.needsToPick:
+      return loc == Routes.householdPicker ? null : Routes.householdPicker;
 
-  // 5. 2+ memberships with no valid persisted choice → forced to picker.
-  if (currentValue == null) {
-    return loc == Routes.householdPicker ? null : Routes.householdPicker;
+    case RoutingPhase.ready:
+      // Bounce off the forced gates if the user somehow lands on them
+      // while already set up. Picker / create / join / details are
+      // voluntary destinations from /home and stay accessible.
+      const forcedGates = {
+        Routes.splash,
+        Routes.auth,
+        Routes.householdSetup,
+      };
+      if (forcedGates.contains(loc)) return Routes.home;
+      return null;
   }
-
-  // 6. Fully set up. Bounce off "forced" gate screens, but NOT off the
-  //    picker, create, or join — those are also reachable voluntarily from
-  //    the home screen.
-  const forcedGates = {
-    Routes.splash,
-    Routes.auth,
-    Routes.householdSetup,
-  };
-  if (forcedGates.contains(loc)) return Routes.home;
-  return null;
 }

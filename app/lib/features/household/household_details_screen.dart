@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -207,6 +208,8 @@ class _Body extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 24),
+        _InviteSettings(membership: membership),
+        const SizedBox(height: 24),
         Text('Members', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _MembersList(
@@ -235,6 +238,144 @@ class _Body extends ConsumerWidget {
             onPressed: () => _leave(context, ref),
           ),
       ],
+    );
+  }
+}
+
+class _InviteSettings extends ConsumerStatefulWidget {
+  final HouseholdMembership membership;
+  const _InviteSettings({required this.membership});
+
+  @override
+  ConsumerState<_InviteSettings> createState() => _InviteSettingsState();
+}
+
+class _InviteSettingsState extends ConsumerState<_InviteSettings> {
+  bool _busy = false;
+
+  Future<void> _toggle(bool open) async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(householdActionsProvider).setInvitesOpen(
+            householdId: widget.membership.householdId,
+            open: open,
+          );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text('$e'),
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _rotate() async {
+    setState(() => _busy = true);
+    try {
+      await ref
+          .read(householdActionsProvider)
+          .rotateInviteCode(widget.membership.householdId);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: Text('$e'),
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _copy(String code) async {
+    await Clipboard.setData(ClipboardData(text: code));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text('Copied $code'),
+      ));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isOwner = widget.membership.isOwner;
+    final isOpen = widget.membership.invitesOpen;
+    final code = widget.membership.inviteCode;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.mail_outline),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Open to new members',
+                          style: Theme.of(context).textTheme.titleSmall),
+                      Text(
+                        isOwner
+                            ? 'Turning this on generates a fresh invite code.'
+                            : 'Only an owner can change this.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: isOpen,
+                  onChanged: (isOwner && !_busy) ? _toggle : null,
+                ),
+              ],
+            ),
+            if (isOpen && code != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        code,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 22,
+                          letterSpacing: 3,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.copy_outlined),
+                      tooltip: 'Copy',
+                      onPressed: _busy ? null : () => _copy(code),
+                    ),
+                    if (isOwner)
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        tooltip: 'Rotate code',
+                        onPressed: _busy ? null : _rotate,
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

@@ -11,19 +11,17 @@ String _$currentHouseholdControllerHash() =>
 
 /// Picks the currently-active household for the signed-in user.
 ///
-/// Resolution rules:
-/// - If a persisted household ID is in the user's current membership list,
-///   that one wins.
-/// - If the persisted ID is no longer valid (e.g. household deleted, user
-///   removed) we clear it and fall back to the other rules.
-/// - If there is exactly one membership, auto-select it and persist.
-/// - Otherwise (0 memberships, or 2+ with no valid persisted choice) we
-///   return `null` so the router can send the user to setup or the picker.
+/// Async — consistent with the rest of the data-fetching controllers. The
+/// router's `routingPhase` provider buffers this controller's transient
+/// `AsyncLoading` states so deep state churn doesn't bounce the user off
+/// the screen they're on.
 ///
-/// **State-management notes:** the only `ref.watch` is `householdMemberships
-/// ControllerProvider.future`, called synchronously before any other `await`,
-/// so dependency tracking stays clean. `setCurrent` and `clear` use
-/// `ref.read` because they're imperative methods, not part of `build()`.
+/// Resolution rules:
+/// - If a persisted household ID is in the user's current memberships, use it.
+/// - If the persisted ID is no longer valid, clear it and fall back.
+/// - If there's exactly one membership, auto-select it and persist.
+/// - Otherwise (0 memberships, or 2+ with no valid persisted choice) return
+///   `null` and let the router send the user to setup or picker.
 ///
 /// Copied from [CurrentHouseholdController].
 @ProviderFor(CurrentHouseholdController)

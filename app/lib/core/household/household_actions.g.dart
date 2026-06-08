@@ -8,10 +8,7 @@ part of 'household_actions.dart';
 
 String _$householdActionsHash() => r'af6ac650709197f77066fbff43aaf0305dacfc93';
 
-/// Side-effect provider exposing imperative household operations: create a
-/// new household, or join one by invite code. After a successful action we
-/// invalidate the memberships and current-household controllers so the
-/// router redirects the user to the right place.
+/// Side-effect provider exposing imperative household operations.
 ///
 /// Copied from [householdActions].
 @ProviderFor(householdActions)

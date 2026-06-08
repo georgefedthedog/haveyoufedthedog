@@ -679,110 +679,6 @@
     "system": false
   },
   {
-    "id": "pbc_household_invites",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
-    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
-    "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
-    "name": "household_invites",
-    "type": "base",
-    "fields": [
-      {
-        "autogeneratePattern": "[a-z0-9]{15}",
-        "help": "",
-        "hidden": false,
-        "id": "text_hi_id_0000000003",
-        "max": 15,
-        "min": 15,
-        "name": "id",
-        "pattern": "^[a-z0-9]+$",
-        "presentable": false,
-        "primaryKey": true,
-        "required": true,
-        "system": true,
-        "type": "text"
-      },
-      {
-        "cascadeDelete": true,
-        "collectionId": "pbc_households",
-        "help": "",
-        "hidden": false,
-        "id": "rel_hi_household_00003",
-        "maxSelect": 1,
-        "minSelect": 1,
-        "name": "household",
-        "presentable": false,
-        "required": true,
-        "system": false,
-        "type": "relation"
-      },
-      {
-        "autogeneratePattern": "",
-        "help": "",
-        "hidden": false,
-        "id": "text_hi_code_000000003",
-        "max": 32,
-        "min": 4,
-        "name": "code",
-        "pattern": "",
-        "presentable": true,
-        "primaryKey": false,
-        "required": true,
-        "system": false,
-        "type": "text"
-      },
-      {
-        "help": "",
-        "hidden": false,
-        "id": "date_hi_expires_000003",
-        "max": "",
-        "min": "",
-        "name": "expires_at",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "date"
-      },
-      {
-        "cascadeDelete": false,
-        "collectionId": "_pb_users_auth_",
-        "help": "",
-        "hidden": false,
-        "id": "rel_hi_createdby_00003",
-        "maxSelect": 1,
-        "minSelect": 1,
-        "name": "created_by",
-        "presentable": false,
-        "required": true,
-        "system": false,
-        "type": "relation"
-      },
-      {
-        "hidden": false,
-        "id": "autodate_hi_created_003",
-        "name": "created",
-        "onCreate": true,
-        "onUpdate": false,
-        "presentable": false,
-        "system": false,
-        "type": "autodate"
-      },
-      {
-        "hidden": false,
-        "id": "autodate_hi_updated_003",
-        "name": "updated",
-        "onCreate": true,
-        "onUpdate": true,
-        "presentable": false,
-        "system": false,
-        "type": "autodate"
-      }
-    ],
-    "indexes": [],
-    "system": false
-  },
-  {
     "id": "pbc_household_members",
     "listRule": "user = @request.auth.id",
     "viewRule": "user = @request.auth.id",
@@ -926,6 +822,31 @@
         "type": "relation"
       },
       {
+        "autogeneratePattern": "",
+        "help": "Single rotating invite code for joining this household. Cleared when invites_open is false.",
+        "hidden": false,
+        "id": "text_hh_invitecode_001",
+        "max": 32,
+        "min": 0,
+        "name": "invite_code",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "help": "When true, anyone with the invite_code can join via the join-household-by-code endpoint.",
+        "hidden": false,
+        "id": "bool_hh_invitesopen_001",
+        "name": "invites_open",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
         "hidden": false,
         "id": "autodate_hh_created_001",
         "name": "created",
@@ -946,7 +867,9 @@
         "type": "autodate"
       }
     ],
-    "indexes": [],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_households_invite_code` ON `households` (`invite_code`) WHERE `invite_code` != ''"
+    ],
     "system": false
   },
   {

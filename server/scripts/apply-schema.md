@@ -4,7 +4,37 @@ PB admin UI's import flow is the source of truth for schema changes. We
 don't automate it because PB's diff/merge behavior is opinionated and the
 live data is sacred.
 
-## Tightening the security rules (you are here)
+## Switching to the single-code-per-household invite model
+
+1. **Drop the `household_invites` collection.** Admin UI → Collections →
+   `household_invites` → ⚙ → "..." → Delete collection.
+2. **Add two fields to `households`:**
+   - `invite_code` — Text, optional, Max 32.
+   - `invites_open` — Boolean, default false.
+3. **Add a partial unique index on `households.invite_code`** so two
+   households can't share the same code (and empty codes don't conflict):
+   - Indexes section → New index → Custom SQL:
+     ```sql
+     CREATE UNIQUE INDEX `idx_households_invite_code`
+     ON `households` (`invite_code`)
+     WHERE `invite_code` != ''
+     ```
+4. **Deploy the new join hook** from your dev machine:
+   ```bash
+   bash server/scripts/deploy-hooks.sh
+   ```
+   This copies both `pb_hooks/notify.pb.js` and `pb_hooks/join.pb.js` to the
+   server and restarts PocketBase.
+5. Test the endpoint with `curl`:
+   ```bash
+   curl -X POST https://api.haveyoufedthedog.com/api/custom/join-household-by-code \
+     -H "Content-Type: application/json" \
+     -H "Authorization: $TOKEN" \
+     -d '{"code":"FAKE-CODE"}'
+   # → 404 {"message":"No open household with that code."}
+   ```
+
+## Tightening the security rules (legacy notes)
 
 Apply these in the PB admin UI under `Collections → <collection> → API
 rules` for each collection listed.

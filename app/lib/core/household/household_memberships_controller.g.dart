@@ -7,7 +7,7 @@ part of 'household_memberships_controller.dart';
 // **************************************************************************
 
 String _$householdMembershipsControllerHash() =>
-    r'72314ac19293baab5d17bfcad29659f64a539923';
+    r'a0d00de107a2182302dba1c6d2e9da603b1a40b9';
 
 /// Loads the current user's household memberships from PocketBase. Rebuilds
 /// when auth state changes (login / logout / signup).

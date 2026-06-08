@@ -14,11 +14,20 @@ class HouseholdMembership {
   /// `owner` or `member` — server-side enum.
   final String role;
 
+  /// Current rotating invite code, or null when invites are closed.
+  /// Only meaningful when [invitesOpen] is true.
+  final String? inviteCode;
+
+  /// Whether new members can join right now.
+  final bool invitesOpen;
+
   const HouseholdMembership({
     required this.membershipId,
     required this.householdId,
     required this.householdName,
     required this.role,
+    required this.inviteCode,
+    required this.invitesOpen,
   });
 
   bool get isOwner => role == 'owner';

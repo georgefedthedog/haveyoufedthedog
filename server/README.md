@@ -22,6 +22,7 @@ openapi.yaml              derived from pb_schema.json via tools/pb-to-openapi/
 CONTRACT.md               human-readable description of the server contract
 
 pb_hooks/notify.pb.js     fires on completions create, calls push-notifier
+pb_hooks/join.pb.js       custom POST /api/custom/join-household-by-code endpoint
 
 services/push-notifier/   Node Express service, relays to FCM
   index.js
