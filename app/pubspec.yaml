@@ -1,7 +1,7 @@
 name: haveyoufedthedog
 description: "Have you fed the dog yet?"
 publish_to: 'none'
-version: 0.4.0+1
+version: 0.4.0+2
 
 environment:
   sdk: ^3.12.1
@@ -16,6 +16,7 @@ dependencies:
   package_info_plus: ^8.0.2
   pocketbase: ^0.22.0
   flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:
