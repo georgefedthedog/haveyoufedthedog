@@ -5,23 +5,25 @@ import 'package:pocketbase/pocketbase.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../widgets/password_field.dart';
 
-/// The email + password fields, the submit button, and the in-progress state.
-/// No layout chrome — the screen wraps it in a Scaffold.
-class LoginForm extends ConsumerStatefulWidget {
-  const LoginForm({super.key});
+/// Display name + email + password + submit. On success, PB signs the new
+/// user in immediately; the router redirect handles the navigation.
+class SignupForm extends ConsumerStatefulWidget {
+  const SignupForm({super.key});
 
   @override
-  ConsumerState<LoginForm> createState() => _LoginFormState();
+  ConsumerState<SignupForm> createState() => _SignupFormState();
 }
 
-class _LoginFormState extends ConsumerState<LoginForm> {
+class _SignupFormState extends ConsumerState<SignupForm> {
   final _formKey = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _busy = false;
 
   @override
   void dispose() {
+    _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
@@ -31,13 +33,13 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _busy = true);
     try {
-      await ref.read(authControllerProvider.notifier).login(
+      await ref.read(authControllerProvider.notifier).signup(
             email: _emailCtrl.text.trim(),
             password: _passwordCtrl.text,
+            displayName: _nameCtrl.text.trim(),
           );
-      // Router will redirect to /home automatically because auth state changed.
     } on ClientException catch (e) {
-      final msg = e.response['message'] as String? ?? 'Login failed';
+      final msg = e.response['message'] as String? ?? 'Signup failed';
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(showCloseIcon: true, content: Text(msg)),
@@ -46,7 +48,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text('Login failed: $e')),
+          SnackBar(showCloseIcon: true, content: Text('Signup failed: $e')),
         );
       }
     } finally {
@@ -63,20 +65,35 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         children: [
           const SizedBox(height: 16),
           TextFormField(
+            controller: _nameCtrl,
+            decoration: const InputDecoration(
+              labelText: 'Your name',
+              hintText: 'Shown next to your completions',
+            ),
+            autofillHints: const [AutofillHints.name],
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
+            validator: (v) =>
+                (v == null || v.trim().isEmpty) ? 'Required' : null,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
             controller: _emailCtrl,
             decoration: const InputDecoration(labelText: 'Email'),
             keyboardType: TextInputType.emailAddress,
             autofillHints: const [AutofillHints.email],
             textInputAction: TextInputAction.next,
             validator: (v) =>
-                (v == null || !v.contains('@')) ? 'Enter your email' : null,
+                (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
           ),
           const SizedBox(height: 16),
           PasswordField(
             controller: _passwordCtrl,
+            helperText: 'At least 8 characters',
+            autofillHints: const [AutofillHints.newPassword],
             onFieldSubmitted: (_) => _submit(),
             validator: (v) =>
-                (v == null || v.isEmpty) ? 'Enter your password' : null,
+                (v == null || v.length < 8) ? 'At least 8 characters' : null,
           ),
           const SizedBox(height: 24),
           FilledButton(
@@ -87,7 +104,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Log in'),
+                : const Text('Sign up'),
           ),
         ],
       ),

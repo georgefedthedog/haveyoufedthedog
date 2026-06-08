@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/auth/auth_controller.dart';
-import '../features/auth/login_screen.dart';
+import '../features/auth/auth_landing_screen.dart';
 import '../features/home/home_screen.dart';
 import 'routes.dart';
 
@@ -17,11 +17,11 @@ GoRouter appRouter(Ref ref) {
   final auth = ref.watch(authControllerProvider);
 
   return GoRouter(
-    initialLocation: auth.isAuthenticated ? Routes.home : Routes.login,
+    initialLocation: auth.isAuthenticated ? Routes.home : Routes.auth,
     redirect: (context, state) {
-      final goingToLogin = state.matchedLocation == Routes.login;
-      if (!auth.isAuthenticated && !goingToLogin) return Routes.login;
-      if (auth.isAuthenticated && goingToLogin) return Routes.home;
+      final goingToAuth = state.matchedLocation == Routes.auth;
+      if (!auth.isAuthenticated && !goingToAuth) return Routes.auth;
+      if (auth.isAuthenticated && goingToAuth) return Routes.home;
       return null;
     },
     routes: [
@@ -30,8 +30,8 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
-        path: Routes.login,
-        builder: (context, state) => const LoginScreen(),
+        path: Routes.auth,
+        builder: (context, state) => const AuthLandingScreen(),
       ),
     ],
   );

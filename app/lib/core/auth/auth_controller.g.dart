@@ -6,7 +6,7 @@ part of 'auth_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authControllerHash() => r'd016d7738f715764eb30690351291b5317151021';
+String _$authControllerHash() => r'7482deecb064b835fb7de50ce1f5c1efbf41a9c1';
 
 /// Tracks the current PB auth state and exposes login / signup / logout.
 ///
