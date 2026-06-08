@@ -30,16 +30,59 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(householdName),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Switch household',
-            onPressed: () => context.push(Routes.householdPicker),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Log out (temporary)',
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).logout(),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu',
+            onSelected: (value) {
+              switch (value) {
+                case 'profile':
+                  context.push(Routes.profile);
+                case 'manage':
+                  final id = asyncCurrent.valueOrNull?.id;
+                  if (id != null) {
+                    context.push(Routes.householdDetails(id));
+                  }
+                case 'switch':
+                  context.push(Routes.householdPicker);
+                case 'logout':
+                  ref.read(authControllerProvider.notifier).logout();
+              }
+            },
+            itemBuilder: (_) {
+              final hasHousehold = asyncCurrent.valueOrNull != null;
+              return [
+                const PopupMenuItem(
+                  value: 'profile',
+                  child: ListTile(
+                    leading: Icon(Icons.person_outline),
+                    title: Text('Edit profile'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'manage',
+                  enabled: hasHousehold,
+                  child: const ListTile(
+                    leading: Icon(Icons.home_outlined),
+                    title: Text('Manage household'),
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'switch',
+                  child: ListTile(
+                    leading: Icon(Icons.swap_horiz),
+                    title: Text('Switch household'),
+                  ),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: 'logout',
+                  child: ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text('Log out'),
+                  ),
+                ),
+              ];
+            },
           ),
         ],
       ),

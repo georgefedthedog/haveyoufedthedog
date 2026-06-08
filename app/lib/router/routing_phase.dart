@@ -24,10 +24,9 @@ enum RoutingPhase {
   /// No valid session. Show login / signup.
   signedOut,
 
-  /// Authenticated but the user has zero households. Force setup.
-  needsHousehold,
-
-  /// Authenticated, 2+ households, no current chosen. Force picker.
+  /// Authenticated, but no household is currently selected. Either the
+  /// user has zero households (empty state with Create/Join), or 2+ and
+  /// none persisted. The picker handles both cases.
   needsToPick,
 
   /// Fully resolved — the user has a current household. Show app routes.
@@ -51,7 +50,7 @@ RoutingPhase routingPhase(Ref ref) {
     return RoutingPhase.loading;
   }
   final list = households.requireValue;
-  if (list.isEmpty) return RoutingPhase.needsHousehold;
+  if (list.isEmpty) return RoutingPhase.needsToPick;
 
   final currentAsync = ref.watch(currentHouseholdControllerProvider);
   // Treat as loading while a rebuild is in flight AND the previous value

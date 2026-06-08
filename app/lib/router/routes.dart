@@ -9,12 +9,9 @@ class Routes {
   /// Login + signup tabs. For unauthenticated users.
   static const auth = '/auth';
 
-  /// Authenticated but the user has no household memberships yet.
-  /// Forced landing: Create / Join only, nothing else to do.
-  static const householdSetup = '/household-setup';
-
-  /// List of the user's households. Forced when 2+ memberships and no current
-  /// selection; voluntary when invoked from the home screen's "switch" button.
+  /// List of the user's households. Forced landing when no current
+  /// household is selected (zero memberships or 2+ with none persisted);
+  /// voluntary when reached from the home screen's "Switch household" menu.
   static const householdPicker = '/household-picker';
 
   /// Standalone Create-a-new-household form, reachable from the picker.
@@ -29,6 +26,9 @@ class Routes {
 
   /// Authenticated with a current household resolved.
   static const home = '/';
+
+  /// Edit profile — display name, email (read-only), log out.
+  static const profile = '/profile';
 
   /// Create a new subject in the current household.
   static const subjectNew = '/subject/new';

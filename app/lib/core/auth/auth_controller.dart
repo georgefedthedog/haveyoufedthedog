@@ -66,4 +66,24 @@ class AuthController extends _$AuthController {
     final pb = await ref.read(pocketbaseClientProvider.future);
     pb.authStore.clear();
   }
+
+  /// Updates editable profile fields on the signed-in user.
+  ///
+  /// Doesn't trigger an `AuthState` rebuild — [AuthState] compares on
+  /// `(isAuthenticated, userId)` only, so name/avatar changes don't
+  /// invalidate downstream watchers. Screens reading `auth.displayName`
+  /// see the new value on their next read because the underlying
+  /// `authStore.record` data was mutated in place.
+  Future<void> updateProfile({String? name}) async {
+    final pb = await ref.read(pocketbaseClientProvider.future);
+    final auth = await ref.read(authControllerProvider.future);
+    final userId = auth.userId;
+    if (userId == null) {
+      throw StateError('Cannot update profile when signed out.');
+    }
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (body.isEmpty) return;
+    await pb.collection('users').update(userId, body: body);
+  }
 }

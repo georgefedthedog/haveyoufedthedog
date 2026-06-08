@@ -58,17 +58,13 @@ class HouseholdDetailsScreen extends ConsumerWidget {
           appBar: AppBar(
             title: Text(household.name),
             actions: [
-              IconButton(
-                icon: Icon(household.isOwner
-                    ? Icons.delete_outline
-                    : Icons.logout),
-                tooltip: household.isOwner
-                    ? 'Delete household'
-                    : 'Leave household',
-                onPressed: () => household.isOwner
-                    ? _confirmAndDelete(context, ref, household)
-                    : _confirmAndLeave(context, ref, household),
-              ),
+              if (household.isOwner)
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Delete household',
+                  onPressed: () =>
+                      _confirmAndDelete(context, ref, household),
+                ),
             ],
           ),
           body: _Body(household: household),
@@ -159,91 +155,126 @@ Future<bool> _confirm(
   return result ?? false;
 }
 
-class _Body extends ConsumerWidget {
+class _Body extends ConsumerStatefulWidget {
   final Household household;
   const _Body({required this.household});
 
-  Future<void> _rename(BuildContext context, WidgetRef ref) async {
-    final controller = TextEditingController(text: household.name);
-    final newName = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Rename household'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(labelText: 'Name'),
-          onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    if (newName == null ||
-        newName.isEmpty ||
-        newName == household.name) {
-      return;
-    }
-    try {
-      await ref.read(householdActionsProvider).renameHousehold(
-            householdId: household.id,
-            newName: newName,
-          );
-    } on ClientException catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text(e.response['message'] as String? ?? 'Rename failed'),
-        ));
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text('$e'),
-        ));
-      }
+  @override
+  ConsumerState<_Body> createState() => _BodyState();
+}
+
+class _BodyState extends ConsumerState<_Body> {
+  final _nameCtrl = TextEditingController();
+  String _seededName = '';
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameCtrl.text = widget.household.name;
+    _seededName = widget.household.name;
+  }
+
+  @override
+  void didUpdateWidget(covariant _Body oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the household's name changed under us (e.g. another member
+    // renamed it and a refresh brought the new value in) — and the user
+    // isn't mid-edit on the field — re-seed.
+    if (widget.household.name != oldWidget.household.name &&
+        _nameCtrl.text == _seededName) {
+      _nameCtrl.text = widget.household.name;
+      _seededName = widget.household.name;
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isOwner = household.isOwner;
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.home_outlined),
-            title: Text(household.name),
-            subtitle: Text('Your role: ${household.role}'),
-            trailing: isOwner
-                ? IconButton(
-                    icon: const Icon(Icons.edit_outlined),
-                    tooltip: 'Rename',
-                    onPressed: () => _rename(context, ref),
-                  )
-                : null,
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _isDirty {
+    final trimmed = _nameCtrl.text.trim();
+    return trimmed.isNotEmpty && trimmed != widget.household.name;
+  }
+
+  Future<void> _saveName() async {
+    final newName = _nameCtrl.text.trim();
+    if (newName.isEmpty || newName == widget.household.name) return;
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(householdActionsProvider).renameHousehold(
+            householdId: widget.household.id,
+            newName: newName,
+          );
+      _seededName = newName;
+    } on ClientException catch (e) {
+      messenger.showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text(e.response['message'] as String? ?? 'Rename failed'),
+      ));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text('$e'),
+      ));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final h = widget.household;
+    final isOwner = h.isOwner;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(householdMembersControllerProvider(h.id));
+        await ref
+            .read(householdMembersControllerProvider(h.id).future);
+      },
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          TextField(
+            controller: _nameCtrl,
+            enabled: isOwner && !_busy,
+            decoration: const InputDecoration(
+              labelText: 'Household name',
+            ),
+            textInputAction: TextInputAction.done,
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) {
+              if (isOwner && _isDirty) _saveName();
+            },
           ),
-        ),
-        const SizedBox(height: 24),
-        _InviteSettings(household: household),
-        const SizedBox(height: 24),
-        Text('Members', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        _MembersList(
-          householdId: household.id,
-          viewerIsOwner: isOwner,
-        ),
-      ],
+          if (isOwner) ...[
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              icon: const Icon(Icons.check),
+              label: const Text('Save changes'),
+              onPressed: (_isDirty && !_busy) ? _saveName : null,
+            ),
+          ],
+          const SizedBox(height: 16),
+          Text(
+            'Your role: ${h.role}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 24),
+          _InviteSettings(household: h),
+          const SizedBox(height: 24),
+          Text('Members', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          _MembersList(
+            household: h,
+            viewerIsOwner: isOwner,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -387,9 +418,9 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
 }
 
 class _MembersList extends ConsumerWidget {
-  final String householdId;
+  final Household household;
   final bool viewerIsOwner;
-  const _MembersList({required this.householdId, required this.viewerIsOwner});
+  const _MembersList({required this.household, required this.viewerIsOwner});
 
   Future<void> _kick(
     BuildContext context,
@@ -424,7 +455,7 @@ class _MembersList extends ConsumerWidget {
     try {
       await ref.read(householdActionsProvider).kickMember(
             membershipId: m.membershipId,
-            householdId: householdId,
+            householdId: household.id,
           );
     } catch (e) {
       if (context.mounted) {
@@ -439,7 +470,7 @@ class _MembersList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncMembers =
-        ref.watch(householdMembersControllerProvider(householdId));
+        ref.watch(householdMembersControllerProvider(household.id));
     final myUserId =
         ref.watch(authControllerProvider).valueOrNull?.userId;
 
@@ -457,22 +488,36 @@ class _MembersList extends ConsumerWidget {
       data: (members) => Column(
         children: [
           for (final m in members)
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(child: Icon(Icons.person)),
-                title: Text(m.userId == myUserId
-                    ? '${m.displayName} (you)'
-                    : m.displayName),
-                subtitle: Text(m.role),
-                trailing: (viewerIsOwner && m.userId != myUserId)
-                    ? IconButton(
-                        icon: const Icon(Icons.person_remove_outlined),
-                        tooltip: 'Remove from household',
-                        onPressed: () => _kick(context, ref, m),
-                      )
-                    : null,
-              ),
-            ),
+            Builder(builder: (rowContext) {
+              final isMe = m.userId == myUserId;
+              // Owners can remove others; non-owners can remove themselves
+              // (= leave the household). An owner viewing their own row
+              // gets nothing — to step away they delete the household.
+              final canKick = viewerIsOwner && !isMe;
+              final canLeave = !viewerIsOwner && isMe;
+              return Card(
+                child: ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(isMe ? '${m.displayName} (you)' : m.displayName),
+                  subtitle: Text(m.role),
+                  trailing: (canKick || canLeave)
+                      ? IconButton(
+                          icon: const Icon(Icons.person_remove_outlined),
+                          tooltip: canKick
+                              ? 'Remove from household'
+                              : 'Leave household',
+                          onPressed: canKick
+                              ? () => _kick(rowContext, ref, m)
+                              : () => _confirmAndLeave(
+                                    rowContext,
+                                    ref,
+                                    household,
+                                  ),
+                        )
+                      : null,
+                ),
+              );
+            }),
         ],
       ),
     );

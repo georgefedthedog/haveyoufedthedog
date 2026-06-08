@@ -7,10 +7,10 @@ import '../features/home/home_screen.dart';
 import '../features/household/create_household_screen.dart';
 import '../features/household/household_details_screen.dart';
 import '../features/household/household_picker_screen.dart';
-import '../features/household/household_setup_screen.dart';
 import '../features/household/join_household_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/chores/edit_chore_screen.dart';
+import '../features/profile/edit_profile_screen.dart';
 import '../features/subjects/edit_subject_screen.dart';
 import '../features/subjects/subject_detail_screen.dart';
 import 'router_refresh_notifier.dart';
@@ -39,10 +39,6 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const AuthLandingScreen(),
       ),
       GoRoute(
-        path: Routes.householdSetup,
-        builder: (context, state) => const HouseholdSetupScreen(),
-      ),
-      GoRoute(
         path: Routes.householdPicker,
         builder: (context, state) => const HouseholdPickerScreen(),
       ),
@@ -63,6 +59,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: Routes.profile,
+        builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
         path: Routes.subjectNew,
@@ -107,11 +107,19 @@ String? _redirect(Ref ref, String loc) {
     case RoutingPhase.signedOut:
       return loc == Routes.auth ? null : Routes.auth;
 
-    case RoutingPhase.needsHousehold:
-      return loc == Routes.householdSetup ? null : Routes.householdSetup;
-
     case RoutingPhase.needsToPick:
-      return loc == Routes.householdPicker ? null : Routes.householdPicker;
+      // Allow `/household-create`, `/household-join` and `/profile` even
+      // in this phase. Create/Join wire the picker's primary buttons;
+      // profile is the escape hatch (log out) for users stuck with zero
+      // households.
+      const allowedInPickerPhase = {
+        Routes.householdPicker,
+        Routes.householdCreate,
+        Routes.householdJoin,
+        Routes.profile,
+      };
+      if (allowedInPickerPhase.contains(loc)) return null;
+      return Routes.householdPicker;
 
     case RoutingPhase.ready:
       // Bounce off the forced gates if the user somehow lands on them
@@ -120,7 +128,6 @@ String? _redirect(Ref ref, String loc) {
       const forcedGates = {
         Routes.splash,
         Routes.auth,
-        Routes.householdSetup,
       };
       if (forcedGates.contains(loc)) return Routes.home;
       return null;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/households_controller.dart';
 import '../../router/routes.dart';
@@ -33,6 +34,39 @@ class HouseholdPickerScreen extends ConsumerWidget {
               ? context.pop()
               : context.go(Routes.home),
         ),
+        actions: [
+          // Escape hatch for users in the forced-picker state (0 households)
+          // who need to update their profile or log out.
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu',
+            onSelected: (value) {
+              switch (value) {
+                case 'profile':
+                  context.push(Routes.profile);
+                case 'logout':
+                  ref.read(authControllerProvider.notifier).logout();
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'profile',
+                child: ListTile(
+                  leading: Icon(Icons.person_outline),
+                  title: Text('Edit profile'),
+                ),
+              ),
+              PopupMenuDivider(),
+              PopupMenuItem(
+                value: 'logout',
+                child: ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Log out'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: asyncHouseholds.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -57,12 +91,6 @@ class HouseholdPickerScreen extends ConsumerWidget {
                       : const Icon(Icons.circle_outlined),
                   title: Text(h.name),
                   subtitle: Text(h.role),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.info_outline),
-                    tooltip: 'View / edit',
-                    onPressed: () =>
-                        context.push(Routes.householdDetails(h.id)),
-                  ),
                   onTap: () async {
                     await ref
                         .read(currentHouseholdControllerProvider.notifier)
