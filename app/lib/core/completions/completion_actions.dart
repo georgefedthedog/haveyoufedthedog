@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
+import '../chores/chore.dart';
 import 'completion.dart';
 import 'recent_completions_controller.dart';
 import 'today_completions_controller.dart';
@@ -62,6 +63,69 @@ class CompletionActions {
     } catch (_) {}
     await pb.collection('completions').delete(completionId);
     _bump(subjectId);
+  }
+
+  /// Picks the best chore for [subjectId] right now and logs it, attributed
+  /// to [source]. Used by NFC quick-log.
+  ///
+  /// "Best" = active, due today, not already logged today. Overdue chores
+  /// win first (latest-scheduled overdue wins among overdue), otherwise
+  /// the next scheduled one wins.
+  ///
+  /// Returns the chosen [Chore] paired with the new [Completion], or null
+  /// if there's nothing left to log (everything caught up for today).
+  Future<({Chore chore, Completion completion})?> logBestChoreFor(
+    String subjectId, {
+    required CompletionSource source,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day).toUtc();
+    final end = start.add(const Duration(days: 1));
+
+    final choreRecords = await pb.collection('chores').getFullList(
+          filter: 'subject = "$subjectId" && active = true',
+        );
+    final todays = await pb.collection('completions').getFullList(
+          filter:
+              'subject = "$subjectId" && completed_at >= "${start.toIso8601String()}" && completed_at < "${end.toIso8601String()}"',
+        );
+    final loggedChoreIds = <String>{
+      for (final r in todays)
+        if ((r.data['chore'] as String?)?.isNotEmpty ?? false)
+          r.data['chore'] as String,
+    };
+
+    final candidates = choreRecords
+        .map(Chore.new)
+        .where((c) => c.rule.isDueOn(now))
+        .where((c) => !loggedChoreIds.contains(c.id))
+        .toList();
+
+    if (candidates.isEmpty) return null;
+
+    candidates.sort((a, b) {
+      final aScheduled = a.rule.scheduledAt(now);
+      final bScheduled = b.rule.scheduledAt(now);
+      final aOverdue = !aScheduled.isAfter(now);
+      final bOverdue = !bScheduled.isAfter(now);
+      if (aOverdue && !bOverdue) return -1;
+      if (!aOverdue && bOverdue) return 1;
+      // Both overdue: most recently-scheduled one wins (you probably just
+      // missed this one). Neither overdue: next one wins.
+      return aOverdue
+          ? bScheduled.compareTo(aScheduled)
+          : aScheduled.compareTo(bScheduled);
+    });
+
+    final pick = candidates.first;
+    final completion = await logChore(
+      subjectId: subjectId,
+      choreId: pick.id,
+      source: source,
+    );
+    return (chore: pick, completion: completion);
   }
 
   /// Invalidate the read-side providers so they refetch and the UI picks

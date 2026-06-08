@@ -7,15 +7,20 @@ part of 'notification_service.dart';
 // **************************************************************************
 
 String _$notificationServiceHash() =>
-    r'585c1e42ea844e71a2b76b80b165adfe2c5c8529';
+    r'399c7a645db475513281fc87cb3849d211b400a8';
 
 /// Sets up notification rendering — Firebase Messaging gives us the
 /// payload, `flutter_local_notifications` paints it. Channel id matches
 /// what the push-notifier service sends to.
 ///
 /// Background message delivery is handled by the FCM SDK + system tray
-/// directly (no Dart code needed). Foreground delivery on Android shows
-/// nothing by default, so we display via the local-notifications plugin.
+/// directly. Foreground delivery on Android shows nothing by default, so
+/// we display via the local-notifications plugin AND invalidate the
+/// completion providers so chips update without a refresh.
+///
+/// Also observes app lifecycle — on resume (coming back from background)
+/// we re-invalidate today's completions to catch up on any pushes the OS
+/// delivered while we were paused.
 ///
 /// Copied from [notificationService].
 @ProviderFor(notificationService)

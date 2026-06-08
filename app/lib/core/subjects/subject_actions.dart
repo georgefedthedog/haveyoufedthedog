@@ -58,6 +58,8 @@ class SubjectActions {
     String? name,
     String? icon,
     bool clearIcon = false,
+    String? nfcTagId,
+    bool clearNfcTag = false,
   }) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final body = <String, dynamic>{};
@@ -66,6 +68,11 @@ class SubjectActions {
       body['icon'] = '';
     } else if (icon != null) {
       body['icon'] = icon;
+    }
+    if (clearNfcTag) {
+      body['nfc_tag_id'] = '';
+    } else if (nfcTagId != null) {
+      body['nfc_tag_id'] = nfcTagId;
     }
     final rec = await pb.collection('subjects').update(id, body: body);
     _ref.invalidate(subjectsControllerProvider);
@@ -76,5 +83,21 @@ class SubjectActions {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     await pb.collection('subjects').delete(id);
     _ref.invalidate(subjectsControllerProvider);
+  }
+
+  /// Looks up a subject in the current household by its bound NFC tag id.
+  /// Returns null if no subject has that tag registered.
+  Future<Subject?> findByNfcTag(String tagId) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    final householdId = await _currentHouseholdId();
+    final escaped = tagId.replaceAll('"', '');
+    final list = await pb.collection('subjects').getList(
+          page: 1,
+          perPage: 1,
+          filter:
+              'household = "$householdId" && nfc_tag_id = "$escaped"',
+        );
+    if (list.items.isEmpty) return null;
+    return Subject(list.items.first);
   }
 }
