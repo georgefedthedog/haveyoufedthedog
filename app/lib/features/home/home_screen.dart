@@ -88,9 +88,7 @@ class HomeScreen extends ConsumerWidget {
                 final s = subjects[i];
                 return SubjectCard(
                   subject: s,
-                  // TODO(step-10): swap to subject_detail_screen; the detail
-                  // screen will own the "edit" action.
-                  onTap: () => context.push(Routes.subjectEdit(s.id)),
+                  onTap: () => context.push(Routes.subjectDetail(s.id)),
                 );
               },
             );

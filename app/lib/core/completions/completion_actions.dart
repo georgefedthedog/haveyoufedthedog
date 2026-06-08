@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
 import 'completion.dart';
+import 'recent_completions_controller.dart';
 import 'today_completions_controller.dart';
 
 part 'completion_actions.g.dart';
@@ -44,14 +45,31 @@ class CompletionActions {
       'completed_by': userId,
       'source': source.wire,
     });
-    _ref.invalidate(todayCompletionsControllerProvider);
+    _bump(subjectId);
     return Completion(rec);
   }
 
   /// Delete a completion by id. Used by the Undo snackbar action.
   Future<void> undo(String completionId) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
+    // Look up the subject first so we can invalidate the right per-subject
+    // recent list. If the record is already gone, skip the bump.
+    String? subjectId;
+    try {
+      final rec =
+          await pb.collection('completions').getOne(completionId);
+      subjectId = rec.data['subject'] as String?;
+    } catch (_) {}
     await pb.collection('completions').delete(completionId);
+    _bump(subjectId);
+  }
+
+  /// Invalidate the read-side providers so they refetch and the UI picks
+  /// up the new state.
+  void _bump(String? subjectId) {
     _ref.invalidate(todayCompletionsControllerProvider);
+    if (subjectId != null) {
+      _ref.invalidate(recentCompletionsControllerProvider(subjectId));
+    }
   }
 }

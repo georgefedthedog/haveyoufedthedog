@@ -33,6 +33,11 @@ class Routes {
   /// Create a new subject in the current household.
   static const subjectNew = '/subject/new';
 
+  /// View one subject — detail + history. Path parameter `id` is the
+  /// subject id.
+  static const subjectDetailPattern = '/subject/:id';
+  static String subjectDetail(String id) => '/subject/$id';
+
   /// Edit an existing subject. Path parameter `id` is the subject id.
   static const subjectEditPattern = '/subject/:id/edit';
   static String subjectEdit(String id) => '/subject/$id/edit';

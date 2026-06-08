@@ -4,8 +4,8 @@ import '../../core/chores/chore.dart';
 import '../../core/completions/completion.dart';
 
 /// Pill showing one chore's status for today. Outlined when outstanding
-/// (shows scheduled time); filled green-tick when completed (shows the
-/// actual time logged). Tap behaviour comes from [onTap].
+/// (shows scheduled time); filled green when completed (shows the actual
+/// time logged). Tap behaviour comes from [onTap].
 class ChoreStatusChip extends StatelessWidget {
   final Chore chore;
   final Completion? completion;

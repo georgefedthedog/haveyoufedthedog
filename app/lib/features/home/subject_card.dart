@@ -4,11 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/completion.dart';
-import '../../core/completions/completion_actions.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_icons.dart';
-import 'chore_status_chip.dart';
+import '../chores/chore_chip_with_tap.dart';
 
 /// One row in the subjects list on the home screen. Renders the subject's
 /// icon + name + today's progress, and a chip per chore that's due today.
@@ -29,7 +28,9 @@ class SubjectCard extends ConsumerWidget {
     final hasAnyChores = allChores.any((c) => c.subjectId == subject.id);
     final dueToday = allChores
         .where((c) => c.subjectId == subject.id && c.rule.isDueOn(today))
-        .toList();
+        .toList()
+      ..sort((a, b) => (a.hour * 60 + a.minute)
+          .compareTo(b.hour * 60 + b.minute));
 
     // Map each completed chore id to its most-recent completion (the
     // controller already sorts by `-completed_at`, so first-wins is newest).
@@ -107,7 +108,7 @@ class SubjectCard extends ConsumerWidget {
                   runSpacing: 8,
                   children: [
                     for (final c in dueToday)
-                      _ChipWithTap(
+                      ChoreChipWithTap(
                         chore: c,
                         subjectId: subject.id,
                         existingCompletion: latestByChoreId[c.id],
@@ -124,76 +125,3 @@ class SubjectCard extends ConsumerWidget {
 
 }
 
-/// Wraps [ChoreStatusChip] with toggle-to-log behaviour. Lives here rather
-/// than inside the chip so the chip stays presentational and reusable.
-///
-/// Tapping an outstanding chip logs a completion; tapping a completed chip
-/// undoes the most recent completion of that chore. Either way the UI
-/// rebuilds once the invalidation refetches.
-class _ChipWithTap extends ConsumerWidget {
-  final Chore chore;
-  final String subjectId;
-  final Completion? existingCompletion;
-
-  const _ChipWithTap({
-    required this.chore,
-    required this.subjectId,
-    required this.existingCompletion,
-  });
-
-  Future<void> _log(BuildContext context, WidgetRef ref) async {
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      final completion = await ref.read(completionActionsProvider).logChore(
-            subjectId: subjectId,
-            choreId: chore.id,
-            source: CompletionSource.button,
-          );
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        content: Text('Logged: ${chore.name}'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () =>
-              ref.read(completionActionsProvider).undo(completion.id),
-        ),
-      ));
-    } catch (e) {
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        content: Text('Could not log: $e'),
-        showCloseIcon: true,
-      ));
-    }
-  }
-
-  Future<void> _undo(
-      BuildContext context, WidgetRef ref, Completion completion) async {
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await ref.read(completionActionsProvider).undo(completion.id);
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        content: Text('Removed: ${chore.name}'),
-      ));
-    } catch (e) {
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        content: Text('Could not undo: $e'),
-        showCloseIcon: true,
-      ));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final completion = existingCompletion;
-    return ChoreStatusChip(
-      chore: chore,
-      completion: completion,
-      onTap: completion != null
-          ? () => _undo(context, ref, completion)
-          : () => _log(context, ref),
-    );
-  }
-}
