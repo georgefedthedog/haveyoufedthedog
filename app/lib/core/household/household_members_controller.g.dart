@@ -7,7 +7,7 @@ part of 'household_members_controller.dart';
 // **************************************************************************
 
 String _$householdMembersControllerHash() =>
-    r'e4b1795c71c315d726518cbf5dfaeb281fcc3f22';
+    r'6679482145a8b751cf66de0314aa206dc2b21502';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -39,14 +39,16 @@ abstract class _$HouseholdMembersController
 
 /// All members of a given household, with their display names resolved.
 ///
-/// Family parameter: the household id. Each instance is cached separately,
-/// so opening multiple households' detail screens doesn't refetch the same
-/// one twice.
+/// Reads from the `household_member_details` PB View — a server-side JOIN
+/// of `household_members` and `users` that exposes only the safe fields
+/// (id, household, user, role, user_name). This avoids weakening the
+/// `users` collection's security rules.
+///
+/// Family parameter: the household id.
 ///
 /// **State-management notes:** `ref.watch` happens for both providers
-/// synchronously before any `await`. The per-user `getOne` calls are wrapped
-/// in try/catch so a stale or forbidden user record doesn't drop the whole
-/// list.
+/// synchronously before any `await`. If the View isn't deployed yet the
+/// fetch will error and the screen shows it via `AsyncValue.error`.
 ///
 /// Copied from [HouseholdMembersController].
 @ProviderFor(HouseholdMembersController)
@@ -54,42 +56,48 @@ const householdMembersControllerProvider = HouseholdMembersControllerFamily();
 
 /// All members of a given household, with their display names resolved.
 ///
-/// Family parameter: the household id. Each instance is cached separately,
-/// so opening multiple households' detail screens doesn't refetch the same
-/// one twice.
+/// Reads from the `household_member_details` PB View — a server-side JOIN
+/// of `household_members` and `users` that exposes only the safe fields
+/// (id, household, user, role, user_name). This avoids weakening the
+/// `users` collection's security rules.
+///
+/// Family parameter: the household id.
 ///
 /// **State-management notes:** `ref.watch` happens for both providers
-/// synchronously before any `await`. The per-user `getOne` calls are wrapped
-/// in try/catch so a stale or forbidden user record doesn't drop the whole
-/// list.
+/// synchronously before any `await`. If the View isn't deployed yet the
+/// fetch will error and the screen shows it via `AsyncValue.error`.
 ///
 /// Copied from [HouseholdMembersController].
 class HouseholdMembersControllerFamily
     extends Family<AsyncValue<List<HouseholdMember>>> {
   /// All members of a given household, with their display names resolved.
   ///
-  /// Family parameter: the household id. Each instance is cached separately,
-  /// so opening multiple households' detail screens doesn't refetch the same
-  /// one twice.
+  /// Reads from the `household_member_details` PB View — a server-side JOIN
+  /// of `household_members` and `users` that exposes only the safe fields
+  /// (id, household, user, role, user_name). This avoids weakening the
+  /// `users` collection's security rules.
+  ///
+  /// Family parameter: the household id.
   ///
   /// **State-management notes:** `ref.watch` happens for both providers
-  /// synchronously before any `await`. The per-user `getOne` calls are wrapped
-  /// in try/catch so a stale or forbidden user record doesn't drop the whole
-  /// list.
+  /// synchronously before any `await`. If the View isn't deployed yet the
+  /// fetch will error and the screen shows it via `AsyncValue.error`.
   ///
   /// Copied from [HouseholdMembersController].
   const HouseholdMembersControllerFamily();
 
   /// All members of a given household, with their display names resolved.
   ///
-  /// Family parameter: the household id. Each instance is cached separately,
-  /// so opening multiple households' detail screens doesn't refetch the same
-  /// one twice.
+  /// Reads from the `household_member_details` PB View — a server-side JOIN
+  /// of `household_members` and `users` that exposes only the safe fields
+  /// (id, household, user, role, user_name). This avoids weakening the
+  /// `users` collection's security rules.
+  ///
+  /// Family parameter: the household id.
   ///
   /// **State-management notes:** `ref.watch` happens for both providers
-  /// synchronously before any `await`. The per-user `getOne` calls are wrapped
-  /// in try/catch so a stale or forbidden user record doesn't drop the whole
-  /// list.
+  /// synchronously before any `await`. If the View isn't deployed yet the
+  /// fetch will error and the screen shows it via `AsyncValue.error`.
   ///
   /// Copied from [HouseholdMembersController].
   HouseholdMembersControllerProvider call(String householdId) {
@@ -120,14 +128,16 @@ class HouseholdMembersControllerFamily
 
 /// All members of a given household, with their display names resolved.
 ///
-/// Family parameter: the household id. Each instance is cached separately,
-/// so opening multiple households' detail screens doesn't refetch the same
-/// one twice.
+/// Reads from the `household_member_details` PB View — a server-side JOIN
+/// of `household_members` and `users` that exposes only the safe fields
+/// (id, household, user, role, user_name). This avoids weakening the
+/// `users` collection's security rules.
+///
+/// Family parameter: the household id.
 ///
 /// **State-management notes:** `ref.watch` happens for both providers
-/// synchronously before any `await`. The per-user `getOne` calls are wrapped
-/// in try/catch so a stale or forbidden user record doesn't drop the whole
-/// list.
+/// synchronously before any `await`. If the View isn't deployed yet the
+/// fetch will error and the screen shows it via `AsyncValue.error`.
 ///
 /// Copied from [HouseholdMembersController].
 class HouseholdMembersControllerProvider
@@ -138,14 +148,16 @@ class HouseholdMembersControllerProvider
         > {
   /// All members of a given household, with their display names resolved.
   ///
-  /// Family parameter: the household id. Each instance is cached separately,
-  /// so opening multiple households' detail screens doesn't refetch the same
-  /// one twice.
+  /// Reads from the `household_member_details` PB View — a server-side JOIN
+  /// of `household_members` and `users` that exposes only the safe fields
+  /// (id, household, user, role, user_name). This avoids weakening the
+  /// `users` collection's security rules.
+  ///
+  /// Family parameter: the household id.
   ///
   /// **State-management notes:** `ref.watch` happens for both providers
-  /// synchronously before any `await`. The per-user `getOne` calls are wrapped
-  /// in try/catch so a stale or forbidden user record doesn't drop the whole
-  /// list.
+  /// synchronously before any `await`. If the View isn't deployed yet the
+  /// fetch will error and the screen shows it via `AsyncValue.error`.
   ///
   /// Copied from [HouseholdMembersController].
   HouseholdMembersControllerProvider(String householdId)

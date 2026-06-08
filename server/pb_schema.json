@@ -1,8 +1,8 @@
 [
   {
     "id": "_pb_users_auth_",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
+    "listRule": "id = @request.auth.id",
+    "viewRule": "id = @request.auth.id",
     "createRule": "",
     "updateRule": "id = @request.auth.id",
     "deleteRule": "id = @request.auth.id",
@@ -106,13 +106,7 @@
         "id": "file376926767",
         "maxSelect": 1,
         "maxSize": 0,
-        "mimeTypes": [
-          "image/jpeg",
-          "image/png",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp"
-        ],
+        "mimeTypes": ["image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"],
         "name": "avatar",
         "presentable": false,
         "protected": false,
@@ -182,9 +176,7 @@
     },
     "passwordAuth": {
       "enabled": true,
-      "identityFields": [
-        "email"
-      ]
+      "identityFields": ["email"]
     },
     "mfa": {
       "enabled": false,
@@ -360,9 +352,7 @@
     },
     "passwordAuth": {
       "enabled": true,
-      "identityFields": [
-        "email"
-      ]
+      "identityFields": ["email"]
     },
     "mfa": {
       "enabled": false,
@@ -408,11 +398,11 @@
   },
   {
     "id": "pbc_chores",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.id != \"\"",
-    "deleteRule": "@request.auth.id != \"\"",
+    "listRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "viewRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
     "name": "chores",
     "type": "base",
     "fields": [
@@ -470,10 +460,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "daily",
-          "weekly"
-        ]
+        "values": ["daily", "weekly"]
       },
       {
         "help": "",
@@ -563,11 +550,11 @@
   },
   {
     "id": "pbc_completions",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.id != \"\"",
-    "deleteRule": "@request.auth.id != \"\"",
+    "listRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "viewRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household && @request.body.completed_by = @request.auth.id",
+    "updateRule": "completed_by = @request.auth.id",
+    "deleteRule": "completed_by = @request.auth.id || (@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household && @collection.household_members.role ?= \"owner\")",
     "name": "completions",
     "type": "base",
     "fields": [
@@ -650,11 +637,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "button",
-          "nfc",
-          "manual"
-        ]
+        "values": ["button", "nfc", "manual"]
       },
       {
         "autogeneratePattern": "",
@@ -699,9 +682,9 @@
     "id": "pbc_household_invites",
     "listRule": "@request.auth.id != \"\"",
     "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.id != \"\"",
-    "deleteRule": "@request.auth.id != \"\"",
+    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
+    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
+    "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
     "name": "household_invites",
     "type": "base",
     "fields": [
@@ -801,11 +784,11 @@
   },
   {
     "id": "pbc_household_members",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.id != \"\"",
-    "deleteRule": "@request.auth.id != \"\"",
+    "listRule": "user = @request.auth.id",
+    "viewRule": "user = @request.auth.id",
+    "createRule": "@request.auth.id != \"\" && @request.body.user = @request.auth.id",
+    "updateRule": "user = @request.auth.id",
+    "deleteRule": "user = @request.auth.id || (@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household && @collection.household_members.role ?= \"owner\")",
     "name": "household_members",
     "type": "base",
     "fields": [
@@ -862,10 +845,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "owner",
-          "member"
-        ]
+        "values": ["owner", "member"]
       },
       {
         "hidden": false,
@@ -893,11 +873,11 @@
   },
   {
     "id": "pbc_households",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
+    "listRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id",
+    "viewRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id",
     "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.id != \"\"",
-    "deleteRule": "@request.auth.id != \"\"",
+    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id && @collection.household_members.role ?= \"owner\"",
+    "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id && @collection.household_members.role ?= \"owner\"",
     "name": "households",
     "type": "base",
     "fields": [
@@ -971,11 +951,11 @@
   },
   {
     "id": "pbc_subjects",
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.id != \"\"",
-    "deleteRule": "@request.auth.id != \"\"",
+    "listRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
+    "viewRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
+    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
+    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
+    "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= household",
     "name": "subjects",
     "type": "base",
     "fields": [
@@ -1195,9 +1175,7 @@
         "type": "autodate"
       }
     ],
-    "indexes": [
-      "CREATE UNIQUE INDEX `idx_authOrigins_unique_pairs` ON `_authOrigins` (collectionRef, recordRef, fingerprint)"
-    ],
+    "indexes": ["CREATE UNIQUE INDEX `idx_authOrigins_unique_pairs` ON `_authOrigins` (collectionRef, recordRef, fingerprint)"],
     "system": true
   },
   {
@@ -1403,9 +1381,7 @@
         "type": "autodate"
       }
     ],
-    "indexes": [
-      "CREATE INDEX `idx_mfas_collectionRef_recordRef` ON `_mfas` (collectionRef,recordRef)"
-    ],
+    "indexes": ["CREATE INDEX `idx_mfas_collectionRef_recordRef` ON `_mfas` (collectionRef,recordRef)"],
     "system": true
   },
   {
@@ -1513,9 +1489,112 @@
         "type": "autodate"
       }
     ],
-    "indexes": [
-      "CREATE INDEX `idx_otps_collectionRef_recordRef` ON `_otps` (collectionRef, recordRef)"
-    ],
+    "indexes": ["CREATE INDEX `idx_otps_collectionRef_recordRef` ON `_otps` (collectionRef, recordRef)"],
     "system": true
+  },
+  {
+    "id": "pbc_1583562883",
+    "listRule": "@collection.household_members.user ?= @request.auth.id\n            && @collection.household_members.household ?= household",
+    "viewRule": "@collection.household_members.user ?= @request.auth.id\n            && @collection.household_members.household ?= household",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "household_member_details",
+    "type": "view",
+    "fields": [
+      {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 0,
+        "min": 0,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_households",
+        "help": "",
+        "hidden": false,
+        "id": "_clone_rPUK",
+        "maxSelect": 1,
+        "minSelect": 1,
+        "name": "household",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "_pb_users_auth_",
+        "help": "",
+        "hidden": false,
+        "id": "_clone_gi36",
+        "maxSelect": 1,
+        "minSelect": 1,
+        "name": "user",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "_clone_0xpa",
+        "maxSelect": 1,
+        "name": "role",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "select",
+        "values": ["owner", "member"]
+      },
+      {
+        "hidden": false,
+        "id": "_clone_GimZ",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "_clone_1kPT",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "_clone_suAn",
+        "max": 255,
+        "min": 0,
+        "name": "user_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      }
+    ],
+    "indexes": [],
+    "system": false,
+    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
   }
 ]

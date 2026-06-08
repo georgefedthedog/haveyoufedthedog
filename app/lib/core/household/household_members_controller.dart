@@ -9,14 +9,16 @@ part 'household_members_controller.g.dart';
 
 /// All members of a given household, with their display names resolved.
 ///
-/// Family parameter: the household id. Each instance is cached separately,
-/// so opening multiple households' detail screens doesn't refetch the same
-/// one twice.
+/// Reads from the `household_member_details` PB View — a server-side JOIN
+/// of `household_members` and `users` that exposes only the safe fields
+/// (id, household, user, role, user_name). This avoids weakening the
+/// `users` collection's security rules.
+///
+/// Family parameter: the household id.
 ///
 /// **State-management notes:** `ref.watch` happens for both providers
-/// synchronously before any `await`. The per-user `getOne` calls are wrapped
-/// in try/catch so a stale or forbidden user record doesn't drop the whole
-/// list.
+/// synchronously before any `await`. If the View isn't deployed yet the
+/// fetch will error and the screen shows it via `AsyncValue.error`.
 @Riverpod(keepAlive: true)
 class HouseholdMembersController extends _$HouseholdMembersController {
   @override
@@ -25,35 +27,23 @@ class HouseholdMembersController extends _$HouseholdMembersController {
     final auth = ref.watch(authControllerProvider);
     if (!auth.isAuthenticated) return const [];
 
-    final memberRecords = await pb
-        .collection('household_members')
-        .getFullList(filter: 'household = "$householdId"');
+    try {
+      final records = await pb
+          .collection('household_member_details')
+          .getFullList(filter: 'household = "$householdId"');
 
-    final result = <HouseholdMember>[];
-    for (final m in memberRecords) {
-      final userId = m.data['user'] as String?;
-      if (userId == null) continue;
-
-      String displayName = '(unknown)';
-      try {
-        final u = await pb.collection('users').getOne(userId);
-        final name = u.data['name'] as String?;
-        if (name != null && name.isNotEmpty) {
-          displayName = name;
-        }
-      } catch (e) {
-        // Most likely a permission-denied — the server hasn't been updated
-        // to allow cross-user reads. Falling back to "(unknown)" is fine.
-        debugPrint('Could not fetch user $userId: $e');
-      }
-
-      result.add(HouseholdMember(
-        membershipId: m.id,
-        userId: userId,
-        displayName: displayName,
-        role: m.data['role'] as String? ?? 'member',
-      ));
+      return records
+          .map((r) => HouseholdMember(
+                membershipId: r.id,
+                userId: r.data['user'] as String? ?? '',
+                displayName:
+                    (r.data['user_name'] as String?) ?? '(unknown)',
+                role: r.data['role'] as String? ?? 'member',
+              ))
+          .toList();
+    } catch (e) {
+      debugPrint('household_member_details fetch failed: $e');
+      rethrow;
     }
-    return result;
   }
 }
