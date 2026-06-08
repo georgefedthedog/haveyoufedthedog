@@ -10,6 +10,7 @@ import '../features/household/household_picker_screen.dart';
 import '../features/household/household_setup_screen.dart';
 import '../features/household/join_household_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/chores/edit_chore_screen.dart';
 import '../features/subjects/edit_subject_screen.dart';
 import 'router_refresh_notifier.dart';
 import 'routing_phase.dart';
@@ -70,6 +71,18 @@ GoRouter appRouter(Ref ref) {
         path: Routes.subjectEditPattern,
         builder: (context, state) => EditSubjectScreen(
           subjectId: state.pathParameters['id'],
+        ),
+      ),
+      GoRoute(
+        path: Routes.choreNewPattern,
+        builder: (context, state) => EditChoreScreen(
+          subjectId: state.pathParameters['subjectId'],
+        ),
+      ),
+      GoRoute(
+        path: Routes.choreEditPattern,
+        builder: (context, state) => EditChoreScreen(
+          choreId: state.pathParameters['id'],
         ),
       ),
     ],

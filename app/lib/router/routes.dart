@@ -36,4 +36,12 @@ class Routes {
   /// Edit an existing subject. Path parameter `id` is the subject id.
   static const subjectEditPattern = '/subject/:id/edit';
   static String subjectEdit(String id) => '/subject/$id/edit';
+
+  /// Create a new chore against [subjectId].
+  static const choreNewPattern = '/subject/:subjectId/chore/new';
+  static String choreNew(String subjectId) => '/subject/$subjectId/chore/new';
+
+  /// Edit an existing chore. Path parameter `id` is the chore id.
+  static const choreEditPattern = '/chore/:id/edit';
+  static String choreEdit(String id) => '/chore/$id/edit';
 }

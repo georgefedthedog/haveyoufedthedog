@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/chores/chores_controller.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import 'icon_picker.dart';
 
@@ -178,11 +180,70 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                     ? null
                     : _save,
               ),
+              if (_isEdit) ...[
+                const SizedBox(height: 32),
+                _ChoresSection(subjectId: widget.subjectId!),
+              ],
             ],
           ),
         ),
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
+    );
+  }
+}
+
+/// Lists the chores attached to [subjectId] and offers an Add button.
+/// Lives here for now as the natural place to manage a subject's chores;
+/// Step 10 may move this into the subject detail screen.
+class _ChoresSection extends ConsumerWidget {
+  final String subjectId;
+  const _ChoresSection({required this.subjectId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncChores = ref.watch(choresControllerProvider);
+    final chores = (asyncChores.valueOrNull ?? const [])
+        .where((c) => c.subjectId == subjectId)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Chores', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        if (asyncChores.isLoading && chores.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (chores.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Text(
+              'No chores yet.',
+              textAlign: TextAlign.center,
+            ),
+          )
+        else
+          for (final c in chores)
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: ListTile(
+                leading: const Icon(Icons.schedule),
+                title: Text(c.name),
+                subtitle: Text(c.rule.humanLabel()),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(Routes.choreEdit(c.id)),
+              ),
+            ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.add),
+          label: const Text('Add chore'),
+          onPressed: () => context.push(Routes.choreNew(subjectId)),
+        ),
+      ],
     );
   }
 }

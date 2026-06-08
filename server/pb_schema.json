@@ -471,7 +471,7 @@
         "name": "hour",
         "onlyInt": true,
         "presentable": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "number"
       },
@@ -484,7 +484,7 @@
         "name": "minute",
         "onlyInt": true,
         "presentable": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "number"
       },
