@@ -1,8 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
-        android:label="haveyoufedthedog"
+        android:label="Have You Fed The Dog?"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- FCM default channel id: matches the channel created in
+             notification_service.dart and used by the push-notifier
+             service. Background messages get routed here automatically. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="chore_completions" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

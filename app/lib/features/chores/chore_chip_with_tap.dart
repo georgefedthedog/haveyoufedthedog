@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
@@ -53,6 +54,17 @@ class ChoreChipWithTap extends ConsumerWidget {
   Future<void> _undo(
       BuildContext context, WidgetRef ref, Completion completion) async {
     final messenger = ScaffoldMessenger.of(context);
+    // PB's delete rule only allows the original logger (or household
+    // owners) to remove a completion. Catch the "not yours" case
+    // client-side so it doesn't round-trip into a confusing 404.
+    final myUserId = ref.read(authControllerProvider).valueOrNull?.userId;
+    if (completion.completedById != myUserId) {
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(const SnackBar(
+        content: Text("Only the person who logged it can undo."),
+      ));
+      return;
+    }
     try {
       await ref.read(completionActionsProvider).undo(completion.id);
       messenger.hideCurrentSnackBar();
