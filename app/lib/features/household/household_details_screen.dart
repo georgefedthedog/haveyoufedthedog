@@ -18,25 +18,31 @@ class HouseholdDetailsScreen extends ConsumerWidget {
   final String householdId;
   const HouseholdDetailsScreen({super.key, required this.householdId});
 
+  Household? _findHousehold(List<Household> households) {
+    for (final h in households) {
+      if (h.id == householdId) return h;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncHouseholds = ref.watch(householdsControllerProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Household')),
-      body: asyncHouseholds.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (households) {
-          Household? household;
-          for (final h in households) {
-            if (h.id == householdId) {
-              household = h;
-              break;
-            }
-          }
-          if (household == null) {
-            return const Center(
+    return asyncHouseholds.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: const Text('Household')),
+        body: Center(child: Text('Error: $e')),
+      ),
+      data: (households) {
+        final household = _findHousehold(households);
+        if (household == null) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Household')),
+            body: const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
                 child: Text(
@@ -44,14 +50,113 @@ class HouseholdDetailsScreen extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-            );
-          }
-          return _Body(household: household);
-        },
-      ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
+            ),
+            bottomNavigationBar: const SafeArea(child: BuildLabel()),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(household.name),
+            actions: [
+              IconButton(
+                icon: Icon(household.isOwner
+                    ? Icons.delete_outline
+                    : Icons.logout),
+                tooltip: household.isOwner
+                    ? 'Delete household'
+                    : 'Leave household',
+                onPressed: () => household.isOwner
+                    ? _confirmAndDelete(context, ref, household)
+                    : _confirmAndLeave(context, ref, household),
+              ),
+            ],
+          ),
+          body: _Body(household: household),
+          bottomNavigationBar: const SafeArea(child: BuildLabel()),
+        );
+      },
     );
   }
+}
+
+Future<void> _confirmAndDelete(
+    BuildContext context, WidgetRef ref, Household household) async {
+  final confirmed = await _confirm(
+    context,
+    title: 'Delete ${household.name}?',
+    body: 'All subjects, chores and history for this household will be '
+        'permanently removed for everyone in it. This cannot be undone.',
+    action: 'Delete',
+  );
+  if (!confirmed) return;
+  try {
+    await ref
+        .read(householdActionsProvider)
+        .deleteHousehold(householdId: household.id);
+    if (context.mounted) context.go(Routes.home);
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text('$e'),
+      ));
+    }
+  }
+}
+
+Future<void> _confirmAndLeave(
+    BuildContext context, WidgetRef ref, Household household) async {
+  final confirmed = await _confirm(
+    context,
+    title: 'Leave ${household.name}?',
+    body: "You won't see this household's chores or completions any more. "
+        'You can re-join later with an invite code.',
+    action: 'Leave',
+  );
+  if (!confirmed) return;
+  try {
+    await ref
+        .read(householdActionsProvider)
+        .leaveHousehold(membershipId: household.membershipId);
+    if (context.mounted) context.go(Routes.home);
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text('$e'),
+      ));
+    }
+  }
+}
+
+Future<bool> _confirm(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String action,
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: Text(body),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(ctx).colorScheme.error,
+            foregroundColor: Theme.of(ctx).colorScheme.onError,
+          ),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(action),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
 }
 
 class _Body extends ConsumerWidget {
@@ -109,84 +214,6 @@ class _Body extends ConsumerWidget {
     }
   }
 
-  Future<void> _leave(BuildContext context, WidgetRef ref) async {
-    final confirmed = await _confirm(
-      context,
-      title: 'Leave ${household.name}?',
-      body: "You won't see this household's chores or completions any more. "
-          'You can re-join later with an invite code.',
-      action: 'Leave',
-    );
-    if (!confirmed) return;
-    try {
-      await ref.read(householdActionsProvider).leaveHousehold(
-            membershipId: household.membershipId,
-          );
-      if (context.mounted) context.go(Routes.home);
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text('$e'),
-        ));
-      }
-    }
-  }
-
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await _confirm(
-      context,
-      title: 'Delete ${household.name}?',
-      body: 'All subjects, chores and history for this household will be '
-          'permanently removed for everyone in it. This cannot be undone.',
-      action: 'Delete',
-    );
-    if (!confirmed) return;
-    try {
-      await ref.read(householdActionsProvider).deleteHousehold(
-            householdId: household.id,
-          );
-      if (context.mounted) context.go(Routes.home);
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text('$e'),
-        ));
-      }
-    }
-  }
-
-  Future<bool> _confirm(
-    BuildContext context, {
-    required String title,
-    required String body,
-    required String action,
-  }) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Text(body),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(action),
-          ),
-        ],
-      ),
-    );
-    return result ?? false;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isOwner = household.isOwner;
@@ -216,27 +243,6 @@ class _Body extends ConsumerWidget {
           householdId: household.id,
           viewerIsOwner: isOwner,
         ),
-        const SizedBox(height: 24),
-        if (isOwner)
-          FilledButton.icon(
-            icon: const Icon(Icons.delete_outline),
-            label: const Text('Delete household'),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-            ),
-            onPressed: () => _delete(context, ref),
-          )
-        else
-          FilledButton.icon(
-            icon: const Icon(Icons.logout),
-            label: const Text('Leave household'),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-            ),
-            onPressed: () => _leave(context, ref),
-          ),
       ],
     );
   }

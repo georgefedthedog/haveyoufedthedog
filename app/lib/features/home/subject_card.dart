@@ -7,6 +7,7 @@ import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/subject.dart';
+import '../../core/subjects/subject_icons.dart';
 import 'chore_status_chip.dart';
 
 /// One row in the subjects list on the home screen. Renders the subject's
@@ -67,7 +68,7 @@ class SubjectCard extends ConsumerWidget {
                         ? scheme.primaryContainer
                         : scheme.surfaceContainerHighest,
                     child: Icon(
-                      _iconFor(subject.icon),
+                      SubjectIcons.iconFor(subject.icon),
                       color: allDone
                           ? scheme.onPrimaryContainer
                           : scheme.onSurfaceVariant,
@@ -121,25 +122,6 @@ class SubjectCard extends ConsumerWidget {
     );
   }
 
-  // Subjects store an icon as a short token (e.g. 'pets'); map to Material
-  // icons. Lives here for now — promote to a shared helper when the edit
-  // subject screen (Step 9) needs the same map for its picker.
-  IconData _iconFor(String? icon) {
-    switch (icon) {
-      case 'pets':
-        return Icons.pets;
-      case 'delete':
-        return Icons.delete_outline;
-      case 'eco':
-        return Icons.eco;
-      case 'home':
-        return Icons.home_outlined;
-      case 'shopping_cart':
-        return Icons.shopping_cart_outlined;
-      default:
-        return Icons.task_alt;
-    }
-  }
 }
 
 /// Wraps [ChoreStatusChip] with toggle-to-log behaviour. Lives here rather

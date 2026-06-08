@@ -75,8 +75,7 @@ class HomeScreen extends ConsumerWidget {
                           'Add a dog, cat, plant, or whatever else needs '
                           'looking after.',
                       actionLabel: 'Add a subject',
-                      // TODO(step-9): wire to edit_subject_screen.
-                      onAction: null,
+                      onAction: () => context.push(Routes.subjectNew),
                     ),
                   ),
                 ],
@@ -85,14 +84,28 @@ class HomeScreen extends ConsumerWidget {
             return ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: subjects.length,
-              itemBuilder: (context, i) => SubjectCard(
-                subject: subjects[i],
-                // TODO(step-10): wire to subject_detail_screen.
-                onTap: null,
-              ),
+              itemBuilder: (context, i) {
+                final s = subjects[i];
+                return SubjectCard(
+                  subject: s,
+                  // TODO(step-10): swap to subject_detail_screen; the detail
+                  // screen will own the "edit" action.
+                  onTap: () => context.push(Routes.subjectEdit(s.id)),
+                );
+              },
             );
           },
         ),
+      ),
+      floatingActionButton: asyncSubjects.maybeWhen(
+        data: (subjects) => subjects.isEmpty
+            ? null // Empty state already has its own CTA.
+            : FloatingActionButton.extended(
+                icon: const Icon(Icons.add),
+                label: const Text('Subject'),
+                onPressed: () => context.push(Routes.subjectNew),
+              ),
+        orElse: () => null,
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );

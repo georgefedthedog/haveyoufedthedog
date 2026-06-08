@@ -29,4 +29,11 @@ class Routes {
 
   /// Authenticated with a current household resolved.
   static const home = '/';
+
+  /// Create a new subject in the current household.
+  static const subjectNew = '/subject/new';
+
+  /// Edit an existing subject. Path parameter `id` is the subject id.
+  static const subjectEditPattern = '/subject/:id/edit';
+  static String subjectEdit(String id) => '/subject/$id/edit';
 }
