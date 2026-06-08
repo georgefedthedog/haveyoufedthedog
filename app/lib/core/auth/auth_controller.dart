@@ -31,10 +31,7 @@ class AuthController extends _$AuthController {
     return AuthState.authenticated(record);
   }
 
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     final pb = ref.read(pocketbaseClientProvider);
     await pb.collection('users').authWithPassword(email, password);
     // The authStore.onChange listener installed in build() updates state.
@@ -46,12 +43,16 @@ class AuthController extends _$AuthController {
     required String displayName,
   }) async {
     final pb = ref.read(pocketbaseClientProvider);
-    await pb.collection('users').create(body: {
-      'email': email,
-      'password': password,
-      'passwordConfirm': password,
-      'name': displayName,
-    });
+    await pb
+        .collection('users')
+        .create(
+          body: {
+            'email': email,
+            'password': password,
+            'passwordConfirm': password,
+            'name': displayName,
+          },
+        );
     // PB doesn't sign you in on create — log in immediately so the rest of
     // the app sees you as authenticated.
     await pb.collection('users').authWithPassword(email, password);
