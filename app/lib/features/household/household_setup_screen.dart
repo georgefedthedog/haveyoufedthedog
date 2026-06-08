@@ -3,36 +3,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../widgets/build_label.dart';
+import 'create_household_form.dart';
+import 'join_household_form.dart';
 
-/// Placeholder for Step 5c. The real create / join UI lands in Step 5d.
+/// Where new users land after signing up. Two tabs: Create a household, or
+/// Join one with an invite code.
 class HouseholdSetupScreen extends ConsumerWidget {
   const HouseholdSetupScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Set up a household'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Log out (temporary)',
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).logout(),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Set up a household'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Create'),
+              Tab(text: 'Join'),
+            ],
           ),
-        ],
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text(
-            'You are not yet a member of any household.\n\n'
-            'Step 5d will add Create + Join forms here.',
-            textAlign: TextAlign.center,
+          actions: [
+            // TODO(step-2): temporary, remove when proper menu lands.
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Log out (temporary)',
+              onPressed: () =>
+                  ref.read(authControllerProvider.notifier).logout(),
+            ),
+          ],
+        ),
+        body: const SafeArea(
+          child: TabBarView(
+            children: [
+              CreateHouseholdForm(),
+              JoinHouseholdForm(),
+            ],
           ),
         ),
+        bottomNavigationBar: const SafeArea(child: BuildLabel()),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }
