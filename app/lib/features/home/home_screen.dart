@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/chores/chores_controller.dart';
+import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
@@ -42,8 +44,13 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () =>
+        onRefresh: () async {
+          await Future.wait([
             ref.read(subjectsControllerProvider.notifier).refresh(),
+            ref.read(choresControllerProvider.notifier).refresh(),
+            ref.read(todayCompletionsControllerProvider.notifier).refresh(),
+          ]);
+        },
         child: asyncSubjects.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => ListView(

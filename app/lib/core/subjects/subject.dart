@@ -1,19 +1,23 @@
-/// A "Subject" — the thing chores are done to/for. A dog, a cat, a plant, a
-/// child. Belongs to one household.
-class Subject {
-  final String id;
-  final String householdId;
-  final String name;
-  final String? icon;
-  final String? nfcTagId;
-  final int sortOrder;
+import 'package:pocketbase/pocketbase.dart';
 
-  const Subject({
-    required this.id,
-    required this.householdId,
-    required this.name,
-    this.icon,
-    this.nfcTagId,
-    this.sortOrder = 0,
-  });
+/// Thin wrapper around a PocketBase `subjects` record.
+class Subject {
+  final RecordModel record;
+  const Subject(this.record);
+
+  String get id => record.id;
+  String get householdId => record.data['household'] as String;
+  String get name => record.data['name'] as String;
+
+  String? get icon {
+    final v = record.data['icon'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
+  String? get nfcTagId {
+    final v = record.data['nfc_tag_id'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
+  int get sortOrder => (record.data['sort_order'] as num?)?.toInt() ?? 0;
 }

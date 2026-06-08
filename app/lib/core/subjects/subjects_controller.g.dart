@@ -7,18 +7,12 @@ part of 'subjects_controller.dart';
 // **************************************************************************
 
 String _$subjectsControllerHash() =>
-    r'031db2be689fc78134d910ed526c531e54365fc4';
+    r'220929fc8bcfee2f2fe96131dadb131e2f04d0ab';
 
 /// Loads the current household's subjects from PocketBase. Rebuilds whenever
 /// the user switches household.
 ///
 /// Returns an empty list if no household is currently selected.
-///
-/// **State-management notes:**
-/// - All `ref.watch` calls happen before any `await`, so dependency
-///   tracking survives the async boundary.
-/// - Records are sorted by `sort_order` then `name` server-side via the
-///   `sort` parameter so the UI doesn't have to re-sort.
 ///
 /// Copied from [SubjectsController].
 @ProviderFor(SubjectsController)

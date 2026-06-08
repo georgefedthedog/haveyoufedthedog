@@ -7,11 +7,11 @@ part of 'households_controller.dart';
 // **************************************************************************
 
 String _$householdsControllerHash() =>
-    r'992a5e548460db298ed3b6a7f3c46c615290d346';
+    r'a3dc62e53178b01aa149a17909b4454443dbd07b';
 
-/// Loads the current user's households from PocketBase. Each one is joined
-/// with the user's `household_members` row to carry role + membershipId.
-/// Rebuilds when auth state changes (login / logout / signup).
+/// Loads the current user's households from PocketBase. Each one wraps a
+/// `households` record and carries the user's role + membershipId from
+/// the related `household_members` row. Rebuilds when auth changes.
 ///
 /// Returns an empty list if the user is signed out.
 ///

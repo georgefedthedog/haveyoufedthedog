@@ -1,26 +1,27 @@
-/// One member of a household, as seen from the inside (name + role).
-/// Joined from a `household_members` record + the related `users` record.
+import 'package:pocketbase/pocketbase.dart';
+
+/// One member of a household, as seen from the inside. Wraps a row from the
+/// `household_member_details` PB View — a server-side JOIN of
+/// `household_members` and `users` that exposes only the safe fields
+/// (id, household, user, role, user_name).
 class HouseholdMember {
+  final RecordModel record;
+  const HouseholdMember(this.record);
+
   /// Primary key of the `household_members` row.
-  final String membershipId;
+  String get membershipId => record.id;
+
+  String get householdId => record.data['household'] as String;
 
   /// Primary key of the `users` row.
-  final String userId;
+  String get userId => record.data['user'] as String;
 
-  /// Display name. Falls back to "(unknown)" if the user record couldn't be
-  /// fetched (e.g. permission denied because the server schema wasn't
-  /// updated to allow cross-user reads).
-  final String displayName;
+  /// `owner` or `member`.
+  String get role => record.data['role'] as String? ?? 'member';
 
-  /// `owner` or `member` — server-side enum.
-  final String role;
-
-  const HouseholdMember({
-    required this.membershipId,
-    required this.userId,
-    required this.displayName,
-    required this.role,
-  });
+  /// Display name. Falls back to "(unknown)" if the View couldn't surface it.
+  String get displayName =>
+      (record.data['user_name'] as String?) ?? '(unknown)';
 
   bool get isOwner => role == 'owner';
 }

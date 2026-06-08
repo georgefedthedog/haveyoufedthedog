@@ -1,16 +1,15 @@
-/// A household, as seen by a member of it. Flat by design: we only ever
-/// fetch households in the context of "the current user is a member," so
-/// the user's role and membership row PK are part of the entity rather than
-/// living in a separate wrapper.
+import 'package:pocketbase/pocketbase.dart';
+
+/// A household, as seen by a member of it. Wraps the `households` record
+/// and carries the user's [role] + [membershipId] from the related
+/// `household_members` row — because we only ever look at households in
+/// the context of the current user being a member.
 ///
 /// Distinct from [HouseholdMember], which represents a *peer* user's row
 /// when viewing a single household's members list.
 class Household {
-  /// Primary key in the `households` collection.
-  final String id;
-
-  /// Display name, e.g. "Paihia House".
-  final String name;
+  /// The underlying `households` record.
+  final RecordModel record;
 
   /// The current user's role in this household — `owner` or `member`.
   final String role;
@@ -19,21 +18,21 @@ class Household {
   /// user access. Needed for leave / kick operations.
   final String membershipId;
 
-  /// Current rotating invite code, or null when invites are closed.
-  /// Only meaningful when [invitesOpen] is true.
-  final String? inviteCode;
-
-  /// Whether new members can join right now.
-  final bool invitesOpen;
-
   const Household({
-    required this.id,
-    required this.name,
+    required this.record,
     required this.role,
     required this.membershipId,
-    required this.inviteCode,
-    required this.invitesOpen,
   });
+
+  String get id => record.id;
+  String get name => record.data['name'] as String? ?? 'Unnamed household';
+
+  String? get inviteCode {
+    final v = record.data['invite_code'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
+  bool get invitesOpen => (record.data['invites_open'] as bool?) ?? false;
 
   bool get isOwner => role == 'owner';
 }
