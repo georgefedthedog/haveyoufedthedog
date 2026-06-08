@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "667397772143",
+    "project_id": "haveyoufedthedog-a1d9f",
+    "storage_bucket": "haveyoufedthedog-a1d9f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667397772143:android:4162f91469dbaf2fa60e9a",
+        "android_client_info": {
+          "package_name": "com.haveyoufedthedog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtuQsIcoXxzfotQ6xn7HIGy7Y0NEzQ7vE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
