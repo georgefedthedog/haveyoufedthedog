@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/household/household.dart';
 import '../../core/household/household_actions.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/household/household_membership.dart';
-import '../../core/household/household_memberships_controller.dart';
+import '../../core/household/households_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 
@@ -20,22 +20,22 @@ class HouseholdDetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncMemberships = ref.watch(householdMembershipsControllerProvider);
+    final asyncHouseholds = ref.watch(householdsControllerProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Household')),
-      body: asyncMemberships.when(
+      body: asyncHouseholds.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (memberships) {
-          HouseholdMembership? membership;
-          for (final m in memberships) {
-            if (m.householdId == householdId) {
-              membership = m;
+        data: (households) {
+          Household? household;
+          for (final h in households) {
+            if (h.id == householdId) {
+              household = h;
               break;
             }
           }
-          if (membership == null) {
+          if (household == null) {
             return const Center(
               child: Padding(
                 padding: EdgeInsets.all(24),
@@ -46,7 +46,7 @@ class HouseholdDetailsScreen extends ConsumerWidget {
               ),
             );
           }
-          return _Body(membership: membership);
+          return _Body(household: household);
         },
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
@@ -55,11 +55,11 @@ class HouseholdDetailsScreen extends ConsumerWidget {
 }
 
 class _Body extends ConsumerWidget {
-  final HouseholdMembership membership;
-  const _Body({required this.membership});
+  final Household household;
+  const _Body({required this.household});
 
   Future<void> _rename(BuildContext context, WidgetRef ref) async {
-    final controller = TextEditingController(text: membership.householdName);
+    final controller = TextEditingController(text: household.name);
     final newName = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -84,12 +84,12 @@ class _Body extends ConsumerWidget {
     );
     if (newName == null ||
         newName.isEmpty ||
-        newName == membership.householdName) {
+        newName == household.name) {
       return;
     }
     try {
       await ref.read(householdActionsProvider).renameHousehold(
-            householdId: membership.householdId,
+            householdId: household.id,
             newName: newName,
           );
     } on ClientException catch (e) {
@@ -112,7 +112,7 @@ class _Body extends ConsumerWidget {
   Future<void> _leave(BuildContext context, WidgetRef ref) async {
     final confirmed = await _confirm(
       context,
-      title: 'Leave ${membership.householdName}?',
+      title: 'Leave ${household.name}?',
       body: "You won't see this household's chores or completions any more. "
           'You can re-join later with an invite code.',
       action: 'Leave',
@@ -120,7 +120,7 @@ class _Body extends ConsumerWidget {
     if (!confirmed) return;
     try {
       await ref.read(householdActionsProvider).leaveHousehold(
-            membershipId: membership.membershipId,
+            membershipId: household.membershipId,
           );
       if (context.mounted) context.go(Routes.home);
     } catch (e) {
@@ -136,7 +136,7 @@ class _Body extends ConsumerWidget {
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final confirmed = await _confirm(
       context,
-      title: 'Delete ${membership.householdName}?',
+      title: 'Delete ${household.name}?',
       body: 'All subjects, chores and history for this household will be '
           'permanently removed for everyone in it. This cannot be undone.',
       action: 'Delete',
@@ -144,7 +144,7 @@ class _Body extends ConsumerWidget {
     if (!confirmed) return;
     try {
       await ref.read(householdActionsProvider).deleteHousehold(
-            householdId: membership.householdId,
+            householdId: household.id,
           );
       if (context.mounted) context.go(Routes.home);
     } catch (e) {
@@ -189,15 +189,15 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isOwner = membership.isOwner;
+    final isOwner = household.isOwner;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Card(
           child: ListTile(
             leading: const Icon(Icons.home_outlined),
-            title: Text(membership.householdName),
-            subtitle: Text('Your role: ${membership.role}'),
+            title: Text(household.name),
+            subtitle: Text('Your role: ${household.role}'),
             trailing: isOwner
                 ? IconButton(
                     icon: const Icon(Icons.edit_outlined),
@@ -208,12 +208,12 @@ class _Body extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 24),
-        _InviteSettings(membership: membership),
+        _InviteSettings(household: household),
         const SizedBox(height: 24),
         Text('Members', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         _MembersList(
-          householdId: membership.householdId,
+          householdId: household.id,
           viewerIsOwner: isOwner,
         ),
         const SizedBox(height: 24),
@@ -243,8 +243,8 @@ class _Body extends ConsumerWidget {
 }
 
 class _InviteSettings extends ConsumerStatefulWidget {
-  final HouseholdMembership membership;
-  const _InviteSettings({required this.membership});
+  final Household household;
+  const _InviteSettings({required this.household});
 
   @override
   ConsumerState<_InviteSettings> createState() => _InviteSettingsState();
@@ -257,7 +257,7 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     setState(() => _busy = true);
     try {
       await ref.read(householdActionsProvider).setInvitesOpen(
-            householdId: widget.membership.householdId,
+            householdId: widget.household.id,
             open: open,
           );
     } catch (e) {
@@ -277,7 +277,7 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     try {
       await ref
           .read(householdActionsProvider)
-          .rotateInviteCode(widget.membership.householdId);
+          .rotateInviteCode(widget.household.id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -302,9 +302,9 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner = widget.membership.isOwner;
-    final isOpen = widget.membership.invitesOpen;
-    final code = widget.membership.inviteCode;
+    final isOwner = widget.household.isOwner;
+    final isOpen = widget.household.invitesOpen;
+    final code = widget.household.inviteCode;
 
     return Card(
       child: Padding(

@@ -4,26 +4,30 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/household/current_household_controller.dart';
-import '../../core/household/household_memberships_controller.dart';
+import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/empty_state.dart';
+import 'subject_card.dart';
 
-/// Placeholder home screen. Step 5 ends here. Step 6 will replace the body
-/// with the subjects list.
+/// Home screen — read-only list of the current household's subjects.
+/// Step 7 will add chore-status chips on each card; Step 8 makes them
+/// tappable to log a completion.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authControllerProvider);
-    final asyncMemberships = ref.watch(householdMembershipsControllerProvider);
     final asyncCurrent = ref.watch(currentHouseholdControllerProvider);
+    final asyncSubjects = ref.watch(subjectsControllerProvider);
+
+    final householdName =
+        asyncCurrent.valueOrNull?.name ?? 'Have You Fed The Dog?';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Have You Fed The Dog?'),
+        title: Text(householdName),
         actions: [
-          // TODO(step-5): temporary, replace with proper menu in Step 16.
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             tooltip: 'Switch household',
@@ -37,59 +41,51 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(
-            'Hi ${auth.displayName ?? auth.email ?? "stranger"} 👋',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 24),
-          Text('Current household',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: asyncCurrent.when(
-                loading: () => const Text('Resolving…'),
-                error: (e, _) => Text('Error: $e'),
-                data: (current) => Text(
-                  current == null
-                      ? '(none)'
-                      : '${current.householdName} (${current.role})',
-                ),
+      body: RefreshIndicator(
+        onRefresh: () =>
+            ref.read(subjectsControllerProvider.notifier).refresh(),
+        child: asyncSubjects.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('Could not load subjects: $e'),
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: 24),
-          Text('Your memberships',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          asyncMemberships.when(
-            loading: () => const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (e, _) => Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text('Could not load memberships: $e'),
-              ),
-            ),
-            data: (memberships) => Column(
-              children: [
-                for (final m in memberships)
-                  Card(
-                    child: ListTile(
-                      title: Text(m.householdName),
-                      subtitle: Text(m.role),
+          data: (subjects) {
+            if (subjects.isEmpty) {
+              // ListView needed so RefreshIndicator still works on empty.
+              return ListView(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: EmptyState(
+                      icon: Icons.pets,
+                      title: 'No subjects yet',
+                      message:
+                          'Add a dog, cat, plant, or whatever else needs '
+                          'looking after.',
+                      actionLabel: 'Add a subject',
+                      // TODO(step-9): wire to edit_subject_screen.
+                      onAction: null,
                     ),
                   ),
-              ],
-            ),
-          ),
-        ],
+                ],
+              );
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: subjects.length,
+              itemBuilder: (context, i) => SubjectCard(
+                subject: subjects[i],
+                // TODO(step-10): wire to subject_detail_screen.
+                onTap: null,
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );

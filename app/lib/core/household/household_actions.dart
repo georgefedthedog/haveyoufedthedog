@@ -7,7 +7,7 @@ import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
 import 'current_household_controller.dart';
 import 'household_members_controller.dart';
-import 'household_memberships_controller.dart';
+import 'households_controller.dart';
 
 part 'household_actions.g.dart';
 
@@ -16,7 +16,7 @@ part 'household_actions.g.dart';
 HouseholdActions householdActions(Ref ref) => HouseholdActions(ref);
 
 /// **Not** a Riverpod notifier — actions don't have their own state. State
-/// lives in `HouseholdMembershipsController` / `CurrentHouseholdController`.
+/// lives in `HouseholdsController` / `CurrentHouseholdController`.
 class HouseholdActions {
   final Ref _ref;
   HouseholdActions(this._ref);
@@ -44,7 +44,7 @@ class HouseholdActions {
       'role': 'owner',
     });
 
-    _ref.invalidate(householdMembershipsControllerProvider);
+    _ref.invalidate(householdsControllerProvider);
     await _ref
         .read(currentHouseholdControllerProvider.notifier)
         .setCurrent(household.id);
@@ -72,7 +72,7 @@ class HouseholdActions {
       throw Exception('Server returned an unexpected response.');
     }
 
-    _ref.invalidate(householdMembershipsControllerProvider);
+    _ref.invalidate(householdsControllerProvider);
     await _ref
         .read(currentHouseholdControllerProvider.notifier)
         .setCurrent(householdId);
@@ -89,20 +89,20 @@ class HouseholdActions {
     // Surgical update — no full memberships refetch, so the router doesn't
     // bounce the user to the splash screen mid-edit.
     _ref
-        .read(householdMembershipsControllerProvider.notifier)
-        .updateOneInPlace(householdId: householdId, householdName: newName);
+        .read(householdsControllerProvider.notifier)
+        .updateOneInPlace(householdId: householdId, name: newName);
   }
 
   Future<void> leaveHousehold({required String membershipId}) async {
     final pb = _ref.read(pocketbaseClientProvider);
     await pb.collection('household_members').delete(membershipId);
-    _ref.invalidate(householdMembershipsControllerProvider);
+    _ref.invalidate(householdsControllerProvider);
   }
 
   Future<void> deleteHousehold({required String householdId}) async {
     final pb = _ref.read(pocketbaseClientProvider);
     await pb.collection('households').delete(householdId);
-    _ref.invalidate(householdMembershipsControllerProvider);
+    _ref.invalidate(householdsControllerProvider);
   }
 
   Future<void> kickMember({
@@ -130,7 +130,7 @@ class HouseholdActions {
       'invite_code': code ?? '',
     });
     _ref
-        .read(householdMembershipsControllerProvider.notifier)
+        .read(householdsControllerProvider.notifier)
         .updateOneInPlace(
           householdId: householdId,
           inviteCode: code,
@@ -148,7 +148,7 @@ class HouseholdActions {
       'invite_code': code,
     });
     _ref
-        .read(householdMembershipsControllerProvider.notifier)
+        .read(householdsControllerProvider.notifier)
         .updateOneInPlace(householdId: householdId, inviteCode: code);
   }
 }

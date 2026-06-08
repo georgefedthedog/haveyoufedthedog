@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/auth/auth_controller.dart';
 import '../core/household/current_household_controller.dart';
-import '../core/household/household_memberships_controller.dart';
+import '../core/household/households_controller.dart';
 
 part 'routing_phase.g.dart';
 
@@ -44,11 +44,11 @@ RoutingPhase routingPhase(Ref ref) {
   final auth = ref.watch(authControllerProvider);
   if (!auth.isAuthenticated) return RoutingPhase.signedOut;
 
-  final memberships = ref.watch(householdMembershipsControllerProvider);
-  if (memberships.isLoading || memberships.hasError) {
+  final households = ref.watch(householdsControllerProvider);
+  if (households.isLoading || households.hasError) {
     return RoutingPhase.loading;
   }
-  final list = memberships.requireValue;
+  final list = households.requireValue;
   if (list.isEmpty) return RoutingPhase.needsHousehold;
 
   final currentAsync = ref.watch(currentHouseholdControllerProvider);
