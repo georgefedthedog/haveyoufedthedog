@@ -21,16 +21,21 @@ class HouseholdActions {
   final Ref _ref;
   HouseholdActions(this._ref);
 
-  /// Creates a household, makes the current user its owner, and switches
-  /// to it. The router redirect will send the user to /home as soon as
-  /// the memberships list updates.
-  Future<void> createHousehold(String name) async {
-    final pb = _ref.read(pocketbaseClientProvider);
-    final auth = _ref.read(authControllerProvider);
+  Future<String> _currentUserId() async {
+    final auth = await _ref.read(authControllerProvider.future);
     final userId = auth.userId;
     if (userId == null) {
-      throw StateError('Cannot create a household when signed out.');
+      throw StateError('Operation requires a signed-in user.');
     }
+    return userId;
+  }
+
+  /// Creates a household, makes the current user its owner, and switches
+  /// to it. The router redirect will send the user to /home as soon as
+  /// the household list updates.
+  Future<void> createHousehold(String name) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    final userId = await _currentUserId();
 
     final household = await pb.collection('households').create(body: {
       'name': name,
@@ -55,11 +60,8 @@ class HouseholdActions {
   /// that the household has `invites_open = true` and the code matches.
   Future<void> joinByCode(String rawCode) async {
     final code = rawCode.trim().toUpperCase();
-    final pb = _ref.read(pocketbaseClientProvider);
-    final auth = _ref.read(authControllerProvider);
-    if (auth.userId == null) {
-      throw StateError('Cannot join a household when signed out.');
-    }
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
 
     final response = await pb.send<Map<String, dynamic>>(
       '/api/custom/join-household-by-code',
@@ -82,25 +84,25 @@ class HouseholdActions {
     required String householdId,
     required String newName,
   }) async {
-    final pb = _ref.read(pocketbaseClientProvider);
+    final pb = await _ref.read(pocketbaseClientProvider.future);
     await pb.collection('households').update(householdId, body: {
       'name': newName,
     });
-    // Surgical update — no full memberships refetch, so the router doesn't
-    // bounce the user to the splash screen mid-edit.
+    // Surgical update — no full refetch, so the router doesn't bounce the
+    // user to the splash screen mid-edit.
     _ref
         .read(householdsControllerProvider.notifier)
         .updateOneInPlace(householdId: householdId, name: newName);
   }
 
   Future<void> leaveHousehold({required String membershipId}) async {
-    final pb = _ref.read(pocketbaseClientProvider);
+    final pb = await _ref.read(pocketbaseClientProvider.future);
     await pb.collection('household_members').delete(membershipId);
     _ref.invalidate(householdsControllerProvider);
   }
 
   Future<void> deleteHousehold({required String householdId}) async {
-    final pb = _ref.read(pocketbaseClientProvider);
+    final pb = await _ref.read(pocketbaseClientProvider.future);
     await pb.collection('households').delete(householdId);
     _ref.invalidate(householdsControllerProvider);
   }
@@ -109,7 +111,7 @@ class HouseholdActions {
     required String membershipId,
     required String householdId,
   }) async {
-    final pb = _ref.read(pocketbaseClientProvider);
+    final pb = await _ref.read(pocketbaseClientProvider.future);
     await pb.collection('household_members').delete(membershipId);
     _ref.invalidate(householdMembersControllerProvider(householdId));
   }
@@ -123,7 +125,7 @@ class HouseholdActions {
     required String householdId,
     required bool open,
   }) async {
-    final pb = _ref.read(pocketbaseClientProvider);
+    final pb = await _ref.read(pocketbaseClientProvider.future);
     final code = open ? _generateInviteCode() : null;
     await pb.collection('households').update(householdId, body: {
       'invites_open': open,
@@ -142,7 +144,7 @@ class HouseholdActions {
   /// Rotates the invite code for a household that already has invites open.
   /// Old code is immediately invalidated.
   Future<void> rotateInviteCode(String householdId) async {
-    final pb = _ref.read(pocketbaseClientProvider);
+    final pb = await _ref.read(pocketbaseClientProvider.future);
     final code = _generateInviteCode();
     await pb.collection('households').update(householdId, body: {
       'invite_code': code,

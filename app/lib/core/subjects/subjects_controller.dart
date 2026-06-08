@@ -14,9 +14,10 @@ part 'subjects_controller.g.dart';
 class SubjectsController extends _$SubjectsController {
   @override
   Future<List<Subject>> build() async {
-    final pb = ref.watch(pocketbaseClientProvider);
+    final pbFuture = ref.watch(pocketbaseClientProvider.future);
     final currentAsync = ref.watch(currentHouseholdControllerProvider);
 
+    final pb = await pbFuture;
     final current = currentAsync.valueOrNull;
     if (current == null) return const [];
 

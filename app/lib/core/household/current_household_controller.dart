@@ -26,18 +26,19 @@ const _kPersistedKey = 'current_household_id_v1';
 class CurrentHouseholdController extends _$CurrentHouseholdController {
   @override
   Future<Household?> build() async {
-    // Watch auth synchronously before any await so the controller rebuilds
-    // when login state changes.
-    final auth = ref.watch(authControllerProvider);
-    final households =
-        await ref.watch(householdsControllerProvider.future);
+    final authFuture = ref.watch(authControllerProvider.future);
+    final householdsFuture = ref.watch(householdsControllerProvider.future);
+    final prefsFuture = ref.watch(sharedPreferencesProvider.future);
+
+    final auth = await authFuture;
+    final households = await householdsFuture;
+    final prefs = await prefsFuture;
 
     // If the user is signed out, leave the persisted choice alone — it's
     // still relevant when they sign back in. If we cleared it here, the
     // logout-then-login cycle would always lose their last selection.
     if (!auth.isAuthenticated) return null;
 
-    final prefs = ref.read(sharedPreferencesProvider);
     final persistedId = prefs.getString(_kPersistedKey);
 
     if (persistedId != null) {
@@ -68,14 +69,14 @@ class CurrentHouseholdController extends _$CurrentHouseholdController {
         'Tried to switch to household $householdId but the user is not a member.',
       ),
     );
-    final prefs = ref.read(sharedPreferencesProvider);
+    final prefs = await ref.read(sharedPreferencesProvider.future);
     await prefs.setString(_kPersistedKey, householdId);
     state = AsyncData(h);
   }
 
   /// Forgets the persisted choice. Useful on logout.
   Future<void> clear() async {
-    final prefs = ref.read(sharedPreferencesProvider);
+    final prefs = await ref.read(sharedPreferencesProvider.future);
     await prefs.remove(_kPersistedKey);
     state = const AsyncData(null);
   }

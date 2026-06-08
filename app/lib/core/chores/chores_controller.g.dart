@@ -6,7 +6,7 @@ part of 'chores_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$choresControllerHash() => r'706de21b6a66c12cbf674b8eb6d6af57239b2982';
+String _$choresControllerHash() => r'0efe531341c2bea618b84b2df504674787e05eba';
 
 /// All chores in the current household, across every subject. The home
 /// screen filters down to "due today" per-subject when rendering chips —

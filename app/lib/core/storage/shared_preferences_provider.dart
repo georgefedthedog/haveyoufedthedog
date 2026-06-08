@@ -4,12 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'shared_preferences_provider.g.dart';
 
-/// The app-wide SharedPreferences instance. Initialized once in `main()`
-/// and overridden into this provider, so the rest of the app sees a
-/// synchronous `SharedPreferences`.
+/// Async-initialised SharedPreferences singleton. Downstream code reads it
+/// via `await ref.watch(sharedPreferencesProvider.future)`.
 @Riverpod(keepAlive: true)
-SharedPreferences sharedPreferences(Ref ref) {
-  throw UnimplementedError(
-    'sharedPreferencesProvider must be overridden in main()',
-  );
+Future<SharedPreferences> sharedPreferences(Ref ref) async {
+  return SharedPreferences.getInstance();
 }

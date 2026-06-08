@@ -434,7 +434,8 @@ class _MembersList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncMembers =
         ref.watch(householdMembersControllerProvider(householdId));
-    final myUserId = ref.watch(authControllerProvider).userId;
+    final myUserId =
+        ref.watch(authControllerProvider).valueOrNull?.userId;
 
     return asyncMembers.when(
       loading: () => const Padding(

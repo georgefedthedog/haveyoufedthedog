@@ -15,8 +15,11 @@ part 'household_members_controller.g.dart';
 class HouseholdMembersController extends _$HouseholdMembersController {
   @override
   Future<List<HouseholdMember>> build(String householdId) async {
-    final pb = ref.watch(pocketbaseClientProvider);
-    final auth = ref.watch(authControllerProvider);
+    final pbFuture = ref.watch(pocketbaseClientProvider.future);
+    final authFuture = ref.watch(authControllerProvider.future);
+
+    final pb = await pbFuture;
+    final auth = await authFuture;
     if (!auth.isAuthenticated) return const [];
 
     try {

@@ -7,7 +7,7 @@ part of 'households_controller.dart';
 // **************************************************************************
 
 String _$householdsControllerHash() =>
-    r'a3dc62e53178b01aa149a17909b4454443dbd07b';
+    r'10ac9cc4807eccf843405d0f3cfbf9565edfc796';
 
 /// Loads the current user's households from PocketBase. Each one wraps a
 /// `households` record and carries the user's role + membershipId from
@@ -16,8 +16,8 @@ String _$householdsControllerHash() =>
 /// Returns an empty list if the user is signed out.
 ///
 /// **State-management notes:**
-/// - Both `ref.watch` calls happen *before* any `await`, so Riverpod's
-///   dependency tracking stays intact.
+/// - All `ref.watch` calls happen *before* any `await`, so Riverpod's
+///   dependency tracking stays intact across the async boundary.
 /// - We deliberately do two PB calls (memberships → each household) rather
 ///   than `expand: 'household'`. The expand API in the PB Dart SDK 0.22 has
 ///   sharp edges (lists vs singletons) we'd rather avoid.

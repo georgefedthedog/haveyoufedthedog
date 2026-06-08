@@ -7,7 +7,7 @@ part of 'today_completions_controller.dart';
 // **************************************************************************
 
 String _$todayCompletionsControllerHash() =>
-    r'c1ba8927c304a1769306be6f2568431de2f6bea7';
+    r'0d323739f18ab5c0cbc501a9757c6562a0645e38';
 
 /// Completions logged today (local-day) for the current household.
 /// Backs the green/grey state of the chore-status chips on the home screen.

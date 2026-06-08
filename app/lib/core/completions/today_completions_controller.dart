@@ -15,9 +15,10 @@ part 'today_completions_controller.g.dart';
 class TodayCompletionsController extends _$TodayCompletionsController {
   @override
   Future<List<Completion>> build() async {
-    final pb = ref.watch(pocketbaseClientProvider);
+    final pbFuture = ref.watch(pocketbaseClientProvider.future);
     final currentAsync = ref.watch(currentHouseholdControllerProvider);
 
+    final pb = await pbFuture;
     final current = currentAsync.valueOrNull;
     if (current == null) return const [];
 

@@ -7,7 +7,7 @@ part of 'household_members_controller.dart';
 // **************************************************************************
 
 String _$householdMembersControllerHash() =>
-    r'34a19380adfcc16cd0fdf00dafc016bb5e07e219';
+    r'ce01a32458c58400f8fd6f8416cd87a89f3c946a';
 
 /// Copied from Dart SDK
 class _SystemHash {

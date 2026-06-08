@@ -6,9 +6,9 @@ part of 'routing_phase.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$routingPhaseHash() => r'15a3ab2a2f712fd3a71a1c36cb601ca1ef742c6b';
+String _$routingPhaseHash() => r'68685d6b010f8a2d92e7167b9a1cd6f2fa6532af';
 
-/// Derives the current [RoutingPhase] from auth + memberships + current.
+/// Derives the current [RoutingPhase] from auth + households + current.
 ///
 /// Returns an enum value, so the router's listener only fires on actual
 /// phase transitions. Adding a chore, renaming a household, etc. won't

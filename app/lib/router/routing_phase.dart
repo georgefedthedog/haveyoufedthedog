@@ -18,30 +18,32 @@ part 'routing_phase.g.dart';
 /// skips notifying listeners when a provider's value is equal to its
 /// previous one.
 enum RoutingPhase {
-  /// Auth / memberships still loading on app start. Show splash.
+  /// Auth / households still loading on app start. Show splash.
   loading,
 
   /// No valid session. Show login / signup.
   signedOut,
 
-  /// Authenticated but the user has zero memberships. Force setup.
+  /// Authenticated but the user has zero households. Force setup.
   needsHousehold,
 
-  /// Authenticated, 2+ memberships, no current chosen. Force picker.
+  /// Authenticated, 2+ households, no current chosen. Force picker.
   needsToPick,
 
   /// Fully resolved — the user has a current household. Show app routes.
   ready,
 }
 
-/// Derives the current [RoutingPhase] from auth + memberships + current.
+/// Derives the current [RoutingPhase] from auth + households + current.
 ///
 /// Returns an enum value, so the router's listener only fires on actual
 /// phase transitions. Adding a chore, renaming a household, etc. won't
 /// produce a different phase — so the router doesn't bounce the user.
 @Riverpod(keepAlive: true)
 RoutingPhase routingPhase(Ref ref) {
-  final auth = ref.watch(authControllerProvider);
+  final authAsync = ref.watch(authControllerProvider);
+  final auth = authAsync.valueOrNull;
+  if (auth == null) return RoutingPhase.loading;
   if (!auth.isAuthenticated) return RoutingPhase.signedOut;
 
   final households = ref.watch(householdsControllerProvider);
@@ -56,12 +58,12 @@ RoutingPhase routingPhase(Ref ref) {
   // was null (or we have no value yet). This covers:
   //   - fresh app start (no value yet)
   //   - the login transition (previous value was null from signed-out state,
-  //     now resolving against the freshly-loaded memberships)
+  //     now resolving against the freshly-loaded households)
   //
-  // Once we have a non-null membership, subsequent `AsyncLoading`
-  // transitions (e.g. membership churn from invalidations) keep the
-  // previous value, so this guard doesn't fire — the phase stays `ready`
-  // and the user isn't bounced off whatever screen they're on.
+  // Once we have a non-null household, subsequent `AsyncLoading`
+  // transitions (e.g. churn from invalidations) keep the previous value,
+  // so this guard doesn't fire — the phase stays `ready` and the user
+  // isn't bounced off whatever screen they're on.
   if (currentAsync.isLoading && currentAsync.valueOrNull == null) {
     return RoutingPhase.loading;
   }

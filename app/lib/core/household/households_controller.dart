@@ -14,8 +14,8 @@ part 'households_controller.g.dart';
 /// Returns an empty list if the user is signed out.
 ///
 /// **State-management notes:**
-/// - Both `ref.watch` calls happen *before* any `await`, so Riverpod's
-///   dependency tracking stays intact.
+/// - All `ref.watch` calls happen *before* any `await`, so Riverpod's
+///   dependency tracking stays intact across the async boundary.
 /// - We deliberately do two PB calls (memberships → each household) rather
 ///   than `expand: 'household'`. The expand API in the PB Dart SDK 0.22 has
 ///   sharp edges (lists vs singletons) we'd rather avoid.
@@ -23,8 +23,11 @@ part 'households_controller.g.dart';
 class HouseholdsController extends _$HouseholdsController {
   @override
   Future<List<Household>> build() async {
-    final pb = ref.watch(pocketbaseClientProvider);
-    final auth = ref.watch(authControllerProvider);
+    final pbFuture = ref.watch(pocketbaseClientProvider.future);
+    final authFuture = ref.watch(authControllerProvider.future);
+
+    final pb = await pbFuture;
+    final auth = await authFuture;
 
     if (!auth.isAuthenticated || auth.userId == null) return const [];
     final userId = auth.userId!;

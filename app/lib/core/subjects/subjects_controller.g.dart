@@ -7,7 +7,7 @@ part of 'subjects_controller.dart';
 // **************************************************************************
 
 String _$subjectsControllerHash() =>
-    r'220929fc8bcfee2f2fe96131dadb131e2f04d0ab';
+    r'69ed9dd4ccea34d4c94ae462a1d26f3862cd5e22';
 
 /// Loads the current household's subjects from PocketBase. Rebuilds whenever
 /// the user switches household.
