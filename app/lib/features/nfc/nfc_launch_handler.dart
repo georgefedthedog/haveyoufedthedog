@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
+import '../../core/completions/recent_completions_controller.dart';
+import '../../core/completions/streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/nfc/nfc_service.dart';
+import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject_actions.dart';
+import '../../router/app_router.dart';
+import '../../router/routes.dart';
+import '../completions/celebration_args.dart';
 
 const _channel = MethodChannel('com.haveyoufedthedog/nfc_launch');
 
@@ -76,6 +83,7 @@ class NfcLaunchHandler {
       if (hh == null) {
         messenger?.showSnackBar(const SnackBar(
           showCloseIcon: true,
+          duration: Duration(seconds: 5),
           content:
               Text('Sign in and pick a household to use NFC tags.'),
         ));
@@ -86,6 +94,7 @@ class NfcLaunchHandler {
       if (subject == null) {
         messenger?.showSnackBar(SnackBar(
           showCloseIcon: true,
+          duration: const Duration(seconds: 5),
           content:
               Text('Unknown tag $tagId — register it from a subject.'),
         ));
@@ -96,22 +105,38 @@ class NfcLaunchHandler {
           .logBestChoreFor(subject.id, source: CompletionSource.nfc);
       if (result == null) {
         messenger?.showSnackBar(SnackBar(
+          duration: const Duration(seconds: 5),
           content: Text('${subject.name}: nothing left for today.'),
         ));
         return;
       }
-      messenger?.showSnackBar(SnackBar(
-        content: Text('${subject.name}: ${result.chore.name} logged.'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () => _ref
-              .read(completionActionsProvider)
-              .undo(result.completion.id),
-        ),
-      ));
+      // Wait for the post-log invalidation of the recent-completions list
+      // to settle so the streak provider has the new completion in scope
+      // before we read it.
+      await _ref
+          .read(recentCompletionsControllerProvider(subject.id).future);
+      final streak = _ref.read(subjectStreakProvider(subject.id));
+
+      // Success: push the celebration route via the router. NfcLaunchHandler
+      // lives outside the widget tree so it has no BuildContext — the router
+      // instance is the entry point. Re-tap on the chore row/chip undoes if
+      // the user wants out; no snackbar Undo button needed.
+      final character = CharacterRegistry.lookup(subject.icon);
+      final whoName =
+          _ref.read(authControllerProvider).valueOrNull?.displayName;
+      _ref.read(appRouterProvider).push(
+            Routes.celebration,
+            extra: CelebrationArgs(
+              character: character,
+              choreName: result.chore.name,
+              whoName: whoName,
+              streak: streak,
+            ),
+          );
     } catch (e) {
       _messengerKey.currentState?.showSnackBar(SnackBar(
         showCloseIcon: true,
+        duration: const Duration(seconds: 5),
         content: Text('NFC log failed: $e'),
       ));
     } finally {

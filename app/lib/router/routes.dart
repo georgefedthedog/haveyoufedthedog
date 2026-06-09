@@ -44,6 +44,10 @@ class Routes {
   /// First-time onboarding — pick a character + first chore preset.
   static const onboarding = '/onboarding';
 
+  /// Full-screen celebration overlay (confetti + character) shown after a
+  /// completion is logged. Push with a `CelebrationArgs` instance in `extra`.
+  static const celebration = '/celebration';
+
   /// Create a new subject in the current household.
   static const subjectNew = '/subject/new';
 

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
+import '../../core/completions/recent_completions_controller.dart';
+import '../../core/completions/streak_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
-import '../completions/completion_celebration.dart';
+import '../../router/routes.dart';
+import '../completions/celebration_args.dart';
 import 'chore_status_chip.dart';
 
 /// Wraps [ChoreStatusChip] with toggle-to-log behaviour. The chip itself
@@ -37,6 +41,13 @@ class ChoreChipWithTap extends ConsumerWidget {
             source: CompletionSource.button,
           );
 
+      // Wait for the post-log invalidation of the recent-completions list
+      // to settle so the streak provider has the new completion in scope
+      // before we read it.
+      await ref
+          .read(recentCompletionsControllerProvider(subjectId).future);
+      final streak = ref.read(subjectStreakProvider(subjectId));
+
       final subjects =
           ref.read(subjectsControllerProvider).valueOrNull ?? const [];
       String? iconToken;
@@ -51,11 +62,14 @@ class ChoreChipWithTap extends ConsumerWidget {
           ref.read(authControllerProvider).valueOrNull?.displayName;
 
       if (!context.mounted) return;
-      await CompletionCelebration.show(
-        context,
-        character: character,
-        choreName: chore.name,
-        whoName: whoName,
+      context.push(
+        Routes.celebration,
+        extra: CelebrationArgs(
+          character: character,
+          choreName: chore.name,
+          whoName: whoName,
+          streak: streak,
+        ),
       );
     } catch (e) {
       messenger.hideCurrentSnackBar();

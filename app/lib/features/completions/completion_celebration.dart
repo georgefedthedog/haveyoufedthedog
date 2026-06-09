@@ -3,9 +3,11 @@ import 'dart:math';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
+import 'celebration_args.dart';
 
 /// Full-screen "Nice work!" overlay shown after a chore is logged.
 ///
@@ -13,45 +15,14 @@ import '../../core/subjects/character_artwork.dart';
 /// the chore name, and a "by Whoever" subtitle. Auto-dismisses after ~3
 /// seconds; the "Nice!" button bails earlier.
 ///
-/// Use [show] to push the route — keeps the call sites in `ChoreRow` /
-/// `ChoreChipWithTap` to a single line.
+/// Mounted as a real [GoRoute] (`/celebration`) so anyone with the router
+/// instance can push it — including code outside the widget tree (the NFC
+/// handler). Push via `context.push(Routes.celebration, extra: args)` from
+/// a widget, or `ref.read(appRouterProvider).push(...)` from a controller.
 class CompletionCelebration extends StatefulWidget {
-  final Character character;
-  final String choreName;
-  final String? whoName;
+  final CelebrationArgs args;
 
-  const CompletionCelebration({
-    super.key,
-    required this.character,
-    required this.choreName,
-    this.whoName,
-  });
-
-  /// Pushes the celebration as a full-screen dialog route. Resolves when
-  /// the user (or the auto-dismiss timer) closes it. Safe to fire-and-
-  /// forget — the calling code keeps moving while the overlay is up.
-  static Future<void> show(
-    BuildContext context, {
-    required Character character,
-    required String choreName,
-    String? whoName,
-  }) {
-    return Navigator.of(context).push<void>(
-      PageRouteBuilder(
-        opaque: false,
-        barrierColor: Colors.black54,
-        transitionDuration: const Duration(milliseconds: 220),
-        pageBuilder: (_, animation, _) => FadeTransition(
-          opacity: animation,
-          child: CompletionCelebration(
-            character: character,
-            choreName: choreName,
-            whoName: whoName,
-          ),
-        ),
-      ),
-    );
-  }
+  const CompletionCelebration({super.key, required this.args});
 
   @override
   State<CompletionCelebration> createState() => _CompletionCelebrationState();
@@ -81,7 +52,7 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
   void _dismiss() {
     _autoDismiss?.cancel();
     if (!mounted) return;
-    Navigator.of(context).maybePop();
+    if (context.canPop()) context.pop();
   }
 
   @override
@@ -97,8 +68,9 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
+    final args = widget.args;
     return Scaffold(
-      backgroundColor: widget.character.stageColor,
+      backgroundColor: args.character.stageColor,
       body: SafeArea(
         child: Stack(
           alignment: Alignment.center,
@@ -136,7 +108,7 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                     child: SizedBox(
                       height: 220,
                       child: CharacterArtwork(
-                        character: widget.character,
+                        character: args.character,
                         expression: CharacterExpression.celebrating,
                         stage: false,
                         iconSize: 160,
@@ -145,14 +117,34 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    '${widget.choreName}\nAll done!',
+                    '${args.choreName}\nAll done!',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                       color: Colors.black87,
                     ),
                   ),
-                  if (widget.whoName != null) ...[
+                  if (args.streak >= 1) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        args.streak == 1
+                            ? '🔥 Streak started!'
+                            : '🔥 ${args.streak} day streak!',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (args.whoName != null) ...[
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -162,7 +154,7 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'Logged by ${widget.whoName}',
+                        'Logged by ${args.whoName}',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
