@@ -216,6 +216,7 @@ class _BodyState extends ConsumerState<_Body> {
     if (!_isDirty) return;
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
     final newName = _nameCtrl.text.trim();
     try {
       await ref.read(householdActionsProvider).updateHousehold(
@@ -224,17 +225,19 @@ class _BodyState extends ConsumerState<_Body> {
             picture: _isPictureDirty ? (_stagedPicture ?? '') : null,
           );
       if (_isNameDirty) _seededName = newName;
+      // Save succeeded → drop the user back on home.
+      if (mounted) router.go(Routes.home);
     } on ClientException catch (e) {
       messenger.showSnackBar(SnackBar(
         showCloseIcon: true,
         content: Text(e.response['message'] as String? ?? 'Save failed'),
       ));
+      if (mounted) setState(() => _busy = false);
     } catch (e) {
       messenger.showSnackBar(SnackBar(
         showCloseIcon: true,
         content: Text('$e'),
       ));
-    } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -254,9 +257,10 @@ class _BodyState extends ConsumerState<_Body> {
         padding: const EdgeInsets.all(16),
         children: [
           // Picture carousel — staged selection only; written to PB by
-          // the Save changes button along with any name edit.
+          // the Save changes button along with any name edit. Picture is
+          // editable by everyone (kids included); name stays owner-only.
           IgnorePointer(
-            ignoring: !isOwner || _busy,
+            ignoring: _busy,
             child: PicturePicker(
               selected: _stagedPicture,
               onChanged: (pictureId) =>
@@ -276,20 +280,18 @@ class _BodyState extends ConsumerState<_Body> {
               if (isOwner && _isDirty) _save();
             },
           ),
-          if (isOwner) ...[
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check),
-              label: const Text('Save changes'),
-              onPressed: (_isDirty && !_busy) ? _save : null,
-            ),
-          ],
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            icon: _busy
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.check),
+            label: const Text('Save changes'),
+            onPressed: (_isDirty && !_busy) ? _save : null,
+          ),
           const SizedBox(height: 16),
           Text(
             'Your role: ${h.role}',

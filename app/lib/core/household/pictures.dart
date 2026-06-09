@@ -3,10 +3,9 @@ import 'picture.dart';
 /// Curated registry of household pictures. Each entry's [Picture.id] is
 /// what gets stored on `households.picture`.
 ///
-/// Unlike `CharacterRegistry`, [lookup] returns null for unknown / empty
-/// ids — the render layer ([PictureArtwork]) decides what "no picture"
-/// looks like. That keeps "no selection" a real state rather than a
-/// synthetic generic.
+/// [lookup] always returns a non-null [Picture]: it falls back to
+/// [defaultPicture] for null, empty, or unknown ids. That way every
+/// household renders a real house rather than the generic placeholder.
 class PictureRegistry {
   PictureRegistry._();
 
@@ -33,13 +32,17 @@ class PictureRegistry {
   static const beach = Picture(id: 'beach', displayName: 'Beach house');
   static const flat = Picture(id: 'flat', displayName: 'Flat');
 
-  /// Look up a picture by stored id. Returns null for null, empty, or
-  /// unknown values — caller renders the fallback.
-  static Picture? lookup(String? id) {
-    if (id == null || id.isEmpty) return null;
+  /// Shown for households that haven't picked a picture yet (or whose
+  /// stored id no longer matches a registry entry).
+  static const defaultPicture = paihia;
+
+  /// Look up a picture by stored id. Falls back to [defaultPicture] for
+  /// null, empty, or unknown values.
+  static Picture lookup(String? id) {
+    if (id == null || id.isEmpty) return defaultPicture;
     for (final p in all) {
       if (p.id == id) return p;
     }
-    return null;
+    return defaultPicture;
   }
 }

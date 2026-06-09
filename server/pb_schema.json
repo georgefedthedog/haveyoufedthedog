@@ -772,7 +772,7 @@
     "listRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id",
     "viewRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id",
     "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id && @collection.household_members.role ?= \"owner\"",
+    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id",
     "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= id && @collection.household_members.role ?= \"owner\"",
     "name": "households",
     "type": "base",

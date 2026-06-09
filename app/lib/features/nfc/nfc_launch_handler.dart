@@ -96,7 +96,7 @@ class NfcLaunchHandler {
           showCloseIcon: true,
           duration: const Duration(seconds: 5),
           content:
-              Text('Unknown tag $tagId — register it from a subject.'),
+              Text('Unknown tag $tagId — register it from a friend.'),
         ));
         return;
       }

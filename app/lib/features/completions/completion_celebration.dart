@@ -77,7 +77,7 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
           children: [
             // Confetti emitting straight up from below the centre.
             Align(
-              alignment: const Alignment(0, 0.2),
+              alignment: const Alignment(0, -0.6),
               child: ConfettiWidget(
                 confettiController: _confetti,
                 blastDirection: -pi / 2, // straight up

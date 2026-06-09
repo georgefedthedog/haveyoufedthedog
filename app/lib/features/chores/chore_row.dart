@@ -8,6 +8,9 @@ import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/streak_controller.dart';
+import '../../core/household/current_household_controller.dart';
+import '../../core/household/household_member.dart';
+import '../../core/household/household_members_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
@@ -26,11 +29,19 @@ class ChoreRow extends ConsumerWidget {
   final String subjectId;
   final Completion? existingCompletion;
 
+  /// Optional widget to render in the leading (left) slot. When null,
+  /// the row uses its default state-coloured avatar with a check / clock /
+  /// error icon. Pass a custom one (e.g. a character portrait) on screens
+  /// where each row should show *what* the chore is for rather than just
+  /// its status.
+  final Widget? leading;
+
   const ChoreRow({
     super.key,
     required this.chore,
     required this.subjectId,
     required this.existingCompletion,
+    this.leading,
   });
 
   Future<void> _log(BuildContext context, WidgetRef ref) async {
@@ -116,70 +127,317 @@ class ChoreRow extends ConsumerWidget {
     final completion = existingCompletion;
     final isDone = completion != null;
 
-    final timeText = isDone
-        ? TimeOfDay.fromDateTime(completion.completedAt).format(context)
-        : chore.rule.timeOfDay.format(context);
-    final scheduleLine = chore.rule.humanLabel();
+    final now = DateTime.now();
+    final scheduledToday = chore.rule.scheduledAt(now);
+    final isOverdue = !isDone && scheduledToday.isBefore(now);
+    final dueIn = !isDone && !isOverdue
+        ? scheduledToday.difference(now)
+        : null;
+    final isDueSoon = dueIn != null && dueIn <= const Duration(hours: 1);
+
+    final scheduleLine = isOverdue
+        ? _formatOverdue(now.difference(scheduledToday))
+        : chore.rule.humanLabel();
+
+    final cardColor = isDone
+        ? Colors.green.shade50
+        : isOverdue
+            ? Colors.red.shade50
+            : scheme.surfaceContainer;
+    final avatarBg = isDone
+        ? Colors.green.shade100
+        : isOverdue
+            ? Colors.red.shade100
+            : scheme.surfaceContainerHighest;
+    final avatarFg = isDone
+        ? Colors.green.shade900
+        : isOverdue
+            ? Colors.red.shade900
+            : scheme.onSurfaceVariant;
+    final titleColor = isDone
+        ? Colors.green.shade900
+        : isOverdue
+            ? Colors.red.shade900
+            : null;
+    final subLineColor = isDone
+        ? Colors.green.shade700
+        : isOverdue
+            ? Colors.red.shade700
+            : scheme.onSurfaceVariant;
 
     return Card(
-      color: isDone ? Colors.green.shade50 : scheme.surfaceContainer,
+      color: cardColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.white.withValues(alpha: 0.9),
+          width: 1.5,
+        ),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () => isDone
             ? _undo(context, ref, completion)
             : _log(context, ref),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: isDone
-                    ? Colors.green.shade100
-                    : scheme.surfaceContainerHighest,
-                foregroundColor: isDone
-                    ? Colors.green.shade900
-                    : scheme.onSurfaceVariant,
-                child: Icon(
-                  isDone ? Icons.check : Icons.schedule,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      chore.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+              Row(
+                children: [
+                  leading ??
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: avatarBg,
+                        foregroundColor: avatarFg,
+                        child: Icon(
+                          isDone
+                              ? Icons.check
+                              : isOverdue
+                                  ? Icons.error_outline
+                                  : Icons.schedule,
+                          size: 22,
+                        ),
                       ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          chore.name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: titleColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          scheduleLine,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: subLineColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      scheduleLine,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 8),
+                  _TrailingStatus(
+                    isDone: isDone,
+                    isOverdue: isOverdue,
+                    isDueSoon: isDueSoon,
+                    dueIn: dueIn,
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                timeText,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: isDone
-                      ? Colors.green.shade900
-                      : scheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
+              if (isDone) ...[
+                const SizedBox(height: 10),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: Colors.green.shade100,
                 ),
-              ),
+                const SizedBox(height: 10),
+                _CompletedByRow(completion: completion),
+              ],
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+/// "5 minutes overdue", "1 minute overdue", "1 hour overdue",
+/// "over 3 hours overdue".
+String _formatOverdue(Duration d) {
+  final minutes = d.inMinutes;
+  if (minutes < 60) {
+    return minutes == 1 ? '1 minute overdue' : '$minutes minutes overdue';
+  }
+  final hours = d.inHours;
+  if (hours == 1) return '1 hour overdue';
+  return 'over $hours hours overdue';
+}
+
+/// Trailing cell on a [ChoreRow]. Shows either:
+///   - "Due in / N / mins|hrs" stacked, in amber (when due in ≤2h)
+///   - The completed-at time in green (when done)
+///   - The scheduled time (everything else)
+class _TrailingStatus extends StatelessWidget {
+  final bool isDone;
+  final bool isOverdue;
+  final bool isDueSoon;
+  final Duration? dueIn;
+
+  const _TrailingStatus({
+    required this.isDone,
+    required this.isOverdue,
+    required this.isDueSoon,
+    required this.dueIn,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    // Done — green tick.
+    if (isDone) {
+      return Icon(
+        Icons.check_circle,
+        size: 28,
+        color: Colors.green.shade700,
+      );
+    }
+
+    // Overdue — red warning icon. The schedule line below already reads
+    // "X minutes overdue" so we don't need to repeat the number here.
+    if (isOverdue) {
+      return Icon(
+        Icons.error_outline,
+        size: 28,
+        color: Colors.red.shade700,
+      );
+    }
+
+    // Due within the hour — "Due in N mins/hr" stack.
+    if (isDueSoon && dueIn != null) {
+      final m = dueIn!.inMinutes;
+      final showHours = m >= 60;
+      final value = showHours ? dueIn!.inHours : m;
+      final unit = showHours
+          ? (value == 1 ? 'hour' : 'hrs')
+          : (value == 1 ? 'min' : 'mins');
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Due in',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: Colors.orange.shade800,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            '$value',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: Colors.orange.shade900,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          Text(
+            unit,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: Colors.orange.shade800,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Anything later than an hour away — neutral clock icon.
+    return Icon(
+      Icons.schedule,
+      size: 28,
+      color: scheme.onSurfaceVariant,
+    );
+  }
+}
+
+/// Bottom row of a completed [ChoreRow] — small member avatar, name,
+/// completion timestamp.
+class _CompletedByRow extends ConsumerWidget {
+  final Completion completion;
+
+  const _CompletedByRow({required this.completion});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+
+    final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
+    final members = hh == null
+        ? const <HouseholdMember>[]
+        : ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
+            const <HouseholdMember>[];
+
+    HouseholdMember? me;
+    for (final m in members) {
+      if (m.userId == completion.completedById) {
+        me = m;
+        break;
+      }
+    }
+    final name = me?.displayName ?? 'Someone';
+    final initial = name.trim().isEmpty
+        ? '?'
+        : name.trim()[0].toUpperCase();
+    final seed = me?.userId ?? completion.completedById;
+    final bg = _colorFromSeed(seed);
+    final fg = _readableOn(bg);
+
+    return Row(
+      children: [
+        // 44-wide lane mirrors the top row's avatar diameter so the small
+        // avatar centres on the same vertical axis as the big one above.
+        SizedBox(
+          width: 44,
+          child: Center(
+            child: CircleAvatar(
+              radius: 12,
+              backgroundColor: bg,
+              foregroundColor: fg,
+              child: Text(
+                initial,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: fg,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            'Completed by $name',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.green.shade900,
+              fontWeight: FontWeight.w600,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Text(
+          TimeOfDay.fromDateTime(completion.completedAt).format(context),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: Colors.green.shade700,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Same stable-from-seed colour helpers as HouseholdMembersRow — extracted
+  // here too rather than imported because the row is private to that file.
+  Color _colorFromSeed(String seed) {
+    var hash = 0;
+    for (final c in seed.codeUnits) {
+      hash = (hash * 31 + c) & 0x7fffffff;
+    }
+    final hue = (hash % 360).toDouble();
+    return HSLColor.fromAHSL(1, hue, 0.55, 0.72).toColor();
+  }
+
+  Color _readableOn(Color bg) {
+    final hsl = HSLColor.fromColor(bg);
+    return hsl.lightness > 0.6 ? Colors.black87 : Colors.white;
   }
 }

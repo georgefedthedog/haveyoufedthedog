@@ -18,7 +18,7 @@ class RootNavShell extends StatelessWidget {
   static const _items = <_NavItem>[
     _NavItem(label: 'Home', icon: Icons.home_outlined, path: Routes.home),
     _NavItem(
-        label: 'Subjects',
+        label: 'Friends',
         icon: Icons.pets_outlined,
         path: Routes.subjectsTab),
     _NavItem(
@@ -43,7 +43,7 @@ class RootNavShell extends StatelessWidget {
       body: shell,
       floatingActionButton: FloatingActionButton(
         heroTag: 'rootFab',
-        tooltip: 'Add subject',
+        tooltip: 'Add friend',
         onPressed: () => context.push(Routes.subjectNew),
         child: const Icon(Icons.add),
       ),

@@ -31,9 +31,8 @@ class SubjectDetailScreen extends ConsumerWidget {
     final asyncSubjects = ref.watch(subjectsControllerProvider);
 
     return asyncSubjects.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(),
         body: Center(child: Text('Error: $e')),
@@ -70,16 +69,7 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(subject.name),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit subject',
-            onPressed: () => context.push(Routes.subjectEdit(subject.id)),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(subject.name)),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait([
@@ -138,17 +128,44 @@ class _Hero extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
       child: Column(
         children: [
-          SizedBox(
-            height: 200,
-            child: CharacterArtwork(
-              character: character,
-              expression: switch (mood) {
-                SubjectMood.allDone => CharacterExpression.happy,
-                SubjectMood.pendingSome => CharacterExpression.idle,
-                SubjectMood.none => CharacterExpression.idle,
-              },
-              stage: false,
-              iconSize: 140,
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.push(Routes.subjectEdit(subject.id)),
+            child: Stack(
+              alignment: const Alignment(0.3, 1),
+              children: [
+                SizedBox(
+                  height: 200,
+                  child: CharacterArtwork(
+                    character: character,
+                    expression: switch (mood) {
+                      SubjectMood.allDone => CharacterExpression.happy,
+                      SubjectMood.overdue => CharacterExpression.sad,
+                      SubjectMood.upcoming => CharacterExpression.idle,
+                      SubjectMood.happyForNow => CharacterExpression.idle,
+                      SubjectMood.none => CharacterExpression.idle,
+                    },
+                    stage: false,
+                    iconSize: 140,
+                  ),
+                ),
+                // Small pencil badge — sits in the bottom-right corner of
+                // the artwork box. White ring gives it a sticker feel
+                // against any character background.
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.primary,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ],
             ),
           ),
           if (streak >= 3) ...[
@@ -207,6 +224,7 @@ class _StreakPill extends StatelessWidget {
   }
 }
 
+/// Mood detection — see [SubjectMood] for the priority order.
 SubjectMood _moodFor(WidgetRef ref, Subject subject) {
   final allChores = ref.watch(choresControllerProvider).valueOrNull ?? const [];
   final completions =
@@ -222,8 +240,23 @@ SubjectMood _moodFor(WidgetRef ref, Subject subject) {
     for (final c in completions)
       if (c.choreId != null) c.choreId!,
   };
-  final allDone = dueToday.every((c) => doneIds.contains(c.id));
-  return allDone ? SubjectMood.allDone : SubjectMood.pendingSome;
+  final unlogged = dueToday.where((c) => !doneIds.contains(c.id)).toList();
+  if (unlogged.isEmpty) return SubjectMood.allDone;
+
+  if (unlogged.any((c) => c.rule.scheduledAt(now).isBefore(now))) {
+    return SubjectMood.overdue;
+  }
+
+  const window = Duration(hours: 1);
+  if (unlogged.any((c) {
+    final at = c.rule.scheduledAt(now);
+    final diff = at.difference(now);
+    return !diff.isNegative && diff <= window;
+  })) {
+    return SubjectMood.upcoming;
+  }
+
+  return SubjectMood.happyForNow;
 }
 
 class _TodaySection extends ConsumerWidget {
@@ -237,11 +270,14 @@ class _TodaySection extends ConsumerWidget {
 
     final today = DateTime.now();
     final allChores = asyncChores.valueOrNull ?? const <Chore>[];
-    final dueToday = allChores
-        .where((c) => c.subjectId == subject.id && c.rule.isDueOn(today))
-        .toList()
-      ..sort((a, b) =>
-          (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+    final dueToday =
+        allChores
+            .where((c) => c.subjectId == subject.id && c.rule.isDueOn(today))
+            .toList()
+          ..sort(
+            (a, b) =>
+                (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+          );
 
     final completions = asyncCompletions.valueOrNull;
     final latestByChoreId = <String, Completion>{};
@@ -255,9 +291,12 @@ class _TodaySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Today', style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-            )),
+        Text(
+          'Today',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        ),
         const SizedBox(height: 12),
         if (dueToday.isEmpty)
           Text(
@@ -286,18 +325,24 @@ class _ChoresSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncChores = ref.watch(choresControllerProvider);
-    final chores = (asyncChores.valueOrNull ?? const [])
-        .where((c) => c.subjectId == subjectId)
-        .toList()
-      ..sort((a, b) =>
-          (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+    final chores =
+        (asyncChores.valueOrNull ?? const [])
+            .where((c) => c.subjectId == subjectId)
+            .toList()
+          ..sort(
+            (a, b) =>
+                (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+          );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Schedule', style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-            )),
+        Text(
+          'Chores',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        ),
         const SizedBox(height: 12),
         if (chores.isEmpty)
           const Padding(
@@ -313,7 +358,7 @@ class _ChoresSection extends ConsumerWidget {
                   leading: const Icon(Icons.schedule),
                   title: Text(c.name),
                   subtitle: Text(c.rule.humanLabel()),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(Icons.edit_outlined),
                   onTap: () => context.push(Routes.choreEdit(c.id)),
                 ),
               ),
@@ -335,8 +380,9 @@ class _HistorySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncRecent =
-        ref.watch(recentCompletionsControllerProvider(subject.id));
+    final asyncRecent = ref.watch(
+      recentCompletionsControllerProvider(subject.id),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,11 +390,12 @@ class _HistorySection extends ConsumerWidget {
         Row(
           children: [
             Expanded(
-              child: Text('Recent activity',
-                  style:
-                      Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          )),
+              child: Text(
+                'Recent activity',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
             ),
             TextButton(
               onPressed: () =>
@@ -371,8 +418,10 @@ class _HistorySection extends ConsumerWidget {
             if (list.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
-                child: Text('No completions logged yet.',
-                    textAlign: TextAlign.center),
+                child: Text(
+                  'No completions logged yet.',
+                  textAlign: TextAlign.center,
+                ),
               );
             }
             return Column(

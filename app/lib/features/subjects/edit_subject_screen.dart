@@ -143,7 +143,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       builder: (ctx) => AlertDialog(
         title: Text('Delete ${_nameCtrl.text}?'),
         content: const Text(
-          'All chores and history for this subject will be permanently '
+          'All chores and history for this friend will be permanently '
           'removed. This cannot be undone.',
         ),
         actions: [
@@ -215,12 +215,12 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit subject' : 'New subject'),
+        title: Text(_isEdit ? 'Edit friend' : 'New friend'),
         actions: [
           if (_isEdit)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete subject',
+              tooltip: 'Delete friend',
               onPressed: _busy ? null : _delete,
             ),
         ],
@@ -270,7 +270,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                   subtitle: Text(
                     _nfcTagId == null
                         ? 'Bind a tag to quick-log by tapping your phone.'
-                        : 'Tap this subject by holding the tag near your phone.',
+                        : 'Tap this friend by holding the tag near your phone.',
                   ),
                   trailing: _nfcTagId == null
                       ? TextButton.icon(
@@ -294,7 +294,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.check),
-                label: Text(_isEdit ? 'Save changes' : 'Add subject'),
+                label: Text(_isEdit ? 'Save changes' : 'Add friend'),
                 onPressed: (_busy || _nameCtrl.text.trim().isEmpty)
                     ? null
                     : _save,
