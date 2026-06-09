@@ -76,57 +76,27 @@ class YouTabScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Card(
-            child: Column(
-              children: [
-                _ToggleTile(
-                  icon: Icons.notifications_outlined,
-                  title: 'Push notifications',
-                  subtitle: 'Get notified when someone logs a chore.',
-                  value: true,
-                  onChanged: null,
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text('Log out'),
-                  iconColor: scheme.error,
-                  textColor: scheme.error,
-                  onTap: () =>
-                      ref.read(authControllerProvider.notifier).logout(),
-                ),
-              ],
+            child: ListTile(
+              leading: const Icon(Icons.swap_horiz),
+              title: const Text('Switch household'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(Routes.householdPicker),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Log out'),
+              iconColor: scheme.error,
+              textColor: scheme.error,
+              onTap: () =>
+                  ref.read(authControllerProvider.notifier).logout(),
             ),
           ),
         ],
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
-    );
-  }
-}
-
-class _ToggleTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-
-  const _ToggleTile({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.onChanged,
-    this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SwitchListTile(
-      secondary: Icon(icon),
-      title: Text(title),
-      subtitle: subtitle == null ? null : Text(subtitle!),
-      value: value,
-      onChanged: onChanged,
     );
   }
 }

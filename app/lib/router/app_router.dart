@@ -15,7 +15,6 @@ import '../features/household/household_details_screen.dart';
 import '../features/household/household_picker_screen.dart';
 import '../features/household/invite_screen.dart';
 import '../features/household/join_household_screen.dart';
-import '../features/onboarding/onboarding_welcome_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/you_tab_screen.dart';
 import '../features/splash/splash_screen.dart';
@@ -75,10 +74,6 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.profile,
         builder: (context, state) => const EditProfileScreen(),
-      ),
-      GoRoute(
-        path: Routes.onboarding,
-        builder: (context, state) => const OnboardingWelcomeScreen(),
       ),
       GoRoute(
         path: Routes.celebration,

@@ -53,8 +53,8 @@ class SubjectsTabScreen extends ConsumerWidget {
                       character: CharacterRegistry.cat,
                       title: 'No characters yet',
                       message: 'The + button below adds your first one.',
-                      actionLabel: 'Get started',
-                      onAction: () => context.push(Routes.onboarding),
+                      actionLabel: 'Add a subject',
+                      onAction: () => context.push(Routes.subjectNew),
                     ),
                   ),
                 ],
@@ -91,7 +91,9 @@ class _SubjectTile extends ConsumerWidget {
     final allChores =
         ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
     final mineToday = allChores
-        .where((c) => c.subjectId == subject.id && c.rule.isDueOn(DateTime.now()))
+        .where(
+          (c) => c.subjectId == subject.id && c.rule.isDueOn(DateTime.now()),
+        )
         .toList();
     final hasAnyChores = allChores.any((c) => c.subjectId == subject.id);
 
@@ -147,8 +149,10 @@ class _SubjectTile extends ConsumerWidget {
                           ),
                         ),
                         if (streak >= 3)
-                          Text('🔥$streak',
-                              style: const TextStyle(fontSize: 12)),
+                          Text(
+                            '🔥$streak',
+                            style: const TextStyle(fontSize: 12),
+                          ),
                       ],
                     ),
                     const SizedBox(height: 2),

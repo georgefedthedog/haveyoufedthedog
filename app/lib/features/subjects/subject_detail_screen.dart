@@ -47,18 +47,14 @@ class SubjectDetailScreen extends ConsumerWidget {
           }
         }
         if (subject == null) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'This subject no longer exists.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            bottomNavigationBar: const SafeArea(child: BuildLabel()),
+          // Subject got deleted underneath us (or we deep-linked to a
+          // stale id). Bounce to home rather than dead-end. Use a
+          // post-frame callback so we don't navigate during a build.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) context.go(Routes.home);
+          });
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           );
         }
         return _Body(subject: subject);

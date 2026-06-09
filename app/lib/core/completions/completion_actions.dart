@@ -5,6 +5,7 @@ import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
 import '../chores/chore.dart';
 import 'completion.dart';
+import 'household_history_controller.dart';
 import 'recent_completions_controller.dart';
 import 'today_completions_controller.dart';
 
@@ -129,9 +130,12 @@ class CompletionActions {
   }
 
   /// Invalidate the read-side providers so they refetch and the UI picks
-  /// up the new state.
+  /// up the new state. The household-wide history is the data source for
+  /// the leaderboard, weekly stats, and household-streak providers — bump
+  /// it so those re-derive without the user having to pull-to-refresh.
   void _bump(String? subjectId) {
     _ref.invalidate(todayCompletionsControllerProvider);
+    _ref.invalidate(householdHistoryControllerProvider);
     if (subjectId != null) {
       _ref.invalidate(recentCompletionsControllerProvider(subjectId));
     }

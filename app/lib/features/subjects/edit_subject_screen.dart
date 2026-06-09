@@ -7,6 +7,7 @@ import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../nfc/nfc_scan_dialog.dart';
 import 'character_picker.dart';
@@ -110,14 +111,25 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
           name: name,
           icon: _icon,
         );
+        if (mounted) router.pop();
       } else {
         final created = await actions.createSubject(name: name, icon: _icon);
         // If the user scanned a tag during a new-subject flow, bind it now.
         if (_nfcTagId != null) {
           await actions.updateSubject(created.id, nfcTagId: _nfcTagId);
         }
+        // Wait for the invalidated subjects list to refetch so the detail
+        // screen finds the new record immediately — otherwise the screen's
+        // "subject missing → bounce to home" guard fires on the stale list.
+        await ref.read(subjectsControllerProvider.future);
+        // Drop the user on the new subject's detail page so they can add
+        // chores immediately. `pushReplacement` swaps this create form out
+        // of the stack — Back from detail goes to home, not back into the
+        // (now-stale) form.
+        if (mounted) {
+          router.pushReplacement(Routes.subjectDetail(created.id));
+        }
       }
-      if (mounted) router.pop();
     } catch (e) {
       messenger.showSnackBar(SnackBar(
         showCloseIcon: true,
@@ -160,7 +172,14 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     final router = GoRouter.of(context);
     try {
       await ref.read(subjectActionsProvider).deleteSubject(widget.subjectId!);
-      if (mounted) router.pop();
+      // Wait for the invalidated subjects list to refetch so the home
+      // screen doesn't flash the just-deleted subject before the cache
+      // catches up.
+      await ref.read(subjectsControllerProvider.future);
+      // Jump to home instead of popping — popping would land on the
+      // subject detail screen which would then notice the subject is gone
+      // and show a "no longer exists" page.
+      if (mounted) router.go(Routes.home);
     } catch (e) {
       messenger.showSnackBar(SnackBar(
         showCloseIcon: true,
@@ -175,10 +194,19 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     // For edit mode, fish the existing subject out of the household list.
     if (_isEdit) {
       final asyncSubjects = ref.watch(subjectsControllerProvider);
-      final existing = asyncSubjects.valueOrNull?.firstWhere(
-        (s) => s.id == widget.subjectId,
-        orElse: () => throw StateError('Subject ${widget.subjectId} missing'),
-      );
+      Subject? existing;
+      final list = asyncSubjects.valueOrNull;
+      if (list != null) {
+        for (final s in list) {
+          if (s.id == widget.subjectId) {
+            existing = s;
+            break;
+          }
+        }
+      }
+      // Either still loading, or the subject was just deleted under us and
+      // we're mid-navigation back to home. Show a spinner instead of
+      // throwing — the screen will unmount in a frame or two.
       if (existing == null) {
         return const Scaffold(
           body: Center(child: CircularProgressIndicator()),
@@ -222,6 +250,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
               TextField(
                 controller: _nameCtrl,
                 autofocus: !_isEdit,
+                enabled: !_busy,
                 decoration: const InputDecoration(
                   labelText: 'Name',
                   hintText: 'e.g. Kiko',
@@ -234,9 +263,12 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
               Text('Character',
                   style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              CharacterPicker(
-                selected: _icon,
-                onChanged: (id) => setState(() => _icon = id),
+              IgnorePointer(
+                ignoring: _busy,
+                child: CharacterPicker(
+                  selected: _icon,
+                  onChanged: (id) => setState(() => _icon = id),
+                ),
               ),
               const SizedBox(height: 24),
               Text('NFC tag',
@@ -274,7 +306,13 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
               ),
               const SizedBox(height: 32),
               FilledButton.icon(
-                icon: const Icon(Icons.check),
+                icon: _busy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.check),
                 label: Text(_isEdit ? 'Save changes' : 'Add subject'),
                 onPressed: (_busy || _nameCtrl.text.trim().isEmpty)
                     ? null
