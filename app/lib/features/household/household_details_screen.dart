@@ -12,6 +12,7 @@ import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../history/leaderboard.dart';
 
 /// View / edit one household the user is a member of.
 class HouseholdDetailsScreen extends ConsumerWidget {
@@ -265,7 +266,19 @@ class _BodyState extends ConsumerState<_Body> {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 24),
-          _InviteSettings(household: h),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.group_add_outlined),
+              title: const Text('Invite someone'),
+              subtitle: Text(h.invitesOpen
+                  ? 'Invites are open${h.inviteCode == null ? "" : " · ${h.inviteCode}"}'
+                  : 'Invites are off'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(Routes.householdInvite(h.id)),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Leaderboard(householdId: h.id),
           const SizedBox(height: 24),
           Text('Members', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),

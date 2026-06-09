@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/subjects/character_artwork.dart';
+import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../widgets/build_label.dart';
 import '../nfc/nfc_scan_dialog.dart';
-import 'icon_picker.dart';
+import 'character_picker.dart';
 
 /// Create or edit a [Subject]. When [subjectId] is null we're creating;
 /// when it's set we look the subject up in the household-wide list and
@@ -107,7 +109,6 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
           widget.subjectId!,
           name: name,
           icon: _icon,
-          clearIcon: _icon == null,
         );
       } else {
         final created = await actions.createSubject(name: name, icon: _icon);
@@ -204,6 +205,20 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Center(
+                child: SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: ClipOval(
+                    child: CharacterArtwork(
+                      character: CharacterRegistry.lookup(_icon),
+                      stage: true,
+                      iconSize: 64,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               TextField(
                 controller: _nameCtrl,
                 autofocus: !_isEdit,
@@ -216,11 +231,12 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 24),
-              Text('Icon', style: Theme.of(context).textTheme.titleMedium),
+              Text('Character',
+                  style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              IconPicker(
+              CharacterPicker(
                 selected: _icon,
-                onChanged: (token) => setState(() => _icon = token),
+                onChanged: (id) => setState(() => _icon = id),
               ),
               const SizedBox(height: 24),
               Text('NFC tag',

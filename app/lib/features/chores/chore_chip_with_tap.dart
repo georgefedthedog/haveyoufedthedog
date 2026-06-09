@@ -5,6 +5,9 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
+import '../../core/subjects/characters.dart';
+import '../../core/subjects/subjects_controller.dart';
+import '../completions/completion_celebration.dart';
 import 'chore_status_chip.dart';
 
 /// Wraps [ChoreStatusChip] with toggle-to-log behaviour. The chip itself
@@ -28,20 +31,32 @@ class ChoreChipWithTap extends ConsumerWidget {
   Future<void> _log(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final completion = await ref.read(completionActionsProvider).logChore(
+      await ref.read(completionActionsProvider).logChore(
             subjectId: subjectId,
             choreId: chore.id,
             source: CompletionSource.button,
           );
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        content: Text('Logged: ${chore.name}'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () =>
-              ref.read(completionActionsProvider).undo(completion.id),
-        ),
-      ));
+
+      final subjects =
+          ref.read(subjectsControllerProvider).valueOrNull ?? const [];
+      String? iconToken;
+      for (final s in subjects) {
+        if (s.id == subjectId) {
+          iconToken = s.icon;
+          break;
+        }
+      }
+      final character = CharacterRegistry.lookup(iconToken);
+      final whoName =
+          ref.read(authControllerProvider).valueOrNull?.displayName;
+
+      if (!context.mounted) return;
+      await CompletionCelebration.show(
+        context,
+        character: character,
+        choreName: chore.name,
+        whoName: whoName,
+      );
     } catch (e) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(SnackBar(

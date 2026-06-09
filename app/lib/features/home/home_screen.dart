@@ -6,15 +6,18 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/empty_state.dart';
-import 'subject_card.dart';
+import 'home_app_bar_avatar.dart';
+import 'subject_hero_card.dart';
 
-/// Home screen — read-only list of the current household's subjects.
-/// Step 7 will add chore-status chips on each card; Step 8 makes them
-/// tappable to log a completion.
+/// Home screen — list of subject hero cards for the current household.
+/// Phase A redesign: hamburger (app menu) top-left, profile avatar
+/// top-right. Streak summary card lands in Phase B alongside the streak
+/// controller.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -28,61 +31,56 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: PopupMenuButton<String>(
+          icon: const Icon(Icons.menu),
+          tooltip: 'Menu',
+          onSelected: (value) {
+            switch (value) {
+              case 'manage':
+                final id = asyncCurrent.valueOrNull?.id;
+                if (id != null) {
+                  context.push(Routes.householdDetails(id));
+                }
+              case 'switch':
+                context.push(Routes.householdPicker);
+              case 'logout':
+                ref.read(authControllerProvider.notifier).logout();
+            }
+          },
+          itemBuilder: (_) {
+            final hasHousehold = asyncCurrent.valueOrNull != null;
+            return [
+              PopupMenuItem(
+                value: 'manage',
+                enabled: hasHousehold,
+                child: const ListTile(
+                  leading: Icon(Icons.home_outlined),
+                  title: Text('Manage household'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'switch',
+                child: ListTile(
+                  leading: Icon(Icons.swap_horiz),
+                  title: Text('Switch household'),
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'logout',
+                child: ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Log out'),
+                ),
+              ),
+            ];
+          },
+        ),
         title: Text(householdName),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.menu),
-            tooltip: 'Menu',
-            onSelected: (value) {
-              switch (value) {
-                case 'profile':
-                  context.push(Routes.profile);
-                case 'manage':
-                  final id = asyncCurrent.valueOrNull?.id;
-                  if (id != null) {
-                    context.push(Routes.householdDetails(id));
-                  }
-                case 'switch':
-                  context.push(Routes.householdPicker);
-                case 'logout':
-                  ref.read(authControllerProvider.notifier).logout();
-              }
-            },
-            itemBuilder: (_) {
-              final hasHousehold = asyncCurrent.valueOrNull != null;
-              return [
-                const PopupMenuItem(
-                  value: 'profile',
-                  child: ListTile(
-                    leading: Icon(Icons.person_outline),
-                    title: Text('Edit profile'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'manage',
-                  enabled: hasHousehold,
-                  child: const ListTile(
-                    leading: Icon(Icons.home_outlined),
-                    title: Text('Manage household'),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'switch',
-                  child: ListTile(
-                    leading: Icon(Icons.swap_horiz),
-                    title: Text('Switch household'),
-                  ),
-                ),
-                const PopupMenuDivider(),
-                const PopupMenuItem(
-                  value: 'logout',
-                  child: ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Log out'),
-                  ),
-                ),
-              ];
-            },
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: HomeAppBarAvatar(),
           ),
         ],
       ),
@@ -106,30 +104,29 @@ class HomeScreen extends ConsumerWidget {
           ),
           data: (subjects) {
             if (subjects.isEmpty) {
-              // ListView needed so RefreshIndicator still works on empty.
               return ListView(
                 children: [
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: EmptyState(
-                      icon: Icons.pets,
-                      title: 'No subjects yet',
-                      message:
-                          'Add a dog, cat, plant, or whatever else needs '
-                          'looking after.',
-                      actionLabel: 'Add a subject',
-                      onAction: () => context.push(Routes.subjectNew),
+                      character: CharacterRegistry.dog,
+                      title: 'No characters yet',
+                      message: 'Add a dog, cat, plant, or whatever else '
+                          'needs looking after.',
+                      actionLabel: 'Get started',
+                      onAction: () => context.push(Routes.onboarding),
                     ),
                   ),
                 ],
               );
             }
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
+            return ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               itemCount: subjects.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final s = subjects[i];
-                return SubjectCard(
+                return SubjectHeroCard(
                   subject: s,
                   onTap: () => context.push(Routes.subjectDetail(s.id)),
                 );
@@ -138,16 +135,8 @@ class HomeScreen extends ConsumerWidget {
           },
         ),
       ),
-      floatingActionButton: asyncSubjects.maybeWhen(
-        data: (subjects) => subjects.isEmpty
-            ? null // Empty state already has its own CTA.
-            : FloatingActionButton.extended(
-                icon: const Icon(Icons.add),
-                label: const Text('Subject'),
-                onPressed: () => context.push(Routes.subjectNew),
-              ),
-        orElse: () => null,
-      ),
+      // FAB now lives on the bottom-nav shell, central-docked over the
+      // notch — handled by `RootNavShell`.
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }

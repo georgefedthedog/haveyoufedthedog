@@ -2,17 +2,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../app/root_nav_shell.dart';
 import '../features/auth/auth_landing_screen.dart';
+import '../features/chores/edit_chore_screen.dart';
+import '../features/history/history_tab_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/household/create_household_screen.dart';
 import '../features/household/household_details_screen.dart';
 import '../features/household/household_picker_screen.dart';
+import '../features/household/invite_screen.dart';
 import '../features/household/join_household_screen.dart';
-import '../features/splash/splash_screen.dart';
-import '../features/chores/edit_chore_screen.dart';
+import '../features/onboarding/onboarding_welcome_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
+import '../features/profile/you_tab_screen.dart';
+import '../features/splash/splash_screen.dart';
 import '../features/subjects/edit_subject_screen.dart';
 import '../features/subjects/subject_detail_screen.dart';
+import '../features/subjects/subjects_tab_screen.dart';
 import 'router_refresh_notifier.dart';
 import 'routing_phase.dart';
 import 'routes.dart';
@@ -30,6 +36,7 @@ GoRouter appRouter(Ref ref) {
     refreshListenable: refresh,
     redirect: (context, state) => _redirect(ref, state.matchedLocation),
     routes: [
+      // Full-screen routes (no bottom nav shell).
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const SplashScreen(),
@@ -57,12 +64,18 @@ GoRouter appRouter(Ref ref) {
         ),
       ),
       GoRoute(
-        path: Routes.home,
-        builder: (context, state) => const HomeScreen(),
+        path: Routes.householdInvitePattern,
+        builder: (context, state) => InviteScreen(
+          householdId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: Routes.profile,
         builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.onboarding,
+        builder: (context, state) => const OnboardingWelcomeScreen(),
       ),
       GoRoute(
         path: Routes.subjectNew,
@@ -91,6 +104,39 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => EditChoreScreen(
           choreId: state.pathParameters['id'],
         ),
+      ),
+      // Bottom-nav shell — four tab branches.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => RootNavShell(shell: shell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.home,
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.subjectsTab,
+              builder: (context, state) => const SubjectsTabScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.historyTab,
+              builder: (context, state) => HistoryTabScreen(
+                initialSubjectFilter:
+                    state.uri.queryParameters['subject'],
+              ),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: Routes.youTab,
+              builder: (context, state) => const YouTabScreen(),
+            ),
+          ]),
+        ],
       ),
     ],
   );
@@ -123,8 +169,7 @@ String? _redirect(Ref ref, String loc) {
 
     case RoutingPhase.ready:
       // Bounce off the forced gates if the user somehow lands on them
-      // while already set up. Picker / create / join / details are
-      // voluntary destinations from /home and stay accessible.
+      // while already set up.
       const forcedGates = {
         Routes.splash,
         Routes.auth,

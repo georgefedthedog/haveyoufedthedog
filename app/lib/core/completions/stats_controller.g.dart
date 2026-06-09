@@ -1,0 +1,71 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'stats_controller.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+String _$currentWeekStatsHash() => r'f284f096eb74f4dc82e751530112942236eae98a';
+
+/// Stats for the current ISO week (Mon → Sun, local clock). Derived from
+/// [householdHistoryControllerProvider]; no extra fetch.
+///
+/// Copied from [currentWeekStats].
+@ProviderFor(currentWeekStats)
+final currentWeekStatsProvider = AutoDisposeProvider<WeeklyStats>.internal(
+  currentWeekStats,
+  name: r'currentWeekStatsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$currentWeekStatsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CurrentWeekStatsRef = AutoDisposeProviderRef<WeeklyStats>;
+String _$previousWeekStatsHash() => r'177d9fea5e6ef20500b5607116ac7edb3d373fb8';
+
+/// Stats for last week — used for the week-over-week delta on the History
+/// tab. Same data source.
+///
+/// Copied from [previousWeekStats].
+@ProviderFor(previousWeekStats)
+final previousWeekStatsProvider = AutoDisposeProvider<WeeklyStats>.internal(
+  previousWeekStats,
+  name: r'previousWeekStatsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$previousWeekStatsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef PreviousWeekStatsRef = AutoDisposeProviderRef<WeeklyStats>;
+String _$householdStreakHash() => r'88f92e0ae5be66d927ed8c245a2f64baa8a13ed0';
+
+/// Number of consecutive days (ending today or yesterday) the household has
+/// had at least one completion across any subject. Mirror of
+/// `subjectStreakProvider` but aggregated.
+///
+/// Copied from [householdStreak].
+@ProviderFor(householdStreak)
+final householdStreakProvider = AutoDisposeProvider<int>.internal(
+  householdStreak,
+  name: r'householdStreakProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$householdStreakHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HouseholdStreakRef = AutoDisposeProviderRef<int>;
+// ignore_for_file: type=lint
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

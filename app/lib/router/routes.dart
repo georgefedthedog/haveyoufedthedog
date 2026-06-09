@@ -24,11 +24,25 @@ class Routes {
   static const householdDetailsPattern = '/household/:id';
   static String householdDetails(String id) => '/household/$id';
 
-  /// Authenticated with a current household resolved.
+  /// Invite-management screen — the hero / code / share UI.
+  static const householdInvitePattern = '/household/:id/invite';
+  static String householdInvite(String id) => '/household/$id/invite';
+
+  /// Authenticated with a current household resolved. Inside the
+  /// bottom-nav shell.
   static const home = '/';
 
-  /// Edit profile — display name, email (read-only), log out.
+  /// Bottom-nav tab paths (inside the shell). All four are siblings of
+  /// [home] under the same `StatefulShellRoute`.
+  static const subjectsTab = '/subjects';
+  static const historyTab = '/history';
+  static const youTab = '/you';
+
+  /// Edit profile — full-screen edit pushed from outside the shell.
   static const profile = '/profile';
+
+  /// First-time onboarding — pick a character + first chore preset.
+  static const onboarding = '/onboarding';
 
   /// Create a new subject in the current household.
   static const subjectNew = '/subject/new';
