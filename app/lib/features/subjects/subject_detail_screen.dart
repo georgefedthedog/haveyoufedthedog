@@ -144,7 +144,7 @@ class _Hero extends ConsumerWidget {
               character: character,
               expression: switch (mood) {
                 SubjectMood.allDone => CharacterExpression.happy,
-                SubjectMood.pendingSome => CharacterExpression.waiting,
+                SubjectMood.pendingSome => CharacterExpression.idle,
                 SubjectMood.none => CharacterExpression.idle,
               },
               stage: false,

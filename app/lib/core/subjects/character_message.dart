@@ -111,19 +111,6 @@ const Map<String, Map<SubjectMood, List<String>>> _table = {
       'A quiet day in the tank for {name}.',
     ],
   },
-  'child': {
-    SubjectMood.allDone: [
-      '{name} is sorted for today 🎒',
-      'Lunchbox, teeth, shoes — all done. You\'re a hero.',
-    ],
-    SubjectMood.pendingSome: [
-      '{name} still has things to do!',
-      'Quick — bits left on {name}\'s list.',
-    ],
-    SubjectMood.none: [
-      '{name} has a clear day. Enjoy it.',
-    ],
-  },
   'generic': {
     SubjectMood.allDone: [
       '{name} is happy and looked after! 🎉',

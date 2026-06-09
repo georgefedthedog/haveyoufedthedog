@@ -35,3 +35,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/households/
+    - assets/subjects/dog/
+    - assets/subjects/cat/
+    - assets/subjects/plant/
+    - assets/subjects/bin/
+    - assets/subjects/fish/
+    - assets/subjects/generic/

@@ -4,11 +4,11 @@ import 'character.dart';
 
 /// Renders a character's art at the requested expression.
 ///
-/// **Phase A:** ships placeholder art — a coloured stage with the
-/// character's [Character.fallbackIcon] centred on it. As real PNG art is
-/// dropped into `assets/characters/<id>/<expression>.png` in later
-/// phases, swap to `Image.asset(...)` here in one place and every call
-/// site picks it up.
+/// When the character declares at least one expression in
+/// [Character.available], we draw [Image.asset] from its
+/// `assets/subjects/<id>/<expression>.png` path. If the bundled file is
+/// missing — or the character has no art at all — we fall back to the
+/// character's [Character.fallbackIcon] centred on the coloured stage.
 class CharacterArtwork extends StatelessWidget {
   final Character character;
   final CharacterExpression expression;
@@ -19,7 +19,7 @@ class CharacterArtwork extends StatelessWidget {
   final bool stage;
 
   /// Forced size for the icon glyph; defaults to a sensible value derived
-  /// from [LayoutBuilder] constraints.
+  /// from [LayoutBuilder] constraints. Only used in the fallback path.
   final double? iconSize;
 
   const CharacterArtwork({
@@ -32,19 +32,18 @@ class CharacterArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _iconColorOn(character.stageColor);
+    final Widget content;
+    if (character.available.isEmpty) {
+      content = _iconFallback();
+    } else {
+      content = Image.asset(
+        character.assetFor(expression),
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => _iconFallback(),
+      );
+    }
 
-    final Widget glyph = LayoutBuilder(
-      builder: (context, constraints) {
-        final size = iconSize ??
-            (constraints.biggest.shortestSide.isFinite
-                ? constraints.biggest.shortestSide * 0.55
-                : 48.0);
-        return Icon(character.fallbackIcon, size: size, color: color);
-      },
-    );
-
-    if (!stage) return Center(child: glyph);
+    if (!stage) return Center(child: content);
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -53,8 +52,21 @@ class CharacterArtwork extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Center(child: glyph),
+        child: Center(child: content),
       ),
+    );
+  }
+
+  Widget _iconFallback() {
+    final color = _iconColorOn(character.stageColor);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = iconSize ??
+            (constraints.biggest.shortestSide.isFinite
+                ? constraints.biggest.shortestSide * 0.55
+                : 48.0);
+        return Icon(character.fallbackIcon, size: size, color: color);
+      },
     );
   }
 

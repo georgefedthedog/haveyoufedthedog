@@ -109,7 +109,7 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                       height: 220,
                       child: CharacterArtwork(
                         character: args.character,
-                        expression: CharacterExpression.celebrating,
+                        expression: CharacterExpression.celebrate,
                         stage: false,
                         iconSize: 160,
                       ),

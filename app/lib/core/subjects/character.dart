@@ -4,21 +4,22 @@ import '../../app/theme.dart';
 
 /// Expressions a character can be drawn in. Not every character has every
 /// expression — see [Character.assetFor] for the fallback chain.
+///
+/// Enum value names match the on-disk file names
+/// (`assets/subjects/<id>/<name>.png`) so there's a single vocabulary
+/// across art and code.
 enum CharacterExpression {
   /// Default; on home cards, subject hero, picker thumbnails.
   idle,
 
-  /// Mid-confetti, mouth open, paws up. Completion celebration screen.
-  celebrating,
-
   /// "All happy and fed" — subject detail when everything for today is done.
   happy,
 
-  /// "Hey, when are you going to do this?" — pending chores remain.
-  waiting,
+  /// "Hey, the bowl's empty" — pending / overdue.
+  sad,
 
-  /// "Bowl is empty and I'm judging you." — overdue.
-  unimpressed,
+  /// Mid-confetti, arms up. Completion celebration screen.
+  celebrate,
 }
 
 /// One of the curated character templates a subject can be drawn as.
@@ -61,24 +62,18 @@ class Character {
   /// `celebrating → happy → idle`.
   String assetFor(CharacterExpression expression) {
     final ordered = switch (expression) {
-      CharacterExpression.celebrating => const [
-          CharacterExpression.celebrating,
+      CharacterExpression.celebrate => const [
+          CharacterExpression.celebrate,
           CharacterExpression.happy,
           CharacterExpression.idle,
         ],
       CharacterExpression.happy => const [
           CharacterExpression.happy,
-          CharacterExpression.celebrating,
+          CharacterExpression.celebrate,
           CharacterExpression.idle,
         ],
-      CharacterExpression.unimpressed => const [
-          CharacterExpression.unimpressed,
-          CharacterExpression.waiting,
-          CharacterExpression.idle,
-        ],
-      CharacterExpression.waiting => const [
-          CharacterExpression.waiting,
-          CharacterExpression.unimpressed,
+      CharacterExpression.sad => const [
+          CharacterExpression.sad,
           CharacterExpression.idle,
         ],
       CharacterExpression.idle => const [CharacterExpression.idle],
@@ -87,7 +82,7 @@ class Character {
       available.contains,
       orElse: () => CharacterExpression.idle,
     );
-    return 'assets/characters/$id/${pick.name}.png';
+    return 'assets/subjects/$id/${pick.name}.png';
   }
 
   /// Asset path for the idle expression — most-used shortcut.
@@ -102,6 +97,5 @@ class CharacterStage {
   static const plant = AppColors.stageMint;
   static const bin = AppColors.stageMint;
   static const fish = AppColors.stageSky;
-  static const child = AppColors.stageCream;
   static const generic = AppColors.stageCream;
 }
