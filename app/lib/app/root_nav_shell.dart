@@ -22,7 +22,7 @@ class RootNavShell extends StatelessWidget {
         icon: Icons.pets_outlined,
         path: Routes.subjectsTab),
     _NavItem(
-        label: 'History',
+        label: 'Activities',
         icon: Icons.history,
         path: Routes.historyTab),
     _NavItem(

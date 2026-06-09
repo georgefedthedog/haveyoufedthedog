@@ -74,6 +74,7 @@ class HouseholdsController extends _$HouseholdsController {
     String? inviteCode,
     bool? invitesOpen,
     bool clearInviteCode = false,
+    String? picture,
   }) {
     final current = state.valueOrNull;
     if (current == null) return;
@@ -87,6 +88,7 @@ class HouseholdsController extends _$HouseholdsController {
         h.record.data['invite_code'] = inviteCode;
       }
       if (invitesOpen != null) h.record.data['invites_open'] = invitesOpen;
+      if (picture != null) h.record.data['picture'] = picture;
       break;
     }
     state = AsyncData([...current]);

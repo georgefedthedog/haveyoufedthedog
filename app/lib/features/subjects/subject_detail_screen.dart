@@ -344,7 +344,7 @@ class _HistorySection extends ConsumerWidget {
         Row(
           children: [
             Expanded(
-              child: Text('Recent history',
+              child: Text('Recent activity',
                   style:
                       Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w800,

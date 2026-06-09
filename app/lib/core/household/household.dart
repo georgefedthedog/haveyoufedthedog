@@ -27,6 +27,13 @@ class Household {
   String get id => record.id;
   String get name => record.data['name'] as String? ?? 'Unnamed household';
 
+  /// Id of the chosen household picture (see [Picture] / [PictureRegistry]).
+  /// Null = unset; clients render the fallback.
+  String? get picture {
+    final v = record.data['picture'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
   String? get inviteCode {
     final v = record.data['invite_code'];
     return (v is String && v.isNotEmpty) ? v : null;

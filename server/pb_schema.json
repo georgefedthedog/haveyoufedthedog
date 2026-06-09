@@ -808,6 +808,21 @@
         "type": "text"
       },
       {
+        "autogeneratePattern": "",
+        "help": "Id of the chosen household picture (e.g. cottage, barn). Empty = use client-side fallback.",
+        "hidden": false,
+        "id": "text_hh_picture_00000001",
+        "max": 40,
+        "min": 0,
+        "name": "picture",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
         "cascadeDelete": false,
         "collectionId": "_pb_users_auth_",
         "help": "",
@@ -867,9 +882,7 @@
         "type": "autodate"
       }
     ],
-    "indexes": [
-      "CREATE UNIQUE INDEX `idx_households_invite_code` ON `households` (`invite_code`) WHERE `invite_code` != ''"
-    ],
+    "indexes": ["CREATE UNIQUE INDEX `idx_households_invite_code` ON `households` (`invite_code`) WHERE `invite_code` != ''"],
     "system": false
   },
   {
@@ -1445,7 +1458,7 @@
         "collectionId": "pbc_households",
         "help": "",
         "hidden": false,
-        "id": "_clone_rPUK",
+        "id": "_clone_UZZY",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "household",
@@ -1459,7 +1472,7 @@
         "collectionId": "_pb_users_auth_",
         "help": "",
         "hidden": false,
-        "id": "_clone_gi36",
+        "id": "_clone_zwp2",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "user",
@@ -1471,7 +1484,7 @@
       {
         "help": "",
         "hidden": false,
-        "id": "_clone_0xpa",
+        "id": "_clone_e6Eg",
         "maxSelect": 1,
         "name": "role",
         "presentable": false,
@@ -1482,7 +1495,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_GimZ",
+        "id": "_clone_KOKd",
         "name": "created",
         "onCreate": true,
         "onUpdate": false,
@@ -1492,7 +1505,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_1kPT",
+        "id": "_clone_a2Gg",
         "name": "updated",
         "onCreate": true,
         "onUpdate": true,
@@ -1504,7 +1517,7 @@
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "_clone_suAn",
+        "id": "_clone_IBNH",
         "max": 255,
         "min": 0,
         "name": "user_name",

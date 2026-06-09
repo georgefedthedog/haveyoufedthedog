@@ -80,19 +80,27 @@ class HouseholdActions {
         .setCurrent(householdId);
   }
 
-  Future<void> renameHousehold({
+  /// Updates one or more user-editable fields on a household in a single
+  /// PB call. Pass `null` for fields you don't want to touch; pass an
+  /// empty string to clear a string field. Patches the cached household
+  /// in place after the round-trip so home / details rebuild without a
+  /// full invalidation (which would bounce the router to splash).
+  Future<void> updateHousehold({
     required String householdId,
-    required String newName,
+    String? name,
+    String? picture,
   }) async {
+    if (name == null && picture == null) return;
     final pb = await _ref.read(pocketbaseClientProvider.future);
-    await pb.collection('households').update(householdId, body: {
-      'name': newName,
-    });
-    // Surgical update — no full refetch, so the router doesn't bounce the
-    // user to the splash screen mid-edit.
-    _ref
-        .read(householdsControllerProvider.notifier)
-        .updateOneInPlace(householdId: householdId, name: newName);
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (picture != null) body['picture'] = picture;
+    await pb.collection('households').update(householdId, body: body);
+    _ref.read(householdsControllerProvider.notifier).updateOneInPlace(
+          householdId: householdId,
+          name: name,
+          picture: picture,
+        );
   }
 
   Future<void> leaveHousehold({required String membershipId}) async {

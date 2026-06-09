@@ -5,12 +5,14 @@ import 'package:go_router/go_router.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../core/household/pictures.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/empty_state.dart';
 import '../history/leaderboard.dart';
+import '../household/picture_artwork.dart';
 import 'household_members_row.dart';
 import 'subject_hero_card.dart';
 
@@ -30,20 +32,23 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.home_outlined),
-          tooltip: 'Manage household',
-          onPressed: () {
-            final id = asyncCurrent.valueOrNull?.id;
-            if (id != null) context.push(Routes.householdDetails(id));
-          },
-        ),
         centerTitle: true,
         title: Text(householdName),
       ),
       body: Column(
         children: [
           if (asyncCurrent.valueOrNull != null) ...[
+            const SizedBox(height: 8),
+            GestureDetector(
+              onTap: () => context.push(
+                Routes.householdDetails(asyncCurrent.value!.id),
+              ),
+              child: PictureArtwork(
+                picture:
+                    PictureRegistry.lookup(asyncCurrent.value!.picture),
+                height: 220,
+              ),
+            ),
             const SizedBox(height: 8),
             HouseholdMembersRow(householdId: asyncCurrent.value!.id),
             const SizedBox(height: 8),

@@ -12,7 +12,7 @@ import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
-import '../history/leaderboard.dart';
+import 'picture_picker.dart';
 
 /// View / edit one household the user is a member of.
 class HouseholdDetailsScreen extends ConsumerWidget {
@@ -167,6 +167,7 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   final _nameCtrl = TextEditingController();
   String _seededName = '';
+  String? _stagedPicture;
   bool _busy = false;
 
   @override
@@ -174,6 +175,7 @@ class _BodyState extends ConsumerState<_Body> {
     super.initState();
     _nameCtrl.text = widget.household.name;
     _seededName = widget.household.name;
+    _stagedPicture = widget.household.picture;
   }
 
   @override
@@ -187,6 +189,12 @@ class _BodyState extends ConsumerState<_Body> {
       _nameCtrl.text = widget.household.name;
       _seededName = widget.household.name;
     }
+    // Same for picture: if it changed under us and we're not mid-edit
+    // (i.e. our staged value matches the previous server value), re-seed.
+    if (widget.household.picture != oldWidget.household.picture &&
+        _stagedPicture == oldWidget.household.picture) {
+      _stagedPicture = widget.household.picture;
+    }
   }
 
   @override
@@ -195,26 +203,31 @@ class _BodyState extends ConsumerState<_Body> {
     super.dispose();
   }
 
-  bool get _isDirty {
+  bool get _isNameDirty {
     final trimmed = _nameCtrl.text.trim();
     return trimmed.isNotEmpty && trimmed != widget.household.name;
   }
 
-  Future<void> _saveName() async {
-    final newName = _nameCtrl.text.trim();
-    if (newName.isEmpty || newName == widget.household.name) return;
+  bool get _isPictureDirty => _stagedPicture != widget.household.picture;
+
+  bool get _isDirty => _isNameDirty || _isPictureDirty;
+
+  Future<void> _save() async {
+    if (!_isDirty) return;
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
+    final newName = _nameCtrl.text.trim();
     try {
-      await ref.read(householdActionsProvider).renameHousehold(
+      await ref.read(householdActionsProvider).updateHousehold(
             householdId: widget.household.id,
-            newName: newName,
+            name: _isNameDirty ? newName : null,
+            picture: _isPictureDirty ? (_stagedPicture ?? '') : null,
           );
-      _seededName = newName;
+      if (_isNameDirty) _seededName = newName;
     } on ClientException catch (e) {
       messenger.showSnackBar(SnackBar(
         showCloseIcon: true,
-        content: Text(e.response['message'] as String? ?? 'Rename failed'),
+        content: Text(e.response['message'] as String? ?? 'Save failed'),
       ));
     } catch (e) {
       messenger.showSnackBar(SnackBar(
@@ -240,6 +253,17 @@ class _BodyState extends ConsumerState<_Body> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Picture carousel — staged selection only; written to PB by
+          // the Save changes button along with any name edit.
+          IgnorePointer(
+            ignoring: !isOwner || _busy,
+            child: PicturePicker(
+              selected: _stagedPicture,
+              onChanged: (pictureId) =>
+                  setState(() => _stagedPicture = pictureId),
+            ),
+          ),
+          const SizedBox(height: 24),
           TextField(
             controller: _nameCtrl,
             enabled: isOwner && !_busy,
@@ -249,15 +273,21 @@ class _BodyState extends ConsumerState<_Body> {
             textInputAction: TextInputAction.done,
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) {
-              if (isOwner && _isDirty) _saveName();
+              if (isOwner && _isDirty) _save();
             },
           ),
           if (isOwner) ...[
             const SizedBox(height: 16),
             FilledButton.icon(
-              icon: const Icon(Icons.check),
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.check),
               label: const Text('Save changes'),
-              onPressed: (_isDirty && !_busy) ? _saveName : null,
+              onPressed: (_isDirty && !_busy) ? _save : null,
             ),
           ],
           const SizedBox(height: 16),
@@ -277,8 +307,6 @@ class _BodyState extends ConsumerState<_Body> {
               onTap: () => context.push(Routes.householdInvite(h.id)),
             ),
           ),
-          const SizedBox(height: 24),
-          Leaderboard(householdId: h.id),
           const SizedBox(height: 24),
           Text('Members', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
