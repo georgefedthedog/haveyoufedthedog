@@ -57,15 +57,18 @@ class _PicturePickerState extends State<PicturePicker> {
   @override
   void didUpdateWidget(covariant PicturePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Honour external changes (e.g. a different household loaded under us)
-    // by jumping the page silently — but only if the user isn't mid-swipe.
+    // Honour external changes (e.g. a different household loaded under
+    // us) by jumping silently. Deferred to a post-frame callback because
+    // jumpToPage fires onPageChanged synchronously, which would call the
+    // parent's setState during build.
     if (widget.selected != oldWidget.selected) {
       final target = _initialIndex();
       if (target != _currentIndex) {
         _currentIndex = target;
-        if (_controller.hasClients) {
-          _controller.jumpToPage(target);
-        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (_controller.hasClients) _controller.jumpToPage(target);
+        });
       }
     }
   }

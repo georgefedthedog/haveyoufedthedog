@@ -21,7 +21,6 @@ class PictureRegistry {
     farm,
     beach,
     flat,
-    paihia,
   ];
 
   static const cottage = Picture(id: 'cottage', displayName: 'Cottage');
