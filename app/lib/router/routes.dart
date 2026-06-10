@@ -24,10 +24,6 @@ class Routes {
   static const householdDetailsPattern = '/household/:id';
   static String householdDetails(String id) => '/household/$id';
 
-  /// Invite-management screen — the hero / code / share UI.
-  static const householdInvitePattern = '/household/:id/invite';
-  static String householdInvite(String id) => '/household/$id/invite';
-
   /// Authenticated with a current household resolved. Inside the
   /// bottom-nav shell.
   static const home = '/';

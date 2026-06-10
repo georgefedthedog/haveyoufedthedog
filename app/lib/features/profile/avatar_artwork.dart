@@ -39,7 +39,7 @@ class AvatarArtwork extends StatelessWidget {
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                     Icon(Avatar.fallbackIcon, size: size * 0.55),
               ),
             ),

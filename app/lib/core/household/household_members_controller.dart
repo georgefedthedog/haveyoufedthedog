@@ -23,9 +23,12 @@ class HouseholdMembersController extends _$HouseholdMembersController {
     if (!auth.isAuthenticated) return const [];
 
     try {
-      final records = await pb
-          .collection('household_member_details')
-          .getFullList(filter: 'household = "$householdId"');
+      // Oldest membership first — owner (creator) leads, then joiners in
+      // the order they arrived.
+      final records = await pb.collection('household_member_details').getFullList(
+            filter: 'household = "$householdId"',
+            sort: 'created',
+          );
       return records.map(HouseholdMember.new).toList();
     } catch (e) {
       debugPrint('household_member_details fetch failed: $e');

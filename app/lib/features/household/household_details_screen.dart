@@ -587,51 +587,19 @@ class _MembersList extends ConsumerWidget {
                 isMe: m.userId == myUserId,
                 canDrag: viewerIsOwner && m.userId != myUserId,
               ),
+            if (showBin)
+              Builder(builder: (binContext) {
+                return _RemoveBinChip(
+                  onDrop: (m) => _kick(binContext, ref, m),
+                );
+              }),
           ],
         );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(child: cloud),
-                  if (showBin) ...[
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: 96,
-                      child: Builder(builder: (binContext) {
-                        return DragTarget<HouseholdMember>(
-                          onWillAcceptWithDetails: (_) => true,
-                          onAcceptWithDetails: (details) =>
-                              _kick(binContext, ref, details.data),
-                          builder: (context, candidate, _) {
-                            final hovering = candidate.isNotEmpty;
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 150),
-                              decoration: BoxDecoration(
-                                color: hovering
-                                    ? Colors.red
-                                    : Colors.red.shade400,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.delete_outline,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            );
-                          },
-                        );
-                      }),
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            cloud,
             if (showLeave) ...[
               const SizedBox(height: 16),
               Builder(builder: (leaveContext) {
@@ -650,6 +618,94 @@ class _MembersList extends ConsumerWidget {
       },
     );
   }
+}
+
+/// Drop target for removing a member — a ghosted dashed red circle with a
+/// bin icon, sized and labelled like a member chip so it reads as part of
+/// the cloud. Fills solid red while a dragged avatar hovers over it.
+class _RemoveBinChip extends StatelessWidget {
+  final ValueChanged<HouseholdMember> onDrop;
+
+  const _RemoveBinChip({required this.onDrop});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DragTarget<HouseholdMember>(
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (details) => onDrop(details.data),
+      builder: (context, candidate, _) {
+        final hovering = candidate.isNotEmpty;
+        final red = hovering ? Colors.red : Colors.red.shade300;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomPaint(
+              painter: _DashedCirclePainter(color: red, filled: hovering),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Icon(
+                  Icons.delete_outline,
+                  size: 24,
+                  color: hovering ? Colors.white : red,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              width: 80,
+              child: Text(
+                'Remove',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Dashed circular outline, optionally filled — drawn for the remove-bin
+/// drop target.
+class _DashedCirclePainter extends CustomPainter {
+  final Color color;
+  final bool filled;
+
+  const _DashedCirclePainter({required this.color, required this.filled});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2 - 1;
+
+    if (filled) {
+      canvas.drawCircle(center, radius, Paint()..color = color);
+      return;
+    }
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+
+    const dashCount = 18;
+    const sweepPerDash = (2 * 3.141592653589793) / dashCount;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+    for (var i = 0; i < dashCount; i++) {
+      canvas.drawArc(rect, i * sweepPerDash, sweepPerDash * 0.55, false, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedCirclePainter old) =>
+      old.color != color || old.filled != filled;
 }
 
 /// One avatar in the members cloud: avatar circle, name underneath,
@@ -730,7 +786,10 @@ class _MemberChip extends StatelessWidget {
     final restingChip = chip(avatarSize: 56);
     if (!canDrag) return restingChip;
 
-    return Draggable<HouseholdMember>(
+    // Long-press to lift — a plain Draggable claims the gesture arena
+    // immediately, which makes the page hard to scroll when a thumb
+    // lands on an avatar.
+    return LongPressDraggable<HouseholdMember>(
       data: member,
       feedback: Material(
         color: Colors.transparent,

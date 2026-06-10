@@ -13,7 +13,6 @@ import '../features/home/home_screen.dart';
 import '../features/household/create_household_screen.dart';
 import '../features/household/household_details_screen.dart';
 import '../features/household/household_picker_screen.dart';
-import '../features/household/invite_screen.dart';
 import '../features/household/join_household_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/you_tab_screen.dart';
@@ -62,12 +61,6 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.householdDetailsPattern,
         builder: (context, state) => HouseholdDetailsScreen(
-          householdId: state.pathParameters['id']!,
-        ),
-      ),
-      GoRoute(
-        path: Routes.householdInvitePattern,
-        builder: (context, state) => InviteScreen(
           householdId: state.pathParameters['id']!,
         ),
       ),
