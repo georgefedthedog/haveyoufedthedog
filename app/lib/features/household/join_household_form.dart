@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/household/household_actions.dart';
+import '../../widgets/labeled_field.dart';
 
 /// Invite code input + Join button. On success the router redirects.
 class JoinHouseholdForm extends ConsumerStatefulWidget {
@@ -63,18 +64,20 @@ class _JoinHouseholdFormState extends ConsumerState<JoinHouseholdForm> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _codeCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Invite code',
-              hintText: 'e.g. KIKO-7H4P',
+          LabeledField(
+            label: 'Invite code',
+            child: TextFormField(
+              controller: _codeCtrl,
+              decoration: const InputDecoration(
+                hintText: 'e.g. KIKO-7H4P',
+              ),
+              autofocus: true,
+              textCapitalization: TextCapitalization.characters,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submit(),
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
-            autofocus: true,
-            textCapitalization: TextCapitalization.characters,
-            textInputAction: TextInputAction.done,
-            onFieldSubmitted: (_) => _submit(),
-            validator: (v) =>
-                (v == null || v.trim().isEmpty) ? 'Required' : null,
           ),
           const SizedBox(height: 24),
           FilledButton(

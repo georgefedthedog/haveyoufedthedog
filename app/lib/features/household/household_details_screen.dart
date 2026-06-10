@@ -13,6 +13,7 @@ import '../../core/household/households_controller.dart';
 import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/labeled_field.dart';
 import '../profile/avatar_artwork.dart';
 import 'picture_picker.dart';
 
@@ -270,53 +271,59 @@ class _BodyState extends ConsumerState<_Body> {
             ),
           ),
           const SizedBox(height: 24),
-          TextField(
-            controller: _nameCtrl,
-            enabled: isOwner && !_busy,
-            decoration: const InputDecoration(
-              labelText: 'Household name',
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LabeledField(
+                    label: 'Household name',
+                    child: TextField(
+                      controller: _nameCtrl,
+                      enabled: isOwner && !_busy,
+                      textInputAction: TextInputAction.done,
+                      onChanged: (_) => setState(() {}),
+                      onSubmitted: (_) {
+                        if (isOwner && _isDirty) _save();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    icon: _busy
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.check),
+                    label: const Text('Save changes'),
+                    onPressed: (_isDirty && !_busy) ? _save : null,
+                  ),
+                ],
+              ),
             ),
-            textInputAction: TextInputAction.done,
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (_) {
-              if (isOwner && _isDirty) _save();
-            },
           ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            icon: _busy
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.check),
-            label: const Text('Save changes'),
-            onPressed: (_isDirty && !_busy) ? _save : null,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Your role: ${h.role}',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          const SizedBox(height: 24),
+          _InviteSettings(household: h),
           const SizedBox(height: 24),
           Card(
-            child: ListTile(
-              leading: const Icon(Icons.group_add_outlined),
-              title: const Text('Invite someone'),
-              subtitle: Text(h.invitesOpen
-                  ? 'Invites are open${h.inviteCode == null ? "" : " · ${h.inviteCode}"}'
-                  : 'Invites are off'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(Routes.householdInvite(h.id)),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Members',
+                      style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  _MembersList(
+                    household: h,
+                    viewerIsOwner: isOwner,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text('Members', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          _MembersList(
-            household: h,
-            viewerIsOwner: isOwner,
           ),
         ],
       ),
@@ -384,76 +391,103 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final isOwner = widget.household.isOwner;
     final isOpen = widget.household.invitesOpen;
     final code = widget.household.inviteCode;
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                const Icon(Icons.mail_outline),
+                const Icon(Icons.group_add_outlined),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Open to new members',
-                          style: Theme.of(context).textTheme.titleSmall),
+                      Text('Invite someone',
+                          style: theme.textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700)),
                       Text(
-                        isOwner
-                            ? 'Turning this on generates a fresh invite code.'
-                            : 'Only an owner can change this.',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        'Invite family or flatmates',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Switch(
-                  value: isOpen,
-                  onChanged: (isOwner && !_busy) ? _toggle : null,
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 6, 4),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        isOpen ? 'Invites are on' : 'Invites are off',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Switch(
+                        value: isOpen,
+                        onChanged: (isOwner && !_busy) ? _toggle : null,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             if (isOpen && code != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        code,
-                        style: const TextStyle(
-                          fontFamily: 'monospace',
-                          fontSize: 22,
-                          letterSpacing: 3,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.copy_outlined),
-                      tooltip: 'Copy',
-                      onPressed: _busy ? null : () => _copy(code),
-                    ),
-                    if (isOwner)
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        tooltip: 'Rotate code',
-                        onPressed: _busy ? null : _rotate,
-                      ),
-                  ],
+              const SizedBox(height: 20),
+              Text(
+                code,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 4,
                 ),
               ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.calendar_today_outlined,
+                      size: 14, color: scheme.onSurfaceVariant),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Live until you turn invites off',
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.share),
+                  label: const Text('Share code'),
+                  onPressed: _busy ? null : () => _copy(code),
+                ),
+              ),
+              if (isOwner)
+                TextButton.icon(
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Generate new code'),
+                  onPressed: _busy ? null : _rotate,
+                ),
             ],
           ],
         ),
@@ -635,14 +669,38 @@ class _MemberChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final avatar = AvatarRegistry.lookup(member.avatar);
     final label = isMe ? '${member.displayName} (you)' : member.displayName;
 
     Widget chip({required double avatarSize}) {
+      Widget avatarWidget = AvatarArtwork(avatar: avatar, size: avatarSize);
+      if (member.isOwner) {
+        avatarWidget = Stack(
+          clipBehavior: Clip.none,
+          children: [
+            avatarWidget,
+            Positioned(
+              right: -6,
+              bottom: -2,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.primary,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                padding: const EdgeInsets.all(4),
+                child: Icon(Icons.star,
+                    size: 12, color: scheme.onPrimary),
+              ),
+            ),
+          ],
+        );
+      }
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AvatarArtwork(avatar: avatar, size: avatarSize),
+          avatarWidget,
           const SizedBox(height: 6),
           SizedBox(
             width: 80,
@@ -656,6 +714,15 @@ class _MemberChip extends StatelessWidget {
               ),
             ),
           ),
+          if (member.isOwner)
+            Text(
+              'Owner',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
         ],
       );
     }

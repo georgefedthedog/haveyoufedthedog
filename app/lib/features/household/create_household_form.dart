@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/household/household_actions.dart';
+import '../../widgets/labeled_field.dart';
 
 /// Name input + Create button. On success the router redirects to /home.
 class CreateHouseholdForm extends ConsumerStatefulWidget {
@@ -64,18 +65,20 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _nameCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Household name',
-              hintText: 'e.g. "Paihia House" or "Home"',
+          LabeledField(
+            label: 'Household name',
+            child: TextFormField(
+              controller: _nameCtrl,
+              decoration: const InputDecoration(
+                hintText: 'e.g. "Paihia House" or "Home"',
+              ),
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submit(),
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.done,
-            onFieldSubmitted: (_) => _submit(),
-            validator: (v) =>
-                (v == null || v.trim().isEmpty) ? 'Required' : null,
           ),
           const SizedBox(height: 24),
           FilledButton(

@@ -7,6 +7,7 @@ import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/labeled_field.dart';
 import '../nfc/nfc_scan_dialog.dart';
 import 'character_carousel.dart';
 
@@ -239,17 +240,19 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              TextField(
-                controller: _nameCtrl,
-                autofocus: !_isEdit,
-                enabled: !_busy,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  hintText: 'e.g. Kiko',
+              LabeledField(
+                label: 'Name',
+                child: TextField(
+                  controller: _nameCtrl,
+                  autofocus: !_isEdit,
+                  enabled: !_busy,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Kiko',
+                  ),
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _save(),
+                  onChanged: (_) => setState(() {}),
                 ),
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _save(),
-                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 24),
               Text('NFC tag',

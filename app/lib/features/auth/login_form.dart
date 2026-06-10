@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../widgets/labeled_field.dart';
 import '../../widgets/password_field.dart';
 
 /// The email + password fields, the submit button, and the in-progress state.
@@ -62,14 +63,16 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         padding: const EdgeInsets.all(24),
         children: [
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _emailCtrl,
-            decoration: const InputDecoration(labelText: 'Email'),
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
-            textInputAction: TextInputAction.next,
-            validator: (v) =>
-                (v == null || !v.contains('@')) ? 'Enter your email' : null,
+          LabeledField(
+            label: 'Email',
+            child: TextFormField(
+              controller: _emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              textInputAction: TextInputAction.next,
+              validator: (v) =>
+                  (v == null || !v.contains('@')) ? 'Enter your email' : null,
+            ),
           ),
           const SizedBox(height: 16),
           PasswordField(

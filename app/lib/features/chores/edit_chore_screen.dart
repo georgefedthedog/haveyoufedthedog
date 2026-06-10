@@ -8,6 +8,7 @@ import '../../core/chores/chores_controller.dart';
 import '../../core/chores/schedule_rule.dart';
 import '../../core/chores/weekdays.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/labeled_field.dart';
 import 'weekday_picker.dart';
 
 /// Create or edit a chore for a subject. When [choreId] is non-null we're
@@ -187,16 +188,18 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              TextFormField(
-                controller: _nameCtrl,
-                autofocus: !_isEdit,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  hintText: 'e.g. Breakfast',
+              LabeledField(
+                label: 'Name',
+                child: TextFormField(
+                  controller: _nameCtrl,
+                  autofocus: !_isEdit,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Breakfast',
+                  ),
+                  textInputAction: TextInputAction.done,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Required' : null,
                 ),
-                textInputAction: TextInputAction.done,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 24),
               Text('Repeats', style: Theme.of(context).textTheme.titleSmall),

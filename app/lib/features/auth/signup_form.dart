@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../widgets/labeled_field.dart';
 import '../../widgets/password_field.dart';
 
 /// Display name + email + password + submit. On success, PB signs the new
@@ -64,27 +65,32 @@ class _SignupFormState extends ConsumerState<SignupForm> {
         padding: const EdgeInsets.all(24),
         children: [
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _nameCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Your name',
-              hintText: 'Shown next to your completions',
+          LabeledField(
+            label: 'Your name',
+            child: TextFormField(
+              controller: _nameCtrl,
+              decoration: const InputDecoration(
+                hintText: 'Shown next to your completions',
+              ),
+              autofillHints: const [AutofillHints.name],
+              textCapitalization: TextCapitalization.words,
+              textInputAction: TextInputAction.next,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
-            autofillHints: const [AutofillHints.name],
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.next,
-            validator: (v) =>
-                (v == null || v.trim().isEmpty) ? 'Required' : null,
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _emailCtrl,
-            decoration: const InputDecoration(labelText: 'Email'),
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
-            textInputAction: TextInputAction.next,
-            validator: (v) =>
-                (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+          LabeledField(
+            label: 'Email',
+            child: TextFormField(
+              controller: _emailCtrl,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              textInputAction: TextInputAction.next,
+              validator: (v) => (v == null || !v.contains('@'))
+                  ? 'Enter a valid email'
+                  : null,
+            ),
           ),
           const SizedBox(height: 16),
           PasswordField(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'labeled_field.dart';
+
 /// A `TextFormField` for passwords with a built-in eye toggle. Use this in
 /// place of a raw `TextFormField` anywhere we ask for a password.
 class PasswordField extends StatefulWidget {
@@ -31,22 +33,26 @@ class _PasswordFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.controller,
-      obscureText: _obscured,
-      autofillHints: widget.autofillHints,
-      textInputAction: widget.textInputAction,
-      onFieldSubmitted: widget.onFieldSubmitted,
-      validator: widget.validator,
-      decoration: InputDecoration(
-        labelText: widget.labelText,
-        helperText: widget.helperText,
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+    return LabeledField(
+      label: widget.labelText,
+      child: TextFormField(
+        controller: widget.controller,
+        obscureText: _obscured,
+        autofillHints: widget.autofillHints,
+        textInputAction: widget.textInputAction,
+        onFieldSubmitted: widget.onFieldSubmitted,
+        validator: widget.validator,
+        decoration: InputDecoration(
+          helperText: widget.helperText,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscured
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
+            tooltip: _obscured ? 'Show password' : 'Hide password',
+            onPressed: () => setState(() => _obscured = !_obscured),
           ),
-          tooltip: _obscured ? 'Show password' : 'Hide password',
-          onPressed: () => setState(() => _obscured = !_obscured),
         ),
       ),
     );

@@ -31,7 +31,7 @@ class PicturePicker extends StatefulWidget {
 }
 
 class _PicturePickerState extends State<PicturePicker> {
-  static const _viewportFraction = 0.6;
+  static const _viewportFraction = 0.75;
   late final PageController _controller;
   late int _currentIndex;
 
@@ -150,33 +150,10 @@ class _CarouselTile extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Stack(
-            fit: StackFit.passthrough,
-            children: [
-              PictureArtwork(picture: picture),
-              // Per-image cream radial fade — softens each picture's
-              // rectangular edge into the surface so the carousel reads
-              // as floating illustrations rather than cropped tiles.
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(
-                        center: Alignment.center,
-                        radius: 0.85,
-                        colors: [
-                          Colors.transparent,
-                          Colors.transparent,
-                          Theme.of(context).colorScheme.surface,
-                        ],
-                        stops: const [0.0, 0.55, 1.0],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: PictureArtwork(picture: picture, fit: BoxFit.cover),
           ),
         ),
       ),

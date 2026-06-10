@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/labeled_field.dart';
 import 'avatar_picker.dart';
 
 /// Edit the current user's profile — email is read-only, name is editable.
@@ -80,25 +81,29 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Display name',
-                  hintText: 'How others in your household see you',
+              LabeledField(
+                label: 'Display name',
+                child: TextFormField(
+                  controller: _nameCtrl,
+                  decoration: const InputDecoration(
+                    hintText: 'How others in your household see you',
+                  ),
+                  textInputAction: TextInputAction.done,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  onFieldSubmitted: (_) => _save(),
                 ),
-                textInputAction: TextInputAction.done,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
-                onFieldSubmitted: (_) => _save(),
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                key: const ValueKey('email-field'),
-                initialValue: auth.email ?? '',
-                readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  helperText: "Email can't be changed.",
+              LabeledField(
+                label: 'Email',
+                child: TextFormField(
+                  key: const ValueKey('email-field'),
+                  initialValue: auth.email ?? '',
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    helperText: "Email can't be changed.",
+                  ),
                 ),
               ),
               const SizedBox(height: 32),

@@ -201,10 +201,37 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      filled: false,
+      filled: true,
+      fillColor: scheme.surfaceContainerHigh,
+      contentPadding:
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: scheme.primary, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: scheme.error, width: 1.5),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: scheme.error, width: 1.5),
+      ),
       labelStyle: GoogleFonts.plusJakartaSans(
         color: scheme.onSurfaceVariant,
         fontWeight: FontWeight.w500,
+      ),
+      floatingLabelStyle: GoogleFonts.plusJakartaSans(
+        color: scheme.onSurfaceVariant,
+        fontWeight: FontWeight.w600,
       ),
     ),
     dividerTheme: DividerThemeData(
