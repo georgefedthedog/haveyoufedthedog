@@ -25,6 +25,9 @@ class WeekdayPicker extends StatelessWidget {
           FilterChip(
             label: Text(Weekdays.labels[i]),
             selected: (mask & Weekdays.bits[i]) != 0,
+            // No checkmark — it widens the chip on selection and makes
+            // the whole row reflow. The fill colour change is enough.
+            showCheckmark: false,
             onSelected: (s) => onChanged(
               s ? (mask | Weekdays.bits[i]) : (mask & ~Weekdays.bits[i]),
             ),

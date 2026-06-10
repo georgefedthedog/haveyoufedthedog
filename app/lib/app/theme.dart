@@ -117,11 +117,12 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
   // name, "All done!", screen titles — while Plus Jakarta Sans stays the
   // workhorse for body/label/title text.
   final display = GoogleFonts.knewaveTextTheme(defaults);
+  // Only the headline tier gets the display face. The display* slots stay
+  // on the body font — Material components use them for big *numerals*
+  // (the time picker's hour/minute digits), where brush lettering reads
+  // badly.
   final textTheme = body
       .copyWith(
-        displayLarge: display.displayLarge,
-        displayMedium: display.displayMedium,
-        displaySmall: display.displaySmall,
         headlineLarge: display.headlineLarge,
         headlineMedium: display.headlineMedium,
         headlineSmall: display.headlineSmall,

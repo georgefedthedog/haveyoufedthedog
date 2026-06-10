@@ -58,6 +58,66 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     _seeded = true;
   }
 
+  /// Static preview of the chore in its neutral state — always shows the
+  /// full name and the complete schedule line (days + time), regardless
+  /// of whether the chore would currently be overdue / due-soon. The
+  /// styling mirrors ChoreRow's resting look without its live status.
+  Widget _buildPreviewRow() {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final name = _nameCtrl.text.trim();
+    final rule = ScheduleRule(
+      type: _scheduleType,
+      hour: _time.hour,
+      minute: _time.minute,
+      weekdayMask:
+          _scheduleType == ScheduleType.daily ? Weekdays.all : _weekdayMask,
+    );
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.white.withValues(alpha: 0.9),
+          width: 1.5,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: scheme.surfaceContainerHighest,
+              foregroundColor: scheme.onSurfaceVariant,
+              child: const Icon(Icons.schedule, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.isEmpty ? 'New chore' : name,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    rule.humanLabel(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: context,
@@ -188,71 +248,91 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              LabeledField(
-                label: 'Name',
-                child: TextFormField(
-                  controller: _nameCtrl,
-                  autofocus: !_isEdit,
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. Breakfast',
-                  ),
-                  textInputAction: TextInputAction.done,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text('Repeats', style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              SegmentedButton<ScheduleType>(
-                segments: const [
-                  ButtonSegment(
-                    value: ScheduleType.daily,
-                    label: Text('Every day'),
-                  ),
-                  ButtonSegment(
-                    value: ScheduleType.weekly,
-                    label: Text('Some days'),
-                  ),
-                ],
-                selected: {_scheduleType},
-                onSelectionChanged: (s) =>
-                    setState(() => _scheduleType = s.first),
-              ),
-              if (_scheduleType == ScheduleType.weekly) ...[
-                const SizedBox(height: 16),
-                Text('On these days',
-                    style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 8),
-                WeekdayPicker(
-                  mask: _weekdayMask,
-                  onChanged: (m) => setState(() => _weekdayMask = m),
-                ),
-                if (_weekdayMask == 0) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'Pick at least one day.',
-                    style: TextStyle(color: scheme.error),
-                  ),
-                ],
-              ],
-              const SizedBox(height: 24),
-              Text('Time', style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
+              // Live preview of the chore's name + full schedule line,
+              // updating as the form changes.
+              _buildPreviewRow(),
+              const SizedBox(height: 16),
               Card(
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  leading: const Icon(Icons.schedule),
-                  title: Text(_time.format(context)),
-                  trailing: const Icon(Icons.edit),
-                  onTap: _pickTime,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LabeledField(
+                        label: 'Name',
+                        child: TextFormField(
+                          controller: _nameCtrl,
+                          autofocus: !_isEdit,
+                          decoration: const InputDecoration(
+                            hintText: 'e.g. Breakfast',
+                          ),
+                          textInputAction: TextInputAction.done,
+                          onChanged: (_) => setState(() {}),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Required'
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      LabeledField(
+                        label: 'Repeats',
+                        child: SegmentedButton<ScheduleType>(
+                          segments: const [
+                            ButtonSegment(
+                              value: ScheduleType.daily,
+                              label: Text('Every day'),
+                            ),
+                            ButtonSegment(
+                              value: ScheduleType.weekly,
+                              label: Text('Some days'),
+                            ),
+                          ],
+                          selected: {_scheduleType},
+                          onSelectionChanged: (s) =>
+                              setState(() => _scheduleType = s.first),
+                        ),
+                      ),
+                      if (_scheduleType == ScheduleType.weekly) ...[
+                        const SizedBox(height: 16),
+                        LabeledField(
+                          label: 'On these days',
+                          child: WeekdayPicker(
+                            mask: _weekdayMask,
+                            onChanged: (m) =>
+                                setState(() => _weekdayMask = m),
+                          ),
+                        ),
+                        if (_weekdayMask == 0) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Pick at least one day.',
+                            style: TextStyle(color: scheme.error),
+                          ),
+                        ],
+                      ],
+                      const SizedBox(height: 24),
+                      LabeledField(
+                        label: 'Time',
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          color: scheme.surfaceContainerHigh,
+                          child: ListTile(
+                            leading: const Icon(Icons.schedule),
+                            title: Text(_time.format(context)),
+                            trailing: const Icon(Icons.edit),
+                            onTap: _pickTime,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        icon: const Icon(Icons.check),
+                        label: Text(_isEdit ? 'Save changes' : 'Add chore'),
+                        onPressed: _busy ? null : _save,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                icon: const Icon(Icons.check),
-                label: Text(_isEdit ? 'Save changes' : 'Add chore'),
-                onPressed: _busy ? null : _save,
               ),
             ],
           ),
