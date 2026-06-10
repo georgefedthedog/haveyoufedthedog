@@ -12,7 +12,6 @@ import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
 import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/labeled_field.dart';
 import '../profile/avatar_artwork.dart';
@@ -56,7 +55,6 @@ class HouseholdDetailsScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            bottomNavigationBar: const SafeArea(child: BuildLabel()),
           );
         }
         return Scaffold(
@@ -73,7 +71,6 @@ class HouseholdDetailsScreen extends ConsumerWidget {
             ],
           ),
           body: _Body(household: household),
-          bottomNavigationBar: const SafeArea(child: BuildLabel()),
         );
       },
     );

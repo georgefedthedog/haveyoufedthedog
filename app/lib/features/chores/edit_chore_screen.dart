@@ -7,7 +7,6 @@ import '../../core/chores/chore_actions.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/chores/schedule_rule.dart';
 import '../../core/chores/weekdays.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
 import 'weekday_picker.dart';
 
@@ -338,7 +337,6 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

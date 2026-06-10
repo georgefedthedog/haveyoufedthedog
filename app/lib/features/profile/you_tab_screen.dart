@@ -4,13 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/completions/awards_controller.dart';
+import '../../core/household/current_household_controller.dart';
+import '../../core/household/household_member.dart';
+import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
 import '../../core/profile/avatars.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/characters.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/dashed_circle_painter.dart';
+import '../history/awards_section.dart';
 import 'avatar_artwork.dart';
 
 /// "You" bottom-nav branch: a polished profile + settings landing surface.
@@ -31,14 +34,9 @@ class YouTabScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('You'), centerTitle: true),
-      // Logout card pinned beneath the scrolling content so it's always
-      // reachable without scrolling past the awards shelf.
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              children: [
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
@@ -111,21 +109,15 @@ class YouTabScreen extends ConsumerWidget {
                     onTap: () => context.push(Routes.householdPicker),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: _LogoutCard(
-              avatar: avatar,
-              name: name.isEmpty ? 'You' : name,
-              onLogout: () =>
-                  ref.read(authControllerProvider.notifier).logout(),
-            ),
+          const SizedBox(height: 16),
+          _LogoutCard(
+            avatar: avatar,
+            name: name.isEmpty ? 'You' : name,
+            onLogout: () =>
+                ref.read(authControllerProvider.notifier).logout(),
           ),
         ],
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }
@@ -249,6 +241,20 @@ class _MyAwardsCard extends ConsumerWidget {
     final scheme = theme.colorScheme;
     final awards = ref.watch(weeklyAwardsProvider);
 
+    // Me as a HouseholdMember — the badge card footer wants the avatar.
+    final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
+    final members = hh == null
+        ? const <HouseholdMember>[]
+        : ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
+            const <HouseholdMember>[];
+    HouseholdMember? me;
+    for (final m in members) {
+      if (m.userId == myUserId) {
+        me = m;
+        break;
+      }
+    }
+
     final mine = [
       for (final a in awards.memberAwards)
         if (a.winnerUserId == myUserId) a,
@@ -258,82 +264,94 @@ class _MyAwardsCard extends ConsumerWidget {
         if (a.winnerUserId == myUserId) a,
     ];
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your awards this week',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (mine.isEmpty && mineFromCharacters.isEmpty)
-              Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Your awards this week',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (mine.isEmpty && mineFromCharacters.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
                 'Nothing yet — plenty of week left!',
+                textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
-              )
-            else ...[
-              for (final a in mineFromCharacters) ...[
-                Row(
+              ),
+            ),
+          )
+        else ...[
+          if (mineFromCharacters.isNotEmpty) ...[
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 32,
-                      height: 32,
-                      child: ClipOval(
-                        child: CharacterArtwork(
-                          character: CharacterRegistry.lookup(a.characterId),
-                          stage: true,
-                          iconSize: 18,
-                        ),
+                    for (final a in mineFromCharacters) ...[
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: ClipOval(
+                              child: CharacterArtwork(
+                                character:
+                                    CharacterRegistry.lookup(a.characterId),
+                                stage: true,
+                                iconSize: 18,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              "${a.subjectName}'s ${a.title}",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        "${a.subjectName}'s ${a.title}",
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                      if (a != mineFromCharacters.last)
+                        const SizedBox(height: 8),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 8),
-              ],
-              for (final a in mine) ...[
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 32,
-                      child: Text(
-                        a.emoji,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        a.title,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-              ],
-            ],
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
-        ),
-      ),
+          // Same trophy-cabinet badge cards as the Awards tab, two-up.
+          for (var i = 0; i < mine.length; i += 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: MemberAwardCard(award: mine[i], winner: me),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: i + 1 < mine.length
+                        ? MemberAwardCard(award: mine[i + 1], winner: me)
+                        : const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ],
     );
   }
 }

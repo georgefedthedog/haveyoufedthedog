@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/build_label.dart';
 import 'create_household_form.dart';
 
 /// Standalone "Create a new household" screen, reachable from the picker.
@@ -14,7 +13,6 @@ class CreateHouseholdScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Create household')),
       body: const SafeArea(child: CreateHouseholdForm()),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

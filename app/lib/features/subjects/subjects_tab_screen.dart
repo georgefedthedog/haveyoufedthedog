@@ -7,7 +7,6 @@ import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/empty_state.dart';
 import '../home/subject_hero_card.dart';
 
@@ -72,7 +71,6 @@ class SubjectsTabScreen extends ConsumerWidget {
           },
         ),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

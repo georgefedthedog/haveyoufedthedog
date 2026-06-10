@@ -8,7 +8,6 @@ import '../../core/household/household.dart';
 import '../../core/household/households_controller.dart';
 import '../../core/household/pictures.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import 'picture_artwork.dart';
 
 /// Lists the user's households and offers Create / Join affordances. Reached
@@ -114,7 +113,6 @@ class HouseholdPickerScreen extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

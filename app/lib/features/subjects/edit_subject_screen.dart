@@ -7,7 +7,6 @@ import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
 import '../nfc/nfc_scan_dialog.dart';
 import 'character_carousel.dart';
@@ -310,7 +309,6 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

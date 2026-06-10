@@ -29,6 +29,9 @@ class MemberAward {
   /// Comeback Kid). Meaningless when [winnerUserId] is null.
   final int value;
 
+  /// Badge artwork — filenames track the award ids.
+  String get assetPath => 'assets/awards/badge_$id.png';
+
   const MemberAward({
     required this.id,
     required this.emoji,

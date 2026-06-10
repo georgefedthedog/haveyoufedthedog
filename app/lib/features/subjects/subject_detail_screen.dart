@@ -17,7 +17,6 @@ import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_mood_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../chores/chore_row.dart';
 import 'completion_tile.dart';
@@ -103,7 +102,6 @@ class _Body extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

@@ -22,7 +22,6 @@ import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/empty_state.dart';
 import '../chores/chore_row.dart';
 import '../history/leaderboard.dart';
@@ -279,7 +278,6 @@ class HomeScreen extends ConsumerWidget {
       ),
       // FAB now lives on the bottom-nav shell, central-docked over the
       // notch — handled by `RootNavShell`.
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 }

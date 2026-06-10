@@ -7,6 +7,7 @@ import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatars.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/characters.dart';
+import '../../widgets/dashed_circle_painter.dart';
 import '../profile/avatar_artwork.dart';
 
 /// This week's full awards spread: household achievements, the
@@ -43,7 +44,18 @@ class AwardsSection extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
         ],
-        // Per-member personality awards, two to a row.
+        // Per-member personality awards, two to a row, under their own
+        // section header.
+        const SizedBox(height: 8),
+        Text(
+          'Badges',
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 12),
         for (var i = 0; i < awards.memberAwards.length; i += 2)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -51,7 +63,7 @@ class AwardsSection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _MemberAwardCard(
+                  child: MemberAwardCard(
                     award: awards.memberAwards[i],
                     winner: awards.memberAwards[i].winnerUserId == null
                         ? null
@@ -61,7 +73,7 @@ class AwardsSection extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: i + 1 < awards.memberAwards.length
-                      ? _MemberAwardCard(
+                      ? MemberAwardCard(
                           award: awards.memberAwards[i + 1],
                           winner: awards.memberAwards[i + 1].winnerUserId ==
                                   null
@@ -93,6 +105,7 @@ class HouseholdAchievementsRow extends ConsumerWidget {
         Expanded(
           child: _AchievementCard(
             emoji: '✨',
+            asset: 'assets/awards/badge_clean_sweep.png',
             title: 'Clean sweeps',
             value: '${awards.cleanSweeps}',
             subtitle: awards.perfectWeek
@@ -105,6 +118,7 @@ class HouseholdAchievementsRow extends ConsumerWidget {
         Expanded(
           child: _AchievementCard(
             emoji: '🤝',
+            asset: 'assets/awards/badge_team_effort.png',
             title: 'Team effort',
             value: awards.teamEffort ? 'Yes!' : '—',
             subtitle: awards.teamEffort
@@ -121,6 +135,9 @@ class HouseholdAchievementsRow extends ConsumerWidget {
 /// Household achievement stat card — clean sweeps / team effort.
 class _AchievementCard extends StatelessWidget {
   final String emoji;
+
+  /// Badge artwork; falls back to [emoji] if the asset fails to load.
+  final String asset;
   final String title;
   final String value;
   final String subtitle;
@@ -128,6 +145,7 @@ class _AchievementCard extends StatelessWidget {
 
   const _AchievementCard({
     required this.emoji,
+    required this.asset,
     required this.title,
     required this.value,
     required this.subtitle,
@@ -146,7 +164,14 @@ class _AchievementCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 18)),
+                Image.asset(
+                  asset,
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => Text(emoji,
+                      style: const TextStyle(fontSize: 18)),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -259,13 +284,18 @@ class _CharacterAwardCard extends StatelessWidget {
   }
 }
 
-/// Compact card for one personality award — emoji + title, then the
-/// winner (avatar + name + tally) or a muted unclaimed state.
-class _MemberAwardCard extends StatelessWidget {
+/// Trophy-cabinet card for one personality award: big badge art up top,
+/// centred title + description, then a footer row with the winner
+/// (avatar + name + gold-star tally) or a ghosted unclaimed state.
+class MemberAwardCard extends StatelessWidget {
   final MemberAward award;
   final HouseholdMember? winner;
 
-  const _MemberAwardCard({required this.award, required this.winner});
+  const MemberAwardCard({
+    super.key,
+    required this.award,
+    required this.winner,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -273,59 +303,86 @@ class _MemberAwardCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Text(award.emoji, style: const TextStyle(fontSize: 18)),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    award.title,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+            Center(
+              child: Image.asset(
+                award.assetPath,
+                width: 108,
+                height: 108,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) => Text(
+                  award.emoji,
+                  style: const TextStyle(fontSize: 48),
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 8),
+            Text(
+              award.title,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              award.description,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
             if (winner != null)
               Row(
                 children: [
                   AvatarArtwork(
                     avatar: AvatarRegistry.lookup(winner!.avatar),
-                    size: 22,
+                    size: 24,
                   ),
                   const SizedBox(width: 6),
-                  Flexible(
+                  Expanded(
                     child: Text(
-                      '${winner!.displayName} · ${award.value}',
+                      winner!.displayName,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
+                  Icon(Icons.check_circle,
+                      size: 16, color: scheme.tertiary),
+                  const SizedBox(width: 3),
+                  Text(
+                    '${award.value}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ],
               )
             else
-              Text(
-                'Unclaimed',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+              Row(
+                children: [
+                  CustomPaint(
+                    painter: DashedCirclePainter(
+                      color: scheme.onSurfaceVariant
+                          .withValues(alpha: 0.5),
+                    ),
+                    child: const SizedBox(width: 24, height: 24),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Unclaimed',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
-            const SizedBox(height: 6),
-            Text(
-              award.description,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
           ],
         ),
       ),

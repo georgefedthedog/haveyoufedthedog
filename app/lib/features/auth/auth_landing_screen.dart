@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/build_label.dart';
 import 'login_form.dart';
 import 'signup_form.dart';
 
@@ -29,7 +28,6 @@ class AuthLandingScreen extends StatelessWidget {
             children: [LoginForm(), SignupForm()],
           ),
         ),
-        bottomNavigationBar: const SafeArea(child: BuildLabel()),
       ),
     );
   }

@@ -8,7 +8,6 @@ import '../../core/completions/stats_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
-import '../../widgets/build_label.dart';
 import '../../widgets/empty_state.dart';
 import '../subjects/completion_tile.dart';
 import 'awards_section.dart';
@@ -134,7 +133,6 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
           },
         ),
       ),
-      bottomNavigationBar: const SafeArea(child: BuildLabel()),
     );
   }
 
