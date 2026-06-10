@@ -34,7 +34,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/households/
+    - assets/households/paihia/
+    - assets/households/terrace/
     - assets/subjects/dog/
     - assets/subjects/cat/
     - assets/subjects/plant/

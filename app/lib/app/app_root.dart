@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/notifications/fcm_token_sync.dart';
+import '../features/home/time_of_day_bucket.dart';
 import '../features/nfc/nfc_launch_handler.dart';
 import '../router/app_router.dart';
 import 'theme.dart';
@@ -41,12 +42,20 @@ class _AppRootState extends ConsumerState<AppRoot> {
     ref.watch(fcmTokenSyncProvider);
 
     final router = ref.watch(appRouterProvider);
+    // Match the chrome to the household picture's time-of-day variant:
+    // once the sky in the picture turns dusky (evening / night buckets),
+    // flip the whole app to dark mode so the cream surface doesn't read
+    // as a glowing white slab next to a sunset/night scene.
+    final bucket = bucketFor(DateTime.now());
+    final isAfterDark =
+        bucket == TimeOfDayBucket.evening || bucket == TimeOfDayBucket.night;
     return MaterialApp.router(
       title: 'Have You Fed The Dog?',
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: rootMessengerKey,
       theme: lightTheme,
       darkTheme: darkTheme,
+      themeMode: isAfterDark ? ThemeMode.dark : ThemeMode.light,
       routerConfig: router,
     );
   }

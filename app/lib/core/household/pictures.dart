@@ -11,26 +11,12 @@ class PictureRegistry {
 
   /// Ordered list — picker renders them in this order.
   static const all = <Picture>[
-    cottage,
-    terrace,
-    semi,
-    detached,
     paihia,
-    barn,
-    farm,
-    beach,
-    flat,
+    terrace,
   ];
 
-  static const cottage = Picture(id: 'cottage', displayName: 'Cottage');
-  static const terrace = Picture(id: 'terrace', displayName: 'Terrace');
-  static const semi = Picture(id: 'semi', displayName: 'Semi-detached');
-  static const detached = Picture(id: 'detached', displayName: 'Detached');
   static const paihia = Picture(id: 'paihia', displayName: 'Paihia House');
-  static const barn = Picture(id: 'barn', displayName: 'Barn');
-  static const farm = Picture(id: 'farm', displayName: 'Farmhouse');
-  static const beach = Picture(id: 'beach', displayName: 'Beach house');
-  static const flat = Picture(id: 'flat', displayName: 'Flat');
+  static const terrace = Picture(id: 'terrace', displayName: 'Terrace');
 
   /// Shown for households that haven't picked a picture yet (or whose
   /// stored id no longer matches a registry entry).

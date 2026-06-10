@@ -151,7 +151,33 @@ class _CarouselTile extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: PictureArtwork(picture: picture),
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              PictureArtwork(picture: picture),
+              // Per-image cream radial fade — softens each picture's
+              // rectangular edge into the surface so the carousel reads
+              // as floating illustrations rather than cropped tiles.
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 0.85,
+                        colors: [
+                          Colors.transparent,
+                          Colors.transparent,
+                          Theme.of(context).colorScheme.surface,
+                        ],
+                        stops: const [0.0, 0.55, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
