@@ -8,6 +8,7 @@ import '../features/auth/auth_landing_screen.dart';
 import '../features/chores/edit_chore_screen.dart';
 import '../features/completions/celebration_args.dart';
 import '../features/completions/completion_celebration.dart';
+import '../features/completions/day_celebration.dart';
 import '../features/history/history_tab_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/household/create_household_screen.dart';
@@ -81,6 +82,17 @@ GoRouter appRouter(Ref ref) {
             child: CompletionCelebration(args: args),
           );
         },
+      ),
+      GoRoute(
+        path: Routes.dayCelebration,
+        pageBuilder: (context, state) => CustomTransitionPage<void>(
+          opaque: false,
+          barrierColor: Colors.black54,
+          transitionDuration: const Duration(milliseconds: 220),
+          transitionsBuilder: (_, animation, _, child) =>
+              FadeTransition(opacity: animation, child: child),
+          child: const DayCelebration(),
+        ),
       ),
       GoRoute(
         path: Routes.subjectNew,

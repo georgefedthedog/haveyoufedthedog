@@ -41,6 +41,10 @@ class Routes {
   /// completion is logged. Push with a `CelebrationArgs` instance in `extra`.
   static const celebration = '/celebration';
 
+  /// Household-wide "every chore done today" celebration — confetti +
+  /// trophy cup, then lands on the Awards tab.
+  static const dayCelebration = '/day-celebration';
+
   /// Create a new subject in the current household.
   static const subjectNew = '/subject/new';
 

@@ -470,9 +470,10 @@ class _TodaySummaryCard extends StatelessWidget {
           width: 1.5,
         ),
       ),
-      // A finished day is worth celebrating — tap through to Awards.
+      // A finished day is worth celebrating — confetti + cup overlay,
+      // which then lands on the Awards tab.
       child: InkWell(
-        onTap: allDone ? () => context.go(Routes.historyTab) : null,
+        onTap: allDone ? () => context.push(Routes.dayCelebration) : null,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
         child: Row(

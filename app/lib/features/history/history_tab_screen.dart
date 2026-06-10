@@ -68,11 +68,22 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
-                const _StatRow(),
-                const SizedBox(height: 20),
                 if (hh != null) ...[
                   Leaderboard(householdId: hh.id),
                   const SizedBox(height: 20),
+                ],
+                Text('Household achievements',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 12),
+                const _StatRow(),
+                const SizedBox(height: 12),
+                const HouseholdAchievementsRow(),
+                const SizedBox(height: 20),
+                if (hh != null) ...[
                   Text("This week's awards",
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
@@ -187,7 +198,7 @@ class _StatRow extends ConsumerWidget {
             accent: Theme.of(context).colorScheme.tertiary,
             accentSoft:
                 Theme.of(context).colorScheme.tertiaryContainer,
-            emoji: '✅',
+            icon: Icons.check,
           ),
         ),
       ],
@@ -201,7 +212,11 @@ class _StatCard extends StatelessWidget {
   final String subtitle;
   final Color accent;
   final Color accentSoft;
-  final String emoji;
+
+  /// Pass exactly one of [emoji] or [icon] for the badge glyph — an icon
+  /// renders tinted with [accent], an emoji in its own colours.
+  final String? emoji;
+  final IconData? icon;
 
   const _StatCard({
     required this.title,
@@ -209,8 +224,10 @@ class _StatCard extends StatelessWidget {
     required this.subtitle,
     required this.accent,
     required this.accentSoft,
-    required this.emoji,
-  });
+    this.emoji,
+    this.icon,
+  }) : assert(emoji != null || icon != null,
+            'StatCard needs an emoji or an icon');
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +246,10 @@ class _StatCard extends StatelessWidget {
                     color: accentSoft,
                     shape: BoxShape.circle,
                   ),
-                  child: Text(emoji, style: const TextStyle(fontSize: 14)),
+                  child: icon != null
+                      ? Icon(icon, size: 16, color: accent)
+                      : Text(emoji!,
+                          style: const TextStyle(fontSize: 14)),
                 ),
                 const SizedBox(width: 8),
                 Text(title,

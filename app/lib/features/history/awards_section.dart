@@ -33,35 +33,6 @@ class AwardsSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Household-wide achievements.
-        Row(
-          children: [
-            Expanded(
-              child: _AchievementCard(
-                emoji: '✨',
-                title: 'Clean sweeps',
-                value: '${awards.cleanSweeps}',
-                subtitle: awards.perfectWeek
-                    ? 'Perfect week! 🏆'
-                    : 'days fully done',
-                achieved: awards.cleanSweeps > 0,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _AchievementCard(
-                emoji: '🤝',
-                title: 'Team effort',
-                value: awards.teamEffort ? 'Yes!' : '—',
-                subtitle: awards.teamEffort
-                    ? 'Everyone pitched in'
-                    : 'Share the load to earn',
-                achieved: awards.teamEffort,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
         // Character-voiced awards, one per subject.
         for (final award in awards.characterAwards) ...[
           _CharacterAwardCard(
@@ -103,6 +74,45 @@ class AwardsSection extends ConsumerWidget {
               ],
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// The clean-sweeps + team-effort pair, rendered as a two-up row.
+/// Lives separately from [AwardsSection] so the screen can group it with
+/// the streak / weekly-count stat cards under "Household achievements".
+class HouseholdAchievementsRow extends ConsumerWidget {
+  const HouseholdAchievementsRow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final awards = ref.watch(weeklyAwardsProvider);
+    return Row(
+      children: [
+        Expanded(
+          child: _AchievementCard(
+            emoji: '✨',
+            title: 'Clean sweeps',
+            value: '${awards.cleanSweeps}',
+            subtitle: awards.perfectWeek
+                ? 'Perfect week! 🏆'
+                : 'days fully done',
+            achieved: awards.cleanSweeps > 0,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _AchievementCard(
+            emoji: '🤝',
+            title: 'Team effort',
+            value: awards.teamEffort ? 'Yes!' : '—',
+            subtitle: awards.teamEffort
+                ? 'Everyone pitched in'
+                : 'Share the load to earn',
+            achieved: awards.teamEffort,
+          ),
+        ),
       ],
     );
   }

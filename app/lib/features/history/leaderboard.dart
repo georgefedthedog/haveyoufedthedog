@@ -199,9 +199,28 @@ class _PodiumColumn extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(medals[slot.rank]!, style: const TextStyle(fontSize: 22)),
-          const SizedBox(height: 4),
-          AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
+              // Medal pinned to the avatar's bottom-right corner. The
+              // horizontal nudge differs per rank because the avatars
+              // aren't the same size — a fixed offset sits too far out
+              // on the big winner circle and too far in on the small one.
+              Positioned(
+                right: switch (slot.rank) {
+                  1 => 0.0,
+                  3 => -10.0,
+                  _ => -6.0,
+                },
+                bottom: -4,
+                child: Text(
+                  medals[slot.rank]!,
+                  style: const TextStyle(fontSize: 22),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
             slot.userId == null ? '—' : nameOf(slot.userId!),
