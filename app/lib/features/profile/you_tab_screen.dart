@@ -25,7 +25,7 @@ class YouTabScreen extends ConsumerWidget {
     final avatar = AvatarRegistry.lookup(auth?.avatar);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('You')),
+      appBar: AppBar(title: const Text('You'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [

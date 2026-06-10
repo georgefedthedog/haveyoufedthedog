@@ -43,7 +43,7 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
         ref.watch(subjectsControllerProvider).valueOrNull ?? const [];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Chores')),
+      appBar: AppBar(title: const Text('Awards'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(householdHistoryControllerProvider.notifier).refresh(),

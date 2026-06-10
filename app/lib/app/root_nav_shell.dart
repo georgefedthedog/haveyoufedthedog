@@ -22,8 +22,8 @@ class RootNavShell extends StatelessWidget {
         icon: Icons.pets_outlined,
         path: Routes.subjectsTab),
     _NavItem(
-        label: 'Chores',
-        icon: Icons.history,
+        label: 'Awards',
+        icon: Icons.emoji_events_outlined,
         path: Routes.historyTab),
     _NavItem(
         label: 'You', icon: Icons.person_outline, path: Routes.youTab),
