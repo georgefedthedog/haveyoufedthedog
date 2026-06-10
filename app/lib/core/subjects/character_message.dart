@@ -4,7 +4,7 @@ import 'character.dart';
 
 /// How the subject is doing today. Drives both the friendly status line
 /// under the character hero AND the character's facial expression. Mood
-/// detection lives in `subject_detail_screen.dart::_moodFor`.
+/// detection lives in `subject_mood_controller.dart::subjectMood`.
 ///
 /// Priority on collision (highest wins): overdue > upcoming > happyForNow.
 /// `allDone` and `none` are checked before any pending-vs-time logic.
@@ -26,163 +26,170 @@ enum SubjectMood {
   happyForNow,
 }
 
-/// Returns a personality-flavoured one-liner for the given character at
-/// the given mood. Multiple variants per (character × mood) cell — picks
-/// one randomly so repeat visits to the same screen don't feel scripted.
+/// One status line for the subject hero: a punchy [title] statement and a
+/// quieter [body] subtext underneath.
+typedef CharacterLine = ({String title, String body});
+
+/// Returns a personality-flavoured (title, body) pair for the given
+/// character at the given mood. Multiple variants per (character × mood)
+/// cell — picks one randomly so repeat visits don't feel scripted.
 ///
-/// Substitutes `{name}` with [subjectName].
-String characterMessage({
+/// Substitutes `{name}` with [subjectName] in both parts.
+CharacterLine characterLine({
   required Character character,
   required SubjectMood mood,
   required String subjectName,
 }) {
   final table = _table[character.id] ?? _table['generic']!;
-  final lines = table[mood] ?? const ['{name} is doing fine.'];
+  final lines =
+      table[mood] ?? const <CharacterLine>[(title: '{name}', body: 'Doing fine.')];
   final pick = lines[_rand.nextInt(lines.length)];
-  return pick.replaceAll('{name}', subjectName);
+  return (
+    title: pick.title.replaceAll('{name}', subjectName),
+    body: pick.body.replaceAll('{name}', subjectName),
+  );
 }
 
 final _rand = Random();
 
-/// (character.id → mood → candidate lines). Lines are intentionally short
-/// so they fit a single line of body copy on the subject hero.
-const Map<String, Map<SubjectMood, List<String>>> _table = {
+/// (character.id → mood → candidate lines). Titles are short, punchy
+/// statements; bodies are quieter one-liners underneath.
+const Map<String, Map<SubjectMood, List<CharacterLine>>> _table = {
   'dog': {
     SubjectMood.allDone: [
-      '{name} is full, happy and snoozing 🐶',
-      'Belly rubs were earned. Good job.',
-      '{name} thinks you\'re the best human ever 🩵',
+      (title: 'Full, happy, snoozing.', body: '{name} had a great day 🐶'),
+      (title: 'Belly rubs were earned.', body: 'Good job looking after {name}.'),
+      (title: 'Best human ever.', body: "That's what {name} thinks of you 🩵"),
     ],
     SubjectMood.overdue: [
-      '{name} is giving you the eyes 👀',
-      'Tail wags pending. Get to it!',
-      '{name} keeps checking the bowl…',
+      (title: 'Tail wags pending.', body: 'Get to it! 🐾'),
+      (title: "You're getting the eyes.", body: '{name} is staring at you 👀'),
+      (title: 'The bowl is empty.', body: '{name} keeps checking it…'),
     ],
     SubjectMood.upcoming: [
-      '{name} just heard the cupboard open 🐾',
-      'Tail wags incoming — {name} can feel it.',
-      '{name} is sitting nicely by the bowl.',
+      (title: 'Ears up!', body: '{name} just heard the cupboard open 🐾'),
+      (title: 'Tail wags incoming.', body: '{name} can feel it.'),
+      (title: 'Sitting nicely.', body: '{name} is waiting by the bowl.'),
     ],
     SubjectMood.happyForNow: [
-      '{name} is having a chilled one. All good.',
-      'Tail at half-mast — {name} is content.',
-      '{name} is on the rug, dreaming of dinner.',
+      (title: 'All chill.', body: '{name} is having a relaxed one.'),
+      (title: 'Tail at half-mast.', body: '{name} is content for now.'),
+      (title: 'Dreaming of dinner.', body: '{name} is curled up on the rug.'),
     ],
     SubjectMood.none: [
-      'Day off! {name} approves.',
-      '{name} is napping on the rug.',
+      (title: 'Day off!', body: '{name} approves 🐶'),
+      (title: 'Do not disturb.', body: '{name} is napping on the rug.'),
     ],
   },
   'cat': {
     SubjectMood.allDone: [
-      '{name} is unimpressed but well fed 🐱',
-      'Acknowledged. {name} will tolerate you today.',
-      '{name} is purring (slightly).',
+      (title: 'Unimpressed but well fed.', body: '{name} will allow it 🐱'),
+      (title: 'Acknowledged.', body: '{name} will tolerate you today.'),
+      (title: 'Purring. Slightly.', body: 'High praise from {name}.'),
     ],
     SubjectMood.overdue: [
-      '{name} is judging you from the couch.',
-      'You forgot something. {name} is sure of it.',
-      'The bowl is empty. {name} is making it known.',
+      (title: 'You are being judged.', body: '{name} watches from the couch.'),
+      (title: 'You forgot something.', body: '{name} is sure of it.'),
+      (title: 'The bowl is empty.', body: '{name} is making it known.'),
     ],
     SubjectMood.upcoming: [
-      '{name} is on the counter. Coincidence?',
-      '{name} appeared in the kitchen at exactly the right moment.',
-      'Tail flicking. {name} senses food approaching.',
+      (title: 'On the counter. Waiting.', body: 'Coincidence? {name} thinks not.'),
+      (title: 'Perfect timing.', body: '{name} appeared in the kitchen just now.'),
+      (title: 'Tail flicking.', body: '{name} senses food approaching.'),
     ],
     SubjectMood.happyForNow: [
-      '{name} is loafing peacefully. All is well.',
-      'No emergencies. {name} is purring softly.',
-      '{name} is asleep in the patch of sun.',
+      (title: 'Loafing peacefully.', body: 'All is well with {name}.'),
+      (title: 'No emergencies.', body: '{name} is purring softly.'),
+      (title: 'Sun patch secured.', body: '{name} is asleep in it.'),
     ],
     SubjectMood.none: [
-      '{name} does not require your attention today. Carry on.',
-      'A day of rest. {name} approves silently.',
+      (title: 'Not required today.', body: '{name} dismisses you. Carry on.'),
+      (title: 'A day of rest.', body: '{name} approves silently.'),
     ],
   },
   'plant': {
     SubjectMood.allDone: [
-      '{name} is thriving 🌿',
-      'Watered and happy. Leaves are perky.',
-      '{name} is growing faster already.',
+      (title: 'Thriving.', body: '{name} is loving life 🌿'),
+      (title: 'Leaves are perky.', body: '{name} is watered and happy.'),
+      (title: 'Growth spurt incoming.', body: '{name} feels faster already.'),
     ],
     SubjectMood.overdue: [
-      '{name} is looking a bit thirsty.',
-      'Leaves are drooping. {name} needs a hand.',
+      (title: 'Feeling thirsty.', body: '{name} could use a drink.'),
+      (title: 'Leaves are drooping.', body: '{name} needs a hand.'),
     ],
     SubjectMood.upcoming: [
-      '{name} senses the watering can nearby 🌱',
-      '{name} is leaning toward the tap.',
+      (title: 'Something in the air.', body: '{name} senses the watering can 🌱'),
+      (title: 'Leaning toward the tap.', body: '{name} is ready when you are.'),
     ],
     SubjectMood.happyForNow: [
-      '{name} is photosynthesising in peace.',
-      'Leaves up, vibes good. {name} is fine.',
+      (title: 'Photosynthesising in peace.', body: 'No fuss from {name}.'),
+      (title: 'Leaves up, vibes good.', body: '{name} is doing fine.'),
     ],
     SubjectMood.none: [
-      '{name} is content. No watering today.',
+      (title: 'No watering today.', body: '{name} is content.'),
     ],
   },
   'bin': {
     SubjectMood.allDone: [
-      '{name} is empty and proud 🗑️',
-      'Out on time. {name} salutes you.',
-      'Bins out, world saved.',
+      (title: 'Empty and proud.', body: '{name} salutes you 🗑️'),
+      (title: 'Out on time.', body: 'World saved, bins out.'),
     ],
     SubjectMood.overdue: [
-      '{name} is overflowing… it\'s time.',
-      'Collection day looms. {name} is nervous.',
+      (title: "It's time.", body: '{name} is overflowing…'),
+      (title: 'Collection day looms.', body: '{name} is getting nervous.'),
     ],
     SubjectMood.upcoming: [
-      'Truck inbound. {name} is rolling itself to the kerb.',
-      '{name} is mentally preparing.',
+      (title: 'Truck inbound.', body: '{name} is rolling to the kerb.'),
+      (title: 'Mentally preparing.', body: '{name} knows what\'s coming.'),
     ],
     SubjectMood.happyForNow: [
-      '{name} is having a quiet sit-down. No rush.',
-      'Lid closed, vibes calm. {name} waits.',
+      (title: 'Quiet sit-down.', body: 'No rush for {name} today.'),
+      (title: 'Lid closed, vibes calm.', body: '{name} waits patiently.'),
     ],
     SubjectMood.none: [
-      'No collection today. {name} naps.',
+      (title: 'No collection today.', body: '{name} naps by the gate.'),
     ],
   },
   'fish': {
     SubjectMood.allDone: [
-      '{name} is gliding around, well fed 🐟',
-      'Tank life is good. {name} blubs in approval.',
+      (title: 'Gliding around, well fed.', body: '{name} blubs in approval 🐟'),
+      (title: 'Tank life is good.', body: '{name} is doing happy laps.'),
     ],
     SubjectMood.overdue: [
-      '{name} is at the surface, expectant.',
-      'Feeding time! {name} is watching.',
+      (title: 'At the surface. Expectant.', body: '{name} is watching you.'),
+      (title: 'Feeding time!', body: '{name} has noticed the delay.'),
     ],
     SubjectMood.upcoming: [
-      '{name} is hovering near the top, just in case.',
-      'Fins flicking. {name} senses food.',
+      (title: 'Hovering near the top.', body: 'Just in case. {name} is ready.'),
+      (title: 'Fins flicking.', body: '{name} senses food.'),
     ],
     SubjectMood.happyForNow: [
-      '{name} is doing slow laps. All chill.',
-      'Bubbles drifting. {name} is fine.',
+      (title: 'Slow laps.', body: '{name} is all chill.'),
+      (title: 'Bubbles drifting.', body: '{name} is doing fine.'),
     ],
     SubjectMood.none: [
-      'A quiet day in the tank for {name}.',
+      (title: 'A quiet day in the tank.', body: 'Nothing on for {name}.'),
     ],
   },
   'generic': {
     SubjectMood.allDone: [
-      '{name} is happy and looked after! 🎉',
-      'All done for {name} today. Nice work.',
+      (title: 'All done!', body: '{name} is happy and looked after 🎉'),
+      (title: 'Nice work.', body: 'Everything done for {name} today.'),
     ],
     SubjectMood.overdue: [
-      '{name} is waiting on you…',
-      'Bits left to do for {name}.',
+      (title: 'Waiting on you…', body: '{name} has bits left to do.'),
+      (title: 'Still outstanding.', body: '{name} needs a hand.'),
     ],
     SubjectMood.upcoming: [
-      'Coming up soon for {name}.',
-      '{name} has something on the schedule shortly.',
+      (title: 'Coming up soon.', body: '{name} has something on the schedule.'),
+      (title: 'Nearly time.', body: 'Something shortly for {name}.'),
     ],
     SubjectMood.happyForNow: [
-      '{name} is fine for now — later today.',
-      'All good with {name} at the moment.',
+      (title: 'Fine for now.', body: '{name} has things later today.'),
+      (title: 'All good.', body: 'Nothing urgent for {name}.'),
     ],
     SubjectMood.none: [
-      'Nothing on {name}\'s list today.',
+      (title: 'Nothing on the list.', body: 'A free day for {name}.'),
     ],
   },
 };

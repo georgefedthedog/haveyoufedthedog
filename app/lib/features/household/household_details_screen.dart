@@ -13,6 +13,7 @@ import '../../core/household/households_controller.dart';
 import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/labeled_field.dart';
 import '../profile/avatar_artwork.dart';
 import 'picture_picker.dart';
@@ -565,18 +566,15 @@ class _MembersList extends ConsumerWidget {
         ),
       ),
       data: (members) {
-        // Owner removes others by dragging their avatar into the bin on
-        // the right; non-owners still see a "Leave" tile of their own.
-        // The bin renders only when there's at least one other member.
+        // One mechanism for everyone: owners drag *others* into the bin
+        // to remove them; non-owners drag *themselves* in to leave. An
+        // owner can't drag their own chip — to step away they delete the
+        // household.
         final otherCount =
             members.where((m) => m.userId != myUserId).length;
-        final showBin = viewerIsOwner && otherCount > 0;
+        final showBin = viewerIsOwner ? otherCount > 0 : true;
 
-        // Non-owner viewer also needs a way to leave — keep a single
-        // small "Leave household" tile under the cloud for them.
-        final showLeave = !viewerIsOwner;
-
-        final cloud = Wrap(
+        return Wrap(
           spacing: 16,
           runSpacing: 16,
           alignment: WrapAlignment.start,
@@ -585,34 +583,19 @@ class _MembersList extends ConsumerWidget {
               _MemberChip(
                 member: m,
                 isMe: m.userId == myUserId,
-                canDrag: viewerIsOwner && m.userId != myUserId,
+                canDrag: viewerIsOwner
+                    ? m.userId != myUserId
+                    : m.userId == myUserId,
               ),
             if (showBin)
               Builder(builder: (binContext) {
                 return _RemoveBinChip(
-                  onDrop: (m) => _kick(binContext, ref, m),
+                  label: viewerIsOwner ? 'Remove' : 'Leave',
+                  onDrop: (m) => m.userId == myUserId
+                      ? _confirmAndLeave(binContext, ref, household)
+                      : _kick(binContext, ref, m),
                 );
               }),
-          ],
-        );
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            cloud,
-            if (showLeave) ...[
-              const SizedBox(height: 16),
-              Builder(builder: (leaveContext) {
-                return Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.logout),
-                    title: const Text('Leave household'),
-                    onTap: () =>
-                        _confirmAndLeave(leaveContext, ref, household),
-                  ),
-                );
-              }),
-            ],
           ],
         );
       },
@@ -626,7 +609,11 @@ class _MembersList extends ConsumerWidget {
 class _RemoveBinChip extends StatelessWidget {
   final ValueChanged<HouseholdMember> onDrop;
 
-  const _RemoveBinChip({required this.onDrop});
+  /// Caption under the circle — "Remove" for owners kicking others,
+  /// "Leave" for a member dragging themselves out.
+  final String label;
+
+  const _RemoveBinChip({required this.onDrop, this.label = 'Remove'});
 
   @override
   Widget build(BuildContext context) {
@@ -641,7 +628,7 @@ class _RemoveBinChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomPaint(
-              painter: _DashedCirclePainter(color: red, filled: hovering),
+              painter: DashedCirclePainter(color: red, filled: hovering),
               child: SizedBox(
                 width: 56,
                 height: 56,
@@ -656,7 +643,7 @@ class _RemoveBinChip extends StatelessWidget {
             SizedBox(
               width: 80,
               child: Text(
-                'Remove',
+                label,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: red,
@@ -669,43 +656,6 @@ class _RemoveBinChip extends StatelessWidget {
       },
     );
   }
-}
-
-/// Dashed circular outline, optionally filled — drawn for the remove-bin
-/// drop target.
-class _DashedCirclePainter extends CustomPainter {
-  final Color color;
-  final bool filled;
-
-  const _DashedCirclePainter({required this.color, required this.filled});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2 - 1;
-
-    if (filled) {
-      canvas.drawCircle(center, radius, Paint()..color = color);
-      return;
-    }
-
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round;
-
-    const dashCount = 18;
-    const sweepPerDash = (2 * 3.141592653589793) / dashCount;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    for (var i = 0; i < dashCount; i++) {
-      canvas.drawArc(rect, i * sweepPerDash, sweepPerDash * 0.55, false, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedCirclePainter old) =>
-      old.color != color || old.filled != filled;
 }
 
 /// One avatar in the members cloud: avatar circle, name underneath,

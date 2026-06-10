@@ -52,8 +52,7 @@ class HomeScreen extends ConsumerWidget {
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness:
-              isDark ? Brightness.light : Brightness.dark,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
           statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         ),
         child: RefreshIndicator(
@@ -68,8 +67,9 @@ class HomeScreen extends ConsumerWidget {
               ref.read(householdHistoryControllerProvider.notifier).refresh(),
               if (currentId != null)
                 ref
-                    .read(householdMembersControllerProvider(currentId)
-                        .notifier)
+                    .read(
+                      householdMembersControllerProvider(currentId).notifier,
+                    )
                     .refresh(),
             ]);
           },
@@ -86,9 +86,9 @@ class HomeScreen extends ConsumerWidget {
                     child: Text(
                       householdName,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                      // Same display slot as the subject hero's message
+                      // title — keeps the two hero surfaces consistent.
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
                   HouseholdMembersRow(householdId: asyncCurrent.value!.id),
@@ -126,9 +126,10 @@ class HomeScreen extends ConsumerWidget {
                         for (final c in CharacterRegistry.all)
                           if (c != CharacterRegistry.generic) c,
                       ];
-                      final greeter = candidates[
-                          Random(identityHashCode(subjects))
-                              .nextInt(candidates.length)];
+                      final greeter =
+                          candidates[Random(
+                            identityHashCode(subjects),
+                          ).nextInt(candidates.length)];
                       return [
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 24),
@@ -184,53 +185,68 @@ class HomeScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 32,
                                 ),
-                                child: Builder(builder: (context) {
-                                  // One of the household's own friends
-                                  // snoozes through the day off. Seeded
-                                  // from the list instance so it doesn't
-                                  // reshuffle on unrelated rebuilds.
-                                  final sleeper = subjects[
-                                      Random(identityHashCode(subjects))
-                                          .nextInt(subjects.length)];
-                                  final character =
-                                      CharacterRegistry.lookup(sleeper.icon);
-                                  return Column(
-                                    children: [
-                                      SizedBox(
-                                        width: 140,
-                                        height: 140,
-                                        child: ClipOval(
-                                          child: CharacterArtwork(
-                                            character: character,
-                                            expression:
-                                                CharacterExpression.sleeping,
-                                            stage: true,
-                                            iconSize: 72,
+                                child: Builder(
+                                  builder: (context) {
+                                    // One of the household's own friends
+                                    // snoozes through the day off. Seeded
+                                    // from the list instance so it doesn't
+                                    // reshuffle on unrelated rebuilds.
+                                    final sleeper =
+                                        subjects[Random(
+                                          identityHashCode(subjects),
+                                        ).nextInt(subjects.length)];
+                                    final character = CharacterRegistry.lookup(
+                                      sleeper.icon,
+                                    );
+                                    return Column(
+                                      children: [
+                                        SizedBox(
+                                          width: 140,
+                                          height: 140,
+                                          child: ClipOval(
+                                            child: CharacterArtwork(
+                                              character: character,
+                                              expression:
+                                                  CharacterExpression.sleeping,
+                                              stage: true,
+                                              iconSize: 72,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        'Nothing due today 🎉',
-                                        textAlign: TextAlign.center,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.titleMedium,
-                                      ),
-                                    ],
-                                  );
-                                }),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'Nothing due today 🎉',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               )
                             else ...[
+                              Text(
+                                "Today's chores",
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(height: 2),
                               Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 4,
-                                  bottom: 12,
-                                ),
+                                padding: const EdgeInsets.only(bottom: 12),
                                 child: Text(
-                                  "Today's chores",
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                  'Tap to complete',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
                                 ),
                               ),
                               for (final t in tasks) ...[

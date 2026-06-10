@@ -21,7 +21,7 @@ class SubjectsTabScreen extends ConsumerWidget {
     final asyncSubjects = ref.watch(subjectsControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Friends')),
+      appBar: AppBar(title: const Text('Friends'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait([

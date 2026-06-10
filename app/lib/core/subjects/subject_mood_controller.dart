@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../features/home/time_of_day_bucket.dart';
 import '../chores/chores_controller.dart';
 import '../completions/today_completions_controller.dart';
 import 'character.dart';
@@ -51,12 +52,20 @@ SubjectMood subjectMood(Ref ref, String subjectId) {
 /// Single source of truth for which face a mood wears, so every surface
 /// (detail hero, cards, future read-sites) agrees.
 extension SubjectMoodExpression on SubjectMood {
-  CharacterExpression get expression => switch (this) {
-        SubjectMood.allDone => CharacterExpression.happy,
-        SubjectMood.overdue => CharacterExpression.sad,
-        SubjectMood.upcoming => CharacterExpression.idle,
-        SubjectMood.happyForNow => CharacterExpression.idle,
-        // Day off — nothing due today, let them snooze.
-        SubjectMood.none => CharacterExpression.sleeping,
-      };
+  CharacterExpression get expression {
+    // Everything done and it's night (after 20:00) — tucked in for the
+    // day rather than grinning into the dark.
+    if (this == SubjectMood.allDone &&
+        bucketFor(DateTime.now()) == TimeOfDayBucket.night) {
+      return CharacterExpression.sleeping;
+    }
+    return switch (this) {
+      SubjectMood.allDone => CharacterExpression.happy,
+      SubjectMood.overdue => CharacterExpression.sad,
+      SubjectMood.upcoming => CharacterExpression.idle,
+      SubjectMood.happyForNow => CharacterExpression.idle,
+      // Day off — nothing due today, let them snooze.
+      SubjectMood.none => CharacterExpression.sleeping,
+    };
+  }
 }

@@ -111,12 +111,25 @@ const _darkScheme = ColorScheme(
 );
 
 ThemeData _build(ColorScheme scheme, Brightness brightness) {
-  final textTheme =
-      GoogleFonts.plusJakartaSansTextTheme(ThemeData(brightness: brightness)
-          .textTheme).apply(
-    bodyColor: scheme.onSurface,
-    displayColor: scheme.onSurface,
-  );
+  final defaults = ThemeData(brightness: brightness).textTheme;
+  final body = GoogleFonts.plusJakartaSansTextTheme(defaults);
+  // Two-font system: a display face carries the big moments — household
+  // name, "All done!", screen titles — while Plus Jakarta Sans stays the
+  // workhorse for body/label/title text.
+  final display = GoogleFonts.knewaveTextTheme(defaults);
+  final textTheme = body
+      .copyWith(
+        displayLarge: display.displayLarge,
+        displayMedium: display.displayMedium,
+        displaySmall: display.displaySmall,
+        headlineLarge: display.headlineLarge,
+        headlineMedium: display.headlineMedium,
+        headlineSmall: display.headlineSmall,
+      )
+      .apply(
+        bodyColor: scheme.onSurface,
+        displayColor: scheme.onSurface,
+      );
 
   return ThemeData(
     useMaterial3: true,
@@ -131,9 +144,8 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.plusJakartaSans(
+      titleTextStyle: GoogleFonts.knewave(
         color: scheme.onSurface,
-        fontWeight: FontWeight.w700,
         fontSize: 22,
       ),
     ),

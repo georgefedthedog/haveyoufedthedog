@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/theme.dart';
 import '../../core/chores/chore.dart';
+import '../../core/chores/chore_actions.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/recent_completions_controller.dart';
@@ -17,6 +18,7 @@ import '../../core/subjects/subject_mood_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/dashed_circle_painter.dart';
 import '../chores/chore_row.dart';
 import 'completion_tile.dart';
 
@@ -87,7 +89,7 @@ class _Body extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 24),
                   _TodaySection(subject: subject),
@@ -114,8 +116,9 @@ class _Hero extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final character = CharacterRegistry.lookup(subject.icon);
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final mood = ref.watch(subjectMoodProvider(subject.id));
-    final message = characterMessage(
+    final line = characterLine(
       character: character,
       mood: mood,
       subjectName: subject.name,
@@ -123,66 +126,123 @@ class _Hero extends ConsumerWidget {
 
     final streak = ref.watch(subjectStreakProvider(subject.id));
 
-    return Container(
-      color: character.stageColor,
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-      child: Column(
-        children: [
+    // Gentle diagonal shading on the stage — darker toward the bottom-left,
+    // lighter toward the top-right — derived from the stage colour so it
+    // works for every character and both themes.
+    final stageHsl = HSLColor.fromColor(character.stageColor);
+    final stageLight = stageHsl
+        .withLightness((stageHsl.lightness + 0.05).clamp(0.0, 1.0))
+        .toColor();
+    final stageDark = stageHsl
+        .withLightness((stageHsl.lightness - 0.07).clamp(0.0, 1.0))
+        .toColor();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+          child: Stack(
+            children: [
+              // NFC indicator in the card's top-right corner when a tag
+              // is bound to this subject.
+              if (subject.nfcTagId != null)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Tooltip(
+                    message: 'NFC tag linked',
+                    child: Icon(
+                      Icons.nfc,
+                      size: 20,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              // Full-width so the column centres in the card — inside a
+              // Stack it would otherwise shrink-wrap and sit left.
+              SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+          // Character floats on a circular stage over the page surface —
+          // the stage colour stays in the circle rather than washing the
+          // whole header.
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => context.push(Routes.subjectEdit(subject.id)),
             child: Stack(
-              alignment: const Alignment(0.3, 1),
+              // Pins the pencil badge onto the ellipse's bottom-right rim.
+              alignment: const Alignment(0.7, 0.88),
               children: [
-                SizedBox(
-                  height: 200,
+                Container(
+                  width: 220,
+                  height: 260,
+                  decoration: BoxDecoration(
+                    // Ellipse — a circle's border radius stretched to the
+                    // box's unequal width/height. Taller than wide, like
+                    // an upright egg.
+                    borderRadius: const BorderRadius.all(
+                      Radius.elliptical(110, 130),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.topRight,
+                      colors: [stageDark, stageLight],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(12),
                   child: CharacterArtwork(
                     character: character,
                     expression: mood.expression,
                     stage: false,
-                    iconSize: 140,
+                    iconSize: 150,
                   ),
                 ),
-                // Small pencil badge — sits in the bottom-right corner of
-                // the artwork box. White ring gives it a sticker feel
-                // against any character background.
+                // Small pencil badge on the circle's edge. White ring
+                // gives it a sticker feel against any stage colour.
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: theme.colorScheme.primary,
+                    color: scheme.primary,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   padding: const EdgeInsets.all(6),
                   child: Icon(
                     Icons.edit,
                     size: 16,
-                    color: theme.colorScheme.onPrimary,
+                    color: scheme.onPrimary,
                   ),
                 ),
               ],
             ),
           ),
           if (streak >= 3) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             _StreakPill(streak: streak),
           ],
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: Colors.black87,
-                fontWeight: FontWeight.w700,
-              ),
+          const SizedBox(height: 4),
+          Text(
+            line.title,
+            textAlign: TextAlign.center,
+            // headlineMedium carries the display font (Knewave) — one
+            // step up from the household name on home.
+            style: theme.textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            line.body,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
           ),
-        ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -251,15 +311,25 @@ class _TodaySection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Today',
+          "Today's chores",
+          textAlign: TextAlign.center,
           style: Theme.of(
             context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Tap to complete',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
         const SizedBox(height: 12),
         if (dueToday.isEmpty)
           Text(
-            'Nothing due today.',
+            'Nothing due today 🎉',
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           )
         else
@@ -277,58 +347,305 @@ class _TodaySection extends ConsumerWidget {
   }
 }
 
-class _ChoresSection extends ConsumerWidget {
+class _ChoresSection extends ConsumerStatefulWidget {
   final String subjectId;
   const _ChoresSection({required this.subjectId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ChoresSection> createState() => _ChoresSectionState();
+}
+
+class _ChoresSectionState extends ConsumerState<_ChoresSection> {
+  /// True while a chore chip is being long-press dragged — the Add slot
+  /// morphs into the red Remove drop target for the duration.
+  bool _dragging = false;
+
+  Future<void> _confirmAndDelete(Chore chore) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete ${chore.name}?'),
+        content: const Text(
+          'Its schedule and reminders go with it. Past completions stay '
+          'in the history.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(choreActionsProvider).deleteChore(chore.id);
+    } catch (e) {
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text('Could not delete: $e'),
+      ));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final asyncChores = ref.watch(choresControllerProvider);
     final chores =
         (asyncChores.valueOrNull ?? const [])
-            .where((c) => c.subjectId == subjectId)
+            .where((c) => c.subjectId == widget.subjectId)
             .toList()
           ..sort(
             (a, b) =>
                 (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
           );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Chores',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Manage chores',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 16,
+              children: [
+                for (final c in chores)
+                  _ChoreChip(
+                    chore: c,
+                    onTap: () => context.push(Routes.choreEdit(c.id)),
+                    onDragChanged: (active) =>
+                        setState(() => _dragging = active),
+                  ),
+                if (_dragging)
+                  _RemoveChoreChip(onDrop: _confirmAndDelete)
+                else
+                  _AddChoreChip(
+                    onTap: () =>
+                        context.push(Routes.choreNew(widget.subjectId)),
+                  ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        if (chores.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Text('No chores yet.', textAlign: TextAlign.center),
-          )
-        else
-          for (final c in chores)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Card(
-                child: ListTile(
-                  leading: const Icon(Icons.schedule),
-                  title: Text(c.name),
-                  subtitle: Text(c.rule.humanLabel()),
-                  trailing: const Icon(Icons.edit_outlined),
-                  onTap: () => context.push(Routes.choreEdit(c.id)),
+      ),
+    );
+  }
+}
+
+/// One chore in the manage-chores cloud: pastel circle with a clock,
+/// pencil badge on the edge, name + schedule underneath. Tap to edit;
+/// long-press to lift and drag onto the Remove slot to delete.
+class _ChoreChip extends StatelessWidget {
+  final Chore chore;
+  final VoidCallback onTap;
+
+  /// Fired with true when a long-press drag lifts this chip, false when
+  /// the drag ends (dropped or cancelled). The parent swaps the Add slot
+  /// for the Remove bin while any drag is live.
+  final ValueChanged<bool> onDragChanged;
+
+  const _ChoreChip({
+    required this.chore,
+    required this.onTap,
+    required this.onDragChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final chip = _chipBody(theme, scheme);
+    return LongPressDraggable<Chore>(
+      data: chore,
+      onDragStarted: () => onDragChanged(true),
+      onDragEnd: (_) => onDragChanged(false),
+      // The lifted copy swaps its pencil badge for a red cross — you're
+      // carrying it toward the bin, not editing it.
+      feedback: Material(
+        color: Colors.transparent,
+        child: _chipBody(theme, scheme, removing: true),
+      ),
+      childWhenDragging: Opacity(opacity: 0.3, child: chip),
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: chip,
+      ),
+    );
+  }
+
+  Widget _chipBody(ThemeData theme, ColorScheme scheme,
+      {bool removing = false}) {
+    return SizedBox(
+        width: 80,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: scheme.primaryContainer,
+                  ),
+                  child: Icon(
+                    Icons.schedule,
+                    size: 24,
+                    color: scheme.onPrimaryContainer,
+                  ),
                 ),
+                Positioned(
+                  right: -2,
+                  bottom: -2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: removing ? Colors.red : scheme.primary,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      removing ? Icons.close : Icons.edit,
+                      size: 11,
+                      color: removing ? Colors.white : scheme.onPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              chore.name,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          icon: const Icon(Icons.add),
-          label: const Text('Add chore'),
-          onPressed: () => context.push(Routes.choreNew(subjectId)),
+            const SizedBox(height: 2),
+            Text(
+              chore.rule.humanLabel(),
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
-      ],
+    );
+  }
+}
+
+/// Drop target the Add slot morphs into while a chore chip is being
+/// dragged — dashed red circle with a bin, fills solid on hover. Dropping
+/// hands the chore to [onDrop] (which confirms before deleting).
+class _RemoveChoreChip extends StatelessWidget {
+  final ValueChanged<Chore> onDrop;
+
+  const _RemoveChoreChip({required this.onDrop});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DragTarget<Chore>(
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (details) => onDrop(details.data),
+      builder: (context, candidate, _) {
+        final hovering = candidate.isNotEmpty;
+        final red = hovering ? Colors.red : Colors.red.shade300;
+        return SizedBox(
+          width: 80,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomPaint(
+                painter: DashedCirclePainter(color: red, filled: hovering),
+                child: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: Icon(
+                    Icons.delete_outline,
+                    size: 24,
+                    color: hovering ? Colors.white : red,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Remove chore',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: red,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Trailing "Add chore" affordance — dashed circle with a plus, styled
+/// like the chore chips so it reads as the next empty slot.
+class _AddChoreChip extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _AddChoreChip({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 80,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomPaint(
+              painter: DashedCirclePainter(color: accent),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Icon(Icons.add, size: 24, color: accent),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Add chore',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -344,22 +661,28 @@ class _HistorySection extends ConsumerWidget {
     );
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
+        // Title centred across the full width; "See all" floats at the
+        // right edge without pushing the title off-centre.
+        Stack(
+          alignment: Alignment.center,
           children: [
-            Expanded(
-              child: Text(
-                'Recent activity',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
+            Text(
+              'Completed chores',
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
             ),
-            TextButton(
-              onPressed: () =>
-                  context.go('${Routes.historyTab}?subject=${subject.id}'),
-              child: const Text('See all →'),
+            Positioned(
+              right: 0,
+              child: TextButton(
+                onPressed: () =>
+                    context.go('${Routes.historyTab}?subject=${subject.id}'),
+                child: const Text('See all →'),
+              ),
             ),
           ],
         ),

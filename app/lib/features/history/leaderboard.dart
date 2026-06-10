@@ -76,6 +76,7 @@ class Leaderboard extends ConsumerWidget {
       children: [
         if (!dense) ...[
           Text("This week's leaderboard",
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   )),
