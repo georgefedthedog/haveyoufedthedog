@@ -11,6 +11,7 @@ import '../../core/subjects/subjects_controller.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/empty_state.dart';
 import '../subjects/completion_tile.dart';
+import 'awards_section.dart';
 import 'leaderboard.dart';
 
 /// History tab — household-wide. Stats cards at the top, leaderboard
@@ -71,6 +72,15 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                 const SizedBox(height: 20),
                 if (hh != null) ...[
                   Leaderboard(householdId: hh.id),
+                  const SizedBox(height: 20),
+                  Text("This week's awards",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 12),
+                  AwardsSection(householdId: hh.id),
                   const SizedBox(height: 20),
                 ],
                 Text('All activity',

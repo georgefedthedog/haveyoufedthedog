@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/theme.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
@@ -440,21 +441,28 @@ class _TodaySummaryCard extends StatelessWidget {
     required this.myName,
   });
 
-  String get _line {
-    if (total == 0) return 'Nothing on today.';
-    if (done == 0) return "Let's get going!";
-    if (done == total) {
-      return 'All done! 💚';
-    }
-    return 'Great job - keep it up!';
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final fraction = total == 0 ? 0.0 : done / total;
+    final allDone = total > 0 && done == total;
+
+    final title = allDone
+        ? 'All chores done today!'
+        : done == 0
+            ? "Let's get started!"
+            : 'Good progress. Keep it up!';
+    final subtitle = '$done of $total completed';
+
+    // Fixed lavender pair (rather than scheme.primaryContainer) so the
+    // card reads as the same soft purple in light AND dark mode — matches
+    // the celebration-style mockup.
+    const cardColor = AppColors.violetSoft;
+    const inkColor = AppColors.onVioletSoft;
+
     return Card(
-      color: Colors.green.shade50,
+      color: cardColor,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
@@ -462,23 +470,38 @@ class _TodaySummaryCard extends StatelessWidget {
           width: 1.5,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
+      // A finished day is worth celebrating — tap through to Awards.
+      child: InkWell(
+        onTap: allDone ? () => context.go(Routes.historyTab) : null,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
         child: Row(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green.shade100,
+            // The cup comes out when the whole day is done; until then a
+            // quiet house-on-circle placeholder keeps the layout stable.
+            if (allDone)
+              SizedBox(
+                width: 64,
+                height: 64,
+                child: Image.asset(
+                  'assets/awards/all_done_cup.png',
+                  fit: BoxFit.contain,
+                ),
+              )
+            else
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.violet.withValues(alpha: 0.12),
+                ),
+                child: const Icon(
+                  Icons.home_outlined,
+                  color: inkColor,
+                  size: 28,
+                ),
               ),
-              child: Icon(
-                Icons.home_outlined,
-                color: Colors.green.shade900,
-                size: 26,
-              ),
-            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -486,17 +509,17 @@ class _TodaySummaryCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '$done of $total done today',
+                    title,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
-                      color: Colors.green.shade900,
+                      color: inkColor,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _line,
+                    subtitle,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.green.shade800,
+                      color: inkColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -506,14 +529,17 @@ class _TodaySummaryCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: fraction,
                       minHeight: 8,
-                      backgroundColor: Colors.green.shade100,
-                      valueColor: AlwaysStoppedAnimation(Colors.green.shade600),
+                      backgroundColor:
+                          AppColors.violet.withValues(alpha: 0.15),
+                      valueColor:
+                          const AlwaysStoppedAnimation(AppColors.violet),
                     ),
                   ),
                 ],
               ),
             ),
           ],
+          ),
         ),
       ),
     );
