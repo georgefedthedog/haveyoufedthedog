@@ -35,4 +35,9 @@ class HouseholdMembersController extends _$HouseholdMembersController {
       rethrow;
     }
   }
+
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
 }

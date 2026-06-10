@@ -9,11 +9,11 @@ import '../../core/completions/completion.dart';
 import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/streak_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
-import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/character_message.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
+import '../../core/subjects/subject_mood_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
@@ -114,7 +114,7 @@ class _Hero extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final character = CharacterRegistry.lookup(subject.icon);
     final theme = Theme.of(context);
-    final mood = _moodFor(ref, subject);
+    final mood = ref.watch(subjectMoodProvider(subject.id));
     final message = characterMessage(
       character: character,
       mood: mood,
@@ -138,13 +138,7 @@ class _Hero extends ConsumerWidget {
                   height: 200,
                   child: CharacterArtwork(
                     character: character,
-                    expression: switch (mood) {
-                      SubjectMood.allDone => CharacterExpression.happy,
-                      SubjectMood.overdue => CharacterExpression.sad,
-                      SubjectMood.upcoming => CharacterExpression.idle,
-                      SubjectMood.happyForNow => CharacterExpression.idle,
-                      SubjectMood.none => CharacterExpression.idle,
-                    },
+                    expression: mood.expression,
                     stage: false,
                     iconSize: 140,
                   ),
@@ -222,41 +216,6 @@ class _StreakPill extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Mood detection — see [SubjectMood] for the priority order.
-SubjectMood _moodFor(WidgetRef ref, Subject subject) {
-  final allChores = ref.watch(choresControllerProvider).valueOrNull ?? const [];
-  final completions =
-      ref.watch(todayCompletionsControllerProvider).valueOrNull ?? const [];
-
-  final now = DateTime.now();
-  final dueToday = allChores
-      .where((c) => c.subjectId == subject.id && c.rule.isDueOn(now))
-      .toList();
-  if (dueToday.isEmpty) return SubjectMood.none;
-
-  final doneIds = <String>{
-    for (final c in completions)
-      if (c.choreId != null) c.choreId!,
-  };
-  final unlogged = dueToday.where((c) => !doneIds.contains(c.id)).toList();
-  if (unlogged.isEmpty) return SubjectMood.allDone;
-
-  if (unlogged.any((c) => c.rule.scheduledAt(now).isBefore(now))) {
-    return SubjectMood.overdue;
-  }
-
-  const window = Duration(hours: 1);
-  if (unlogged.any((c) {
-    final at = c.rule.scheduledAt(now);
-    final diff = at.difference(now);
-    return !diff.isNegative && diff <= window;
-  })) {
-    return SubjectMood.upcoming;
-  }
-
-  return SubjectMood.happyForNow;
 }
 
 class _TodaySection extends ConsumerWidget {

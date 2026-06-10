@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
@@ -26,7 +27,10 @@ class EditSubjectScreen extends ConsumerStatefulWidget {
 
 class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   final _nameCtrl = TextEditingController();
-  String? _icon;
+  // Defaults to the first registry character so a created subject matches
+  // what the carousel visibly shows — onChanged only fires on swipe, so
+  // without this a no-touch save would store null (→ generic).
+  String? _icon = CharacterRegistry.all.first.id;
   String? _nfcTagId;
   bool _seeded = false;
   bool _busy = false;

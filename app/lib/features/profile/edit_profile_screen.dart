@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/profile/avatars.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
 import 'avatar_picker.dart';
@@ -61,7 +62,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
     if (!_seeded) {
       _nameCtrl.text = auth.displayName ?? '';
-      _avatar = auth.avatar;
+      // Fall back to the first registry avatar — the carousel opens with
+      // it centred, and onChanged only fires on swipe, so a no-touch save
+      // should store what's visibly selected.
+      _avatar = auth.avatar ?? AvatarRegistry.all.first.id;
       _seeded = true;
     }
 

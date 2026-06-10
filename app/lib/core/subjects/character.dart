@@ -20,6 +20,9 @@ enum CharacterExpression {
 
   /// Mid-confetti, arms up. Completion celebration screen.
   celebrate,
+
+  /// Peacefully snoozing — home's "nothing due today" state.
+  sleeping,
 }
 
 /// One of the curated character templates a subject can be drawn as.
@@ -74,6 +77,10 @@ class Character {
         ],
       CharacterExpression.sad => const [
           CharacterExpression.sad,
+          CharacterExpression.idle,
+        ],
+      CharacterExpression.sleeping => const [
+          CharacterExpression.sleeping,
           CharacterExpression.idle,
         ],
       CharacterExpression.idle => const [CharacterExpression.idle],

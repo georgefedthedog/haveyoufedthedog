@@ -18,6 +18,7 @@ class CharacterRegistry {
     CharacterExpression.happy,
     CharacterExpression.sad,
     CharacterExpression.celebrate,
+    CharacterExpression.sleeping,
   };
 
   /// Ordered list — picker renders them in this order.

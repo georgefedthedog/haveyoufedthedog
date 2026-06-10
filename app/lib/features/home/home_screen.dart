@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,9 +9,11 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/completion.dart';
+import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household.dart';
+import '../../core/household/household_members_controller.dart';
 import '../../core/household/pictures.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
@@ -38,22 +42,35 @@ class HomeScreen extends ConsumerWidget {
     final householdName =
         asyncCurrent.valueOrNull?.name ?? 'Have You Fed The Dog?';
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       // Picture extends behind the transparent status bar — the system
       // bar text (clock / battery) floats over the sky portion of the
-      // image.
+      // image. Icon brightness follows the theme: evening/night runs the
+      // app in dark mode over a dusky sky, where dark icons would vanish.
       body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
+        value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
+          statusBarIconBrightness:
+              isDark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         ),
         child: RefreshIndicator(
           onRefresh: () async {
+            final currentId = asyncCurrent.valueOrNull?.id;
             await Future.wait([
               ref.read(subjectsControllerProvider.notifier).refresh(),
               ref.read(choresControllerProvider.notifier).refresh(),
               ref.read(todayCompletionsControllerProvider.notifier).refresh(),
+              // Members (avatars) + history (leaderboard) sync from other
+              // devices — the refresh people pull for most.
+              ref.read(householdHistoryControllerProvider.notifier).refresh(),
+              if (currentId != null)
+                ref
+                    .read(householdMembersControllerProvider(currentId)
+                        .notifier)
+                    .refresh(),
             ]);
           },
           child: MediaQuery.removePadding(
@@ -86,17 +103,37 @@ class HomeScreen extends ConsumerWidget {
                   ],
                   error: (e, _) => [
                     Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text('Could not load friends: $e'),
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: EmptyState(
+                        character: CharacterRegistry.generic,
+                        title: 'Hmm, something went sideways',
+                        message: 'Could not load your friends. $e',
+                        actionLabel: 'Try again',
+                        onAction: () => ref
+                            .read(subjectsControllerProvider.notifier)
+                            .refresh(),
+                      ),
                     ),
                   ],
                   data: (subjects) {
                     if (subjects.isEmpty) {
+                      // A different friend fronts the empty state on each
+                      // load/refresh. Seeding from the list instance keeps
+                      // the pick stable across unrelated rebuilds (theme
+                      // flips, other providers) — it only reshuffles when
+                      // the controller actually emits a fresh fetch.
+                      final candidates = [
+                        for (final c in CharacterRegistry.all)
+                          if (c != CharacterRegistry.generic) c,
+                      ];
+                      final greeter = candidates[
+                          Random(identityHashCode(subjects))
+                              .nextInt(candidates.length)];
                       return [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.55,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
                           child: EmptyState(
-                            character: CharacterRegistry.dog,
+                            character: greeter,
                             title: 'No friends yet',
                             message:
                                 'Add a dog, cat, plant, or whatever else needs '
@@ -147,13 +184,42 @@ class HomeScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 32,
                                 ),
-                                child: Text(
-                                  'Nothing due today 🎉',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
-                                ),
+                                child: Builder(builder: (context) {
+                                  // One of the household's own friends
+                                  // snoozes through the day off. Seeded
+                                  // from the list instance so it doesn't
+                                  // reshuffle on unrelated rebuilds.
+                                  final sleeper = subjects[
+                                      Random(identityHashCode(subjects))
+                                          .nextInt(subjects.length)];
+                                  final character =
+                                      CharacterRegistry.lookup(sleeper.icon);
+                                  return Column(
+                                    children: [
+                                      SizedBox(
+                                        width: 140,
+                                        height: 140,
+                                        child: ClipOval(
+                                          child: CharacterArtwork(
+                                            character: character,
+                                            expression:
+                                                CharacterExpression.sleeping,
+                                            stage: true,
+                                            iconSize: 72,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Nothing due today 🎉',
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium,
+                                      ),
+                                    ],
+                                  );
+                                }),
                               )
                             else ...[
                               Padding(

@@ -43,6 +43,7 @@ class HouseholdMembersRow extends ConsumerWidget {
                     initial: initial,
                     seed: m.userId,
                     name: name,
+                    isOwner: m.isOwner,
                   );
                 }),
               ],
@@ -63,28 +64,28 @@ class _Avatar extends StatelessWidget {
   final String initial;
   final String seed;
   final String name;
+  final bool isOwner;
 
   const _Avatar({
     required this.avatarId,
     required this.initial,
     required this.seed,
     required this.name,
+    required this.isOwner,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final avatar = AvatarRegistry.lookup(avatarId);
+
+    Widget circle;
     if (avatar != null) {
-      return Tooltip(
-        message: name,
-        child: AvatarArtwork(avatar: avatar, size: 44),
-      );
-    }
-    final bg = _colorFromSeed(seed);
-    return Tooltip(
-      message: name,
-      child: CircleAvatar(
+      circle = AvatarArtwork(avatar: avatar, size: 44);
+    } else {
+      final bg = _colorFromSeed(seed);
+      circle = CircleAvatar(
         radius: 22,
         backgroundColor: bg,
         foregroundColor: _readableOn(bg),
@@ -95,8 +96,33 @@ class _Avatar extends StatelessWidget {
             color: _readableOn(bg),
           ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (isOwner) {
+      // Same star badge as the members cloud on household details.
+      circle = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          circle,
+          Positioned(
+            right: -4,
+            bottom: -2,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: scheme.primary,
+                border: Border.all(color: Colors.white, width: 1.5),
+              ),
+              padding: const EdgeInsets.all(3),
+              child: Icon(Icons.star, size: 9, color: scheme.onPrimary),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Tooltip(message: name, child: circle);
   }
 
   /// Stable pastel colour from a seed string — same id → same colour.

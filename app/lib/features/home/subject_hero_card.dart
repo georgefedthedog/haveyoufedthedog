@@ -9,6 +9,7 @@ import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
+import '../../core/subjects/subject_mood_controller.dart';
 
 /// Home-screen card for one subject. Stage-coloured panel with the
 /// character on the left and name + today's progress on the right. The
@@ -72,6 +73,8 @@ class SubjectHeroCard extends ConsumerWidget {
                   ),
                   child: CharacterArtwork(
                     character: character,
+                    expression:
+                        ref.watch(subjectMoodProvider(subject.id)).expression,
                     stage: false,
                     iconSize: 56,
                   ),
