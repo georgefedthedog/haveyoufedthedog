@@ -1,52 +1,76 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../chores/chore.dart';
+import '../chores/chores_controller.dart';
 import 'recent_completions_controller.dart';
 
 part 'streak_controller.g.dart';
 
-/// Number of consecutive days (ending today or yesterday) that this
-/// subject has at least one completion logged.
+/// Number of consecutive **due days** that this subject has at least one
+/// completion logged for.
 ///
-/// "Today" counts as a streak day once you log anything; "yesterday"
-/// keeps the streak alive while you haven't yet logged today's chores.
-/// If the latest completion is older than yesterday, the streak is 0.
+/// Walks back from today asking, for each calendar day: *is any active
+/// chore for this subject scheduled on this day?*
+///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+///     chore doesn't reset its own streak on Wednesday.
+///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+///     grace pass — an outstanding chore due today doesn't break the
+///     streak you carried in from earlier days.
 ///
-/// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+/// We bound the walk to the earliest completion in the recent list so we
+/// don't loop into infinite empty history. Without a chore or without
+/// any completion at all, the streak is 0.
+///
+/// Derived from [recentCompletionsControllerProvider] and
+/// [choresControllerProvider] — no extra fetch.
 @riverpod
 int subjectStreak(Ref ref, String subjectId) {
-  final list = ref
+  final completions = ref
           .watch(recentCompletionsControllerProvider(subjectId))
           .valueOrNull ??
       const [];
-  if (list.isEmpty) return 0;
+  final allChores = ref.watch(choresControllerProvider).valueOrNull ??
+      const <Chore>[];
+
+  final subjectChores = [
+    for (final c in allChores)
+      if (c.subjectId == subjectId && c.active) c,
+  ];
+  if (subjectChores.isEmpty || completions.isEmpty) return 0;
+
+  // Dedupe completions to local-day keys for cheap membership checks.
+  final completedDays = <DateTime>{};
+  DateTime? earliestCompletion;
+  for (final c in completions) {
+    final d = c.completedAt;
+    final day = DateTime(d.year, d.month, d.day);
+    completedDays.add(day);
+    if (earliestCompletion == null || day.isBefore(earliestCompletion)) {
+      earliestCompletion = day;
+    }
+  }
 
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
 
-  // Deduplicate to days. Recent completions are sorted desc by
-  // `completed_at`, so walking the list gives us latest-first days.
-  final dayKeys = <DateTime>{};
-  for (final c in list) {
-    final d = c.completedAt;
-    dayKeys.add(DateTime(d.year, d.month, d.day));
-  }
-  final sortedDays = dayKeys.toList()..sort((a, b) => b.compareTo(a));
+  var streak = 0;
+  // Hard cap: walk at most a year — anything older isn't in our recent
+  // completions window anyway. We break out via `earliestCompletion`
+  // first in practice.
+  for (var offset = 0; offset <= 366; offset++) {
+    final day = today.subtract(Duration(days: offset));
+    if (day.isBefore(earliestCompletion!)) break;
 
-  // Anchor: latest day must be today or yesterday, else streak broken.
-  final latest = sortedDays.first;
-  final gap = today.difference(latest).inDays;
-  if (gap > 1) return 0;
+    final isDueDay = subjectChores.any((c) => c.rule.isDueOn(day));
+    if (!isDueDay) continue;
 
-  var streak = 1;
-  var prev = latest;
-  for (final d in sortedDays.skip(1)) {
-    final expected = prev.subtract(const Duration(days: 1));
-    if (d.year == expected.year &&
-        d.month == expected.month &&
-        d.day == expected.day) {
+    if (completedDays.contains(day)) {
       streak += 1;
-      prev = d;
+    } else if (offset == 0) {
+      // Grace: today's unsatisfied chore doesn't break a carried streak.
+      continue;
     } else {
       break;
     }

@@ -7,7 +7,7 @@ part of 'households_controller.dart';
 // **************************************************************************
 
 String _$householdsControllerHash() =>
-    r'10ac9cc4807eccf843405d0f3cfbf9565edfc796';
+    r'3dd073cd4b07a84171152133875e84db19a7da63';
 
 /// Loads the current user's households from PocketBase. Each one wraps a
 /// `households` record and carries the user's role + membershipId from

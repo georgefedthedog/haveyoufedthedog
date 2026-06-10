@@ -6,7 +6,7 @@ part of 'streak_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$subjectStreakHash() => r'f386095bbdc733f1f6bc512f2f3346e6454979e8';
+String _$subjectStreakHash() => r'4a0b4f1d7e7cde85476f270fd374fbcc420522a5';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -29,50 +29,90 @@ class _SystemHash {
   }
 }
 
-/// Number of consecutive days (ending today or yesterday) that this
-/// subject has at least one completion logged.
+/// Number of consecutive **due days** that this subject has at least one
+/// completion logged for.
 ///
-/// "Today" counts as a streak day once you log anything; "yesterday"
-/// keeps the streak alive while you haven't yet logged today's chores.
-/// If the latest completion is older than yesterday, the streak is 0.
+/// Walks back from today asking, for each calendar day: *is any active
+/// chore for this subject scheduled on this day?*
+///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+///     chore doesn't reset its own streak on Wednesday.
+///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+///     grace pass — an outstanding chore due today doesn't break the
+///     streak you carried in from earlier days.
 ///
-/// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+/// We bound the walk to the earliest completion in the recent list so we
+/// don't loop into infinite empty history. Without a chore or without
+/// any completion at all, the streak is 0.
+///
+/// Derived from [recentCompletionsControllerProvider] and
+/// [choresControllerProvider] — no extra fetch.
 ///
 /// Copied from [subjectStreak].
 @ProviderFor(subjectStreak)
 const subjectStreakProvider = SubjectStreakFamily();
 
-/// Number of consecutive days (ending today or yesterday) that this
-/// subject has at least one completion logged.
+/// Number of consecutive **due days** that this subject has at least one
+/// completion logged for.
 ///
-/// "Today" counts as a streak day once you log anything; "yesterday"
-/// keeps the streak alive while you haven't yet logged today's chores.
-/// If the latest completion is older than yesterday, the streak is 0.
+/// Walks back from today asking, for each calendar day: *is any active
+/// chore for this subject scheduled on this day?*
+///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+///     chore doesn't reset its own streak on Wednesday.
+///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+///     grace pass — an outstanding chore due today doesn't break the
+///     streak you carried in from earlier days.
 ///
-/// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+/// We bound the walk to the earliest completion in the recent list so we
+/// don't loop into infinite empty history. Without a chore or without
+/// any completion at all, the streak is 0.
+///
+/// Derived from [recentCompletionsControllerProvider] and
+/// [choresControllerProvider] — no extra fetch.
 ///
 /// Copied from [subjectStreak].
 class SubjectStreakFamily extends Family<int> {
-  /// Number of consecutive days (ending today or yesterday) that this
-  /// subject has at least one completion logged.
+  /// Number of consecutive **due days** that this subject has at least one
+  /// completion logged for.
   ///
-  /// "Today" counts as a streak day once you log anything; "yesterday"
-  /// keeps the streak alive while you haven't yet logged today's chores.
-  /// If the latest completion is older than yesterday, the streak is 0.
+  /// Walks back from today asking, for each calendar day: *is any active
+  /// chore for this subject scheduled on this day?*
+  ///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+  ///     chore doesn't reset its own streak on Wednesday.
+  ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+  ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+  ///     grace pass — an outstanding chore due today doesn't break the
+  ///     streak you carried in from earlier days.
   ///
-  /// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+  /// We bound the walk to the earliest completion in the recent list so we
+  /// don't loop into infinite empty history. Without a chore or without
+  /// any completion at all, the streak is 0.
+  ///
+  /// Derived from [recentCompletionsControllerProvider] and
+  /// [choresControllerProvider] — no extra fetch.
   ///
   /// Copied from [subjectStreak].
   const SubjectStreakFamily();
 
-  /// Number of consecutive days (ending today or yesterday) that this
-  /// subject has at least one completion logged.
+  /// Number of consecutive **due days** that this subject has at least one
+  /// completion logged for.
   ///
-  /// "Today" counts as a streak day once you log anything; "yesterday"
-  /// keeps the streak alive while you haven't yet logged today's chores.
-  /// If the latest completion is older than yesterday, the streak is 0.
+  /// Walks back from today asking, for each calendar day: *is any active
+  /// chore for this subject scheduled on this day?*
+  ///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+  ///     chore doesn't reset its own streak on Wednesday.
+  ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+  ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+  ///     grace pass — an outstanding chore due today doesn't break the
+  ///     streak you carried in from earlier days.
   ///
-  /// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+  /// We bound the walk to the earliest completion in the recent list so we
+  /// don't loop into infinite empty history. Without a chore or without
+  /// any completion at all, the streak is 0.
+  ///
+  /// Derived from [recentCompletionsControllerProvider] and
+  /// [choresControllerProvider] — no extra fetch.
   ///
   /// Copied from [subjectStreak].
   SubjectStreakProvider call(String subjectId) {
@@ -101,25 +141,45 @@ class SubjectStreakFamily extends Family<int> {
   String? get name => r'subjectStreakProvider';
 }
 
-/// Number of consecutive days (ending today or yesterday) that this
-/// subject has at least one completion logged.
+/// Number of consecutive **due days** that this subject has at least one
+/// completion logged for.
 ///
-/// "Today" counts as a streak day once you log anything; "yesterday"
-/// keeps the streak alive while you haven't yet logged today's chores.
-/// If the latest completion is older than yesterday, the streak is 0.
+/// Walks back from today asking, for each calendar day: *is any active
+/// chore for this subject scheduled on this day?*
+///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+///     chore doesn't reset its own streak on Wednesday.
+///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+///     grace pass — an outstanding chore due today doesn't break the
+///     streak you carried in from earlier days.
 ///
-/// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+/// We bound the walk to the earliest completion in the recent list so we
+/// don't loop into infinite empty history. Without a chore or without
+/// any completion at all, the streak is 0.
+///
+/// Derived from [recentCompletionsControllerProvider] and
+/// [choresControllerProvider] — no extra fetch.
 ///
 /// Copied from [subjectStreak].
 class SubjectStreakProvider extends AutoDisposeProvider<int> {
-  /// Number of consecutive days (ending today or yesterday) that this
-  /// subject has at least one completion logged.
+  /// Number of consecutive **due days** that this subject has at least one
+  /// completion logged for.
   ///
-  /// "Today" counts as a streak day once you log anything; "yesterday"
-  /// keeps the streak alive while you haven't yet logged today's chores.
-  /// If the latest completion is older than yesterday, the streak is 0.
+  /// Walks back from today asking, for each calendar day: *is any active
+  /// chore for this subject scheduled on this day?*
+  ///   - **No** → skip the day, don't count, don't break. A weekly Tuesday
+  ///     chore doesn't reset its own streak on Wednesday.
+  ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
+  ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
+  ///     grace pass — an outstanding chore due today doesn't break the
+  ///     streak you carried in from earlier days.
   ///
-  /// Derived from [recentCompletionsControllerProvider] — no extra fetch.
+  /// We bound the walk to the earliest completion in the recent list so we
+  /// don't loop into infinite empty history. Without a chore or without
+  /// any completion at all, the streak is 0.
+  ///
+  /// Derived from [recentCompletionsControllerProvider] and
+  /// [choresControllerProvider] — no extra fetch.
   ///
   /// Copied from [subjectStreak].
   SubjectStreakProvider(String subjectId)
