@@ -23,6 +23,7 @@ dependencies:
   nfc_manager: ^3.5.0
   google_fonts: ^6.2.1
   confetti: ^0.8.0
+  share_plus: ^10.1.0
 
 dev_dependencies:
   flutter_test:

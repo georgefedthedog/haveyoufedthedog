@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/household/household.dart';
@@ -379,14 +379,14 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     }
   }
 
-  Future<void> _copy(String code) async {
-    await Clipboard.setData(ClipboardData(text: code));
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Copied $code'),
-      ));
-    }
+  /// Opens the system share sheet with the invite code. The sheet's own
+  /// "Copy" action covers the old copy-to-clipboard behaviour.
+  Future<void> _share(String code) async {
+    await Share.share(
+      'Join our household on Have You Fed The Dog? '
+      'Open the app and enter invite code $code',
+      subject: 'Have You Fed The Dog? — household invite',
+    );
   }
 
   @override
@@ -479,7 +479,7 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                 child: FilledButton.icon(
                   icon: const Icon(Icons.share),
                   label: const Text('Share code'),
-                  onPressed: _busy ? null : () => _copy(code),
+                  onPressed: _busy ? null : () => _share(code),
                 ),
               ),
               if (isOwner)
