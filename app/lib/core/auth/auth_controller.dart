@@ -74,7 +74,7 @@ class AuthController extends _$AuthController {
   /// invalidate downstream watchers. Screens reading `auth.displayName`
   /// see the new value on their next read because the underlying
   /// `authStore.record` data was mutated in place.
-  Future<void> updateProfile({String? name}) async {
+  Future<void> updateProfile({String? name, String? avatar}) async {
     final pb = await ref.read(pocketbaseClientProvider.future);
     final auth = await ref.read(authControllerProvider.future);
     final userId = auth.userId;
@@ -83,6 +83,8 @@ class AuthController extends _$AuthController {
     }
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
+    // Pass empty string to clear an avatar; null means "don't touch".
+    if (avatar != null) body['avatar'] = avatar;
     if (body.isEmpty) return;
     await pb.collection('users').update(userId, body: body);
   }

@@ -10,8 +10,10 @@ import '../../core/household/household_actions.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
+import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../profile/avatar_artwork.dart';
 import 'picture_picker.dart';
 
 /// View / edit one household the user is a member of.
@@ -528,41 +530,147 @@ class _MembersList extends ConsumerWidget {
           child: Text('Could not load members: $e'),
         ),
       ),
-      data: (members) => Column(
+      data: (members) {
+        // Owner removes others by dragging their avatar into the bin on
+        // the right; non-owners still see a "Leave" tile of their own.
+        // The bin renders only when there's at least one other member.
+        final otherCount =
+            members.where((m) => m.userId != myUserId).length;
+        final showBin = viewerIsOwner && otherCount > 0;
+
+        // Non-owner viewer also needs a way to leave — keep a single
+        // small "Leave household" tile under the cloud for them.
+        final showLeave = !viewerIsOwner;
+
+        final cloud = Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          alignment: WrapAlignment.start,
+          children: [
+            for (final m in members)
+              _MemberChip(
+                member: m,
+                isMe: m.userId == myUserId,
+                canDrag: viewerIsOwner && m.userId != myUserId,
+              ),
+          ],
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: cloud),
+                  if (showBin) ...[
+                    const SizedBox(width: 16),
+                    SizedBox(
+                      width: 96,
+                      child: Builder(builder: (binContext) {
+                        return DragTarget<HouseholdMember>(
+                          onWillAcceptWithDetails: (_) => true,
+                          onAcceptWithDetails: (details) =>
+                              _kick(binContext, ref, details.data),
+                          builder: (context, candidate, _) {
+                            final hovering = candidate.isNotEmpty;
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              decoration: BoxDecoration(
+                                color: hovering
+                                    ? Colors.red
+                                    : Colors.red.shade400,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            );
+                          },
+                        );
+                      }),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (showLeave) ...[
+              const SizedBox(height: 16),
+              Builder(builder: (leaveContext) {
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: const Text('Leave household'),
+                    onTap: () =>
+                        _confirmAndLeave(leaveContext, ref, household),
+                  ),
+                );
+              }),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// One avatar in the members cloud: avatar circle, name underneath,
+/// "(you)" suffix on self. Wrapped in [Draggable] when the viewer can
+/// kick this member.
+class _MemberChip extends StatelessWidget {
+  final HouseholdMember member;
+  final bool isMe;
+  final bool canDrag;
+
+  const _MemberChip({
+    required this.member,
+    required this.isMe,
+    required this.canDrag,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final avatar = AvatarRegistry.lookup(member.avatar);
+    final label = isMe ? '${member.displayName} (you)' : member.displayName;
+
+    Widget chip({required double avatarSize}) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (final m in members)
-            Builder(builder: (rowContext) {
-              final isMe = m.userId == myUserId;
-              // Owners can remove others; non-owners can remove themselves
-              // (= leave the household). An owner viewing their own row
-              // gets nothing — to step away they delete the household.
-              final canKick = viewerIsOwner && !isMe;
-              final canLeave = !viewerIsOwner && isMe;
-              return Card(
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text(isMe ? '${m.displayName} (you)' : m.displayName),
-                  subtitle: Text(m.role),
-                  trailing: (canKick || canLeave)
-                      ? IconButton(
-                          icon: const Icon(Icons.person_remove_outlined),
-                          tooltip: canKick
-                              ? 'Remove from household'
-                              : 'Leave household',
-                          onPressed: canKick
-                              ? () => _kick(rowContext, ref, m)
-                              : () => _confirmAndLeave(
-                                    rowContext,
-                                    ref,
-                                    household,
-                                  ),
-                        )
-                      : null,
-                ),
-              );
-            }),
+          AvatarArtwork(avatar: avatar, size: avatarSize),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 80,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ],
+      );
+    }
+
+    final restingChip = chip(avatarSize: 56);
+    if (!canDrag) return restingChip;
+
+    return Draggable<HouseholdMember>(
+      data: member,
+      feedback: Material(
+        color: Colors.transparent,
+        child: chip(avatarSize: 72),
       ),
+      childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
+      child: restingChip,
     );
   }
 }

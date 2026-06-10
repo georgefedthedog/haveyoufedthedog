@@ -5,8 +5,10 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/profile/avatars.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
+import '../profile/avatar_artwork.dart';
 import 'celebration_args.dart';
 
 /// Full-screen "Nice work!" overlay shown after a chore is logged.
@@ -147,18 +149,27 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                   if (args.whoName != null) ...[
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.fromLTRB(8, 6, 16, 6),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: Text(
-                        'Logged by ${args.whoName}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AvatarArtwork(
+                            avatar: AvatarRegistry.lookup(args.whoAvatar),
+                            size: 32,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Logged by ${args.whoName}',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

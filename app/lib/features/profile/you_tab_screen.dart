@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import 'avatar_artwork.dart';
 
 /// "You" bottom-nav branch: a polished profile + settings landing surface.
 /// Edit lives in [EditProfileScreen]; this surface just summarises and
@@ -20,9 +22,7 @@ class YouTabScreen extends ConsumerWidget {
 
     final name = auth?.displayName ?? '';
     final email = auth?.email ?? '';
-    final initial = name.trim().isEmpty
-        ? null
-        : name.trim()[0].toUpperCase();
+    final avatar = AvatarRegistry.lookup(auth?.avatar);
 
     return Scaffold(
       appBar: AppBar(title: const Text('You')),
@@ -34,19 +34,30 @@ class YouTabScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: scheme.primaryContainer,
-                    foregroundColor: scheme.onPrimaryContainer,
-                    child: initial != null
-                        ? Text(
-                            initial,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w800,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => context.push(Routes.profile),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        AvatarArtwork(avatar: avatar, size: 144),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: scheme.primary,
+                              border:
+                                  Border.all(color: Colors.white, width: 2),
                             ),
-                          )
-                        : const Icon(Icons.person_outline, size: 32),
+                            padding: const EdgeInsets.all(6),
+                            child: Icon(Icons.edit,
+                                size: 16, color: scheme.onPrimary),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -64,12 +75,6 @@ class YouTabScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Edit profile'),
-                    onPressed: () => context.push(Routes.profile),
-                  ),
                 ],
               ),
             ),
@@ -77,19 +82,32 @@ class YouTabScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.swap_horiz),
-              title: const Text('Switch household'),
-              trailing: const Icon(Icons.chevron_right),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.swap_horiz),
+                  SizedBox(width: 12),
+                  Text('Switch household'),
+                ],
+              ),
               onTap: () => context.push(Routes.householdPicker),
             ),
           ),
           const SizedBox(height: 16),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Log out'),
               iconColor: scheme.error,
               textColor: scheme.error,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.logout),
+                  SizedBox(width: 12),
+                  Text('Log out'),
+                ],
+              ),
               onTap: () =>
                   ref.read(authControllerProvider.notifier).logout(),
             ),

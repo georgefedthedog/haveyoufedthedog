@@ -5,6 +5,8 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
+import '../../core/profile/avatars.dart';
+import '../profile/avatar_artwork.dart';
 
 /// Renders the current week's per-member completion counts as a podium for
 /// the top 3 + a list for everyone else. Resolves display names via
@@ -67,6 +69,8 @@ class Leaderboard extends ConsumerWidget {
       return userId == myUserId ? '${m.displayName} (you)' : m.displayName;
     }
 
+    String? avatarFor(String userId) => memberByUserId[userId]?.avatar;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -85,22 +89,18 @@ class Leaderboard extends ConsumerWidget {
                 _Podium(
                   entries: top3,
                   nameOf: nameFor,
+                  avatarOf: avatarFor,
                 ),
                 if (rest.isNotEmpty) ...[
                   const Divider(),
                   for (var i = 0; i < rest.length; i++)
                     ListTile(
                       dense: true,
-                      leading: CircleAvatar(
-                        radius: 14,
-                        backgroundColor: scheme.surfaceContainerHighest,
-                        child: Text('${i + 4}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                            )),
+                      leading: AvatarArtwork(
+                        avatar: AvatarRegistry.lookup(avatarFor(rest[i].key)),
+                        size: 32,
                       ),
-                      title: Text(nameFor(rest[i].key)),
+                      title: Text('${i + 4}. ${nameFor(rest[i].key)}'),
                       trailing: Text('${rest[i].value}',
                           style: const TextStyle(
                               fontWeight: FontWeight.w700)),
@@ -118,7 +118,12 @@ class Leaderboard extends ConsumerWidget {
 class _Podium extends StatelessWidget {
   final List<MapEntry<String, int>> entries;
   final String Function(String userId) nameOf;
-  const _Podium({required this.entries, required this.nameOf});
+  final String? Function(String userId) avatarOf;
+  const _Podium({
+    required this.entries,
+    required this.nameOf,
+    required this.avatarOf,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +143,13 @@ class _Podium extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: positions
-          .map((p) => Expanded(child: _PodiumColumn(slot: p, nameOf: nameOf)))
+          .map((p) => Expanded(
+                child: _PodiumColumn(
+                  slot: p,
+                  nameOf: nameOf,
+                  avatarOf: avatarOf,
+                ),
+              ))
           .toList(),
     );
   }
@@ -157,7 +168,12 @@ class _PodiumSlot {
 class _PodiumColumn extends StatelessWidget {
   final _PodiumSlot slot;
   final String Function(String userId) nameOf;
-  const _PodiumColumn({required this.slot, required this.nameOf});
+  final String? Function(String userId) avatarOf;
+  const _PodiumColumn({
+    required this.slot,
+    required this.nameOf,
+    required this.avatarOf,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +186,12 @@ class _PodiumColumn extends StatelessWidget {
       3: scheme.surfaceContainerHigh,
     };
     final medals = {1: '🥇', 2: '🥈', 3: '🥉'};
+    // 1st gets the spotlight (2× base), 2nd a clear bump (1.5×), 3rd stays
+    // at the base — visually echoes the podium block heights below.
+    final avatarSizes = {1: 88.0, 2: 66.0, 3: 44.0};
+    final avatar = slot.userId == null
+        ? null
+        : AvatarRegistry.lookup(avatarOf(slot.userId!));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -177,6 +199,8 @@ class _PodiumColumn extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(medals[slot.rank]!, style: const TextStyle(fontSize: 22)),
+          const SizedBox(height: 4),
+          AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
           const SizedBox(height: 4),
           Text(
             slot.userId == null ? '—' : nameOf(slot.userId!),

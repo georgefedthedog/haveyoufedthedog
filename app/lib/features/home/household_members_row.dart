@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/household/household_members_controller.dart';
+import '../../core/profile/avatars.dart';
+import '../profile/avatar_artwork.dart';
 
 /// Horizontal row of member avatars for a household. Each avatar shows the
 /// first letter of the member's display name on a coloured circle, picked
@@ -37,6 +39,7 @@ class HouseholdMembersRow extends ConsumerWidget {
                       ? '?'
                       : name.trim()[0].toUpperCase();
                   return _Avatar(
+                    avatarId: m.avatar,
                     initial: initial,
                     seed: m.userId,
                     name: name,
@@ -52,11 +55,17 @@ class HouseholdMembersRow extends ConsumerWidget {
 }
 
 class _Avatar extends StatelessWidget {
+  /// User's chosen avatar id, or null if they haven't picked one yet.
+  /// When non-null we render the matching [AvatarArtwork]; when null we
+  /// fall back to the seeded-initial circle so households mid-rollout
+  /// still have something personal instead of identical silhouettes.
+  final String? avatarId;
   final String initial;
   final String seed;
   final String name;
 
   const _Avatar({
+    required this.avatarId,
     required this.initial,
     required this.seed,
     required this.name,
@@ -65,6 +74,13 @@ class _Avatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final avatar = AvatarRegistry.lookup(avatarId);
+    if (avatar != null) {
+      return Tooltip(
+        message: name,
+        child: AvatarArtwork(avatar: avatar, size: 44),
+      );
+    }
     final bg = _colorFromSeed(seed);
     return Tooltip(
       message: name,

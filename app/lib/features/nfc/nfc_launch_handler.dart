@@ -122,14 +122,14 @@ class NfcLaunchHandler {
       // instance is the entry point. Re-tap on the chore row/chip undoes if
       // the user wants out; no snackbar Undo button needed.
       final character = CharacterRegistry.lookup(subject.icon);
-      final whoName =
-          _ref.read(authControllerProvider).valueOrNull?.displayName;
+      final auth = _ref.read(authControllerProvider).valueOrNull;
       _ref.read(appRouterProvider).push(
             Routes.celebration,
             extra: CelebrationArgs(
               character: character,
               choreName: result.chore.name,
-              whoName: whoName,
+              whoName: auth?.displayName,
+              whoAvatar: auth?.avatar,
               streak: streak,
             ),
           );

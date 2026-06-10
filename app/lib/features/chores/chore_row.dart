@@ -11,10 +11,12 @@ import '../../core/completions/streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
+import '../../core/profile/avatars.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
+import '../profile/avatar_artwork.dart';
 
 /// A wide, tappable row representing one chore for today on the subject
 /// detail screen. Renders the chore name + schedule line; trailing shows
@@ -72,8 +74,7 @@ class ChoreRow extends ConsumerWidget {
         }
       }
       final character = CharacterRegistry.lookup(iconToken);
-      final whoName =
-          ref.read(authControllerProvider).valueOrNull?.displayName;
+      final auth = ref.read(authControllerProvider).valueOrNull;
 
       if (!context.mounted) return;
       context.push(
@@ -81,7 +82,8 @@ class ChoreRow extends ConsumerWidget {
         extra: CelebrationArgs(
           character: character,
           choreName: chore.name,
-          whoName: whoName,
+          whoName: auth?.displayName,
+          whoAvatar: auth?.avatar,
           streak: streak,
         ),
       );
@@ -374,6 +376,7 @@ class _CompletedByRow extends ConsumerWidget {
       }
     }
     final name = me?.displayName ?? 'Someone';
+    final avatar = AvatarRegistry.lookup(me?.avatar);
     final initial = name.trim().isEmpty
         ? '?'
         : name.trim()[0].toUpperCase();
@@ -388,19 +391,21 @@ class _CompletedByRow extends ConsumerWidget {
         SizedBox(
           width: 44,
           child: Center(
-            child: CircleAvatar(
-              radius: 12,
-              backgroundColor: bg,
-              foregroundColor: fg,
-              child: Text(
-                initial,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: fg,
-                ),
-              ),
-            ),
+            child: avatar != null
+                ? AvatarArtwork(avatar: avatar, size: 24)
+                : CircleAvatar(
+                    radius: 12,
+                    backgroundColor: bg,
+                    foregroundColor: fg,
+                    child: Text(
+                      initial,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: fg,
+                      ),
+                    ),
+                  ),
           ),
         ),
         const SizedBox(width: 14),

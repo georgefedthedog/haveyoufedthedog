@@ -58,8 +58,7 @@ class ChoreChipWithTap extends ConsumerWidget {
         }
       }
       final character = CharacterRegistry.lookup(iconToken);
-      final whoName =
-          ref.read(authControllerProvider).valueOrNull?.displayName;
+      final auth = ref.read(authControllerProvider).valueOrNull;
 
       if (!context.mounted) return;
       context.push(
@@ -67,7 +66,8 @@ class ChoreChipWithTap extends ConsumerWidget {
         extra: CelebrationArgs(
           character: character,
           choreName: chore.name,
-          whoName: whoName,
+          whoName: auth?.displayName,
+          whoAvatar: auth?.avatar,
           streak: streak,
         ),
       );

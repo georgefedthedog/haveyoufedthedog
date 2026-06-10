@@ -12,12 +12,18 @@ class CelebrationArgs {
   final Character character;
   final String choreName;
   final String? whoName;
+
+  /// Avatar id of the user who completed the chore (matches `AvatarRegistry`).
+  /// Null when the logger hasn't picked an avatar — overlay renders the
+  /// silhouette next to their name.
+  final String? whoAvatar;
   final int streak;
 
   const CelebrationArgs({
     required this.character,
     required this.choreName,
     this.whoName,
+    this.whoAvatar,
     this.streak = 0,
   });
 }

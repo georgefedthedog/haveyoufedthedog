@@ -101,19 +101,19 @@
         "type": "text"
       },
       {
+        "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "file376926767",
-        "maxSelect": 1,
-        "maxSize": 0,
-        "mimeTypes": ["image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"],
+        "id": "text_user_avatar_0000001",
+        "max": 40,
+        "min": 0,
         "name": "avatar",
+        "pattern": "",
         "presentable": false,
-        "protected": false,
+        "primaryKey": false,
         "required": false,
         "system": false,
-        "thumbs": null,
-        "type": "file"
+        "type": "text"
       },
       {
         "autogeneratePattern": "",
@@ -1458,7 +1458,7 @@
         "collectionId": "pbc_households",
         "help": "",
         "hidden": false,
-        "id": "_clone_UZZY",
+        "id": "_clone_IdqL",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "household",
@@ -1472,7 +1472,7 @@
         "collectionId": "_pb_users_auth_",
         "help": "",
         "hidden": false,
-        "id": "_clone_zwp2",
+        "id": "_clone_vVW8",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "user",
@@ -1484,7 +1484,7 @@
       {
         "help": "",
         "hidden": false,
-        "id": "_clone_e6Eg",
+        "id": "_clone_bo5e",
         "maxSelect": 1,
         "name": "role",
         "presentable": false,
@@ -1495,7 +1495,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_KOKd",
+        "id": "_clone_Pcjv",
         "name": "created",
         "onCreate": true,
         "onUpdate": false,
@@ -1505,7 +1505,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_a2Gg",
+        "id": "_clone_Z4xz",
         "name": "updated",
         "onCreate": true,
         "onUpdate": true,
@@ -1517,10 +1517,25 @@
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "_clone_IBNH",
+        "id": "_clone_fFFQ",
         "max": 255,
         "min": 0,
         "name": "user_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "_clone_ymno",
+        "max": 40,
+        "min": 0,
+        "name": "user_avatar",
         "pattern": "",
         "presentable": false,
         "primaryKey": false,
@@ -1531,6 +1546,6 @@
     ],
     "indexes": [],
     "system": false,
-    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
+    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name,\n  u.avatar\t   AS user_avatar\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
   }
 ]

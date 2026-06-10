@@ -17,6 +17,13 @@ class AuthState {
   String? get email => user?.data['email'] as String?;
   String? get displayName => user?.data['name'] as String?;
 
+  /// Id of the user's chosen profile avatar (matches `AvatarRegistry`).
+  /// Null when the user hasn't picked yet — UI renders the silhouette.
+  String? get avatar {
+    final v = user?.data['avatar'];
+    return (v is String && v.trim().isNotEmpty) ? v : null;
+  }
+
   // Equality on identity, not record contents. Without this, every
   // `authStore.onChange` event produces a fresh AuthState instance and
   // anything watching auth (e.g. fcm_token_sync) rebuilds — including for
