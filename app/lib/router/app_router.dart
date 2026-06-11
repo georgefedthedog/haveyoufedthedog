@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../app/root_nav_shell.dart';
 import '../features/auth/auth_landing_screen.dart';
+import '../features/auth/forgot_password_screen.dart';
 import '../features/chores/edit_chore_screen.dart';
 import '../features/completions/celebration_args.dart';
 import '../features/completions/completion_celebration.dart';
@@ -46,6 +47,12 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.auth,
         builder: (context, state) => const AuthLandingScreen(),
+      ),
+      GoRoute(
+        path: Routes.forgotPassword,
+        builder: (context, state) => ForgotPasswordScreen(
+          initialEmail: state.extra as String?,
+        ),
       ),
       GoRoute(
         path: Routes.householdPicker,
@@ -168,7 +175,8 @@ String? _redirect(Ref ref, String loc) {
       return loc == Routes.splash ? null : Routes.splash;
 
     case RoutingPhase.signedOut:
-      return loc == Routes.auth ? null : Routes.auth;
+      const allowedSignedOut = {Routes.auth, Routes.forgotPassword};
+      return allowedSignedOut.contains(loc) ? null : Routes.auth;
 
     case RoutingPhase.needsToPick:
       // Allow `/household-create`, `/household-join` and `/profile` even

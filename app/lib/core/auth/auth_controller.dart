@@ -67,6 +67,13 @@ class AuthController extends _$AuthController {
     pb.authStore.clear();
   }
 
+  /// Emails a password-reset link to [email]. PB returns success whether
+  /// or not the address exists, so this can't be used to probe accounts.
+  Future<void> requestPasswordReset(String email) async {
+    final pb = await ref.read(pocketbaseClientProvider.future);
+    await pb.collection('users').requestPasswordReset(email);
+  }
+
   /// Updates editable profile fields on the signed-in user.
   ///
   /// Doesn't trigger an `AuthState` rebuild — [AuthState] compares on

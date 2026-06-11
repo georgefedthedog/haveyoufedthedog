@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../router/routes.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/password_field.dart';
 
@@ -86,7 +88,17 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             validator: (v) =>
                 (v == null || v.isEmpty) ? 'Enter your password' : null,
           ),
-          const SizedBox(height: 24),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => context.push(
+                Routes.forgotPassword,
+                extra: _emailCtrl.text.trim(),
+              ),
+              child: const Text('Forgot password?'),
+            ),
+          ),
+          const SizedBox(height: 8),
           FilledButton(
             onPressed: _busy ? null : _submit,
             child: _busy

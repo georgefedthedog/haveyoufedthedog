@@ -9,6 +9,9 @@ class Routes {
   /// Login + signup tabs. For unauthenticated users.
   static const auth = '/auth';
 
+  /// Email-a-reset-link screen, reachable from the login form.
+  static const forgotPassword = '/forgot-password';
+
   /// List of the user's households. Forced landing when no current
   /// household is selected (zero memberships or 2+ with none persisted);
   /// voluntary when reached from the home screen's "Switch household" menu.
