@@ -19,7 +19,7 @@ import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../chores/chore_row.dart';
-import 'completion_tile.dart';
+import '../history/completion_timeline.dart';
 
 /// Subject detail — a large character hero up top, status message, today's
 /// chores as wide rows, all chores, recent history.
@@ -700,14 +700,9 @@ class _HistorySection extends ConsumerWidget {
                 ),
               );
             }
-            return Column(
-              children: [
-                for (final c in list.take(5))
-                  CompletionTile(
-                    completion: c,
-                    householdId: subject.householdId,
-                  ),
-              ],
+            return CompletionTimeline(
+              completions: list.take(5).toList(),
+              householdId: subject.householdId,
             );
           },
         ),

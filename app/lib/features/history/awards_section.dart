@@ -1,6 +1,8 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/completions/awards_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/household/household_member.dart';
@@ -282,14 +284,49 @@ class _CharacterAwardCarouselState extends State<_CharacterAwardCarousel> {
   }
 }
 
+/// Heart-shaped confetti particle for the appreciation burst.
+Path _heartPath(Size size) {
+  final w = size.width, h = size.height;
+  final path = Path();
+  path.moveTo(w / 2, h * 0.35);
+  path.cubicTo(w * 0.2, h * 0.05, -w * 0.2, h * 0.55, w / 2, h);
+  path.moveTo(w / 2, h * 0.35);
+  path.cubicTo(w * 0.8, h * 0.05, w * 1.2, h * 0.55, w / 2, h);
+  return path;
+}
+
 /// "Kiko-dog's Best Human 🩵" as a featured-award spread: the character's
 /// trophy pose on a lavender panel, a FEATURED AWARD pill, the title,
-/// a thank-you line in the character's voice, and the winner.
-class _FeaturedAwardCard extends StatelessWidget {
+/// a thank-you line in the character's voice, and the winner. Tapping a
+/// winning character bursts hearts — a little thank-you back.
+class _FeaturedAwardCard extends ConsumerStatefulWidget {
   final CharacterAward award;
   final HouseholdMember? winner;
 
   const _FeaturedAwardCard({required this.award, required this.winner});
+
+  @override
+  ConsumerState<_FeaturedAwardCard> createState() =>
+      _FeaturedAwardCardState();
+}
+
+class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
+  late final ConfettiController _hearts;
+
+  @override
+  void initState() {
+    super.initState();
+    _hearts = ConfettiController(duration: const Duration(milliseconds: 400));
+  }
+
+  @override
+  void dispose() {
+    _hearts.dispose();
+    super.dispose();
+  }
+
+  CharacterAward get award => widget.award;
+  HouseholdMember? get winner => widget.winner;
 
   @override
   Widget build(BuildContext context) {
@@ -336,52 +373,87 @@ class _FeaturedAwardCard extends StatelessWidget {
           children: [
             // Big trophy pose standing in front of a gradient circle —
             // the character overflows the circle for the poster look.
-            SizedBox(
-              width: 165,
-              child: Stack(
-                // Anchored below centre (halfway to the bottom) so the
-                // circle and character sit low without touching the edge.
-                alignment: const Alignment(0, 0.5),
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 165,
-                    height: 165,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomRight,
-                        end: Alignment.topLeft,
-                        colors: [circleDark, circleLight],
-                      ),
-                    ),
-                  ),
-                  // OverflowBox lets the art render wider than its lane
-                  // so it can spill over the circle like a poster.
-                  OverflowBox(
-                    maxWidth: 250,
-                    maxHeight: 250,
-                    alignment: const Alignment(0, 0.5),
-                    child: SizedBox(
-                      width: 240,
-                      height: 240,
-                      // Trophy pose when won; a sad face while the award
-                      // sits unclaimed.
-                      child: Image.asset(
-                        winner != null
-                            ? character.awardAsset
-                            : character.assetFor(CharacterExpression.sad),
-                        fit: BoxFit.contain,
-                        alignment: Alignment.bottomCenter,
-                        errorBuilder: (_, _, _) => CharacterArtwork(
-                          character: character,
-                          stage: false,
-                          iconSize: 64,
+            // Only the award's winner gets the heart burst on tap — it's
+            // the character thanking *their* human.
+            GestureDetector(
+              onTap: winner != null &&
+                      winner!.userId ==
+                          ref.watch(authControllerProvider)
+                              .valueOrNull
+                              ?.userId
+                  ? _hearts.play
+                  : null,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox(
+                width: 165,
+                child: Stack(
+                  // Anchored below centre (halfway to the bottom) so the
+                  // circle and character sit low without touching the edge.
+                  alignment: const Alignment(0, 0.5),
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 165,
+                      height: 165,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomRight,
+                          end: Alignment.topLeft,
+                          colors: [circleDark, circleLight],
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    // OverflowBox lets the art render wider than its lane
+                    // so it can spill over the circle like a poster.
+                    OverflowBox(
+                      maxWidth: 250,
+                      maxHeight: 250,
+                      alignment: const Alignment(0, 0.5),
+                      child: SizedBox(
+                        width: 240,
+                        height: 240,
+                        // Trophy pose when won; a sad face while the award
+                        // sits unclaimed.
+                        child: Image.asset(
+                          winner != null
+                              ? character.awardAsset
+                              : character.assetFor(CharacterExpression.sad),
+                          fit: BoxFit.contain,
+                          alignment: Alignment.bottomCenter,
+                          errorBuilder: (_, _, _) => CharacterArtwork(
+                            character: character,
+                            stage: false,
+                            iconSize: 64,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Heart burst, emitting from the character's middle.
+                    Align(
+                      alignment: Alignment.center,
+                      child: ConfettiWidget(
+                        confettiController: _hearts,
+                        blastDirectionality:
+                            BlastDirectionality.explosive,
+                        emissionFrequency: 0.6,
+                        numberOfParticles: 6,
+                        gravity: 0.1,
+                        maxBlastForce: 14,
+                        minBlastForce: 5,
+                        shouldLoop: false,
+                        createParticlePath: _heartPath,
+                        minimumSize: const Size(16, 16),
+                        maximumSize: const Size(26, 26),
+                        colors: const [
+                          Color(0xFFE56B6F),
+                          Color(0xFFFF8FA3),
+                          Color(0xFFD64550),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(width: 14),

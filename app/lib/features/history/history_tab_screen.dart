@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/completions/awards_controller.dart';
-import '../../core/completions/completion.dart';
 import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../widgets/empty_state.dart';
-import '../subjects/completion_tile.dart';
 import 'awards_section.dart';
+import 'completion_timeline.dart';
 import 'leaderboard.dart';
 
 /// History tab — household-wide. Stats cards at the top, leaderboard
@@ -86,19 +85,17 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                 if (subjects.length > 1)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _filterChip(label: 'All', value: null),
-                          for (final s in subjects)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: _filterChip(
-                                  label: s.name, value: s.id),
-                            ),
-                        ],
-                      ),
+                    // Wrap centres the chips (and flows onto a second
+                    // line if a household has lots of subjects).
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _filterChip(label: 'All', value: null),
+                        for (final s in subjects)
+                          _filterChip(label: s.name, value: s.id),
+                      ],
                     ),
                   ),
                 if (filtered.isEmpty)
@@ -128,8 +125,10 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                     );
                   })
                 else
-                  for (final c in filtered)
-                    _CompletionRow(completion: c, householdId: hh?.id ?? ''),
+                  CompletionTimeline(
+                    completions: filtered,
+                    householdId: hh?.id ?? '',
+                  ),
               ],
             );
           },
@@ -143,20 +142,6 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
       label: Text(label),
       selected: _subjectFilter == value,
       onSelected: (_) => setState(() => _subjectFilter = value),
-    );
-  }
-}
-
-class _CompletionRow extends StatelessWidget {
-  final Completion completion;
-  final String householdId;
-  const _CompletionRow({required this.completion, required this.householdId});
-
-  @override
-  Widget build(BuildContext context) {
-    return CompletionTile(
-      completion: completion,
-      householdId: householdId,
     );
   }
 }
