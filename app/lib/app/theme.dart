@@ -145,9 +145,11 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
+      // Matches headlineMedium (the household name on home) so every
+      // screen title reads at the same display size.
       titleTextStyle: GoogleFonts.knewave(
         color: scheme.onSurface,
-        fontSize: 22,
+        fontSize: 28,
       ),
     ),
     cardTheme: CardThemeData(

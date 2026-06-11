@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
+import '../../widgets/dashed_circle_painter.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
@@ -80,6 +82,34 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   }
 
   Future<void> _removeTag() async {
+    final name = _nameCtrl.text.trim();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Remove tag?'),
+        content: Text(
+          'Tapping it will no longer reach '
+          '${name.isEmpty ? "this friend" : name}. You can bind it again '
+          'any time by re-scanning.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
     setState(() => _nfcTagId = null);
     if (_isEdit) {
       try {
@@ -191,12 +221,22 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     }
   }
 
+  /// Anything actually changed vs the stored subject? Creation counts as
+  /// dirty once a name is typed. An empty name never enables Save.
+  bool _isDirty(Subject? existing) {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) return false;
+    if (!_isEdit) return true;
+    if (existing == null) return false;
+    return name != existing.name || _icon != existing.icon;
+  }
+
   @override
   Widget build(BuildContext context) {
     // For edit mode, fish the existing subject out of the household list.
+    Subject? existing;
     if (_isEdit) {
       final asyncSubjects = ref.watch(subjectsControllerProvider);
-      Subject? existing;
       final list = asyncSubjects.valueOrNull;
       if (list != null) {
         for (final s in list) {
@@ -243,67 +283,185 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              LabeledField(
-                label: 'Name',
-                child: TextField(
-                  controller: _nameCtrl,
-                  autofocus: !_isEdit,
-                  enabled: !_busy,
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. Kiko',
-                  ),
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _save(),
-                  onChanged: (_) => setState(() {}),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text('NFC tag',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
               Card(
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  leading: const Icon(Icons.nfc),
-                  title: Text(
-                    _nfcTagId == null
-                        ? 'No tag registered'
-                        : 'Bound: $_nfcTagId',
-                    style: _nfcTagId == null
-                        ? null
-                        : const TextStyle(fontFamily: 'monospace'),
-                  ),
-                  subtitle: Text(
-                    _nfcTagId == null
-                        ? 'Bind a tag to quick-log by tapping your phone.'
-                        : 'Tap this friend by holding the tag near your phone.',
-                  ),
-                  trailing: _nfcTagId == null
-                      ? TextButton.icon(
-                          icon: const Icon(Icons.add),
-                          label: const Text('Register'),
-                          onPressed: _busy ? null : _scanAndBindTag,
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.close),
-                          tooltip: 'Remove tag',
-                          onPressed: _busy ? null : _removeTag,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LabeledField(
+                        label: 'Name',
+                        child: TextField(
+                          controller: _nameCtrl,
+                          autofocus: !_isEdit,
+                          enabled: !_busy,
+                          decoration: const InputDecoration(
+                            hintText: 'e.g. Kiko',
+                          ),
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _save(),
+                          onChanged: (_) => setState(() {}),
                         ),
+                      ),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        icon: _busy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.check),
+                        label:
+                            Text(_isEdit ? 'Save changes' : 'Add friend'),
+                        onPressed: (_busy || !_isDirty(existing))
+                            ? null
+                            : _save,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                icon: _busy
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.check),
-                label: Text(_isEdit ? 'Save changes' : 'Add friend'),
-                onPressed: (_busy || _nameCtrl.text.trim().isEmpty)
-                    ? null
-                    : _save,
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Builder(builder: (context) {
+                    final theme = Theme.of(context);
+                    final scheme = theme.colorScheme;
+                    final completesChore = ref
+                            .watch(nfcTapActionControllerProvider)
+                            .valueOrNull ??
+                        true;
+
+                    // Both states share the drag mechanic: carry the tag
+                    // chip into the dashed circle — purple "Register"
+                    // (starts the scan) when unbound, red "Remove" bin
+                    // when bound. Same gesture as members and chores.
+                    final bound = _nfcTagId != null;
+                    final tagChip = Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: scheme.primaryContainer,
+                          ),
+                          child: Icon(Icons.nfc,
+                              size: 24, color: scheme.onPrimaryContainer),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Tag',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    );
+
+    final title = bound ? 'Tag registered' : 'No tag registered';
+                    final subtitle = bound
+                        ? (completesChore
+                            ? 'On this phone, a tap ticks off the '
+                                'current chore. Change this setting in '
+                                'Edit Profile.'
+                            : "On this phone, a tap opens this friend's "
+                                'page. Change this setting in '
+                                'Edit Profile.')
+                        : 'Drag the tag to bind one to '
+                            '${_nameCtrl.text.trim().isEmpty ? "this friend" : _nameCtrl.text.trim()}.';
+                    final targetBase =
+                        bound ? Colors.red.shade300 : scheme.primary;
+                    final targetHover = bound ? Colors.red : scheme.primary;
+                    final targetIcon =
+                        bound ? Icons.delete_outline : Icons.add;
+                    final targetLabel = bound ? 'Remove' : 'Register';
+
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        LongPressDraggable<String>(
+                          data: _nfcTagId ?? 'register',
+                          feedback: Material(
+                            color: Colors.transparent,
+                            child: tagChip,
+                          ),
+                          childWhenDragging:
+                              Opacity(opacity: 0.3, child: tagChip),
+                          child: tagChip,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                title,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                subtitle,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        DragTarget<String>(
+                          onWillAcceptWithDetails: (_) => true,
+                          onAcceptWithDetails: (_) {
+                            if (_busy) return;
+                            bound ? _removeTag() : _scanAndBindTag();
+                          },
+                          builder: (context, candidate, _) {
+                            final hovering = candidate.isNotEmpty;
+                            final color =
+                                hovering ? targetHover : targetBase;
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomPaint(
+                                  painter: DashedCirclePainter(
+                                      color: color, filled: hovering),
+                                  child: SizedBox(
+                                    width: 56,
+                                    height: 56,
+                                    child: Icon(
+                                      targetIcon,
+                                      size: 24,
+                                      color:
+                                          hovering ? Colors.white : color,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  targetLabel,
+                                  style:
+                                      theme.textTheme.bodySmall?.copyWith(
+                                    color: color,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  }),
+                ),
               ),
             ],
           ),

@@ -29,7 +29,9 @@ class AvatarPicker extends StatefulWidget {
 }
 
 class _AvatarPickerState extends State<AvatarPicker> {
-  static const _viewportFraction = 0.32;
+  // Wide enough that the 180dp avatar never gets width-squeezed into an
+  // ellipse on a ~390dp-wide phone, while neighbours still peek.
+  static const _viewportFraction = 0.48;
   late final PageController _controller;
   late int _currentIndex;
 
@@ -80,7 +82,7 @@ class _AvatarPickerState extends State<AvatarPicker> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 140,
+      height: 200,
       child: PageView.builder(
         controller: _controller,
         itemCount: AvatarRegistry.all.length,
@@ -147,7 +149,7 @@ class _CarouselTile extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Center(
-          child: AvatarArtwork(avatar: avatar, size: 120),
+          child: AvatarArtwork(avatar: avatar, size: 180),
         ),
       ),
     );

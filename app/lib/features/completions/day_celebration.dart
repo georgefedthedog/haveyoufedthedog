@@ -127,10 +127,27 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                       ),
                     ),
                   ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'All chores done today!',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: AppColors.onVioletSoft,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'The whole house is happy. Nice work, team!',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.onVioletSoft,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   if (completers.isNotEmpty) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Text(
-                      'Thanks to',
+                      'Thanks!',
                       textAlign: TextAlign.center,
                       // headlineSmall carries the display font (Knewave).
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -153,23 +170,6 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                       ],
                     ),
                   ],
-                  const SizedBox(height: 24),
-                  Text(
-                    'All chores done today!',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: AppColors.onVioletSoft,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'The whole house is happy. Nice work, team!',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onVioletSoft,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                   const SizedBox(height: 32),
                   FilledButton(
                     onPressed: _toAwards,

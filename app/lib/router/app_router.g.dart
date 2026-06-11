@@ -6,7 +6,7 @@ part of 'app_router.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'17ea46c835a13ad89b13af9d7c017de17f0bf876';
+String _$appRouterHash() => r'28a65e6d53a845ea0c5c4c1988a090d58b8f1372';
 
 /// The app router. Built once; reacts to routing-phase changes only.
 ///

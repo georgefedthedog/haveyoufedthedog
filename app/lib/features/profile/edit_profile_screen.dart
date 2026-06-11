@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/auth/auth_state.dart';
 import '../../core/profile/avatars.dart';
+import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
 import 'avatar_picker.dart';
@@ -29,6 +31,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   void dispose() {
     _nameCtrl.dispose();
     super.dispose();
+  }
+
+  /// Anything actually changed vs the signed-in profile? The avatar
+  /// baseline is the seeded value (stored avatar, or the carousel's
+  /// first entry for never-picked users) so just opening the screen
+  /// doesn't count as a change.
+  bool _isDirty(AuthState auth) {
+    final baselineAvatar = auth.avatar ?? AvatarRegistry.all.first.id;
+    return _nameCtrl.text.trim() != (auth.displayName ?? '') ||
+        _avatar != baselineAvatar;
   }
 
   Future<void> _save() async {
@@ -85,36 +97,101 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              LabeledField(
-                label: 'Display name',
-                child: TextFormField(
-                  controller: _nameCtrl,
-                  decoration: const InputDecoration(
-                    hintText: 'How others in your household see you',
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LabeledField(
+                        label: 'Display name',
+                        child: TextFormField(
+                          controller: _nameCtrl,
+                          decoration: const InputDecoration(
+                            hintText:
+                                'How others in your household see you',
+                          ),
+                          textInputAction: TextInputAction.done,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Required'
+                              : null,
+                          onChanged: (_) => setState(() {}),
+                          onFieldSubmitted: (_) => _save(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      LabeledField(
+                        label: 'Email',
+                        child: TextFormField(
+                          key: const ValueKey('email-field'),
+                          initialValue: auth.email ?? '',
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            helperText: "Email can't be changed.",
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        icon: const Icon(Icons.check),
+                        label: const Text('Save changes'),
+                        onPressed: (_isDirty(auth) && !_busy) ? _save : null,
+                      ),
+                    ],
                   ),
-                  textInputAction: TextInputAction.done,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                  onFieldSubmitted: (_) => _save(),
                 ),
               ),
               const SizedBox(height: 16),
-              LabeledField(
-                label: 'Email',
-                child: TextFormField(
-                  key: const ValueKey('email-field'),
-                  initialValue: auth.email ?? '',
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    helperText: "Email can't be changed.",
-                  ),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Builder(builder: (context) {
+                    final theme = Theme.of(context);
+                    final scheme = theme.colorScheme;
+                    final completesChore = ref
+                            .watch(nfcTapActionControllerProvider)
+                            .valueOrNull ??
+                        true;
+                    // Mirrors the invite card's header row on household
+                    // details: icon, titleSmall + bodySmall copy, switch.
+                    return Row(
+                      children: [
+                        const Icon(Icons.nfc),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Complete chore on tap',
+                                  style: theme.textTheme.titleSmall
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.w700)),
+                              Text(
+                                completesChore
+                                    ? 'Tapping a tag completes the current chore.'
+                                    : "Tapping a tag opens the friend's page.",
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: completesChore,
+                          // Saves immediately — device preference, not
+                          // part of the profile Save.
+                          onChanged: _busy
+                              ? null
+                              : (v) => ref
+                                  .read(nfcTapActionControllerProvider
+                                      .notifier)
+                                  .setCompletesChore(v),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
-              ),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                icon: const Icon(Icons.check),
-                label: const Text('Save changes'),
-                onPressed: _busy ? null : _save,
               ),
             ],
           ),

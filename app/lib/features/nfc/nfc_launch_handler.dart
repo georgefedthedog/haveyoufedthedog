@@ -9,6 +9,7 @@ import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/nfc/nfc_service.dart';
+import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../router/app_router.dart';
@@ -98,6 +99,14 @@ class NfcLaunchHandler {
           content:
               Text('Unknown tag $tagId — register it from a friend.'),
         ));
+        return;
+      }
+      // Per-device preference: a tap either completes the closest chore
+      // (default) or just opens the friend's page.
+      final completesChore =
+          await _ref.read(nfcTapActionControllerProvider.future);
+      if (!completesChore) {
+        _ref.read(appRouterProvider).push(Routes.subjectDetail(subject.id));
         return;
       }
       final result = await _ref

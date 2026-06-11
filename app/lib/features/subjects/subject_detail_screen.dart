@@ -374,6 +374,10 @@ class _ChoresSectionState extends ConsumerState<_ChoresSection> {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete'),
           ),
@@ -661,28 +665,20 @@ class _HistorySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Title centred across the full width; "See all" floats at the
-        // right edge without pushing the title off-centre.
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Text(
-              'Completed chores',
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            Positioned(
-              right: 0,
-              child: TextButton(
-                onPressed: () =>
-                    context.go('${Routes.historyTab}?subject=${subject.id}'),
-                child: const Text('See all →'),
-              ),
-            ),
-          ],
+        Text(
+          'Completed chores',
+          textAlign: TextAlign.center,
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        Center(
+          child: TextButton(
+            onPressed: () =>
+                context.go('${Routes.historyTab}?subject=${subject.id}'),
+            child: const Text('See all →'),
+          ),
         ),
         const SizedBox(height: 8),
         asyncRecent.when(

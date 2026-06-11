@@ -45,9 +45,25 @@ class CharacterArtwork extends StatelessWidget {
 
     if (!stage) return Center(child: content);
 
+    // Gentle diagonal shading — darker toward the bottom-left, lighter
+    // toward the top-right — derived from the stage colour so every
+    // character gets a matching lift. Same recipe as the subject hero
+    // egg and the Friends cards.
+    final stageHsl = HSLColor.fromColor(character.stageColor);
+    final stageLight = stageHsl
+        .withLightness((stageHsl.lightness + 0.05).clamp(0.0, 1.0))
+        .toColor();
+    final stageDark = stageHsl
+        .withLightness((stageHsl.lightness - 0.07).clamp(0.0, 1.0))
+        .toColor();
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: character.stageColor,
+        gradient: LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          colors: [stageDark, stageLight],
+        ),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Padding(
