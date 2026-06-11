@@ -180,7 +180,7 @@ class _PodiumColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final heights = {1: 56.0, 2: 42.0, 3: 32.0};
+    final heights = {1: 84.0, 2: 64.0, 3: 48.0};
     final colors = {
       1: scheme.primaryContainer,
       2: scheme.surfaceContainerHigh,

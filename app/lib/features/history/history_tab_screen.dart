@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../app/theme.dart';
+import '../../core/completions/awards_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/stats_controller.dart';
@@ -67,6 +67,8 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
+                const _StatsStrip(),
+                const SizedBox(height: 20),
                 if (hh != null) ...[
                   Leaderboard(householdId: hh.id),
                   const SizedBox(height: 20),
@@ -78,19 +80,8 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                           ?.copyWith(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 12),
                   AwardsSection(householdId: hh.id),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
                 ],
-                Text('Household achievements',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800)),
-                const SizedBox(height: 12),
-                const _StatRow(),
-                const SizedBox(height: 12),
-                const HouseholdAchievementsRow(),
-                const SizedBox(height: 20),
                 Text('All activity',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -116,14 +107,31 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                     ),
                   ),
                 if (filtered.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: EmptyState(
-                      character: CharacterRegistry.plant,
-                      title: 'Nothing here yet',
-                      message: 'Tap a chore on Home to log the first one.',
-                    ),
-                  )
+                  Builder(builder: (context) {
+                    // When a subject filter is active, its own character
+                    // fronts the empty state; "All" falls back to the
+                    // plant.
+                    String? filteredIcon;
+                    if (_subjectFilter != null) {
+                      for (final s in subjects) {
+                        if (s.id == _subjectFilter) {
+                          filteredIcon = s.icon;
+                          break;
+                        }
+                      }
+                    }
+                    final character = _subjectFilter == null
+                        ? CharacterRegistry.plant
+                        : CharacterRegistry.lookup(filteredIcon);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: EmptyState(
+                        character: character,
+                        title: 'Nothing here yet!',
+                        message: 'Be the first one to complete a chore.',
+                      ),
+                    );
+                  })
                 else
                   for (final c in filtered)
                     _CompletionRow(completion: c, householdId: hh?.id ?? ''),
@@ -158,120 +166,90 @@ class _CompletionRow extends StatelessWidget {
   }
 }
 
-class _StatRow extends ConsumerWidget {
-  const _StatRow();
+/// One compact strip combining the household's quick stats — streak,
+/// completions this week, clean sweeps — as three segments with vertical
+/// dividers, like a scoreboard.
+class _StatsStrip extends ConsumerWidget {
+  const _StatsStrip();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final streak = ref.watch(householdStreakProvider);
     final thisWeek = ref.watch(currentWeekStatsProvider);
-    final lastWeek = ref.watch(previousWeekStatsProvider);
-    final delta = thisWeek.total - lastWeek.total;
+    final sweeps = ref.watch(weeklyAwardsProvider).cleanSweeps;
 
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            title: 'Streak',
-            value: streak.toString(),
-            subtitle: streak >= 3
-                ? 'On fire!'
-                : (streak > 0 ? 'Keep it up!' : 'Tap a chore to start.'),
-            accent: AppColors.streakOrange,
-            accentSoft: AppColors.streakOrangeSoft,
-            emoji: '🔥',
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              _StatSegment(
+                glyph: const Text('🔥', style: TextStyle(fontSize: 20)),
+                value: '$streak',
+                label: streak == 1 ? 'Day streak' : 'Day streak',
+              ),
+              const VerticalDivider(width: 1),
+              _StatSegment(
+                glyph: Icon(Icons.check_circle,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.tertiary),
+                value: '${thisWeek.total}',
+                label: 'This week',
+              ),
+              const VerticalDivider(width: 1),
+              _StatSegment(
+                glyph: const Text('✨', style: TextStyle(fontSize: 20)),
+                value: '$sweeps',
+                label: sweeps == 1 ? 'Clean sweep' : 'Clean sweeps',
+              ),
+            ],
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            title: 'This week',
-            value: thisWeek.total.toString(),
-            subtitle: delta == 0
-                ? 'Same as last week'
-                : delta > 0
-                    ? '+$delta from last week'
-                    : '$delta from last week',
-            accent: Theme.of(context).colorScheme.tertiary,
-            accentSoft:
-                Theme.of(context).colorScheme.tertiaryContainer,
-            icon: Icons.check,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String title;
+class _StatSegment extends StatelessWidget {
+  final Widget glyph;
   final String value;
-  final String subtitle;
-  final Color accent;
-  final Color accentSoft;
+  final String label;
 
-  /// Pass exactly one of [emoji] or [icon] for the badge glyph — an icon
-  /// renders tinted with [accent], an emoji in its own colours.
-  final String? emoji;
-  final IconData? icon;
-
-  const _StatCard({
-    required this.title,
+  const _StatSegment({
+    required this.glyph,
     required this.value,
-    required this.subtitle,
-    required this.accent,
-    required this.accentSoft,
-    this.emoji,
-    this.icon,
-  }) : assert(emoji != null || icon != null,
-            'StatCard needs an emoji or an icon');
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: accentSoft,
-                    shape: BoxShape.circle,
-                  ),
-                  child: icon != null
-                      ? Icon(icon, size: 16, color: accent)
-                      : Text(emoji!,
-                          style: const TextStyle(fontSize: 14)),
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          glyph,
+          const SizedBox(width: 8),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(width: 8),
-                Text(title,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    )),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: theme.textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: accent,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }

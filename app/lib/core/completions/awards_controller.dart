@@ -86,12 +86,17 @@ class WeeklyAwards {
   /// meaningful number of completions).
   final bool teamEffort;
 
+  /// Everyone who logged at least one completion this week, busiest
+  /// first. The Team Effort badge shows these when [teamEffort] is true.
+  final List<String> contributorIds;
+
   const WeeklyAwards({
     required this.memberAwards,
     required this.characterAwards,
     required this.cleanSweeps,
     required this.perfectWeek,
     required this.teamEffort,
+    required this.contributorIds,
   });
 
   static const empty = WeeklyAwards(
@@ -100,6 +105,7 @@ class WeeklyAwards {
     cleanSweeps: 0,
     perfectWeek: false,
     teamEffort: false,
+    contributorIds: [],
   );
 }
 
@@ -153,6 +159,9 @@ WeeklyAwards weeklyAwards(Ref ref) {
   }
 
   final memberAwards = <MemberAward>[
+    // Comeback Kid leads — it renders second in the Badges grid, right
+    // after the household-wide Team Effort card.
+    _comebackKid(thisWeek: tally(thisWeek), lastWeek: tally(lastWeek)),
     _award(
       id: 'early_bird',
       emoji: '🌅',
@@ -181,14 +190,6 @@ WeeklyAwards weeklyAwards(Ref ref) {
       })),
     ),
     _award(
-      id: 'tag_champion',
-      emoji: '🏷️',
-      title: 'Tag Champion',
-      description: 'Most chores logged with an NFC tap',
-      tallies: tally(
-          thisWeek.where((c) => c.source == CompletionSource.nfc)),
-    ),
-    _award(
       id: 'weekend_warrior',
       emoji: '💪',
       title: 'Weekend Warrior',
@@ -197,7 +198,14 @@ WeeklyAwards weeklyAwards(Ref ref) {
           c.completedAt.weekday == DateTime.saturday ||
           c.completedAt.weekday == DateTime.sunday)),
     ),
-    _comebackKid(thisWeek: tally(thisWeek), lastWeek: tally(lastWeek)),
+    _award(
+      id: 'tag_champion',
+      emoji: '🏷️',
+      title: 'Tag Champion',
+      description: 'Most chores logged with an NFC tap',
+      tallies: tally(
+          thisWeek.where((c) => c.source == CompletionSource.nfc)),
+    ),
   ];
 
   // ---- Household-wide achievements --------------------------------------
@@ -215,6 +223,10 @@ WeeklyAwards weeklyAwards(Ref ref) {
       : weekTally.values.reduce((a, b) => a > b ? a : b) / weekTotal;
   final teamEffort =
       weekTotal >= 5 && weekTally.length >= 2 && maxShare <= 0.5;
+  final contributorIds = (weekTally.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value)))
+      .map((e) => e.key)
+      .toList();
 
   // ---- Character-voiced awards (one per subject) -------------------------
 
@@ -241,6 +253,7 @@ WeeklyAwards weeklyAwards(Ref ref) {
     cleanSweeps: cleanSweeps,
     perfectWeek: cleanSweeps == 7,
     teamEffort: teamEffort,
+    contributorIds: contributorIds,
   );
 }
 

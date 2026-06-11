@@ -44,8 +44,9 @@ class AwardsSection extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
         ],
-        // Per-member personality awards, two to a row, under their own
-        // section header.
+        // Badges, two to a row, under their own section header. Team
+        // Effort leads — the only badge the whole household earns
+        // together.
         const SizedBox(height: 8),
         Text(
           'Badges',
@@ -56,101 +57,55 @@ class AwardsSection extends ConsumerWidget {
               ?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
-        for (var i = 0; i < awards.memberAwards.length; i += 2)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: MemberAwardCard(
-                    award: awards.memberAwards[i],
-                    winner: awards.memberAwards[i].winnerUserId == null
-                        ? null
-                        : memberById[awards.memberAwards[i].winnerUserId],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: i + 1 < awards.memberAwards.length
-                      ? MemberAwardCard(
-                          award: awards.memberAwards[i + 1],
-                          winner: awards.memberAwards[i + 1].winnerUserId ==
-                                  null
-                              ? null
-                              : memberById[
-                                  awards.memberAwards[i + 1].winnerUserId],
-                        )
-                      : const SizedBox.shrink(),
-                ),
+        ...() {
+          final cards = <Widget>[
+            _TeamEffortCard(
+              awarded: awards.teamEffort,
+              contributors: [
+                for (final id in awards.contributorIds)
+                  if (memberById[id] != null) memberById[id]!,
               ],
             ),
-          ),
+            for (final a in awards.memberAwards)
+              MemberAwardCard(
+                award: a,
+                winner: a.winnerUserId == null
+                    ? null
+                    : memberById[a.winnerUserId],
+              ),
+          ];
+          return [
+            for (var i = 0; i < cards.length; i += 2)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: cards[i]),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: i + 1 < cards.length
+                          ? cards[i + 1]
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+          ];
+        }(),
       ],
     );
   }
 }
 
-/// The clean-sweeps + team-effort pair, rendered as a two-up row.
-/// Lives separately from [AwardsSection] so the screen can group it with
-/// the streak / weekly-count stat cards under "Household achievements".
-class HouseholdAchievementsRow extends ConsumerWidget {
-  const HouseholdAchievementsRow({super.key});
+/// Team Effort — the household-wide badge. Earned when nobody carries
+/// more than half the week's load. The footer shows everyone who chipped
+/// in (overlapping avatar stack) rather than a single winner.
+class _TeamEffortCard extends StatelessWidget {
+  final bool awarded;
+  final List<HouseholdMember> contributors;
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final awards = ref.watch(weeklyAwardsProvider);
-    return Row(
-      children: [
-        Expanded(
-          child: _AchievementCard(
-            emoji: '✨',
-            asset: 'assets/awards/badge_clean_sweep.png',
-            title: 'Clean sweeps',
-            value: '${awards.cleanSweeps}',
-            subtitle: awards.perfectWeek
-                ? 'Perfect week! 🏆'
-                : 'days fully done',
-            achieved: awards.cleanSweeps > 0,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _AchievementCard(
-            emoji: '🤝',
-            asset: 'assets/awards/badge_team_effort.png',
-            title: 'Team effort',
-            value: awards.teamEffort ? 'Yes!' : '—',
-            subtitle: awards.teamEffort
-                ? 'Everyone pitched in'
-                : 'Share the load to earn',
-            achieved: awards.teamEffort,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Household achievement stat card — clean sweeps / team effort.
-class _AchievementCard extends StatelessWidget {
-  final String emoji;
-
-  /// Badge artwork; falls back to [emoji] if the asset fails to load.
-  final String asset;
-  final String title;
-  final String value;
-  final String subtitle;
-  final bool achieved;
-
-  const _AchievementCard({
-    required this.emoji,
-    required this.asset,
-    required this.title,
-    required this.value,
-    required this.subtitle,
-    required this.achieved,
-  });
+  const _TeamEffortCard({required this.awarded, required this.contributors});
 
   @override
   Widget build(BuildContext context) {
@@ -158,48 +113,76 @@ class _AchievementCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Image.asset(
-                  asset,
-                  width: 32,
-                  height: 32,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => Text(emoji,
-                      style: const TextStyle(fontSize: 18)),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
+            Center(
+              child: Image.asset(
+                'assets/awards/badge_team_effort.png',
+                width: 108,
+                height: 108,
+                fit: BoxFit.contain,
+                errorBuilder: (_, _, _) =>
+                    const Text('🤝', style: TextStyle(fontSize: 48)),
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              value,
-              // displaySmall stays on the body font (only headline* carry
-              // the display face) — matches the Streak / This-week cards.
-              style: theme.textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: achieved ? scheme.tertiary : scheme.onSurfaceVariant,
+              'Team Effort',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
-              subtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
+              'Everyone shares the load — nobody does more than half',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
             ),
+            const SizedBox(height: 12),
+            if (awarded && contributors.isNotEmpty)
+              SizedBox(
+                height: 24,
+                child: Stack(
+                  children: [
+                    for (var i = 0; i < contributors.length; i++)
+                      Positioned(
+                        left: i * 16.0,
+                        child: Tooltip(
+                          message: contributors[i].displayName,
+                          child: AvatarArtwork(
+                            avatar: AvatarRegistry.lookup(
+                                contributors[i].avatar),
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              )
+            else
+              Row(
+                children: [
+                  CustomPaint(
+                    painter: DashedCirclePainter(
+                      color:
+                          scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    ),
+                    child: const SizedBox(width: 24, height: 24),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Unclaimed',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
