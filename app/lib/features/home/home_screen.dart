@@ -476,8 +476,8 @@ class _TodaySummaryCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
         child: Row(
           children: [
-            // The cup comes out when the whole day is done; until then a
-            // quiet house-on-circle placeholder keeps the layout stable.
+            // The day's journey in one glyph: flag at the start line,
+            // a growing shoot once underway, the trophy when done.
             if (allDone)
               SizedBox(
                 width: 64,
@@ -495,10 +495,11 @@ class _TodaySummaryCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: AppColors.violet.withValues(alpha: 0.12),
                 ),
-                child: const Icon(
-                  Icons.home_outlined,
-                  color: inkColor,
-                  size: 28,
+                child: Center(
+                  child: Text(
+                    done == 0 ? '💤' : '🐾',
+                    style: const TextStyle(fontSize: 28),
+                  ),
                 ),
               ),
             const SizedBox(width: 14),
