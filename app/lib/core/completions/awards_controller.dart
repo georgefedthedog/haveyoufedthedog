@@ -120,6 +120,16 @@ const characterAwardTitles = <String, String>{
   'generic': 'Star Helper',
 };
 
+/// Thank-you line per character id, shown under the featured award title.
+const characterAwardThanks = <String, String>{
+  'dog': 'Thanks for being paws-itively amazing this week!',
+  'cat': 'Gracious enough to accept your service this week.',
+  'plant': 'Thanks for keeping things growing this week!',
+  'bin': 'Thanks for keeping things rolling this week!',
+  'fish': 'Thanks for making a splash this week!',
+  'generic': 'Thanks for being amazing this week!',
+};
+
 @riverpod
 WeeklyAwards weeklyAwards(Ref ref) {
   final history =
@@ -246,6 +256,16 @@ WeeklyAwards weeklyAwards(Ref ref) {
       count: winner?.value ?? 0,
     ));
   }
+  // Carousel order: won awards first, then by winning tally (busiest
+  // subject leads), then alphabetically so the order is stable.
+  characterAwards.sort((a, b) {
+    final wonCompare = (a.winnerUserId == null ? 1 : 0)
+        .compareTo(b.winnerUserId == null ? 1 : 0);
+    if (wonCompare != 0) return wonCompare;
+    final countCompare = b.count.compareTo(a.count);
+    if (countCompare != 0) return countCompare;
+    return a.subjectName.toLowerCase().compareTo(b.subjectName.toLowerCase());
+  });
 
   return WeeklyAwards(
     memberAwards: memberAwards,

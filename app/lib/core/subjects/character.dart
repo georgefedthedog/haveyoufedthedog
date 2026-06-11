@@ -94,6 +94,10 @@ class Character {
 
   /// Asset path for the idle expression — most-used shortcut.
   String get idleAsset => assetFor(CharacterExpression.idle);
+
+  /// The character holding its weekly trophy — used on the featured
+  /// award cards. Not an expression: it's a one-off celebratory pose.
+  String get awardAsset => 'assets/subjects/$id/award.png';
 }
 
 /// Stage colours grouped here so the registry stays tidy.

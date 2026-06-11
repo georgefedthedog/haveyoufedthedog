@@ -18,19 +18,15 @@ class Leaderboard extends ConsumerWidget {
   /// an existing "Leaderboard" title on the host screen.
   final bool dense;
 
-  const Leaderboard({
-    super.key,
-    required this.householdId,
-    this.dense = false,
-  });
+  const Leaderboard({super.key, required this.householdId, this.dense = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(currentWeekStatsProvider);
-    final asyncMembers =
-        ref.watch(householdMembersControllerProvider(householdId));
-    final myUserId =
-        ref.watch(authControllerProvider).valueOrNull?.userId;
+    final asyncMembers = ref.watch(
+      householdMembersControllerProvider(householdId),
+    );
+    final myUserId = ref.watch(authControllerProvider).valueOrNull?.userId;
     final scheme = Theme.of(context).colorScheme;
 
     if (stats.perUser.isEmpty) {
@@ -39,8 +35,11 @@ class Leaderboard extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              Icon(Icons.emoji_events_outlined,
-                  size: 28, color: scheme.onSurfaceVariant),
+              Icon(
+                Icons.emoji_events_outlined,
+                size: 28,
+                color: scheme.onSurfaceVariant,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -75,11 +74,13 @@ class Leaderboard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (!dense) ...[
-          Text("This week's leaderboard",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  )),
+          Text(
+            'This week',
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 12),
         ],
         Card(
@@ -87,11 +88,7 @@ class Leaderboard extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
             child: Column(
               children: [
-                _Podium(
-                  entries: top3,
-                  nameOf: nameFor,
-                  avatarOf: avatarFor,
-                ),
+                _Podium(entries: top3, nameOf: nameFor, avatarOf: avatarFor),
                 if (rest.isNotEmpty) ...[
                   const Divider(),
                   for (var i = 0; i < rest.length; i++)
@@ -102,9 +99,10 @@ class Leaderboard extends ConsumerWidget {
                         size: 32,
                       ),
                       title: Text('${i + 4}. ${nameFor(rest[i].key)}'),
-                      trailing: Text('${rest[i].value}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700)),
+                      trailing: Text(
+                        '${rest[i].value}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
                     ),
                 ],
               ],
@@ -144,13 +142,11 @@ class _Podium extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: positions
-          .map((p) => Expanded(
-                child: _PodiumColumn(
-                  slot: p,
-                  nameOf: nameOf,
-                  avatarOf: avatarOf,
-                ),
-              ))
+          .map(
+            (p) => Expanded(
+              child: _PodiumColumn(slot: p, nameOf: nameOf, avatarOf: avatarOf),
+            ),
+          )
           .toList(),
     );
   }
@@ -160,10 +156,12 @@ class _PodiumSlot {
   final int rank;
   final String? userId;
   final int score;
-  const _PodiumSlot({required this.rank, required this.userId, required this.score});
-  const _PodiumSlot.empty(this.rank)
-      : userId = null,
-        score = 0;
+  const _PodiumSlot({
+    required this.rank,
+    required this.userId,
+    required this.score,
+  });
+  const _PodiumSlot.empty(this.rank) : userId = null, score = 0;
 }
 
 class _PodiumColumn extends StatelessWidget {
@@ -181,11 +179,14 @@ class _PodiumColumn extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final heights = {1: 84.0, 2: 64.0, 3: 48.0};
-    final colors = {
-      1: scheme.primaryContainer,
-      2: scheme.surfaceContainerHigh,
-      3: scheme.surfaceContainerHigh,
-    };
+    // 2nd/3rd blend a touch of ink into the highest surface tone so the
+    // blocks still read against the card in light mode (the cream-on-white
+    // pairing was nearly invisible).
+    final runnerUp = Color.alphaBlend(
+      scheme.onSurface.withValues(alpha: 0.06),
+      scheme.surfaceContainerHighest,
+    );
+    final colors = {1: scheme.primaryContainer, 2: runnerUp, 3: runnerUp};
     final medals = {1: '🥇', 2: '🥈', 3: '🥉'};
     // 1st gets the spotlight (2× base), 2nd a clear bump (1.5×), 3rd stays
     // at the base — visually echoes the podium block heights below.
@@ -194,67 +195,62 @@ class _PodiumColumn extends StatelessWidget {
         ? null
         : AvatarRegistry.lookup(avatarOf(slot.userId!));
 
+    final column = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
+        const SizedBox(height: 4),
+        Text(
+          slot.userId == null ? '—' : nameOf(slot.userId!),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: double.infinity,
+              height: heights[slot.rank],
+              decoration: BoxDecoration(
+                color: colors[slot.rank],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '${slot.score}',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: slot.rank == 1
+                        ? scheme.onPrimaryContainer
+                        : scheme.onSurface,
+                  ),
+                ),
+              ),
+            ),
+            // Medal perched on the podium block's top-right corner.
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Text(
+                medals[slot.rank]!,
+                style: const TextStyle(fontSize: 22),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
-              // Medal pinned to the avatar's bottom-right corner. The
-              // horizontal nudge differs per rank because the avatars
-              // aren't the same size — a fixed offset sits too far out
-              // on the big winner circle and too far in on the small one.
-              Positioned(
-                right: switch (slot.rank) {
-                  1 => 0.0,
-                  3 => -10.0,
-                  _ => -6.0,
-                },
-                bottom: -4,
-                child: Text(
-                  medals[slot.rank]!,
-                  style: const TextStyle(fontSize: 22),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            slot.userId == null ? '—' : nameOf(slot.userId!),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            width: double.infinity,
-            height: heights[slot.rank],
-            decoration: BoxDecoration(
-              color: colors[slot.rank],
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '${slot.score}',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: slot.rank == 1
-                      ? scheme.onPrimaryContainer
-                      : scheme.onSurface,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      child: column,
     );
   }
 }

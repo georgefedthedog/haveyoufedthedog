@@ -9,8 +9,6 @@ import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
 import '../../core/profile/avatars.dart';
-import '../../core/subjects/character_artwork.dart';
-import '../../core/subjects/characters.dart';
 import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../history/awards_section.dart';
@@ -95,6 +93,14 @@ class YouTabScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 if (auth != null) _MyAwardsCard(myUserId: auth.userId),
                 const SizedBox(height: 16),
+          Text(
+            'Moving day?',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 12),
           _AccountActionsCard(
             avatar: avatar,
             name: name.isEmpty ? 'You' : name,
@@ -156,54 +162,38 @@ class _AccountActionsCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 24, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Moving day?',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
+            LongPressDraggable<bool>(
+              data: true,
+              feedback: Material(
+                color: Colors.transparent,
+                child: chip(size: 72),
               ),
+              childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
+              child: restingChip,
             ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  LongPressDraggable<bool>(
-                    data: true,
-                    feedback: Material(
-                      color: Colors.transparent,
-                      child: chip(size: 72),
-                    ),
-                    childWhenDragging:
-                        Opacity(opacity: 0.3, child: restingChip),
-                    child: restingChip,
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _DropCircle(
-                        icon: Icons.swap_horiz,
-                        label: 'Switch household',
-                        baseColor: theme.colorScheme.primary,
-                        onDrop: onSwitchHousehold,
-                      ),
-                      const SizedBox(height: 16),
-                      _DropCircle(
-                        icon: Icons.logout,
-                        label: 'Log out',
-                        baseColor: Colors.red.shade300,
-                        hoverColor: Colors.red,
-                        onDrop: onLogout,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _DropCircle(
+                  icon: Icons.swap_horiz,
+                  label: 'Switch household',
+                  baseColor: theme.colorScheme.primary,
+                  onDrop: onSwitchHousehold,
+                ),
+                const SizedBox(height: 16),
+                _DropCircle(
+                  icon: Icons.logout,
+                  label: 'Log out',
+                  baseColor: Colors.red.shade300,
+                  hoverColor: Colors.red,
+                  onDrop: onLogout,
+                ),
+              ],
             ),
           ],
         ),
@@ -314,7 +304,7 @@ class _MyAwardsCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Your awards this week',
+          'Your badges and awards',
           textAlign: TextAlign.center,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w800,
@@ -335,46 +325,10 @@ class _MyAwardsCard extends ConsumerWidget {
             ),
           )
         else ...[
-          if (mineFromCharacters.isNotEmpty) ...[
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final a in mineFromCharacters) ...[
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 32,
-                            height: 32,
-                            child: ClipOval(
-                              child: CharacterArtwork(
-                                character:
-                                    CharacterRegistry.lookup(a.characterId),
-                                stage: true,
-                                iconSize: 18,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "${a.subjectName}'s ${a.title}",
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (a != mineFromCharacters.last)
-                        const SizedBox(height: 8),
-                    ],
-                  ],
-                ),
-              ),
-            ),
+          // Same featured-award carousel as the Awards tab, filtered to
+          // the awards this user holds.
+          if (mineFromCharacters.isNotEmpty && hh != null) ...[
+            FeaturedAwards(householdId: hh.id, onlyWonBy: myUserId),
             const SizedBox(height: 12),
           ],
           // Same trophy-cabinet badge cards as the Awards tab, two-up.

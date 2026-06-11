@@ -70,17 +70,12 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                 const _StatsStrip(),
                 const SizedBox(height: 20),
                 if (hh != null) ...[
+                  FeaturedAwards(householdId: hh.id),
+                  const SizedBox(height: 20),
                   Leaderboard(householdId: hh.id),
                   const SizedBox(height: 20),
-                  Text("This week's awards",
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 12),
-                  AwardsSection(householdId: hh.id),
-                  const SizedBox(height: 20),
+                  BadgesSection(householdId: hh.id),
+                  const SizedBox(height: 8),
                 ],
                 Text('All activity',
                     textAlign: TextAlign.center,
