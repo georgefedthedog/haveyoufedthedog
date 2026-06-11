@@ -70,6 +70,15 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                 if (hh != null) ...[
                   Leaderboard(householdId: hh.id),
                   const SizedBox(height: 20),
+                  Text("This week's awards",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 12),
+                  AwardsSection(householdId: hh.id),
+                  const SizedBox(height: 8),
                 ],
                 Text('Household achievements',
                     textAlign: TextAlign.center,
@@ -82,18 +91,8 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                 const SizedBox(height: 12),
                 const HouseholdAchievementsRow(),
                 const SizedBox(height: 20),
-                if (hh != null) ...[
-                  Text("This week's awards",
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 12),
-                  AwardsSection(householdId: hh.id),
-                  const SizedBox(height: 20),
-                ],
                 Text('All activity',
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                         )),

@@ -95,24 +95,10 @@ class YouTabScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 if (auth != null) _MyAwardsCard(myUserId: auth.userId),
                 const SizedBox(height: 16),
-                Card(
-                  child: ListTile(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.swap_horiz),
-                        SizedBox(width: 12),
-                        Text('Switch household'),
-                      ],
-                    ),
-                    onTap: () => context.push(Routes.householdPicker),
-                  ),
-                ),
-          const SizedBox(height: 16),
-          _LogoutCard(
+          _AccountActionsCard(
             avatar: avatar,
             name: name.isEmpty ? 'You' : name,
+            onSwitchHousehold: () => context.push(Routes.householdPicker),
             onLogout: () =>
                 ref.read(authControllerProvider.notifier).logout(),
           ),
@@ -122,18 +108,21 @@ class YouTabScreen extends ConsumerWidget {
   }
 }
 
-/// Drag-to-log-out card, mirroring the household members' drag-to-leave
-/// mechanic: your avatar chip on the left, a dashed red drop circle on
-/// the right. Long-press the avatar, carry it into the circle, gone.
-/// The deliberate gesture *is* the confirmation — no dialog.
-class _LogoutCard extends StatelessWidget {
+/// Drag-to-act account card, mirroring the household members' drag
+/// mechanic: your avatar chip on the left, two dashed drop circles on
+/// the right — purple "Switch household" above red "Log out". Long-press
+/// the avatar and carry it into a circle. The deliberate gesture *is*
+/// the confirmation — no dialog.
+class _AccountActionsCard extends StatelessWidget {
   final Avatar? avatar;
   final String name;
+  final VoidCallback onSwitchHousehold;
   final VoidCallback onLogout;
 
-  const _LogoutCard({
+  const _AccountActionsCard({
     required this.avatar,
     required this.name,
+    required this.onSwitchHousehold,
     required this.onLogout,
   });
 
@@ -167,62 +156,119 @@ class _LogoutCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.fromLTRB(16, 16, 24, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            LongPressDraggable<bool>(
-              data: true,
-              feedback: Material(
-                color: Colors.transparent,
-                child: chip(size: 72),
+            Text(
+              'Moving day?',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
               ),
-              childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
-              child: restingChip,
             ),
-            DragTarget<bool>(
-              onWillAcceptWithDetails: (_) => true,
-              onAcceptWithDetails: (_) => onLogout(),
-              builder: (context, candidate, _) {
-                final hovering = candidate.isNotEmpty;
-                final red = hovering ? Colors.red : Colors.red.shade300;
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CustomPaint(
-                      painter: DashedCirclePainter(
-                        color: red,
-                        filled: hovering,
-                      ),
-                      child: SizedBox(
-                        width: 56,
-                        height: 56,
-                        child: Icon(
-                          Icons.logout,
-                          size: 24,
-                          color: hovering ? Colors.white : red,
-                        ),
-                      ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  LongPressDraggable<bool>(
+                    data: true,
+                    feedback: Material(
+                      color: Colors.transparent,
+                      child: chip(size: 72),
                     ),
-                    const SizedBox(height: 6),
-                    SizedBox(
-                      width: 80,
-                      child: Text(
-                        'Log out',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: red,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    childWhenDragging:
+                        Opacity(opacity: 0.3, child: restingChip),
+                    child: restingChip,
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _DropCircle(
+                        icon: Icons.swap_horiz,
+                        label: 'Switch household',
+                        baseColor: theme.colorScheme.primary,
+                        onDrop: onSwitchHousehold,
                       ),
-                    ),
-                  ],
-                );
-              },
+                      const SizedBox(height: 16),
+                      _DropCircle(
+                        icon: Icons.logout,
+                        label: 'Log out',
+                        baseColor: Colors.red.shade300,
+                        hoverColor: Colors.red,
+                        onDrop: onLogout,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// One dashed drop circle + caption for the account card. Fills solid
+/// (in [hoverColor], defaulting to [baseColor]) while a drag hovers.
+class _DropCircle extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color baseColor;
+  final Color? hoverColor;
+  final VoidCallback onDrop;
+
+  const _DropCircle({
+    required this.icon,
+    required this.label,
+    required this.baseColor,
+    this.hoverColor,
+    required this.onDrop,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DragTarget<bool>(
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (_) => onDrop(),
+      builder: (context, candidate, _) {
+        final hovering = candidate.isNotEmpty;
+        final color = hovering ? (hoverColor ?? baseColor) : baseColor;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomPaint(
+              painter: DashedCirclePainter(color: color, filled: hovering),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: hovering ? Colors.white : color,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              width: 110,
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

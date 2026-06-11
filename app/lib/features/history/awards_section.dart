@@ -186,7 +186,10 @@ class _AchievementCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: theme.textTheme.headlineMedium?.copyWith(
+              // displaySmall stays on the body font (only headline* carry
+              // the display face) — matches the Streak / This-week cards.
+              style: theme.textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.w900,
                 color: achieved ? scheme.tertiary : scheme.onSurfaceVariant,
               ),
             ),
