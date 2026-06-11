@@ -59,10 +59,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 16),
           LabeledField(
             label: 'Email',
             child: TextFormField(
@@ -70,6 +69,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
               textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(
+                hintText: 'Enter your email',
+                prefixIcon: Icon(Icons.mail_outline),
+              ),
               validator: (v) =>
                   (v == null || !v.contains('@')) ? 'Enter your email' : null,
             ),
@@ -77,6 +80,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           const SizedBox(height: 16),
           PasswordField(
             controller: _passwordCtrl,
+            hintText: 'Enter your password',
+            prefixIcon: const Icon(Icons.lock_outline),
             onFieldSubmitted: (_) => _submit(),
             validator: (v) =>
                 (v == null || v.isEmpty) ? 'Enter your password' : null,

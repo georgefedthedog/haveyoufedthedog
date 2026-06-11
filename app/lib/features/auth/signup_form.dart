@@ -61,16 +61,16 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 16),
           LabeledField(
             label: 'Your name',
             child: TextFormField(
               controller: _nameCtrl,
               decoration: const InputDecoration(
                 hintText: 'Shown next to your completions',
+                prefixIcon: Icon(Icons.person_outline),
               ),
               autofillHints: const [AutofillHints.name],
               textCapitalization: TextCapitalization.words,
@@ -87,6 +87,10 @@ class _SignupFormState extends ConsumerState<SignupForm> {
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
               textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(
+                hintText: 'Enter your email',
+                prefixIcon: Icon(Icons.mail_outline),
+              ),
               validator: (v) => (v == null || !v.contains('@'))
                   ? 'Enter a valid email'
                   : null,
@@ -96,6 +100,8 @@ class _SignupFormState extends ConsumerState<SignupForm> {
           PasswordField(
             controller: _passwordCtrl,
             helperText: 'At least 8 characters',
+            hintText: 'Choose a password',
+            prefixIcon: const Icon(Icons.lock_outline),
             autofillHints: const [AutofillHints.newPassword],
             onFieldSubmitted: (_) => _submit(),
             validator: (v) =>

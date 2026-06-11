@@ -8,6 +8,8 @@ class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final String? helperText;
+  final String? hintText;
+  final Widget? prefixIcon;
   final List<String> autofillHints;
   final TextInputAction textInputAction;
   final void Function(String)? onFieldSubmitted;
@@ -18,6 +20,8 @@ class PasswordField extends StatefulWidget {
     required this.controller,
     this.labelText = 'Password',
     this.helperText,
+    this.hintText,
+    this.prefixIcon,
     this.autofillHints = const [AutofillHints.password],
     this.textInputAction = TextInputAction.done,
     this.onFieldSubmitted,
@@ -44,6 +48,8 @@ class _PasswordFieldState extends State<PasswordField> {
         validator: widget.validator,
         decoration: InputDecoration(
           helperText: widget.helperText,
+          hintText: widget.hintText,
+          prefixIcon: widget.prefixIcon,
           suffixIcon: IconButton(
             icon: Icon(
               _obscured
