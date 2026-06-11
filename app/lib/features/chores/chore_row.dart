@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
+import '../../core/chores/schedule_rule.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
+import '../../core/completions/stats_controller.dart';
 import '../../core/completions/streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_member.dart';
@@ -49,7 +51,9 @@ class ChoreRow extends ConsumerWidget {
   Future<void> _log(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await ref.read(completionActionsProvider).logChore(
+      await ref
+          .read(completionActionsProvider)
+          .logChore(
             subjectId: subjectId,
             choreId: chore.id,
             source: CompletionSource.button,
@@ -58,8 +62,7 @@ class ChoreRow extends ConsumerWidget {
       // Wait for the post-log invalidation of the recent-completions list
       // to settle so the streak provider has the new completion in scope
       // before we read it.
-      await ref
-          .read(recentCompletionsControllerProvider(subjectId).future);
+      await ref.read(recentCompletionsControllerProvider(subjectId).future);
       final streak = ref.read(subjectStreakProvider(subjectId));
 
       // Show the celebration overlay. Look up the subject so we can pick
@@ -89,36 +92,37 @@ class ChoreRow extends ConsumerWidget {
       );
     } catch (e) {
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not log: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not log: $e')),
+      );
     }
   }
 
   Future<void> _undo(
-      BuildContext context, WidgetRef ref, Completion completion) async {
+    BuildContext context,
+    WidgetRef ref,
+    Completion completion,
+  ) async {
     final messenger = ScaffoldMessenger.of(context);
     final myUserId = ref.read(authControllerProvider).valueOrNull?.userId;
     if (completion.completedById != myUserId) {
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(const SnackBar(
-        content: Text('Only the person who logged it can undo.'),
-      ));
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Only the person who logged it can undo.'),
+        ),
+      );
       return;
     }
     try {
       await ref.read(completionActionsProvider).undo(completion.id);
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        content: Text('Removed: ${chore.name}'),
-      ));
+      messenger.showSnackBar(SnackBar(content: Text('Removed: ${chore.name}')));
     } catch (e) {
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not undo: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not undo: $e')),
+      );
     }
   }
 
@@ -132,40 +136,42 @@ class ChoreRow extends ConsumerWidget {
     final now = DateTime.now();
     final scheduledToday = chore.rule.scheduledAt(now);
     final isOverdue = !isDone && scheduledToday.isBefore(now);
-    final dueIn = !isDone && !isOverdue
-        ? scheduledToday.difference(now)
-        : null;
+    final dueIn = !isDone && !isOverdue ? scheduledToday.difference(now) : null;
     final isDueSoon = dueIn != null && dueIn <= const Duration(hours: 1);
 
     final scheduleLine = isOverdue
         ? _formatOverdue(now.difference(scheduledToday))
         : chore.rule.humanLabel();
 
+    // "Usually around 7:05 AM" — the household's habit for this chore,
+    // from the mean of past completion times.
+    final meanTime = ref.watch(choreMeanTimesProvider)[chore.id];
+
     final cardColor = isDone
         ? Colors.green.shade50
         : isOverdue
-            ? Colors.red.shade50
-            : scheme.surfaceContainer;
+        ? Colors.red.shade50
+        : scheme.surfaceContainer;
     final avatarBg = isDone
         ? Colors.green.shade100
         : isOverdue
-            ? Colors.red.shade100
-            : scheme.surfaceContainerHighest;
+        ? Colors.red.shade100
+        : scheme.surfaceContainerHighest;
     final avatarFg = isDone
         ? Colors.green.shade900
         : isOverdue
-            ? Colors.red.shade900
-            : scheme.onSurfaceVariant;
+        ? Colors.red.shade900
+        : scheme.onSurfaceVariant;
     final titleColor = isDone
         ? Colors.green.shade900
         : isOverdue
-            ? Colors.red.shade900
-            : null;
+        ? Colors.red.shade900
+        : null;
     final subLineColor = isDone
         ? Colors.green.shade700
         : isOverdue
-            ? Colors.red.shade700
-            : scheme.onSurfaceVariant;
+        ? Colors.red.shade700
+        : scheme.onSurfaceVariant;
 
     return Card(
       color: cardColor,
@@ -178,9 +184,8 @@ class ChoreRow extends ConsumerWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: () => isDone
-            ? _undo(context, ref, completion)
-            : _log(context, ref),
+        onTap: () =>
+            isDone ? _undo(context, ref, completion) : _log(context, ref),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
           child: Column(
@@ -197,8 +202,8 @@ class ChoreRow extends ConsumerWidget {
                           isDone
                               ? Icons.check
                               : isOverdue
-                                  ? Icons.error_outline
-                                  : Icons.schedule,
+                              ? Icons.error_outline
+                              : Icons.schedule,
                           size: 22,
                         ),
                       ),
@@ -235,13 +240,52 @@ class ChoreRow extends ConsumerWidget {
               ),
               if (isDone) ...[
                 const SizedBox(height: 10),
+                Divider(height: 1, thickness: 1, color: Colors.green.shade100),
+                const SizedBox(height: 10),
+                _CompletedByRow(completion: completion),
+              ] else if (meanTime != null) ...[
+                // Same footer slot the completed-by row occupies, but
+                // showing the household's habit time while outstanding.
+                const SizedBox(height: 10),
                 Divider(
                   height: 1,
                   thickness: 1,
-                  color: Colors.green.shade100,
+                  color: scheme.surfaceContainerHighest,
                 ),
                 const SizedBox(height: 10),
-                _CompletedByRow(completion: completion),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 44,
+                      child: Center(
+                        child: Icon(
+                          Icons.history,
+                          size: 18,
+                          color: subLineColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        'Usually done around',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: subLineColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      ScheduleRule.formatClock(
+                          meanTime.hour, meanTime.minute),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: subLineColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ],
           ),
@@ -287,21 +331,13 @@ class _TrailingStatus extends StatelessWidget {
 
     // Done — green tick.
     if (isDone) {
-      return Icon(
-        Icons.check_circle,
-        size: 28,
-        color: Colors.green.shade700,
-      );
+      return Icon(Icons.check_circle, size: 28, color: Colors.green.shade700);
     }
 
     // Overdue — red warning icon. The schedule line below already reads
     // "X minutes overdue" so we don't need to repeat the number here.
     if (isOverdue) {
-      return Icon(
-        Icons.error_outline,
-        size: 28,
-        color: Colors.red.shade700,
-      );
+      return Icon(Icons.error_outline, size: 28, color: Colors.red.shade700);
     }
 
     // Due within the hour — "Due in N mins/hr" stack.
@@ -343,11 +379,7 @@ class _TrailingStatus extends StatelessWidget {
     }
 
     // Anything later than an hour away — neutral clock icon.
-    return Icon(
-      Icons.schedule,
-      size: 28,
-      color: scheme.onSurfaceVariant,
-    );
+    return Icon(Icons.schedule, size: 28, color: scheme.onSurfaceVariant);
   }
 }
 
@@ -366,7 +398,7 @@ class _CompletedByRow extends ConsumerWidget {
     final members = hh == null
         ? const <HouseholdMember>[]
         : ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
-            const <HouseholdMember>[];
+              const <HouseholdMember>[];
 
     HouseholdMember? me;
     for (final m in members) {
@@ -377,9 +409,7 @@ class _CompletedByRow extends ConsumerWidget {
     }
     final name = me?.displayName ?? 'Someone';
     final avatar = AvatarRegistry.lookup(me?.avatar);
-    final initial = name.trim().isEmpty
-        ? '?'
-        : name.trim()[0].toUpperCase();
+    final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
     final seed = me?.userId ?? completion.completedById;
     final bg = _colorFromSeed(seed);
     final fg = _readableOn(bg);
@@ -420,7 +450,8 @@ class _CompletedByRow extends ConsumerWidget {
           ),
         ),
         Text(
-          TimeOfDay.fromDateTime(completion.completedAt).format(context),
+          ScheduleRule.formatClock(completion.completedAt.hour,
+              completion.completedAt.minute),
           style: theme.textTheme.bodySmall?.copyWith(
             color: Colors.green.shade700,
             fontWeight: FontWeight.w600,

@@ -139,13 +139,19 @@ class _TeamEffortCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(
-              child: Image.asset(
-                'assets/awards/badge_team_effort.png',
-                width: 108,
-                height: 108,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) =>
-                    const Text('🤝', style: TextStyle(fontSize: 48)),
+              child: ColorFiltered(
+                colorFilter: awarded
+                    ? const ColorFilter.mode(
+                        Colors.transparent, BlendMode.dst)
+                    : _greyscale,
+                child: Image.asset(
+                  'assets/awards/badge_team_effort.png',
+                  width: 108,
+                  height: 108,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) =>
+                      const Text('🤝', style: TextStyle(fontSize: 48)),
+                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -283,6 +289,15 @@ class _CharacterAwardCarouselState extends State<_CharacterAwardCarousel> {
     );
   }
 }
+
+/// Luminance-preserving greyscale — unclaimed badge art renders washed
+/// out until somebody earns it.
+const _greyscale = ColorFilter.matrix(<double>[
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0, 0, 0, 1, 0,
+]);
 
 /// Heart-shaped confetti particle for the appreciation burst.
 Path _heartPath(Size size) {
@@ -613,14 +628,20 @@ class MemberAwardCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(
-              child: Image.asset(
-                award.assetPath,
-                width: 108,
-                height: 108,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => Text(
-                  award.emoji,
-                  style: const TextStyle(fontSize: 48),
+              child: ColorFiltered(
+                colorFilter: winner == null
+                    ? _greyscale
+                    : const ColorFilter.mode(
+                        Colors.transparent, BlendMode.dst),
+                child: Image.asset(
+                  award.assetPath,
+                  width: 108,
+                  height: 108,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => Text(
+                    award.emoji,
+                    style: const TextStyle(fontSize: 48),
+                  ),
                 ),
               ),
             ),

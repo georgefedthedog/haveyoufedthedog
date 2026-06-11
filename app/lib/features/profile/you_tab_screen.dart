@@ -35,64 +35,61 @@ class YouTabScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
         children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                    child: Column(
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => context.push(Routes.profile),
+                    child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => context.push(Routes.profile),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              AvatarArtwork(avatar: avatar, size: 144),
-                              Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: scheme.primary,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.all(6),
-                                  child: Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: scheme.onPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          name.isEmpty ? '(no name set)' : name,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        if (email.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            email,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: scheme.onSurfaceVariant,
+                        AvatarArtwork(avatar: avatar, size: 144),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: scheme.primary,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            padding: const EdgeInsets.all(6),
+                            child: Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: scheme.onPrimary,
                             ),
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                if (auth != null) _MyAwardsCard(myUserId: auth.userId),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 12),
+                  Text(
+                    name.isEmpty ? '(no name set)' : name,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  if (email.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      email,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (auth != null) _MyAwardsCard(myUserId: auth.userId),
+          const SizedBox(height: 16),
           Text(
             'Moving day?',
             textAlign: TextAlign.center,
@@ -105,8 +102,7 @@ class YouTabScreen extends ConsumerWidget {
             avatar: avatar,
             name: name.isEmpty ? 'You' : name,
             onSwitchHousehold: () => context.push(Routes.householdPicker),
-            onLogout: () =>
-                ref.read(authControllerProvider.notifier).logout(),
+            onLogout: () => ref.read(authControllerProvider.notifier).logout(),
           ),
         ],
       ),
@@ -282,7 +278,7 @@ class _MyAwardsCard extends ConsumerWidget {
     final members = hh == null
         ? const <HouseholdMember>[]
         : ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
-            const <HouseholdMember>[];
+              const <HouseholdMember>[];
     HouseholdMember? me;
     for (final m in members) {
       if (m.userId == myUserId) {
@@ -304,7 +300,7 @@ class _MyAwardsCard extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Your badges and awards',
+          'Your awards and badges',
           textAlign: TextAlign.center,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w800,

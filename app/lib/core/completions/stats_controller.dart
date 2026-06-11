@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -80,6 +83,42 @@ WeeklyStats _windowStats(List list, WeekWindow window) {
     total: total,
     perUser: {for (final e in sorted) e.key: e.value},
   );
+}
+
+/// Mean completion time-of-day per chore id, derived from the cached
+/// household history. Uses a circular mean (angles on a 24h clock face)
+/// so a chore done at 11pm and 1am averages to midnight, not noon.
+/// Chores with fewer than two logged completions are omitted — one data
+/// point isn't a habit yet.
+@riverpod
+Map<String, TimeOfDay> choreMeanTimes(Ref ref) {
+  final list = ref
+          .watch(householdHistoryControllerProvider)
+          .valueOrNull ??
+      const [];
+
+  final sums = <String, List<double>>{}; // choreId -> [sinSum, cosSum, n]
+  for (final c in list) {
+    final choreId = c.choreId;
+    if (choreId == null) continue;
+    final minutes =
+        c.completedAt.hour * 60 + c.completedAt.minute.toDouble();
+    final angle = minutes / (24 * 60) * 2 * pi;
+    final acc = sums.putIfAbsent(choreId, () => [0, 0, 0]);
+    acc[0] += sin(angle);
+    acc[1] += cos(angle);
+    acc[2] += 1;
+  }
+
+  final result = <String, TimeOfDay>{};
+  for (final e in sums.entries) {
+    if (e.value[2] < 2) continue;
+    var angle = atan2(e.value[0], e.value[1]);
+    if (angle < 0) angle += 2 * pi;
+    final minutes = (angle / (2 * pi) * 24 * 60).round() % (24 * 60);
+    result[e.key] = TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
+  }
+  return result;
 }
 
 /// Number of consecutive days (ending today or yesterday) the household has

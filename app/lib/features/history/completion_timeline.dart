@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
+import '../../core/chores/schedule_rule.dart';
 import '../../core/completions/completion.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
@@ -156,8 +157,8 @@ class _TimelineRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final character = CharacterRegistry.lookup(subject?.icon);
-    final time =
-        TimeOfDay.fromDateTime(completion.completedAt).format(context);
+    final time = ScheduleRule.formatClock(
+        completion.completedAt.hour, completion.completedAt.minute);
     final who = isMe ? 'You' : (member?.displayName ?? 'Someone');
 
     // Chore + who + source, hugging the spine: right-aligned when it

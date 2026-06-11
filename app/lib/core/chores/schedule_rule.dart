@@ -76,10 +76,14 @@ class ScheduleRule {
     return '${days.join(", ")} at $tStr';
   }
 
-  static String _fmt(int h, int m) {
+  /// "6:30 pm" — the one clock format for schedule and habit lines, so
+  /// stacked times read consistently.
+  static String formatClock(int h, int m) {
     final period = h >= 12 ? 'pm' : 'am';
     final h12 = h % 12 == 0 ? 12 : h % 12;
     final mm = m.toString().padLeft(2, '0');
     return '$h12:$mm $period';
   }
+
+  static String _fmt(int h, int m) => formatClock(h, m);
 }

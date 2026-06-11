@@ -317,7 +317,8 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                           color: scheme.surfaceContainerHigh,
                           child: ListTile(
                             leading: const Icon(Icons.schedule),
-                            title: Text(_time.format(context)),
+                            title: Text(ScheduleRule.formatClock(
+                                _time.hour, _time.minute)),
                             trailing: const Icon(Icons.edit),
                             onTap: _pickTime,
                           ),

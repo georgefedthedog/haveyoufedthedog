@@ -46,6 +46,30 @@ final previousWeekStatsProvider = AutoDisposeProvider<WeeklyStats>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef PreviousWeekStatsRef = AutoDisposeProviderRef<WeeklyStats>;
+String _$choreMeanTimesHash() => r'04202d2dc625df8ffa2300a35466405f7acec45b';
+
+/// Mean completion time-of-day per chore id, derived from the cached
+/// household history. Uses a circular mean (angles on a 24h clock face)
+/// so a chore done at 11pm and 1am averages to midnight, not noon.
+/// Chores with fewer than two logged completions are omitted — one data
+/// point isn't a habit yet.
+///
+/// Copied from [choreMeanTimes].
+@ProviderFor(choreMeanTimes)
+final choreMeanTimesProvider =
+    AutoDisposeProvider<Map<String, TimeOfDay>>.internal(
+      choreMeanTimes,
+      name: r'choreMeanTimesProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$choreMeanTimesHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ChoreMeanTimesRef = AutoDisposeProviderRef<Map<String, TimeOfDay>>;
 String _$householdStreakHash() => r'88f92e0ae5be66d927ed8c245a2f64baa8a13ed0';
 
 /// Number of consecutive days (ending today or yesterday) the household has
