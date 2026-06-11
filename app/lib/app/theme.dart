@@ -136,11 +136,13 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
-    scaffoldBackgroundColor: scheme.surface,
+    // Transparent so every page shows the AppBackdrop gradient installed
+    // in MaterialApp.builder.
+    scaffoldBackgroundColor: Colors.transparent,
     textTheme: textTheme,
     primaryTextTheme: textTheme,
     appBarTheme: AppBarTheme(
-      backgroundColor: scheme.surface,
+      backgroundColor: Colors.transparent,
       foregroundColor: scheme.onSurface,
       elevation: 0,
       scrolledUnderElevation: 0,

@@ -22,33 +22,19 @@ class _AuthLandingScreenState extends State<AuthLandingScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    // Darker than the plain surface, with the house BL→TR lift.
-    final bgHsl = HSLColor.fromColor(scheme.surface);
-    final bgDark = bgHsl
-        .withLightness((bgHsl.lightness - 0.07).clamp(0.0, 1.0))
-        .toColor();
-    final bgLight = bgHsl
-        .withLightness((bgHsl.lightness - 0.02).clamp(0.0, 1.0))
-        .toColor();
-
+    // Background gradient comes from the app-wide AppBackdrop.
     return Scaffold(
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomLeft,
-            end: Alignment.topRight,
-            colors: [bgDark, bgLight],
-          ),
-        ),
-        child: Stack(
+      body: Stack(
           children: [
           const Positioned.fill(
             child: IgnorePointer(child: _PawPrintBackdrop()),
           ),
           SafeArea(
-            // Centre vertically when the content is shorter than the
-            // screen; scrolls normally when the keyboard squeezes it.
-            child: Center(
+            // Sits a touch above true centre when the content is shorter
+            // than the screen; scrolls normally when the keyboard
+            // squeezes it.
+            child: Align(
+              alignment: const Alignment(0, -0.4),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
                 child: ConstrainedBox(
@@ -110,7 +96,6 @@ class _AuthLandingScreenState extends State<AuthLandingScreen> {
           ),
           ],
         ),
-      ),
     );
   }
 }

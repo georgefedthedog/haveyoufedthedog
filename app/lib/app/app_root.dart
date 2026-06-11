@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/notifications/fcm_token_sync.dart';
 import '../features/nfc/nfc_launch_handler.dart';
 import '../router/app_router.dart';
+import '../widgets/app_backdrop.dart';
 import 'theme.dart';
 
 /// Global key the [NfcLaunchHandler] uses to surface snackbars when the
@@ -50,6 +51,8 @@ class _AppRootState extends ConsumerState<AppRoot> {
       // Follows the phone's light/dark setting — predictable, and the OS
       // handles scheduled/auto dark mode better than we ever would.
       themeMode: ThemeMode.system,
+      builder: (context, child) =>
+          AppBackdrop(child: child ?? const SizedBox.shrink()),
       routerConfig: router,
     );
   }
