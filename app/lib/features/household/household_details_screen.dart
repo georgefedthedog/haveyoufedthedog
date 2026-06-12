@@ -178,7 +178,7 @@ class _BodyState extends ConsumerState<_Body> {
   String? _stagedPicture;
   bool _busy = false;
 
-  /// The phone's IANA zone — used to offer a one-tap fix when it differs
+  /// The phone's IANA zone - used to offer a one-tap fix when it differs
   /// from the household's stored zone.
   String? _phoneTz;
 
@@ -190,9 +190,11 @@ class _BodyState extends ConsumerState<_Body> {
     _residentsCtrl.text = widget.household.residents ?? '';
     _seededResidents = widget.household.residents ?? '';
     _stagedPicture = widget.household.picture;
-    FlutterTimezone.getLocalTimezone().then((tz) {
-      if (mounted) setState(() => _phoneTz = tz);
-    }).catchError((_) {});
+    FlutterTimezone.getLocalTimezone()
+        .then((tz) {
+          if (mounted) setState(() => _phoneTz = tz);
+        })
+        .catchError((_) {});
   }
 
   Future<void> _setTimezoneToPhone() async {
@@ -201,10 +203,9 @@ class _BodyState extends ConsumerState<_Body> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await ref.read(householdActionsProvider).updateHousehold(
-            householdId: widget.household.id,
-            timezone: tz,
-          );
+      await ref
+          .read(householdActionsProvider)
+          .updateHousehold(householdId: widget.household.id, timezone: tz);
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(showCloseIcon: true, content: Text('$e')),
@@ -252,7 +253,7 @@ class _BodyState extends ConsumerState<_Body> {
     return trimmed.isNotEmpty && trimmed != widget.household.name;
   }
 
-  // Unlike the name, residents may be cleared — empty is a valid value.
+  // Unlike the name, residents may be cleared - empty is a valid value.
   bool get _isResidentsDirty =>
       _residentsCtrl.text.trim() != (widget.household.residents ?? '');
 
@@ -272,8 +273,7 @@ class _BodyState extends ConsumerState<_Body> {
           .updateHousehold(
             householdId: widget.household.id,
             name: _isNameDirty ? newName : null,
-            residents:
-                _isResidentsDirty ? _residentsCtrl.text.trim() : null,
+            residents: _isResidentsDirty ? _residentsCtrl.text.trim() : null,
             picture: _isPictureDirty ? (_stagedPicture ?? '') : null,
           );
       if (_isNameDirty) _seededName = newName;
@@ -365,37 +365,41 @@ class _BodyState extends ConsumerState<_Body> {
                     onPressed: (_isDirty && !_busy) ? _save : null,
                   ),
                   const SizedBox(height: 10),
-                  // The household's clock — overdue nudges are timed
+                  // The household's clock - overdue nudges are timed
                   // against this. Offer a one-tap fix when this phone
                   // disagrees (wrong capture, or the family moved).
-                  Builder(builder: (context) {
-                    final theme = Theme.of(context);
-                    final scheme = theme.colorScheme;
-                    final tz = h.timezone ?? 'Europe/London';
-                    final mismatch = isOwner &&
-                        _phoneTz != null &&
-                        _phoneTz != h.timezone;
-                    return Row(
-                      children: [
-                        Icon(Icons.public,
-                            size: 16, color: scheme.onSurfaceVariant),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            'Timezone: $tz',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
+                  Builder(
+                    builder: (context) {
+                      final theme = Theme.of(context);
+                      final scheme = theme.colorScheme;
+                      final tz = h.timezone ?? 'Europe/London';
+                      final mismatch =
+                          isOwner && _phoneTz != null && _phoneTz != h.timezone;
+                      return Row(
+                        children: [
+                          Icon(
+                            Icons.public,
+                            size: 16,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Timezone: $tz',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
                             ),
                           ),
-                        ),
-                        if (mismatch)
-                          TextButton(
-                            onPressed: _busy ? null : _setTimezoneToPhone,
-                            child: const Text("Use this phone's"),
-                          ),
-                      ],
-                    );
-                  }),
+                          if (mismatch)
+                            TextButton(
+                              onPressed: _busy ? null : _setTimezoneToPhone,
+                              child: const Text("Use this phone's"),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

@@ -24,5 +24,5 @@ class Picture {
       'assets/households/$id/${bucket.fileName}.png';
 
   /// Material icon used as the fallback whenever a variant fails to load.
-  static const IconData fallbackIcon = Icons.home_outlined;
+  static const IconData fallbackIcon = Icons.home;
 }

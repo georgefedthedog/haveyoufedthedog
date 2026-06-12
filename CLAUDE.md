@@ -11,7 +11,7 @@ README.md has the full architecture tour; this file is the working rules.
   the app yourself.
 - Verify with `flutter analyze` (run from `app/`, not repo root). Expect
   "No issues found!". Skip the analyzer for trivial tweaks (paddings,
-  colour nudges) — the user will see those on reload.
+  colour nudges) - the user will see those on reload.
 - The user commits their own work regularly. Don't suggest committing.
 - For non-trivial features, surface the design decisions up front (a short
   plan or a direct question) before writing code. Don't scaffold on guesses.
@@ -33,17 +33,17 @@ dart run flutter_launcher_icons                   # after changing app icon art
 
 Server deploys (Git Bash/WSL): `bash server/scripts/deploy-hooks.sh` /
 `deploy-notifier.sh` / `deploy-all.sh`. **deploy-hooks.sh has a hardcoded
-file list** — new hook files must be added to its `tar` line.
+file list** - new hook files must be added to its `tar` line.
 
 ## Architecture
 
-- `app/lib/core/<domain>/` — models + Riverpod controllers. Models are thin
+- `app/lib/core/<domain>/` - models + Riverpod controllers. Models are thin
   `RecordModel` wrappers (no freezed/codegen models). Controllers use
-  `@riverpod` codegen; async-init via AsyncNotifier/FutureProvider — never
+  `@riverpod` codegen; async-init via AsyncNotifier/FutureProvider - never
   override-in-main hacks. Derived stats (awards, leaderboard, streaks, mean
   times) are pure functions over the cached last-100 completions
-  (`householdHistoryControllerProvider`) — no extra fetches.
-- `app/lib/features/<area>/` — screens + feature widgets. One class per file
+  (`householdHistoryControllerProvider`) - no extra fetches.
+- `app/lib/features/<area>/` - screens + feature widgets. One class per file
   (small private helper widgets in the same file are fine).
 - Router: GoRouter behind `appRouterProvider`; redirect logic is a single
   switch over `RoutingPhase` (loading / signedOut / needsToPick / ready).
@@ -67,12 +67,12 @@ file list** — new hook files must be added to its `tar` line.
   need `households.timezone` + moving the cron to the Node notifier.
 - Weekly windows everywhere are Mon→Sun local. Award ties go to nobody.
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
-  — never `TimeOfDay.format(context)`.
+  - never `TimeOfDay.format(context)`.
 
 ## PocketBase hooks (Goja)
 
 - **Each handler runs in its own fresh JS runtime.** Share helpers via
-  `require()` *inside* the callback; file-level declarations are invisible
+  `require()` _inside_ the callback; file-level declarations are invisible
   to handlers. Helper files must not end in `.pb.js` or PB auto-loads them.
 - Schema changes are admin-UI-first: change live, re-export to
   `server/pb_schema.json`, commit. Never hand-edit the live DB schema via
@@ -80,14 +80,14 @@ file list** — new hook files must be added to its `tar` line.
 - Secrets (Resend API key, Firebase service account) live only on the
   server / in PB settings. Never in the repo.
 
-## Design language (load-bearing — users notice deviations)
+## Design language (load-bearing - users notice deviations)
 
 - **Fonts:** Knewave on `headline*` slots + AppBar titles (28px); Plus
   Jakarta Sans for everything else. `display*` stays on the body font (the
   Material time picker uses it).
 - **Inputs:** theme-level filled rounded boxes (`inputDecorationTheme`,
   radius 16, borderless). Never style a field inline. Labels above fields
-  via the shared `LabeledField(label:, child:)` — primary colour, w600.
+  via the shared `LabeledField(label:, child:)` - primary colour, w600.
 - **Gradients:** the house recipe is HSL lightness offsets of a base colour,
   bottom-left dark → top-right light (e.g. −0.07/+0.05 on stage colours).
   Page background comes from `AppBackdrop` via `MaterialApp.builder` with
@@ -96,7 +96,7 @@ file list** — new hook files must be added to its `tar` line.
   onto dashed-circle `DragTarget`s (`widgets/dashed_circle_painter.dart`),
   feedback rendered larger, `childWhenDragging` at 0.3 opacity, target
   fills solid on hover. Destructive drops get a confirm dialog (buttons in
-  `error`/`onError` colours — not errorContainer, too dark in dark mode);
+  `error`/`onError` colours - not errorContainer, too dark in dark mode);
   navigational drops don't.
 - **Destructive actions** (delete/leave) are an IconButton in
   `AppBar.actions`, never a big bottom CTA.
@@ -109,7 +109,7 @@ file list** — new hook files must be added to its `tar` line.
   fixed pastel palettes with thin white borders so they read the same in
   both themes.
 - Characters have expressions (idle/happy/sad/sleeping/celebrate + award
-  pose); mood logic lives in `subjectMoodProvider` — reuse it rather than
+  pose); mood logic lives in `subjectMoodProvider` - reuse it rather than
   re-deriving "is the dog sad" in widgets.
 
 ## Windows shell gotchas
@@ -118,4 +118,4 @@ file list** — new hook files must be added to its `tar` line.
   (em-dashes/emoji become mojibake). For scripted file edits use .NET IO
   with explicit encoding: read `[IO.File]::ReadAllText($f, [Text.Encoding]::UTF8)`,
   write with `New-Object Text.UTF8Encoding($false)`.
-- `flutter`/`dart` commands fail at repo root — `Set-Location app` first.
+- `flutter`/`dart` commands fail at repo root - `Set-Location app` first.

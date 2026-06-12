@@ -13,7 +13,7 @@ admin.initializeApp({
   credential: admin.credential.cert(require(serviceAccountPath)),
 });
 
-// Shared FCM fan-out — used by the /notify endpoint (PB hooks) and the
+// Shared FCM fan-out - used by the /notify endpoint (PB hooks) and the
 // overdue cron alike.
 async function sendPush({ tokens, title, body, data = {} }) {
   const validTokens = (tokens || []).filter(Boolean);
@@ -61,7 +61,7 @@ app.listen(PORT, "127.0.0.1", () => {
   console.log(`push-notifier listening on 127.0.0.1:${PORT}`);
 });
 
-// Overdue-chore cron — needs PB superuser credentials (see .env.example).
+// Overdue-chore cron - needs PB superuser credentials (see .env.example).
 // Without them the service still relays hook pushes; it just logs that
 // the cron is off.
 const { startOverdueCron } = require("./overdue-cron");

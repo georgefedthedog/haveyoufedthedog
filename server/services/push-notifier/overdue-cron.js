@@ -6,7 +6,7 @@
 // since their household's local midnight get a push to every member.
 //
 // Lives in the Node service (not a PB hook) because chore times are
-// stored as wall-clock values with no timezone — converting "18:30 in
+// stored as wall-clock values with no timezone - converting "18:30 in
 // America/New_York" to an instant needs a tz database, which Node's
 // Intl has and PB's Goja runtime doesn't.
 //
@@ -44,18 +44,14 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
     return res.json();
   }
 
-  /// Distinct household timezones, empty mapped to the default. Cached —
+  /// Distinct household timezones, empty mapped to the default. Cached -
   /// the set changes about never.
   async function distinctTimezones() {
     if (Date.now() - householdsCache.at < HOUSEHOLDS_CACHE_MS) {
       return householdsCache.timezones;
     }
-    const data = await pbGet(
-      `/api/collections/households/records?perPage=500&fields=id,timezone`
-    );
-    const set = new Set(
-      (data.items || []).map((h) => h.timezone || DEFAULT_TZ)
-    );
+    const data = await pbGet(`/api/collections/households/records?perPage=500&fields=id,timezone`);
+    const set = new Set((data.items || []).map(h => h.timezone || DEFAULT_TZ));
     householdsCache = { at: Date.now(), timezones: [...set] };
     return householdsCache.timezones;
   }
@@ -70,7 +66,7 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
       minute: "2-digit",
       second: "2-digit",
     }).formatToParts(date);
-    const get = (t) => parts.find((p) => p.type === t)?.value;
+    const get = t => parts.find(p => p.type === t)?.value;
     return {
       weekdayBit: WEEKDAY_BIT[get("weekday")] || 0,
       // Some engines render midnight as "24" with hour12:false.
@@ -85,8 +81,7 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
   /// own local time-of-day; off by an hour on DST-change days, which is
   /// an acceptable wobble for a nudge.
   function sinceLocalMidnight(target, p) {
-    const sinceMs =
-      target.getTime() - (p.hour * 3600 + p.minute * 60 + p.second) * 1000;
+    const sinceMs = target.getTime() - (p.hour * 3600 + p.minute * 60 + p.second) * 1000;
     return new Date(sinceMs).toISOString().replace("T", " ");
   }
 
@@ -94,16 +89,9 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
     const p = zonedParts(target, tz);
 
     // The default zone also owns households with no timezone set.
-    const tzMatch =
-      tz === DEFAULT_TZ
-        ? `(subject.household.timezone = '${tz}' || subject.household.timezone = '')`
-        : `subject.household.timezone = '${tz}'`;
-    const filter = encodeURIComponent(
-      `active = true && hour = ${p.hour} && minute = ${p.minute} && ${tzMatch}`
-    );
-    const chores = await pbGet(
-      `/api/collections/chores/records?perPage=200&filter=${filter}&expand=subject`
-    );
+    const tzMatch = tz === DEFAULT_TZ ? `(subject.household.timezone = '${tz}' || subject.household.timezone = '')` : `subject.household.timezone = '${tz}'`;
+    const filter = encodeURIComponent(`active = true && hour = ${p.hour} && minute = ${p.minute} && ${tzMatch}`);
+    const chores = await pbGet(`/api/collections/chores/records?perPage=200&filter=${filter}&expand=subject`);
 
     for (const chore of chores.items || []) {
       try {
@@ -114,23 +102,13 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
         if (!subject) continue;
 
         const since = sinceLocalMidnight(target, p);
-        const doneFilter = encodeURIComponent(
-          `chore = '${chore.id}' && completed_at >= "${since}"`
-        );
-        const done = await pbGet(
-          `/api/collections/completions/records?perPage=1&filter=${doneFilter}`
-        );
+        const doneFilter = encodeURIComponent(`chore = '${chore.id}' && completed_at >= "${since}"`);
+        const done = await pbGet(`/api/collections/completions/records?perPage=1&filter=${doneFilter}`);
         if ((done.items || []).length) continue;
 
-        const memberFilter = encodeURIComponent(
-          `household = '${subject.household}'`
-        );
-        const members = await pbGet(
-          `/api/collections/household_members/records?perPage=100&filter=${memberFilter}&expand=user`
-        );
-        const tokens = (members.items || [])
-          .map((m) => m.expand?.user?.fcm_token)
-          .filter(Boolean);
+        const memberFilter = encodeURIComponent(`household = '${subject.household}'`);
+        const members = await pbGet(`/api/collections/household_members/records?perPage=100&filter=${memberFilter}&expand=user`);
+        const tokens = (members.items || []).map(m => m.expand?.user?.fcm_token).filter(Boolean);
         if (!tokens.length) continue;
 
         await sendPush({
@@ -149,7 +127,7 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
     if (running) return; // never overlap slow ticks
     running = true;
     try {
-      // The minute that just finished — the :05-past tick at 18:31
+      // The minute that just finished - the :05-past tick at 18:31
       // checks 18:30, so each chore fires exactly once, right after
       // its time passes.
       const target = new Date(Date.now() - 60 * 1000);

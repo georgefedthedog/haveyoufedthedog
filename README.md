@@ -70,7 +70,7 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
   Idempotent.
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
   pushes "Brekkie done by George" to every _other_ member via the notifier.
-  (There is no overdue hook — that cron lives in the push-notifier, below.)
+  (There is no overdue hook - that cron lives in the push-notifier, below.)
 - **cleanup.pb.js** - after any `household_members` delete (leaving, or a
   deleted user account cascading): deletes the household when its last
   member is gone; promotes the longest-standing member to owner if the
@@ -83,7 +83,7 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
 > level.
 
 > **Timezone contract:** chore `hour`/`minute` are wall-clock values with no
-> timezone — `households.timezone` (IANA) says whose wall. The overdue cron
+> timezone - `households.timezone` (IANA) says whose wall. The overdue cron
 > converts per household using Node's tz database, so the server's own clock
 > setting doesn't matter. Households with an empty timezone are treated as
 > Europe/London.
@@ -92,18 +92,18 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
 
 Node/Express service with two jobs:
 
-1. **FCM relay** — hooks POST `{tokens, title, body, data}` to
+1. **FCM relay** - hooks POST `{tokens, title, body, data}` to
    `http://127.0.0.1:3055/notify`; it fans out via
    `firebase-service-account.json` (**gitignored secret** - lives only on
    the server; a fresh copy comes from Firebase console → Project settings
    → Service accounts). Firebase project: `haveyoufedthedog-a1d9f`.
-2. **Overdue cron** (`overdue-cron.js`) — once a minute, per distinct
+2. **Overdue cron** (`overdue-cron.js`) - once a minute, per distinct
    household timezone, finds active chores whose wall-clock time passed in
    that zone's previous minute and weren't completed since that household's
    local midnight, and pushes "Brekkie is overdue - Kiko-dog is waiting!"
    to the whole household. Queries PB directly, which needs superuser
    credentials supplied via `/opt/haveyoufedthedog/push-notifier/.env`
-   (loaded by the systemd unit, **never committed** — template in
+   (loaded by the systemd unit, **never committed** - template in
    `.env.example`):
 
    ```
@@ -114,17 +114,17 @@ Node/Express service with two jobs:
 
    **Why a superuser:** collection rules are membership-scoped, so a normal
    user can't read across households; superuser auth bypasses rules.
-   **Why a dedicated one** (`cron@…`, a record in `_superusers` — not an app
+   **Why a dedicated one** (`cron@…`, a record in `_superusers` - not an app
    user): rotating your personal admin password then can't silently kill the
    cron, and a leaked `.env` is revoked by deleting one service account.
-   Without the `.env` the service still relays hook pushes — it just logs
+   Without the `.env` the service still relays hook pushes - it just logs
    "[overdue] cron disabled" and sends no nudges.
 
 ### Backups
 
 PB's built-in scheduled backups (admin UI → **Settings → Backups**) push to
 **Cloudflare R2**: [R2 dashboard](https://dash.cloudflare.com/b19d93b69fec96bb747af3f99da2d936/r2/overview).
-The SQLite data dir is the only irreplaceable thing on the box — everything
+The SQLite data dir is the only irreplaceable thing on the box - everything
 else (hooks, notifier, nginx config) is in this repo or re-derivable.
 
 To restore: admin UI → Settings → Backups → restore from the list; or
@@ -132,7 +132,7 @@ manually unzip a backup into `/var/lib/pocketbase/8090/` (stop PB first,
 `chown -R pocketbase:pocketbase`, start PB).
 
 **Access recovery:** Hetzner credentials, Firebase bits, and the SSH keys
-(`dogbox`) are stored in **Google Drive** — start there if this machine is
+(`dogbox`) are stored in **Google Drive** - start there if this machine is
 gone.
 
 ### Email
@@ -147,7 +147,7 @@ domain `haveyoufedthedog.com` is verified in Resend via Cloudflare DNS.
 
 ## The website
 
-`https://haveyoufedthedog.com` — static landing page + the privacy policy and
+`https://haveyoufedthedog.com` - static landing page + the privacy policy and
 account-deletion pages the Play Store requires. Source in `landing_page/src/`
 (plain HTML + Tailwind v4; brand tokens in `landing_page/tailwind.css`).
 After editing HTML classes run `npm run build` from `landing_page/` (the
@@ -310,7 +310,7 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
   either completes the next due chore or opens the subject page depending on
   the per-device toggle in Edit Profile. App-closed taps work via the launch
   intent (`nfc_launch_handler.dart`).
-- **Known limitations, accepted:** one `fcm_token` per user — the last
+- **Known limitations, accepted:** one `fcm_token` per user - the last
   device to launch the app owns pushes (only bites a developer with
   several devices on one account; fix someday = a `device_tokens`
   collection); awards windows are bounded by the

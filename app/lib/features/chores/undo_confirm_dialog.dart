@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Confirm before un-logging a completion — completed rows and chips sit
+/// Confirm before un-logging a completion - completed rows and chips sit
 /// right where thumbs scroll, so accidental taps are easy. Same dialog
 /// shape as the other destructive confirms (error/onError action button).
 Future<bool> confirmUndoCompletion(

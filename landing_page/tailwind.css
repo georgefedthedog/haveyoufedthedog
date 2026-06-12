@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Brand tokens lifted from app/lib/app/theme.dart — keep in sync by hand. */
+/* Brand tokens lifted from app/lib/app/theme.dart - keep in sync by hand. */
 @theme {
   --font-heading: "Knewave", "Comic Sans MS", cursive;
   --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -21,7 +21,7 @@
   --color-ink-soft: #6a6373;
   --color-outline: #e0d8cb;
 
-  /* Dark theme (deliberately flat — no gradient). */
+  /* Dark theme (deliberately flat - no gradient). */
   --color-night: #1a1620;
   --color-night-card: #262031;
   --color-night-outline: #3b3447;

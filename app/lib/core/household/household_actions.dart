@@ -38,7 +38,7 @@ class HouseholdActions {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final userId = await _currentUserId();
 
-    // The creator's phone defines the household's wall clock — the
+    // The creator's phone defines the household's wall clock - the
     // overdue cron schedules pushes against this. Best-effort: an
     // unresolvable zone leaves the field empty and the server assumes
     // Europe/London.
