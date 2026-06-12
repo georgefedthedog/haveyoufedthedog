@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/awards_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/profile/avatars.dart';
 import '../../core/subjects/character_artwork.dart';
-import '../../core/subjects/characters.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../profile/avatar_artwork.dart';
 
@@ -115,14 +114,14 @@ class BadgesSection extends ConsumerWidget {
 /// Team Effort - the household-wide badge. Earned when nobody carries
 /// more than half the week's load. The footer shows everyone who chipped
 /// in (overlapping avatar stack) rather than a single winner.
-class _TeamEffortCard extends StatelessWidget {
+class _TeamEffortCard extends ConsumerWidget {
   final bool awarded;
   final List<HouseholdMember> contributors;
 
   const _TeamEffortCard({required this.awarded, required this.contributors});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Card(
@@ -174,9 +173,9 @@ class _TeamEffortCard extends StatelessWidget {
                         child: Tooltip(
                           message: contributors[i].displayName,
                           child: AvatarArtwork(
-                            avatar: AvatarRegistry.lookup(
-                              contributors[i].avatar,
-                            ),
+                            avatar: ref
+                                .watch(catalogProvider)
+                                .lookupAvatar(contributors[i].avatar),
                             size: 24,
                           ),
                         ),
@@ -351,7 +350,9 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final character = CharacterRegistry.lookup(award.characterId);
+    final character = ref
+        .watch(catalogProvider)
+        .lookupCharacter(award.characterId);
 
     // Poster palette derived from the character's stage colour (same in
     // both themes): pale wash for the card, deeper tone for the circle,
@@ -434,10 +435,12 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                         height: 240,
                         // Trophy pose when won; a sad face while the award
                         // sits unclaimed.
-                        child: Image.asset(
-                          winner != null
-                              ? character.awardAsset
-                              : character.assetFor(CharacterExpression.sad),
+                        child: Image(
+                          image: winner != null
+                              ? character.awardImageProvider
+                              : character.imageProviderFor(
+                                  CharacterExpression.sad,
+                                ),
                           fit: BoxFit.contain,
                           alignment: Alignment.bottomCenter,
                           errorBuilder: (_, _, _) => CharacterArtwork(
@@ -546,7 +549,9 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                     Row(
                       children: [
                         AvatarArtwork(
-                          avatar: AvatarRegistry.lookup(winner!.avatar),
+                          avatar: ref
+                              .watch(catalogProvider)
+                              .lookupAvatar(winner!.avatar),
                           size: 32,
                         ),
                         const SizedBox(width: 8),
@@ -605,14 +610,14 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
 /// Trophy-cabinet card for one personality award: big badge art up top,
 /// centred title + description, then a footer row with the winner
 /// (avatar + name + gold-star tally) or a ghosted unclaimed state.
-class MemberAwardCard extends StatelessWidget {
+class MemberAwardCard extends ConsumerWidget {
   final MemberAward award;
   final HouseholdMember? winner;
 
   const MemberAwardCard({super.key, required this.award, required this.winner});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Card(
@@ -657,7 +662,9 @@ class MemberAwardCard extends StatelessWidget {
               Row(
                 children: [
                   AvatarArtwork(
-                    avatar: AvatarRegistry.lookup(winner!.avatar),
+                    avatar: ref
+                        .watch(catalogProvider)
+                        .lookupAvatar(winner!.avatar),
                     size: 24,
                   ),
                   const SizedBox(width: 6),

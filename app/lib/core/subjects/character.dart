@@ -1,13 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 
 /// Expressions a character can be drawn in. Not every character has every
-/// expression - see [Character.assetFor] for the fallback chain.
+/// expression - see [Character.imageProviderFor] for the fallback chain.
 ///
 /// Enum value names match the on-disk file names
-/// (`assets/subjects/<id>/<name>.png`) so there's a single vocabulary
-/// across art and code.
+/// (`assets/subjects/<id>/<name>.png`) and the file fields on the
+/// `catalog_characters` PB collection, so there's a single vocabulary
+/// across art, server and code.
 enum CharacterExpression {
   /// Default; on home cards, subject hero, picker thumbnails.
   idle,
@@ -27,10 +29,12 @@ enum CharacterExpression {
 
 /// One of the curated character templates a subject can be drawn as.
 ///
-/// Characters live in [CharacterRegistry] (lower-level lookup) and are
-/// picked via the [CharacterPicker] widget. The stored value on
-/// `subjects.icon` is the [id] string - see [CharacterRegistry.lookup]
-/// for the fallback chain.
+/// Characters live in [CharacterRegistry] (bundled) and the
+/// `catalog_characters` PB collection (remote), merged by the catalog
+/// provider. The stored value on `subjects.icon` is the [id] string - see
+/// [CharacterRegistry.lookup] for the fallback chain. Bundled characters
+/// resolve art from `assets/subjects/<id>/`; remote ones carry
+/// [remoteExpressions] download URLs and go through the shared disk cache.
 @immutable
 class Character {
   /// Stable id; what we store on `subjects.icon`. Don't rename without a
@@ -53,17 +57,28 @@ class Character {
   /// [happy] then [idle].
   final Set<CharacterExpression> available;
 
+  /// Download URLs per expression for remote characters; null for bundled
+  /// ones. When set, [available] mirrors its keys.
+  final Map<CharacterExpression, Uri>? remoteExpressions;
+
+  /// Download URL for the remote trophy pose; null for bundled characters
+  /// (which resolve `assets/subjects/<id>/award.png`) and for remote ones
+  /// that haven't shipped it.
+  final Uri? remoteAward;
+
   const Character({
     required this.id,
     required this.displayName,
     required this.stageColor,
     required this.fallbackIcon,
     this.available = const {CharacterExpression.idle},
+    this.remoteExpressions,
+    this.remoteAward,
   });
 
-  /// Asset path for the closest expression we ship - defaults via
+  /// The closest available expression - defaults via
   /// `celebrating → happy → idle`.
-  String assetFor(CharacterExpression expression) {
+  CharacterExpression resolve(CharacterExpression expression) {
     final ordered = switch (expression) {
       CharacterExpression.celebrate => const [
         CharacterExpression.celebrate,
@@ -85,19 +100,37 @@ class Character {
       ],
       CharacterExpression.idle => const [CharacterExpression.idle],
     };
-    final pick = ordered.firstWhere(
+    return ordered.firstWhere(
       available.contains,
       orElse: () => CharacterExpression.idle,
     );
-    return 'assets/subjects/$id/${pick.name}.png';
   }
 
-  /// Asset path for the idle expression - most-used shortcut.
-  String get idleAsset => assetFor(CharacterExpression.idle);
+  /// Asset path for the closest expression a bundled character ships.
+  String assetFor(CharacterExpression expression) =>
+      'assets/subjects/$id/${resolve(expression).name}.png';
+
+  /// Art for the closest available expression - bundled asset or
+  /// disk-cached download.
+  ImageProvider imageProviderFor(CharacterExpression expression) {
+    final remote = remoteExpressions;
+    if (remote == null) return AssetImage(assetFor(expression));
+    final url = remote[resolve(expression)] ?? remote[CharacterExpression.idle];
+    if (url == null) return AssetImage(assetFor(expression));
+    return CachedNetworkImageProvider(url.toString());
+  }
 
   /// The character holding its weekly trophy - used on the featured
   /// award cards. Not an expression: it's a one-off celebratory pose.
-  String get awardAsset => 'assets/subjects/$id/award.png';
+  /// Remote characters without one fall back to the celebrate chain.
+  ImageProvider get awardImageProvider {
+    if (remoteExpressions == null) {
+      return AssetImage('assets/subjects/$id/award.png');
+    }
+    final award = remoteAward;
+    if (award != null) return CachedNetworkImageProvider(award.toString());
+    return imageProviderFor(CharacterExpression.celebrate);
+  }
 }
 
 /// Stage colours grouped here so the registry stays tidy.

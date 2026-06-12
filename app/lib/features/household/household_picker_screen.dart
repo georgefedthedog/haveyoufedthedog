@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household.dart';
 import '../../core/household/households_controller.dart';
-import '../../core/household/pictures.dart';
 import '../../router/routes.dart';
 import 'picture_artwork.dart';
 
@@ -24,6 +24,12 @@ class HouseholdPickerScreen extends ConsumerWidget {
         .valueOrNull
         ?.id;
 
+    // The menu is an escape hatch (edit profile / log out) for users
+    // force-redirected here with zero households - they can't reach the
+    // You tab without one. Anyone with a household has the full app for
+    // that, so don't render it.
+    final isStranded = asyncHouseholds.valueOrNull?.isEmpty ?? false;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your households'),
@@ -32,42 +38,40 @@ class HouseholdPickerScreen extends ConsumerWidget {
         // to home so they can never get stranded.
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.go(Routes.home),
+          onPressed: () =>
+              context.canPop() ? context.pop() : context.go(Routes.home),
         ),
         actions: [
-          // Escape hatch for users in the forced-picker state (0 households)
-          // who need to update their profile or log out.
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.menu),
-            tooltip: 'Menu',
-            onSelected: (value) {
-              switch (value) {
-                case 'profile':
-                  context.push(Routes.profile);
-                case 'logout':
-                  ref.read(authControllerProvider.notifier).logout();
-              }
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: 'profile',
-                child: ListTile(
-                  leading: Icon(Icons.person_outline),
-                  title: Text('Edit profile'),
+          if (isStranded)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.menu),
+              tooltip: 'Menu',
+              onSelected: (value) {
+                switch (value) {
+                  case 'profile':
+                    context.push(Routes.profile);
+                  case 'logout':
+                    ref.read(authControllerProvider.notifier).logout();
+                }
+              },
+              itemBuilder: (_) => const [
+                PopupMenuItem(
+                  value: 'profile',
+                  child: ListTile(
+                    leading: Icon(Icons.person_outline),
+                    title: Text('Edit profile'),
+                  ),
                 ),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'logout',
-                child: ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('Log out'),
+                PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 'logout',
+                  child: ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text('Log out'),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
       body: asyncHouseholds.when(
@@ -117,10 +121,12 @@ class HouseholdPickerScreen extends ConsumerWidget {
   }
 }
 
-/// One row in the household picker. House picture left, name + role in
-/// the middle, a green check on the right when this is the active
-/// household. Mirrors the home page's `SubjectHeroCard` layout.
-class _HouseholdHeroTile extends StatelessWidget {
+/// One row in the household picker, styled to match the home page's
+/// `SubjectHeroCard`: same height, corner radius and border treatment,
+/// the house picture as a full-bleed panel on the left (cover-cropped
+/// like the home hero), name + role in the middle, and a green check
+/// vertically centred on the right when this is the active household.
+class _HouseholdHeroTile extends ConsumerWidget {
   final Household household;
   final bool isCurrent;
   final VoidCallback onTap;
@@ -132,31 +138,43 @@ class _HouseholdHeroTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return Card(
       clipBehavior: Clip.antiAlias,
+      // Light: thin white border lifting the tile off the cream gradient.
+      // Dark: the scheme's subtle outline (white glows too hard there).
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: theme.brightness == Brightness.dark
+            ? BorderSide(color: scheme.outline)
+            : BorderSide(
+                color: Colors.white.withValues(alpha: 0.9),
+                width: 1.5,
+              ),
+      ),
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
-          height: 110,
+          height: 132,
           child: Row(
             children: [
+              // House scene on the left, edge to edge - cover crops the
+              // transparent corners and zooms in, same as the home hero.
               SizedBox(
-                width: 110,
+                width: 132,
                 height: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: PictureArtwork(
-                    picture: PictureRegistry.lookup(household.picture),
-                  ),
+                child: PictureArtwork(
+                  picture: ref
+                      .watch(catalogProvider)
+                      .lookupPicture(household.picture),
+                  fit: BoxFit.cover,
                 ),
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 4, vertical: 16),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +186,7 @@ class _HouseholdHeroTile extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         household.role,
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -179,12 +197,11 @@ class _HouseholdHeroTile extends StatelessWidget {
                   ),
                 ),
               ),
+              // Active-household check, vertically centred on the tile.
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: Icon(
-                  isCurrent
-                      ? Icons.check_circle
-                      : Icons.circle_outlined,
+                  isCurrent ? Icons.check_circle : Icons.circle_outlined,
                   size: 28,
                   color: isCurrent
                       ? Colors.green.shade700

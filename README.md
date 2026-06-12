@@ -280,6 +280,27 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
 
 ---
 
+## Publishing new design assets (day-to-day)
+
+- **Avatar:** new `catalog_avatars` row - slug, display name, square PNG,
+  enabled. Done.
+- **Household picture:** new `catalog_pictures` row - all five
+  time-of-day PNGs are required (morning / midday / afternoon / evening /
+  night), same framing as the bundled sets.
+- **Character:** new `catalog_characters` row - `idle` PNG and
+  `base_color` (#RRGGBB pastel; the app derives the stage gradient) are
+  required; `happy`, `sad`, `celebrate`, `sleeping`, `award` are optional
+  and fall back along the same chain as bundled art (celebrate→happy→idle
+  etc.). Remote characters use the generic task-tick as their icon
+  fallback while art is loading/failed.
+- `sort_order` orders rows within the remote block (bundled art always
+  comes first in pickers). Slugs are forever - they're stored on user /
+  household / subject records; never rename or reuse one.
+- Files are public-read by URL (not `protected`) so Cloudflare edge-caches
+  them; don't upload anything private.
+
+---
+
 ## Things you'll have forgotten in 6 months
 
 - **Where state lives.** Everything is server-truth via Riverpod controllers

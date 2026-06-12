@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/awards_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
-import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/page_title.dart';
@@ -29,7 +29,7 @@ class YouTabScreen extends ConsumerWidget {
 
     final name = auth?.displayName ?? '';
     final email = auth?.email ?? '';
-    final avatar = AvatarRegistry.lookup(auth?.avatar);
+    final avatar = ref.watch(catalogProvider).lookupAvatar(auth?.avatar);
 
     // Status-bar inset as scroll padding, not SafeArea: content starts
     // below the status bar but scrolls clean to the physical top edge

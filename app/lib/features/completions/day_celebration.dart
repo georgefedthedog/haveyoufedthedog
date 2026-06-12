@@ -9,9 +9,9 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../profile/avatar_artwork.dart';
 
@@ -162,7 +162,9 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                           Tooltip(
                             message: m.displayName,
                             child: AvatarArtwork(
-                              avatar: AvatarRegistry.lookup(m.avatar),
+                              avatar: ref
+                                  .watch(catalogProvider)
+                                  .lookupAvatar(m.avatar),
                               size: 44,
                             ),
                           ),

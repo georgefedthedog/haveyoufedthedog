@@ -24,13 +24,18 @@ class HouseholdsController extends _$HouseholdsController {
   @override
   Future<List<Household>> build() async {
     final pbFuture = ref.watch(pocketbaseClientProvider.future);
-    final authFuture = ref.watch(authControllerProvider.future);
+    // Select the user id rather than watching `.future`: auth re-emits on
+    // every profile-data write (avatar, name, fcm_token), and `.future`
+    // re-notifies unconditionally - this list only changes when the *user*
+    // changes.
+    final userIdFuture = ref.watch(
+      authControllerProvider.selectAsync((a) => a.userId),
+    );
 
     final pb = await pbFuture;
-    final auth = await authFuture;
+    final userId = await userIdFuture;
 
-    if (!auth.isAuthenticated || auth.userId == null) return const [];
-    final userId = auth.userId!;
+    if (userId == null) return const [];
 
     final memberRecords = await pb
         .collection('household_members')

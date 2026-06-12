@@ -53,7 +53,16 @@ file list** - new hook files must be added to its `tar` line.
 - Three parallel id→asset registries, same shape: `CharacterRegistry`
   (subjects), `PictureRegistry` (households), `AvatarRegistry` (users).
   Stored as text ids on PB records; unknown/empty ids fall back gracefully.
-  New art = PNG into `app/assets/...` + a registry entry (no other code).
+  New bundled art = PNG into `app/assets/...` + a registry entry.
+- **Remote content catalog:** the `catalog_avatars` / `catalog_pictures` /
+  `catalog_characters` PB collections serve extra art without an app
+  release. `catalogProvider` (`core/catalog/`) merges bundled + enabled
+  remote rows (bundled first, bundled wins slug collisions; fail-soft to
+  bundled-only offline). Widgets read lookups via
+  `ref.watch(catalogProvider).lookupX(id)` - never the static registries -
+  and render through the models' `imageProvider` getters
+  (cached_network_image disk cache). Publishing workflow:
+  `server/scripts/apply-catalog.md`.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).

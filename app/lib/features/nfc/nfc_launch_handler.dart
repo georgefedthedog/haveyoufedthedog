@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
@@ -10,7 +11,6 @@ import '../../core/completions/streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/nfc/nfc_service.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
-import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../router/app_router.dart';
 import '../../router/routes.dart';
@@ -138,7 +138,7 @@ class NfcLaunchHandler {
       // lives outside the widget tree so it has no BuildContext - the router
       // instance is the entry point. Re-tap on the chore row/chip undoes if
       // the user wants out; no snackbar Undo button needed.
-      final character = CharacterRegistry.lookup(subject.icon);
+      final character = _ref.read(catalogProvider).lookupCharacter(subject.icon);
       final auth = _ref.read(authControllerProvider).valueOrNull;
       _ref
           .read(appRouterProvider)

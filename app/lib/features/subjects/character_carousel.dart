@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
-import '../../core/subjects/characters.dart';
 
 /// Carousel-style picker for subject characters. Mirror of `PicturePicker`
 /// used on household details - one character is centred at a time, with
@@ -11,7 +12,7 @@ import '../../core/subjects/characters.dart';
 ///
 /// Pass [selected] (nullable for "no pick yet") and receive a non-null
 /// character id via [onChanged] whenever a new page settles.
-class CharacterCarousel extends StatefulWidget {
+class CharacterCarousel extends ConsumerStatefulWidget {
   final String? selected;
   final ValueChanged<String> onChanged;
 
@@ -22,17 +23,19 @@ class CharacterCarousel extends StatefulWidget {
   });
 
   @override
-  State<CharacterCarousel> createState() => _CharacterCarouselState();
+  ConsumerState<CharacterCarousel> createState() => _CharacterCarouselState();
 }
 
-class _CharacterCarouselState extends State<CharacterCarousel> {
+class _CharacterCarouselState extends ConsumerState<CharacterCarousel> {
   static const _viewportFraction = 0.6;
   late final PageController _controller;
   late int _currentIndex;
+  late List<Character> _characters;
 
   @override
   void initState() {
     super.initState();
+    _characters = ref.read(catalogProvider).characters;
     _currentIndex = _initialIndex();
     _controller = PageController(
       initialPage: _currentIndex,
@@ -43,8 +46,8 @@ class _CharacterCarouselState extends State<CharacterCarousel> {
   int _initialIndex() {
     final id = widget.selected;
     if (id == null) return 0;
-    for (var i = 0; i < CharacterRegistry.all.length; i++) {
-      if (CharacterRegistry.all[i].id == id) return i;
+    for (var i = 0; i < _characters.length; i++) {
+      if (_characters[i].id == id) return i;
     }
     return 0;
   }
@@ -74,18 +77,36 @@ class _CharacterCarouselState extends State<CharacterCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    // Remote catalog entries can land after first build (the merged list
+    // only ever grows). Re-resolve the selected id's index when it does -
+    // same deferred-jump dance as didUpdateWidget.
+    final characters = ref.watch(catalogProvider).characters;
+    if (characters.length != _characters.length) {
+      _characters = characters;
+      final target = _initialIndex();
+      if (target != _currentIndex) {
+        _currentIndex = target;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (_controller.hasClients) _controller.jumpToPage(target);
+        });
+      }
+    } else {
+      _characters = characters;
+    }
+
     return SizedBox(
       height: 200,
       child: PageView.builder(
         controller: _controller,
-        itemCount: CharacterRegistry.all.length,
+        itemCount: _characters.length,
         onPageChanged: (i) {
           _currentIndex = i;
-          widget.onChanged(CharacterRegistry.all[i].id);
+          widget.onChanged(_characters[i].id);
         },
         itemBuilder: (context, i) {
           return _CarouselTile(
-            character: CharacterRegistry.all[i],
+            character: _characters[i],
             controller: _controller,
             index: i,
             onTap: () => _controller.animateToPage(

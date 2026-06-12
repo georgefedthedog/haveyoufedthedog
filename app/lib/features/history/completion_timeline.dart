@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/chores/schedule_rule.dart';
@@ -9,7 +10,6 @@ import '../../core/completions/completion.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/subjects/character_artwork.dart';
-import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subjects_controller.dart';
 
@@ -133,7 +133,7 @@ class CompletionTimeline extends ConsumerWidget {
   }
 }
 
-class _TimelineRow extends StatelessWidget {
+class _TimelineRow extends ConsumerWidget {
   final Completion completion;
   final bool isFirstInGroup;
   final bool isLastInGroup;
@@ -153,10 +153,10 @@ class _TimelineRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final character = CharacterRegistry.lookup(subject?.icon);
+    final character = ref.watch(catalogProvider).lookupCharacter(subject?.icon);
     final time = ScheduleRule.formatClock(
       completion.completedAt.hour,
       completion.completedAt.minute,

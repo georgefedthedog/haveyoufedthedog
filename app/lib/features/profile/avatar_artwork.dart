@@ -30,8 +30,8 @@ class AvatarArtwork extends StatelessWidget {
       child: a == null
           ? Icon(Avatar.fallbackIcon, size: size * 0.55)
           : ClipOval(
-              child: Image.asset(
-                a.assetPath,
+              child: Image(
+                image: a.imageProvider,
                 width: size,
                 height: size,
                 fit: BoxFit.cover,

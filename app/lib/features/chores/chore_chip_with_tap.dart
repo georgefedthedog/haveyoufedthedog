@@ -7,8 +7,8 @@ import '../../core/chores/chore.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/streak_controller.dart';
-import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
@@ -58,7 +58,7 @@ class ChoreChipWithTap extends ConsumerWidget {
           break;
         }
       }
-      final character = CharacterRegistry.lookup(iconToken);
+      final character = ref.read(catalogProvider).lookupCharacter(iconToken);
       final auth = ref.read(authControllerProvider).valueOrNull;
 
       if (!context.mounted) return;

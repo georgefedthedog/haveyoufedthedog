@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/picture.dart';
-import '../../core/household/pictures.dart';
 import 'picture_artwork.dart';
 
 /// Carousel-style picker for household pictures.
@@ -13,7 +14,7 @@ import 'picture_artwork.dart';
 ///
 /// Pass [selected] (nullable) and receive a non-null picture id via
 /// [onChanged] whenever a new page settles.
-class PicturePicker extends StatefulWidget {
+class PicturePicker extends ConsumerStatefulWidget {
   /// Currently-selected picture id. Null = no picture chosen yet -
   /// carousel opens at the first entry.
   final String? selected;
@@ -27,17 +28,19 @@ class PicturePicker extends StatefulWidget {
   });
 
   @override
-  State<PicturePicker> createState() => _PicturePickerState();
+  ConsumerState<PicturePicker> createState() => _PicturePickerState();
 }
 
-class _PicturePickerState extends State<PicturePicker> {
+class _PicturePickerState extends ConsumerState<PicturePicker> {
   static const _viewportFraction = 0.75;
   late final PageController _controller;
   late int _currentIndex;
+  late List<Picture> _pictures;
 
   @override
   void initState() {
     super.initState();
+    _pictures = ref.read(catalogProvider).pictures;
     _currentIndex = _initialIndex();
     _controller = PageController(
       initialPage: _currentIndex,
@@ -48,8 +51,8 @@ class _PicturePickerState extends State<PicturePicker> {
   int _initialIndex() {
     final id = widget.selected;
     if (id == null) return 0;
-    for (var i = 0; i < PictureRegistry.all.length; i++) {
-      if (PictureRegistry.all[i].id == id) return i;
+    for (var i = 0; i < _pictures.length; i++) {
+      if (_pictures[i].id == id) return i;
     }
     return 0;
   }
@@ -81,18 +84,36 @@ class _PicturePickerState extends State<PicturePicker> {
 
   @override
   Widget build(BuildContext context) {
+    // Remote catalog entries can land after first build (the merged list
+    // only ever grows). Re-resolve the selected id's index when it does -
+    // same deferred-jump dance as didUpdateWidget.
+    final pictures = ref.watch(catalogProvider).pictures;
+    if (pictures.length != _pictures.length) {
+      _pictures = pictures;
+      final target = _initialIndex();
+      if (target != _currentIndex) {
+        _currentIndex = target;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (_controller.hasClients) _controller.jumpToPage(target);
+        });
+      }
+    } else {
+      _pictures = pictures;
+    }
+
     return SizedBox(
       height: 200,
       child: PageView.builder(
         controller: _controller,
-        itemCount: PictureRegistry.all.length,
+        itemCount: _pictures.length,
         onPageChanged: (i) {
           _currentIndex = i;
-          widget.onChanged(PictureRegistry.all[i].id);
+          widget.onChanged(_pictures[i].id);
         },
         itemBuilder: (context, i) {
           return _CarouselTile(
-            picture: PictureRegistry.all[i],
+            picture: _pictures[i],
             controller: _controller,
             index: i,
             onTap: () => _controller.animateToPage(

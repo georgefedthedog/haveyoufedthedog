@@ -23,12 +23,14 @@ class AuthState {
     return (v is String && v.trim().isNotEmpty) ? v : null;
   }
 
-  // Equality on identity, not record contents. Without this, every
-  // `authStore.onChange` event produces a fresh AuthState instance and
-  // anything watching auth (e.g. fcm_token_sync) rebuilds - including for
-  // changes that came from the watcher's own writes, which causes an
-  // infinite loop. Profile-data changes (display name, fcm_token) don't
-  // affect routing or sync triggers, so we ignore them here.
+  // Equality on identity (signed-in-ness + user id), not record contents.
+  // Note this does NOT throttle watchers by itself: AsyncNotifier notifies
+  // on every data→data emission regardless of equality, and
+  // `provider.future` re-notifies on every state assignment. Controllers
+  // that only care about identity watch
+  // `authControllerProvider.selectAsync((a) => a.userId)` instead - that's
+  // what keeps profile-data churn (avatar, name, fcm_token) from
+  // refetching the world.
   @override
   bool operator ==(Object other) =>
       other is AuthState &&

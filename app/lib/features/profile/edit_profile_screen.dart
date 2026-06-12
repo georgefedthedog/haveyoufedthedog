@@ -6,6 +6,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/profile/avatars.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
+import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
 import 'avatar_picker.dart';
@@ -51,7 +52,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       await ref
           .read(authControllerProvider.notifier)
           .updateProfile(name: _nameCtrl.text.trim(), avatar: _avatar);
-      if (mounted) router.pop();
+      // Land on the You tab (profile summary) rather than popping - pop
+      // returns to wherever the edit was pushed from, which isn't always
+      // where you want to admire the new avatar.
+      if (mounted) router.go(Routes.youTab);
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),

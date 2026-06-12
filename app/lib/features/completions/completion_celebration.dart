@@ -3,9 +3,10 @@ import 'dart:math';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/profile/avatars.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../profile/avatar_artwork.dart';
@@ -21,16 +22,17 @@ import 'celebration_args.dart';
 /// instance can push it - including code outside the widget tree (the NFC
 /// handler). Push via `context.push(Routes.celebration, extra: args)` from
 /// a widget, or `ref.read(appRouterProvider).push(...)` from a controller.
-class CompletionCelebration extends StatefulWidget {
+class CompletionCelebration extends ConsumerStatefulWidget {
   final CelebrationArgs args;
 
   const CompletionCelebration({super.key, required this.args});
 
   @override
-  State<CompletionCelebration> createState() => _CompletionCelebrationState();
+  ConsumerState<CompletionCelebration> createState() =>
+      _CompletionCelebrationState();
 }
 
-class _CompletionCelebrationState extends State<CompletionCelebration>
+class _CompletionCelebrationState extends ConsumerState<CompletionCelebration>
     with SingleTickerProviderStateMixin {
   late final ConfettiController _confetti;
   late final AnimationController _pop;
@@ -160,7 +162,9 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AvatarArtwork(
-                            avatar: AvatarRegistry.lookup(args.whoAvatar),
+                            avatar: ref
+                                .watch(catalogProvider)
+                                .lookupAvatar(args.whoAvatar),
                             size: 32,
                           ),
                           const SizedBox(width: 8),

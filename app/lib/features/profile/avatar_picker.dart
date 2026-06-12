@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/profile/avatar.dart';
-import '../../core/profile/avatars.dart';
 import 'avatar_artwork.dart';
 
 /// Carousel-style picker for profile avatars. Mirror of `PicturePicker`
@@ -11,7 +12,7 @@ import 'avatar_artwork.dart';
 ///
 /// Pass [selected] (nullable) and receive a non-null avatar id via
 /// [onChanged] whenever a new page settles.
-class AvatarPicker extends StatefulWidget {
+class AvatarPicker extends ConsumerStatefulWidget {
   /// Currently-selected avatar id. Null = no avatar chosen yet - carousel
   /// opens at the first entry.
   final String? selected;
@@ -25,19 +26,21 @@ class AvatarPicker extends StatefulWidget {
   });
 
   @override
-  State<AvatarPicker> createState() => _AvatarPickerState();
+  ConsumerState<AvatarPicker> createState() => _AvatarPickerState();
 }
 
-class _AvatarPickerState extends State<AvatarPicker> {
+class _AvatarPickerState extends ConsumerState<AvatarPicker> {
   // Wide enough that the 180dp avatar never gets width-squeezed into an
   // ellipse on a ~390dp-wide phone, while neighbours still peek.
   static const _viewportFraction = 0.48;
   late final PageController _controller;
   late int _currentIndex;
+  late List<Avatar> _avatars;
 
   @override
   void initState() {
     super.initState();
+    _avatars = ref.read(catalogProvider).avatars;
     _currentIndex = _initialIndex();
     _controller = PageController(
       initialPage: _currentIndex,
@@ -48,8 +51,8 @@ class _AvatarPickerState extends State<AvatarPicker> {
   int _initialIndex() {
     final id = widget.selected;
     if (id == null) return 0;
-    for (var i = 0; i < AvatarRegistry.all.length; i++) {
-      if (AvatarRegistry.all[i].id == id) return i;
+    for (var i = 0; i < _avatars.length; i++) {
+      if (_avatars[i].id == id) return i;
     }
     return 0;
   }
@@ -81,18 +84,36 @@ class _AvatarPickerState extends State<AvatarPicker> {
 
   @override
   Widget build(BuildContext context) {
+    // Remote catalog entries can land after first build (the merged list
+    // only ever grows). Re-resolve the selected id's index when it does -
+    // same deferred-jump dance as didUpdateWidget.
+    final avatars = ref.watch(catalogProvider).avatars;
+    if (avatars.length != _avatars.length) {
+      _avatars = avatars;
+      final target = _initialIndex();
+      if (target != _currentIndex) {
+        _currentIndex = target;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          if (_controller.hasClients) _controller.jumpToPage(target);
+        });
+      }
+    } else {
+      _avatars = avatars;
+    }
+
     return SizedBox(
       height: 200,
       child: PageView.builder(
         controller: _controller,
-        itemCount: AvatarRegistry.all.length,
+        itemCount: _avatars.length,
         onPageChanged: (i) {
           _currentIndex = i;
-          widget.onChanged(AvatarRegistry.all[i].id);
+          widget.onChanged(_avatars[i].id);
         },
         itemBuilder: (context, i) {
           return _CarouselTile(
-            avatar: AvatarRegistry.all[i],
+            avatar: _avatars[i],
             controller: _controller,
             index: i,
             onTap: () => _controller.animateToPage(

@@ -11,10 +11,9 @@ import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/completions/streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/profile/avatars.dart';
-import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
@@ -77,7 +76,7 @@ class ChoreRow extends ConsumerWidget {
           break;
         }
       }
-      final character = CharacterRegistry.lookup(iconToken);
+      final character = ref.read(catalogProvider).lookupCharacter(iconToken);
       final auth = ref.read(authControllerProvider).valueOrNull;
 
       if (!context.mounted) return;
@@ -414,7 +413,7 @@ class _CompletedByRow extends ConsumerWidget {
       }
     }
     final name = me?.displayName ?? 'Someone';
-    final avatar = AvatarRegistry.lookup(me?.avatar);
+    final avatar = ref.watch(catalogProvider).lookupAvatar(me?.avatar);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
     final seed = me?.userId ?? completion.completedById;
     final bg = _colorFromSeed(seed);

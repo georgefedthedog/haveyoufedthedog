@@ -16,11 +16,14 @@ class HouseholdMembersController extends _$HouseholdMembersController {
   @override
   Future<List<HouseholdMember>> build(String householdId) async {
     final pbFuture = ref.watch(pocketbaseClientProvider.future);
-    final authFuture = ref.watch(authControllerProvider.future);
+    // Identity-scoped watch - see HouseholdsController for why not `.future`.
+    final userIdFuture = ref.watch(
+      authControllerProvider.selectAsync((a) => a.userId),
+    );
 
     final pb = await pbFuture;
-    final auth = await authFuture;
-    if (!auth.isAuthenticated) return const [];
+    final userId = await userIdFuture;
+    if (userId == null) return const [];
 
     try {
       // Oldest membership first - owner (creator) leads, then joiners in

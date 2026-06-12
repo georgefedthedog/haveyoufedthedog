@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/theme.dart';
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/completion.dart';
@@ -15,7 +16,6 @@ import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/household/pictures.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/characters.dart';
@@ -209,9 +209,9 @@ class HomeScreen extends ConsumerWidget {
                                         subjects[Random(
                                           identityHashCode(subjects),
                                         ).nextInt(subjects.length)];
-                                    final character = CharacterRegistry.lookup(
-                                      sleeper.icon,
-                                    );
+                                    final character = ref
+                                        .watch(catalogProvider)
+                                        .lookupCharacter(sleeper.icon);
                                     return Column(
                                       children: [
                                         SizedBox(
@@ -299,12 +299,12 @@ class HomeScreen extends ConsumerWidget {
 /// House picture hero on the home screen. Full-width tappable square
 /// showing the time-of-day variant of the household's chosen [Picture],
 /// with a purple edit-pencil badge in the bottom-right.
-class _HouseHero extends StatelessWidget {
+class _HouseHero extends ConsumerWidget {
   final Household household;
   const _HouseHero({required this.household});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -315,7 +315,9 @@ class _HouseHero extends StatelessWidget {
           children: [
             Positioned.fill(
               child: PictureArtwork(
-                picture: PictureRegistry.lookup(household.picture),
+                picture: ref
+                    .watch(catalogProvider)
+                    .lookupPicture(household.picture),
                 fit: BoxFit.cover,
               ),
             ),
@@ -564,7 +566,7 @@ class _TodaySummaryCard extends StatelessWidget {
 /// colour. Used as the leading slot on home-screen chore rows. Pass the
 /// [expression] that matches the chore's state (happy for done, sad for
 /// overdue, idle otherwise).
-class _CharacterAvatar extends StatelessWidget {
+class _CharacterAvatar extends ConsumerWidget {
   final Subject subject;
   final CharacterExpression expression;
   const _CharacterAvatar({
@@ -573,8 +575,8 @@ class _CharacterAvatar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final character = CharacterRegistry.lookup(subject.icon);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final character = ref.watch(catalogProvider).lookupCharacter(subject.icon);
     return SizedBox(
       width: 44,
       height: 44,

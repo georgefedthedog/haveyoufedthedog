@@ -25,16 +25,22 @@ class FcmTokenSync extends _$FcmTokenSync {
 
   @override
   Future<void> build() async {
-    final auth = await ref.watch(authControllerProvider.future);
+    // Identity-scoped watch: rebuilding on every auth emission would
+    // re-fire this for our own fcm_token write (the original infinite
+    // loop). Selecting the user id means we rebuild on login/logout only.
+    final userId = await ref.watch(
+      authControllerProvider.selectAsync((a) => a.userId),
+    );
     final pb = await ref.watch(pocketbaseClientProvider.future);
 
     _refreshSub?.cancel();
     _refreshSub = null;
     ref.onDispose(() => _refreshSub?.cancel());
 
-    if (!auth.isAuthenticated || auth.userId == null) return;
-    final userId = auth.userId!;
-    final existingToken = auth.user?.data['fcm_token'] as String?;
+    if (userId == null) return;
+    final existingToken =
+        ref.read(authControllerProvider).valueOrNull?.user?.data['fcm_token']
+            as String?;
 
     try {
       final token = await FirebaseMessaging.instance.getToken();

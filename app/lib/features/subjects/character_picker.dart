@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
-import '../../core/subjects/characters.dart';
 
 /// Horizontal scrolling row of character avatars. The selected one is
 /// highlighted with a primary border and primary-container background.
 ///
 /// Pass [selected] (nullable so "nothing chosen yet" is a valid state),
 /// receive a non-null character id via [onChanged].
-class CharacterPicker extends StatelessWidget {
+class CharacterPicker extends ConsumerWidget {
   /// Currently-selected character id. Null = nothing selected (e.g.
   /// brand-new subject the user hasn't picked for yet).
   final String? selected;
@@ -23,16 +24,17 @@ class CharacterPicker extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final characters = ref.watch(catalogProvider).characters;
     return SizedBox(
       height: 96,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.zero,
-        itemCount: CharacterRegistry.all.length,
+        itemCount: characters.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, i) {
-          final c = CharacterRegistry.all[i];
+          final c = characters[i];
           return _Tile(
             character: c,
             isSelected: c.id == selected,

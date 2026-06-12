@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/completions/streak_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/character_artwork.dart';
-import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_mood_controller.dart';
 
@@ -26,7 +26,7 @@ class SubjectHeroCard extends ConsumerWidget {
     final asyncChores = ref.watch(choresControllerProvider);
     final asyncCompletions = ref.watch(todayCompletionsControllerProvider);
 
-    final character = CharacterRegistry.lookup(subject.icon);
+    final character = ref.watch(catalogProvider).lookupCharacter(subject.icon);
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 

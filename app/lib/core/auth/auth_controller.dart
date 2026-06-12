@@ -4,6 +4,7 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../api/pocketbase_client.dart';
+import '../household/household_members_controller.dart';
 import 'auth_state.dart';
 
 part 'auth_controller.g.dart';
@@ -22,6 +23,13 @@ class AuthController extends _$AuthController {
     final pb = await ref.watch(pocketbaseClientProvider.future);
 
     _sub?.cancel();
+    // Every authStore event (sign-in/out, but also profile-data writes:
+    // avatar, name, fcm_token) emits a fresh state so screens watching
+    // auth repaint immediately. Data controllers that only care about
+    // *who* is signed in must watch `selectAsync((a) => a.userId)` -
+    // never `authControllerProvider.future`, which Riverpod re-notifies
+    // on every state assignment regardless of equality, refetching the
+    // world (and bouncing the router through splash) on each save.
     _sub = pb.authStore.onChange.listen((_) {
       state = AsyncData(_snapshot(pb));
     });
@@ -94,11 +102,11 @@ class AuthController extends _$AuthController {
 
   /// Updates editable profile fields on the signed-in user.
   ///
-  /// Doesn't trigger an `AuthState` rebuild - [AuthState] compares on
-  /// `(isAuthenticated, userId)` only, so name/avatar changes don't
-  /// invalidate downstream watchers. Screens reading `auth.displayName`
-  /// see the new value on their next read because the underlying
-  /// `authStore.record` data was mutated in place.
+  /// The PB SDK syncs the auth record on save, so `authStore.onChange`
+  /// re-emits and screens watching auth repaint with the new name/avatar.
+  /// Member rows elsewhere read avatars from the `household_member_details`
+  /// view, not from auth - invalidate those lists so the rest of the app
+  /// (home members row, leaderboard, awards) reflects the change too.
   Future<void> updateProfile({String? name, String? avatar}) async {
     final pb = await ref.read(pocketbaseClientProvider.future);
     final auth = await ref.read(authControllerProvider.future);
@@ -112,5 +120,6 @@ class AuthController extends _$AuthController {
     if (avatar != null) body['avatar'] = avatar;
     if (body.isEmpty) return;
     await pb.collection('users').update(userId, body: body);
+    ref.invalidate(householdMembersControllerProvider);
   }
 }

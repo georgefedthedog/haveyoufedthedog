@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/profile/avatars.dart';
 import '../profile/avatar_artwork.dart';
 
 /// Horizontal row of member avatars for a household. Each avatar shows the
@@ -58,7 +58,7 @@ class HouseholdMembersRow extends ConsumerWidget {
   }
 }
 
-class _Avatar extends StatelessWidget {
+class _Avatar extends ConsumerWidget {
   /// User's chosen avatar id, or null if they haven't picked one yet.
   /// When non-null we render the matching [AvatarArtwork]; when null we
   /// fall back to the seeded-initial circle so households mid-rollout
@@ -78,10 +78,10 @@ class _Avatar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final avatar = AvatarRegistry.lookup(avatarId);
+    final avatar = ref.watch(catalogProvider).lookupAvatar(avatarId);
 
     Widget circle;
     if (avatar != null) {

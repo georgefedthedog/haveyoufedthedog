@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'character.dart';
@@ -5,10 +6,16 @@ import 'character.dart';
 /// Renders a character's art at the requested expression.
 ///
 /// When the character declares at least one expression in
-/// [Character.available], we draw [Image.asset] from its
-/// `assets/subjects/<id>/<expression>.png` path. If the bundled file is
-/// missing - or the character has no art at all - we fall back to the
-/// character's [Character.fallbackIcon] centred on the coloured stage.
+/// [Character.available], we draw [Character.imageProviderFor] - a bundled
+/// asset or a disk-cached download for catalog characters. If the art is
+/// missing or fails to load - or the character has no art at all - we fall
+/// back to the character's [Character.fallbackIcon] centred on the
+/// coloured stage.
+///
+/// Remote characters prefetch their other expressions into the disk cache
+/// as soon as one renders (same rule as [PictureArtwork]'s time-of-day
+/// variants), so a mood flip - idle to sad when a chore goes overdue -
+/// never flashes a placeholder.
 class CharacterArtwork extends StatelessWidget {
   final Character character;
   final CharacterExpression expression;
@@ -36,8 +43,11 @@ class CharacterArtwork extends StatelessWidget {
     if (character.available.isEmpty) {
       content = _iconFallback();
     } else {
-      content = Image.asset(
-        character.assetFor(expression),
+      if (character.remoteExpressions != null) {
+        _prefetchOtherExpressions(context);
+      }
+      content = Image(
+        image: character.imageProviderFor(expression),
         fit: BoxFit.contain,
         errorBuilder: (_, _, _) => _iconFallback(),
       );
@@ -71,6 +81,23 @@ class CharacterArtwork extends StatelessWidget {
         child: Center(child: content),
       ),
     );
+  }
+
+  /// Warm the disk cache for the expressions we're *not* showing right
+  /// now. Errors are swallowed - this is opportunistic; an expression that
+  /// fails here just loads on demand later.
+  void _prefetchOtherExpressions(BuildContext context) {
+    final remote = character.remoteExpressions;
+    if (remote == null) return;
+    final showing = remote[character.resolve(expression)];
+    for (final url in remote.values) {
+      if (url == showing) continue;
+      precacheImage(
+        CachedNetworkImageProvider(url.toString()),
+        context,
+        onError: (_, _) {},
+      );
+    }
   }
 
   Widget _iconFallback() {

@@ -6,12 +6,12 @@ import 'package:pocketbase/pocketbase.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household.dart';
 import '../../core/household/household_actions.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
-import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/labeled_field.dart';
@@ -761,7 +761,7 @@ class _RemoveBinChip extends StatelessWidget {
 /// One avatar in the members cloud: avatar circle, name underneath,
 /// "(you)" suffix on self. Wrapped in [Draggable] when the viewer can
 /// kick this member.
-class _MemberChip extends StatelessWidget {
+class _MemberChip extends ConsumerWidget {
   final HouseholdMember member;
   final bool isMe;
   final bool canDrag;
@@ -773,10 +773,10 @@ class _MemberChip extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final avatar = AvatarRegistry.lookup(member.avatar);
+    final avatar = ref.watch(catalogProvider).lookupAvatar(member.avatar);
     final label = isMe ? '${member.displayName} (you)' : member.displayName;
 
     Widget chip({required double avatarSize}) {

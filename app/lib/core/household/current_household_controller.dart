@@ -26,18 +26,21 @@ const _kPersistedKey = 'current_household_id_v1';
 class CurrentHouseholdController extends _$CurrentHouseholdController {
   @override
   Future<Household?> build() async {
-    final authFuture = ref.watch(authControllerProvider.future);
+    // Identity-scoped watch - see HouseholdsController for why not `.future`.
+    final userIdFuture = ref.watch(
+      authControllerProvider.selectAsync((a) => a.userId),
+    );
     final householdsFuture = ref.watch(householdsControllerProvider.future);
     final prefsFuture = ref.watch(sharedPreferencesProvider.future);
 
-    final auth = await authFuture;
+    final userId = await userIdFuture;
     final households = await householdsFuture;
     final prefs = await prefsFuture;
 
     // If the user is signed out, leave the persisted choice alone - it's
     // still relevant when they sign back in. If we cleared it here, the
     // logout-then-login cycle would always lose their last selection.
-    if (!auth.isAuthenticated) return null;
+    if (userId == null) return null;
 
     final persistedId = prefs.getString(_kPersistedKey);
 

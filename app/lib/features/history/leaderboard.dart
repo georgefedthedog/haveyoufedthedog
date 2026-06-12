@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
-import '../../core/profile/avatars.dart';
+import '../../core/profile/avatar.dart';
 import '../profile/avatar_artwork.dart';
 
 /// Renders the current week's per-member completion counts as a podium for
@@ -68,7 +69,9 @@ class Leaderboard extends ConsumerWidget {
       return userId == myUserId ? '${m.displayName} (you)' : m.displayName;
     }
 
-    String? avatarFor(String userId) => memberByUserId[userId]?.avatar;
+    final catalog = ref.watch(catalogProvider);
+    Avatar? avatarFor(String userId) =>
+        catalog.lookupAvatar(memberByUserId[userId]?.avatar);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,7 +98,7 @@ class Leaderboard extends ConsumerWidget {
                     ListTile(
                       dense: true,
                       leading: AvatarArtwork(
-                        avatar: AvatarRegistry.lookup(avatarFor(rest[i].key)),
+                        avatar: avatarFor(rest[i].key),
                         size: 32,
                       ),
                       title: Text('${i + 4}. ${nameFor(rest[i].key)}'),
@@ -117,7 +120,7 @@ class Leaderboard extends ConsumerWidget {
 class _Podium extends StatelessWidget {
   final List<MapEntry<String, int>> entries;
   final String Function(String userId) nameOf;
-  final String? Function(String userId) avatarOf;
+  final Avatar? Function(String userId) avatarOf;
   const _Podium({
     required this.entries,
     required this.nameOf,
@@ -167,7 +170,7 @@ class _PodiumSlot {
 class _PodiumColumn extends StatelessWidget {
   final _PodiumSlot slot;
   final String Function(String userId) nameOf;
-  final String? Function(String userId) avatarOf;
+  final Avatar? Function(String userId) avatarOf;
   const _PodiumColumn({
     required this.slot,
     required this.nameOf,
@@ -191,9 +194,7 @@ class _PodiumColumn extends StatelessWidget {
     // 1st gets the spotlight (2× base), 2nd a clear bump (1.5×), 3rd stays
     // at the base - visually echoes the podium block heights below.
     final avatarSizes = {1: 88.0, 2: 66.0, 3: 44.0};
-    final avatar = slot.userId == null
-        ? null
-        : AvatarRegistry.lookup(avatarOf(slot.userId!));
+    final avatar = slot.userId == null ? null : avatarOf(slot.userId!);
 
     // First place gets laurel sprigs hugging the avatar - the asset is a
     // single branch curving up-left (concave side right), so it sits on

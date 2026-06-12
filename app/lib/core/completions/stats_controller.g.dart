@@ -70,11 +70,13 @@ final choreMeanTimesProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef ChoreMeanTimesRef = AutoDisposeProviderRef<Map<String, TimeOfDay>>;
-String _$householdStreakHash() => r'88f92e0ae5be66d927ed8c245a2f64baa8a13ed0';
+String _$householdStreakHash() => r'082233c31088f1b2fc01413e01df14347da96a03';
 
-/// Number of consecutive days (ending today or yesterday) the household has
-/// had at least one completion across any subject. Mirror of
-/// `subjectStreakProvider` but aggregated.
+/// Number of consecutive **due days** with at least one completion,
+/// household-wide. Same schedule-aware walk as `subjectStreakProvider`:
+/// days where no chore in the household is due are skipped (they neither
+/// count nor break), and today gets a grace pass while its chores are
+/// still outstanding.
 ///
 /// Copied from [householdStreak].
 @ProviderFor(householdStreak)

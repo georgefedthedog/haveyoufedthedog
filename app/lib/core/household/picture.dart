@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/home/time_of_day_bucket.dart';
@@ -5,9 +6,12 @@ import '../../features/home/time_of_day_bucket.dart';
 /// One of the curated household pictures a user can choose for their
 /// household. The selected [id] is what we store on `households.picture`.
 ///
-/// Each picture ships five PNG variants - one per [TimeOfDayBucket] -
-/// living at `assets/households/<id>/<bucket>.png`. Resolve a path with
-/// [assetPathFor].
+/// Each picture has five variants - one per [TimeOfDayBucket]. Bundled
+/// pictures ship them as PNGs at `assets/households/<id>/<bucket>.png`;
+/// catalog pictures (served from the `catalog_pictures` PB collection)
+/// carry [remoteVariants] download URLs instead. Either way, render via
+/// [imageProviderFor] - remote art goes through the shared disk cache so
+/// it keeps working offline after the first load.
 @immutable
 class Picture {
   /// Stable id; what we store on `households.picture`. Don't rename without
@@ -17,11 +21,26 @@ class Picture {
   /// Human-readable label used in the picker.
   final String displayName;
 
-  const Picture({required this.id, required this.displayName});
+  /// Download URLs per bucket for catalog pictures; null for bundled ones.
+  final Map<TimeOfDayBucket, Uri>? remoteVariants;
 
-  /// Asset path for the variant matching [bucket].
+  const Picture({
+    required this.id,
+    required this.displayName,
+    this.remoteVariants,
+  });
+
+  /// Asset path for a bundled picture's variant matching [bucket].
   String assetPathFor(TimeOfDayBucket bucket) =>
       'assets/households/$id/${bucket.fileName}.png';
+
+  /// The variant matching [bucket] - bundled asset or disk-cached download.
+  ImageProvider imageProviderFor(TimeOfDayBucket bucket) {
+    final remote = remoteVariants?[bucket];
+    return remote != null
+        ? CachedNetworkImageProvider(remote.toString())
+        : AssetImage(assetPathFor(bucket)) as ImageProvider;
+  }
 
   /// Material icon used as the fallback whenever a variant fails to load.
   static const IconData fallbackIcon = Icons.home;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/awards_controller.dart';
 import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/stats_controller.dart';
@@ -123,7 +124,9 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                       }
                       final character = _subjectFilter == null
                           ? CharacterRegistry.plant
-                          : CharacterRegistry.lookup(filteredIcon);
+                          : ref
+                                .watch(catalogProvider)
+                                .lookupCharacter(filteredIcon);
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24),
                         child: EmptyState(

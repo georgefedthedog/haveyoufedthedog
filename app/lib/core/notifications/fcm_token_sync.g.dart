@@ -6,7 +6,7 @@ part of 'fcm_token_sync.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$fcmTokenSyncHash() => r'031b6d92a612f493e7ed530bf3f8b2de6c7cdb5f';
+String _$fcmTokenSyncHash() => r'be2a8dcec48da11181ceaf129d97f70e096b0ee5';
 
 /// Keeps `users.fcm_token` on PocketBase in step with the current device's
 /// Firebase Messaging token. Rebuilds whenever auth state changes:
