@@ -1,7 +1,7 @@
 name: haveyoufedthedog
-description: "Have you fed the dog yet?"
-publish_to: 'none'
-version: 0.21.0+53
+description: "Have You Fed the Dog?"
+publish_to: "none"
+version: 0.3.0
 
 environment:
   sdk: ^3.12.1
