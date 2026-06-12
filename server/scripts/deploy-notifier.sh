@@ -15,7 +15,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> Uploading notifier + restarting push-notifier..."
 tar -cz -C "$DIR/services/push-notifier" \
-    index.js package.json push-notifier.service \
+    index.js overdue-cron.js package.json push-notifier.service \
   | ssh "${SSH_OPTS[@]}" "$SERVER" "
       set -e
       mkdir -p $REMOTE

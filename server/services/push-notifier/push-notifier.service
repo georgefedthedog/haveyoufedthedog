@@ -10,6 +10,8 @@ ExecStart=/usr/bin/node index.js
 Restart=on-failure
 RestartSec=5
 Environment=PORT=3055
+# PB superuser creds for the overdue cron (optional; see .env.example).
+EnvironmentFile=-/opt/haveyoufedthedog/push-notifier/.env
 
 [Install]
 WantedBy=multi-user.target

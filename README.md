@@ -42,7 +42,10 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 - **users** - PB auth collection. Extra fields: `name`, `avatar` (text id into
   the app's avatar registry), `fcm_token` (this device's push token).
 - **households** - `name`, `picture` (text id into the house-picture registry),
-  `invite_code` + `invites_open` (single shareable code, toggleable).
+  `invite_code` + `invites_open` (single shareable code, toggleable),
+  `timezone` (IANA name, captured from the creator's phone; empty =
+  Europe/London), `residents` ("Who lives here?" label, e.g. "The
+  Goodchilds").
 - **household_members** - user ↔ household join with `role` (`owner`/`member`).
 - **household_member_details** - read-only SQL **view** joining members to
   `users` so the app gets `user_name` + `user_avatar` in one fetch.
@@ -65,29 +68,50 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
   Idempotent.
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
   pushes "Brekkie done by George" to every _other_ member via the notifier.
-- **overdue.pb.js** - **cron, every minute**. Finds chores whose scheduled
-  time passed in the previous minute, weren't completed today, and pushes
-  "Brekkie is overdue - Kiko-dog is waiting!" to the whole household.
+  (There is no overdue hook — that cron lives in the push-notifier, below.)
 
 > **Goja gotcha:** PB runs every hook handler in its own fresh JS runtime.
 > File-level declarations don't carry into handlers - share helpers with
 > ``require(`${__hooks}/_helper.js`)`` _inside_ the callback, never at file
 > level.
 
-> **Timezone contract:** chore `hour`/`minute` are wall-clock values from the
-> family's phones. The overdue cron compares them to the **server's local
-> clock**, so the server timezone must be the family's
-> (`sudo timedatectl set-timezone Europe/London`, then restart PB). If the
-> app ever gets multi-timezone households: add `households.timezone` and move
-> the cron into the Node notifier (Goja has no tz database; Node does).
+> **Timezone contract:** chore `hour`/`minute` are wall-clock values with no
+> timezone — `households.timezone` (IANA) says whose wall. The overdue cron
+> converts per household using Node's tz database, so the server's own clock
+> setting doesn't matter. Households with an empty timezone are treated as
+> Europe/London.
 
 ### Push-notifier (`server/services/push-notifier/`)
 
-Tiny Node/Express service. Hooks POST `{tokens, title, body, data}` to
-`http://127.0.0.1:3055/notify`; it fans out to FCM using
-`firebase-service-account.json` (**gitignored secret** - lives only on the
-server; a fresh copy comes from Firebase console → Project settings →
-Service accounts). Firebase project: `haveyoufedthedog-a1d9f`.
+Node/Express service with two jobs:
+
+1. **FCM relay** — hooks POST `{tokens, title, body, data}` to
+   `http://127.0.0.1:3055/notify`; it fans out via
+   `firebase-service-account.json` (**gitignored secret** - lives only on
+   the server; a fresh copy comes from Firebase console → Project settings
+   → Service accounts). Firebase project: `haveyoufedthedog-a1d9f`.
+2. **Overdue cron** (`overdue-cron.js`) — once a minute, per distinct
+   household timezone, finds active chores whose wall-clock time passed in
+   that zone's previous minute and weren't completed since that household's
+   local midnight, and pushes "Brekkie is overdue - Kiko-dog is waiting!"
+   to the whole household. Queries PB directly, which needs superuser
+   credentials supplied via `/opt/haveyoufedthedog/push-notifier/.env`
+   (loaded by the systemd unit, **never committed** — template in
+   `.env.example`):
+
+   ```
+   PB_URL=http://127.0.0.1:8090
+   PB_SUPERUSER_EMAIL=cron@haveyoufedthedog.com
+   PB_SUPERUSER_PASSWORD=<in the password manager>
+   ```
+
+   **Why a superuser:** collection rules are membership-scoped, so a normal
+   user can't read across households; superuser auth bypasses rules.
+   **Why a dedicated one** (`cron@…`, a record in `_superusers` — not an app
+   user): rotating your personal admin password then can't silently kill the
+   cron, and a leaked `.env` is revoked by deleting one service account.
+   Without the `.env` the service still relays hook pushes — it just logs
+   "[overdue] cron disabled" and sends no nudges.
 
 ### Backups
 
@@ -265,7 +289,10 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
   either completes the next due chore or opens the subject page depending on
   the per-device toggle in Edit Profile. App-closed taps work via the launch
   intent (`nfc_launch_handler.dart`).
-- **Known limitations, accepted:** awards windows are bounded by the
+- **Known limitations, accepted:** one `fcm_token` per user — the last
+  device to launch the app owns pushes (only bites a developer with
+  several devices on one account; fix someday = a `device_tokens`
+  collection); awards windows are bounded by the
   100-completion cache; package versions are pinned because `nfc_manager 4.x`
   is a breaking rewrite (KGP deprecation warning at build time is known and
   upstream).
@@ -273,5 +300,7 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
   `cronAdd`, `e.requestInfo().body`) - skim the PB changelog before bumping
   the binary on the server.
 - **Where the secrets are:** Resend API key → PB admin Mail settings only.
-  Firebase service account JSON → on the server only. SSH key → `~/.ssh/dogbox`.
-  Nothing secret is in this repo.
+  Firebase service account JSON → on the server only. Cron superuser creds
+  → `/opt/haveyoufedthedog/push-notifier/.env` on the server only. SSH key
+  → `~/.ssh/dogbox`. Release keystore → `app/android/` (gitignored) +
+  Google Drive. Nothing secret is in this repo.

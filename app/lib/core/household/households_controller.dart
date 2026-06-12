@@ -77,6 +77,8 @@ class HouseholdsController extends _$HouseholdsController {
     bool? invitesOpen,
     bool clearInviteCode = false,
     String? picture,
+    String? residents,
+    String? timezone,
   }) {
     final current = state.valueOrNull;
     if (current == null) return;
@@ -91,6 +93,8 @@ class HouseholdsController extends _$HouseholdsController {
       }
       if (invitesOpen != null) h.record.data['invites_open'] = invitesOpen;
       if (picture != null) h.record.data['picture'] = picture;
+      if (residents != null) h.record.data['residents'] = residents;
+      if (timezone != null) h.record.data['timezone'] = timezone;
       break;
     }
     state = AsyncData([...current]);

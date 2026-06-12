@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -171,16 +172,46 @@ class _Body extends ConsumerStatefulWidget {
 
 class _BodyState extends ConsumerState<_Body> {
   final _nameCtrl = TextEditingController();
+  final _residentsCtrl = TextEditingController();
   String _seededName = '';
+  String _seededResidents = '';
   String? _stagedPicture;
   bool _busy = false;
+
+  /// The phone's IANA zone — used to offer a one-tap fix when it differs
+  /// from the household's stored zone.
+  String? _phoneTz;
 
   @override
   void initState() {
     super.initState();
     _nameCtrl.text = widget.household.name;
     _seededName = widget.household.name;
+    _residentsCtrl.text = widget.household.residents ?? '';
+    _seededResidents = widget.household.residents ?? '';
     _stagedPicture = widget.household.picture;
+    FlutterTimezone.getLocalTimezone().then((tz) {
+      if (mounted) setState(() => _phoneTz = tz);
+    }).catchError((_) {});
+  }
+
+  Future<void> _setTimezoneToPhone() async {
+    final tz = _phoneTz;
+    if (tz == null) return;
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(householdActionsProvider).updateHousehold(
+            householdId: widget.household.id,
+            timezone: tz,
+          );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('$e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -194,6 +225,13 @@ class _BodyState extends ConsumerState<_Body> {
       _nameCtrl.text = widget.household.name;
       _seededName = widget.household.name;
     }
+    // Same for residents.
+    final residents = widget.household.residents ?? '';
+    if (residents != (oldWidget.household.residents ?? '') &&
+        _residentsCtrl.text == _seededResidents) {
+      _residentsCtrl.text = residents;
+      _seededResidents = residents;
+    }
     // Same for picture: if it changed under us and we're not mid-edit
     // (i.e. our staged value matches the previous server value), re-seed.
     if (widget.household.picture != oldWidget.household.picture &&
@@ -205,6 +243,7 @@ class _BodyState extends ConsumerState<_Body> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _residentsCtrl.dispose();
     super.dispose();
   }
 
@@ -213,9 +252,13 @@ class _BodyState extends ConsumerState<_Body> {
     return trimmed.isNotEmpty && trimmed != widget.household.name;
   }
 
+  // Unlike the name, residents may be cleared — empty is a valid value.
+  bool get _isResidentsDirty =>
+      _residentsCtrl.text.trim() != (widget.household.residents ?? '');
+
   bool get _isPictureDirty => _stagedPicture != widget.household.picture;
 
-  bool get _isDirty => _isNameDirty || _isPictureDirty;
+  bool get _isDirty => _isNameDirty || _isResidentsDirty || _isPictureDirty;
 
   Future<void> _save() async {
     if (!_isDirty) return;
@@ -229,9 +272,12 @@ class _BodyState extends ConsumerState<_Body> {
           .updateHousehold(
             householdId: widget.household.id,
             name: _isNameDirty ? newName : null,
+            residents:
+                _isResidentsDirty ? _residentsCtrl.text.trim() : null,
             picture: _isPictureDirty ? (_stagedPicture ?? '') : null,
           );
       if (_isNameDirty) _seededName = newName;
+      if (_isResidentsDirty) _seededResidents = _residentsCtrl.text.trim();
       // Save succeeded → drop the user back on home.
       if (mounted) router.go(Routes.home);
     } on ClientException catch (e) {
@@ -286,7 +332,20 @@ class _BodyState extends ConsumerState<_Body> {
                     child: TextField(
                       controller: _nameCtrl,
                       enabled: isOwner && !_busy,
+                      textInputAction: TextInputAction.next,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  LabeledField(
+                    label: 'Who lives here?',
+                    child: TextField(
+                      controller: _residentsCtrl,
+                      enabled: isOwner && !_busy,
                       textInputAction: TextInputAction.done,
+                      decoration: const InputDecoration(
+                        hintText: 'The Goodchilds',
+                      ),
                       onChanged: (_) => setState(() {}),
                       onSubmitted: (_) {
                         if (isOwner && _isDirty) _save();
@@ -305,6 +364,38 @@ class _BodyState extends ConsumerState<_Body> {
                     label: const Text('Save changes'),
                     onPressed: (_isDirty && !_busy) ? _save : null,
                   ),
+                  const SizedBox(height: 10),
+                  // The household's clock — overdue nudges are timed
+                  // against this. Offer a one-tap fix when this phone
+                  // disagrees (wrong capture, or the family moved).
+                  Builder(builder: (context) {
+                    final theme = Theme.of(context);
+                    final scheme = theme.colorScheme;
+                    final tz = h.timezone ?? 'Europe/London';
+                    final mismatch = isOwner &&
+                        _phoneTz != null &&
+                        _phoneTz != h.timezone;
+                    return Row(
+                      children: [
+                        Icon(Icons.public,
+                            size: 16, color: scheme.onSurfaceVariant),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Timezone: $tz',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        if (mismatch)
+                          TextButton(
+                            onPressed: _busy ? null : _setTimezoneToPhone,
+                            child: const Text("Use this phone's"),
+                          ),
+                      ],
+                    );
+                  }),
                 ],
               ),
             ),

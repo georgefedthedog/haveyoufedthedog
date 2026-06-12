@@ -39,6 +39,19 @@ class Household {
     return (v is String && v.isNotEmpty) ? v : null;
   }
 
+  /// IANA timezone of the home ("Europe/London"). Captured from the
+  /// creator's phone; the server treats empty as Europe/London.
+  String? get timezone {
+    final v = record.data['timezone'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
+  /// "Who lives here?" - a free-text label like "The Goodchilds".
+  String? get residents {
+    final v = record.data['residents'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
   bool get invitesOpen => (record.data['invites_open'] as bool?) ?? false;
 
   bool get isOwner => role == 'owner';

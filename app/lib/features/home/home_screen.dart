@@ -91,6 +91,24 @@ class HomeScreen extends ConsumerWidget {
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
+                  // "Who lives here?" — a warm subtitle when set.
+                  if (asyncCurrent.value!.residents != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      child: Text(
+                        asyncCurrent.value!.residents!,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
                   HouseholdMembersRow(householdId: asyncCurrent.value!.id),
                   const SizedBox(height: 16),
                 ],

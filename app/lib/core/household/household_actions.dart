@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../api/pocketbase_client.dart';
@@ -37,10 +38,24 @@ class HouseholdActions {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final userId = await _currentUserId();
 
+    // The creator's phone defines the household's wall clock — the
+    // overdue cron schedules pushes against this. Best-effort: an
+    // unresolvable zone leaves the field empty and the server assumes
+    // Europe/London.
+    String timezone = '';
+    try {
+      timezone = await FlutterTimezone.getLocalTimezone();
+    } catch (_) {}
+
     final household = await pb
         .collection('households')
         .create(
-          body: {'name': name, 'created_by': userId, 'invites_open': false},
+          body: {
+            'name': name,
+            'created_by': userId,
+            'invites_open': false,
+            'timezone': timezone,
+          },
         );
 
     await pb
@@ -89,12 +104,21 @@ class HouseholdActions {
     required String householdId,
     String? name,
     String? picture,
+    String? residents,
+    String? timezone,
   }) async {
-    if (name == null && picture == null) return;
+    if (name == null &&
+        picture == null &&
+        residents == null &&
+        timezone == null) {
+      return;
+    }
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final body = <String, dynamic>{};
     if (name != null) body['name'] = name;
     if (picture != null) body['picture'] = picture;
+    if (residents != null) body['residents'] = residents;
+    if (timezone != null) body['timezone'] = timezone;
     await pb.collection('households').update(householdId, body: body);
     _ref
         .read(householdsControllerProvider.notifier)
@@ -102,6 +126,8 @@ class HouseholdActions {
           householdId: householdId,
           name: name,
           picture: picture,
+          residents: residents,
+          timezone: timezone,
         );
   }
 

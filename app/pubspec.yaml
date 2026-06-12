@@ -24,6 +24,7 @@ dependencies:
   google_fonts: ^6.2.1
   confetti: ^0.8.0
   share_plus: ^10.1.0
+  flutter_timezone: ^4.1.0
 
 dev_dependencies:
   flutter_test:
@@ -41,11 +42,11 @@ flutter_native_splash:
   color_dark: "#1A1620"
   image: assets/general/logo.png
   android_12:
-    # Android 12+ masks the splash to a circle around the launcher icon
-    # area, so use the icon art rather than the lettered logo sticker.
+    # Android 12+ force-masks splash art into a circle — supplying custom
+    # art looks "trapped". With no image the OS uses the adaptive launcher
+    # icon, which is designed for that mask.
     color: "#FAF3E8"
     color_dark: "#1A1620"
-    image: assets/general/app_icon_transparent.png
 
 # Launcher icon. Regenerate with: dart run flutter_launcher_icons
 flutter_launcher_icons:
