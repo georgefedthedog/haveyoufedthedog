@@ -32,6 +32,20 @@ dev_dependencies:
   build_runner: ^2.4.13
   riverpod_generator: ^2.6.4
   flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.4
+
+# Native (pre-Flutter) splash so the boot flash matches the brand.
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FAF3E8"
+  color_dark: "#1A1620"
+  image: assets/general/logo.png
+  android_12:
+    # Android 12+ masks the splash to a circle around the launcher icon
+    # area, so use the icon art rather than the lettered logo sticker.
+    color: "#FAF3E8"
+    color_dark: "#1A1620"
+    image: assets/general/app_icon_transparent.png
 
 # Launcher icon. Regenerate with: dart run flutter_launcher_icons
 flutter_launcher_icons:

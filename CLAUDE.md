@@ -15,7 +15,10 @@ README.md has the full architecture tour; this file is the working rules.
 - The user commits their own work regularly. Don't suggest committing.
 - For non-trivial features, surface the design decisions up front (a short
   plan or a direct question) before writing code. Don't scaffold on guesses.
-- Iterate in small steps; the user checks each one before the next.
+- **Work step by step, with a check-in between steps.** Even when a batch of
+  tasks is agreed ("do all the loose ends"), execute one item, report, and
+  pause for the user to verify before starting the next. Only barrel through
+  multiple items in one go if the user explicitly asks for that.
 
 ## Build commands
 

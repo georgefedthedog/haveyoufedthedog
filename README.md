@@ -116,6 +116,11 @@ domain `haveyoufedthedog.com` is verified in Resend via Cloudflare DNS.
 
 ## Running the app locally
 
+Built and shipped with **Flutter 3.44.1 (stable) / Dart 3.12.1**. Package
+versions are pinned for good reasons (`nfc_manager` 4.x is a breaking API
+rewrite) - don't `flutter upgrade` casually; if you must, expect to revisit
+the pinned deps.
+
 One-time setup:
 
 ```bash
@@ -190,13 +195,21 @@ Send `app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` (works on
 any modern phone, half the size of the universal APK) via WhatsApp/Drive/etc.
 The recipient taps it and allows "install from unknown sources".
 
-Signing is the **shared debug key** (no release keystore configured).
-Fine for family sideloading; upgrades install over the top as long as they
-come from the same machine. A real keystore is only needed for Play Store.
+**Signing:** release builds are signed with the real keystore at
+`app/android/app/upload-keystore.jks`; passwords live in
+`app/android/key.properties` (both **gitignored** - backup copies are in
+Google Drive). The Gradle config falls back to debug signing if
+`key.properties` is missing, so a keystore-less clone still builds - but
+those APKs can't upgrade over a properly-signed install. Losing the
+keystore = the family must uninstall/reinstall, and Play Store would be a
+new app. Don't lose it.
 
 Launcher icons are generated, not hand-made: source art in
 `app/assets/general/app_icon*.png`, regenerate with
-`dart run flutter_launcher_icons` after changing them.
+`dart run flutter_launcher_icons` after changing them. Same deal for the
+**native splash** (the pre-Flutter boot screen): configured in
+`pubspec.yaml` under `flutter_native_splash:`, regenerate with
+`dart run flutter_native_splash:create`.
 
 ---
 
@@ -252,8 +265,7 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
   either completes the next due chore or opens the subject page depending on
   the per-device toggle in Edit Profile. App-closed taps work via the launch
   intent (`nfc_launch_handler.dart`).
-- **Known limitations, accepted:** `householdStreak` is calendar-day, not
-  schedule-aware (per-subject streaks are); awards windows are bounded by the
+- **Known limitations, accepted:** awards windows are bounded by the
   100-completion cache; package versions are pinned because `nfc_manager 4.x`
   is a breaking rewrite (KGP deprecation warning at build time is known and
   upstream).
