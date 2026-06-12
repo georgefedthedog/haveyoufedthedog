@@ -307,7 +307,10 @@ class _BodyState extends ConsumerState<_Body> {
         await ref.read(householdMembersControllerProvider(h.id).future);
       },
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        // Generous bottom inset so the packs accordion (last card) has
+        // somewhere to expand into - otherwise it opens flush against
+        // the screen edge and you can't tell anything happened.
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 64),
         children: [
           // Picture carousel - staged selection only; written to PB by
           // the Save changes button along with any name edit. Picture is
@@ -823,7 +826,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                           Icon(
                             Icons.check_circle,
                             size: 16,
-                            color: scheme.tertiary,
+                            color: scheme.primary,
                           ),
                           const SizedBox(width: 6),
                           Text(
