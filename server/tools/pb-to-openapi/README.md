@@ -25,4 +25,4 @@ Writes/overwrites `server/openapi.yaml`. Commit the result.
 ## Status
 
 Stub. The conversion logic is implemented during Restructure Step 0 (server
-project setup) — see the plan.
+project setup) - see the plan.

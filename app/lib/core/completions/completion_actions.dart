@@ -15,7 +15,7 @@ part 'completion_actions.g.dart';
 @Riverpod(keepAlive: true)
 CompletionActions completionActions(Ref ref) => CompletionActions(ref);
 
-/// **Not** a Riverpod notifier — actions don't have their own state. State
+/// **Not** a Riverpod notifier - actions don't have their own state. State
 /// lives in `TodayCompletionsController` (and future per-subject lists).
 class CompletionActions {
   final Ref _ref;
@@ -40,13 +40,17 @@ class CompletionActions {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final userId = await _currentUserId();
     final now = DateTime.now().toUtc();
-    final rec = await pb.collection('completions').create(body: {
-      'subject': subjectId,
-      'chore': choreId,
-      'completed_at': now.toIso8601String(),
-      'completed_by': userId,
-      'source': source.wire,
-    });
+    final rec = await pb
+        .collection('completions')
+        .create(
+          body: {
+            'subject': subjectId,
+            'chore': choreId,
+            'completed_at': now.toIso8601String(),
+            'completed_by': userId,
+            'source': source.wire,
+          },
+        );
     _bump(subjectId);
     return Completion(rec);
   }
@@ -58,8 +62,7 @@ class CompletionActions {
     // recent list. If the record is already gone, skip the bump.
     String? subjectId;
     try {
-      final rec =
-          await pb.collection('completions').getOne(completionId);
+      final rec = await pb.collection('completions').getOne(completionId);
       subjectId = rec.data['subject'] as String?;
     } catch (_) {}
     await pb.collection('completions').delete(completionId);
@@ -85,10 +88,12 @@ class CompletionActions {
     final start = DateTime(now.year, now.month, now.day).toUtc();
     final end = start.add(const Duration(days: 1));
 
-    final choreRecords = await pb.collection('chores').getFullList(
-          filter: 'subject = "$subjectId" && active = true',
-        );
-    final todays = await pb.collection('completions').getFullList(
+    final choreRecords = await pb
+        .collection('chores')
+        .getFullList(filter: 'subject = "$subjectId" && active = true');
+    final todays = await pb
+        .collection('completions')
+        .getFullList(
           filter:
               'subject = "$subjectId" && completed_at >= "${start.toIso8601String()}" && completed_at < "${end.toIso8601String()}"',
         );
@@ -131,7 +136,7 @@ class CompletionActions {
 
   /// Invalidate the read-side providers so they refetch and the UI picks
   /// up the new state. The household-wide history is the data source for
-  /// the leaderboard, weekly stats, and household-streak providers — bump
+  /// the leaderboard, weekly stats, and household-streak providers - bump
   /// it so those re-derive without the user having to pull-to-refresh.
   void _bump(String? subjectId) {
     _ref.invalidate(todayCompletionsControllerProvider);

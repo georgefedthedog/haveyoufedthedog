@@ -11,7 +11,7 @@ const _kPersistedKey = 'current_household_id_v1';
 
 /// Picks the currently-active household for the signed-in user.
 ///
-/// Async — consistent with the rest of the data-fetching controllers. The
+/// Async - consistent with the rest of the data-fetching controllers. The
 /// router's `routingPhase` provider buffers this controller's transient
 /// `AsyncLoading` states so deep state churn doesn't bounce the user off
 /// the screen they're on.
@@ -34,7 +34,7 @@ class CurrentHouseholdController extends _$CurrentHouseholdController {
     final households = await householdsFuture;
     final prefs = await prefsFuture;
 
-    // If the user is signed out, leave the persisted choice alone — it's
+    // If the user is signed out, leave the persisted choice alone - it's
     // still relevant when they sign back in. If we cleared it here, the
     // logout-then-login cycle would always lose their last selection.
     if (!auth.isAuthenticated) return null;
@@ -61,8 +61,7 @@ class CurrentHouseholdController extends _$CurrentHouseholdController {
 
   /// Switches the active household. Must be one of the user's households.
   Future<void> setCurrent(String householdId) async {
-    final households =
-        await ref.read(householdsControllerProvider.future);
+    final households = await ref.read(householdsControllerProvider.future);
     final h = households.firstWhere(
       (h) => h.id == householdId,
       orElse: () => throw StateError(

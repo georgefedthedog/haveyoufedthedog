@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Renders [label] above [child] in the theme's primary colour — the
+/// Renders [label] above [child] in the theme's primary colour - the
 /// app-wide convention for text inputs (label sits outside the filled
 /// rounded box, matching the focus-border colour).
 ///

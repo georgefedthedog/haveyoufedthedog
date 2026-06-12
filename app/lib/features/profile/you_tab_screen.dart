@@ -112,9 +112,9 @@ class YouTabScreen extends ConsumerWidget {
 
 /// Drag-to-act account card, mirroring the household members' drag
 /// mechanic: your avatar chip on the left, two dashed drop circles on
-/// the right — purple "Switch household" above red "Log out". Long-press
+/// the right - purple "Switch household" above red "Log out". Long-press
 /// the avatar and carry it into a circle. The deliberate gesture *is*
-/// the confirmation — no dialog.
+/// the confirmation - no dialog.
 class _AccountActionsCard extends StatelessWidget {
   final Avatar? avatar;
   final String name;
@@ -259,7 +259,7 @@ class _DropCircle extends StatelessWidget {
   }
 }
 
-/// Card listing every weekly award the signed-in user currently holds —
+/// Card listing every weekly award the signed-in user currently holds -
 /// the personality awards plus any character-given ones. Quiet "nothing
 /// yet" line when the trophy shelf is empty.
 class _MyAwardsCard extends ConsumerWidget {
@@ -273,7 +273,7 @@ class _MyAwardsCard extends ConsumerWidget {
     final scheme = theme.colorScheme;
     final awards = ref.watch(weeklyAwardsProvider);
 
-    // Me as a HouseholdMember — the badge card footer wants the avatar.
+    // Me as a HouseholdMember - the badge card footer wants the avatar.
     final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
     final members = hh == null
         ? const <HouseholdMember>[]
@@ -312,7 +312,7 @@ class _MyAwardsCard extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Nothing yet — plenty of week left!',
+                'Nothing yet - plenty of week left!',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,

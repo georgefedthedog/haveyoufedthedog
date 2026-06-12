@@ -12,7 +12,7 @@ build/
 *.iml
 *.code-workspace
 
-# Generated code (committed: yes — keeps `dart pub get && flutter run` working
+# Generated code (committed: yes - keeps `dart pub get && flutter run` working
 # on a fresh clone without a build_runner round-trip)
 # So we DO NOT ignore *.g.dart
 
@@ -27,7 +27,7 @@ build/
 **/android/.cxx/
 **/android/local.properties
 
-# Signing — never commit
+# Signing - never commit
 *.jks
 *.keystore
 key.properties

@@ -48,7 +48,7 @@ class NfcService {
     }
   }
 
-  /// Sets the active tag handler. Doesn't touch the underlying session —
+  /// Sets the active tag handler. Doesn't touch the underlying session -
   /// use [ensureStarted] for that. Kept separate so a scan-dialog can
   /// safely [ensureStarted] without clobbering the long-lived default
   /// handler before [pushHandler] saves it as `_previous`.
@@ -57,10 +57,8 @@ class NfcService {
   }
 
   /// Starts the underlying nfc_manager session if not already running.
-  /// Idempotent — safe to call multiple times.
-  Future<void> ensureStarted({
-    void Function(Object error)? onError,
-  }) async {
+  /// Idempotent - safe to call multiple times.
+  Future<void> ensureStarted({void Function(Object error)? onError}) async {
     if (_started) return;
     _started = true;
     try {
@@ -80,7 +78,7 @@ class NfcService {
     }
   }
 
-  /// Temporarily replace the handler — call `.restore()` on the returned
+  /// Temporarily replace the handler - call `.restore()` on the returned
   /// token to put the previous handler back. The NFC session itself keeps
   /// running, so any background listener (e.g. the home screen's) is
   /// preserved across modals.

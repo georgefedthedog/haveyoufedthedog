@@ -48,7 +48,7 @@ class _AppRootState extends ConsumerState<AppRoot> {
       scaffoldMessengerKey: rootMessengerKey,
       theme: lightTheme,
       darkTheme: darkTheme,
-      // Follows the phone's light/dark setting — predictable, and the OS
+      // Follows the phone's light/dark setting - predictable, and the OS
       // handles scheduled/auto dark mode better than we ever would.
       themeMode: ThemeMode.system,
       builder: (context, child) =>

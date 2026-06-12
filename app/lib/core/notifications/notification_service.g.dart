@@ -9,7 +9,7 @@ part of 'notification_service.dart';
 String _$notificationServiceHash() =>
     r'399c7a645db475513281fc87cb3849d211b400a8';
 
-/// Sets up notification rendering — Firebase Messaging gives us the
+/// Sets up notification rendering - Firebase Messaging gives us the
 /// payload, `flutter_local_notifications` paints it. Channel id matches
 /// what the push-notifier service sends to.
 ///
@@ -18,7 +18,7 @@ String _$notificationServiceHash() =>
 /// we display via the local-notifications plugin AND invalidate the
 /// completion providers so chips update without a refresh.
 ///
-/// Also observes app lifecycle — on resume (coming back from background)
+/// Also observes app lifecycle - on resume (coming back from background)
 /// we re-invalidate today's completions to catch up on any pushes the OS
 /// delivered while we were paused.
 ///

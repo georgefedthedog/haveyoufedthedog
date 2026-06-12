@@ -1,5 +1,5 @@
 [Unit]
-Description=Have You Fed The Dog — push notification relay
+Description=Have You Fed The Dog - push notification relay
 After=network.target
 
 [Service]

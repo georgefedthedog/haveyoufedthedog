@@ -8,7 +8,7 @@ part 'household_history_controller.g.dart';
 
 /// Recent completions across every subject in the current household. Used
 /// by the History tab. Returns the last `perPage` entries (100 by default
-/// — small households' "everything since forever" fits comfortably).
+/// - small households' "everything since forever" fits comfortably).
 @Riverpod(keepAlive: true)
 class HouseholdHistoryController extends _$HouseholdHistoryController {
   static const _perPage = 100;
@@ -20,7 +20,9 @@ class HouseholdHistoryController extends _$HouseholdHistoryController {
     final current = currentAsync.valueOrNull;
     if (current == null) return const [];
 
-    final result = await pb.collection('completions').getList(
+    final result = await pb
+        .collection('completions')
+        .getList(
           page: 1,
           perPage: _perPage,
           filter: 'subject.household = "${current.id}"',

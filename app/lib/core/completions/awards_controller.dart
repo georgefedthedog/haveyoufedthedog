@@ -11,11 +11,11 @@ import 'stats_controller.dart';
 
 part 'awards_controller.g.dart';
 
-/// One per-member weekly award — Early Bird, Night Owl, etc. A null
+/// One per-member weekly award - Early Bird, Night Owl, etc. A null
 /// [winnerUserId] means nobody qualified this week (no matching
 /// completions, or a tie for first).
 class MemberAward {
-  /// Stable slug, e.g. `early_bird` — useful for show/hide prefs later.
+  /// Stable slug, e.g. `early_bird` - useful for show/hide prefs later.
   final String id;
   final String emoji;
   final String title;
@@ -29,7 +29,7 @@ class MemberAward {
   /// Comeback Kid). Meaningless when [winnerUserId] is null.
   final int value;
 
-  /// Badge artwork — filenames track the award ids.
+  /// Badge artwork - filenames track the award ids.
   String get assetPath => 'assets/awards/badge_$id.png';
 
   const MemberAward({
@@ -43,7 +43,7 @@ class MemberAward {
 }
 
 /// An award handed out by one of the household's own subjects, in its
-/// character's voice — "Kiko's Best Human". Winner is whoever completed
+/// character's voice - "Kiko's Best Human". Winner is whoever completed
 /// the most of that subject's chores this week.
 class CharacterAward {
   final String subjectId;
@@ -69,7 +69,7 @@ class CharacterAward {
 }
 
 /// Everything the Awards tab can hand out for the current Mon→Sun week.
-/// All derived from the cached household history (last 100 completions) —
+/// All derived from the cached household history (last 100 completions) -
 /// no extra fetches.
 class WeeklyAwards {
   final List<MemberAward> memberAwards;
@@ -79,7 +79,7 @@ class WeeklyAwards {
   /// completed.
   final int cleanSweeps;
 
-  /// All seven days swept — only attainable from Sunday evening.
+  /// All seven days swept - only attainable from Sunday evening.
   final bool perfectWeek;
 
   /// Nobody carried more than half the load (needs ≥2 contributors and a
@@ -109,7 +109,7 @@ class WeeklyAwards {
   );
 }
 
-/// Award titles per character id — the voice each subject hands its
+/// Award titles per character id - the voice each subject hands its
 /// weekly prize out in.
 const characterAwardTitles = <String, String>{
   'dog': 'Best Human 🩵',
@@ -134,7 +134,7 @@ const characterAwardThanks = <String, String>{
 WeeklyAwards weeklyAwards(Ref ref) {
   final history =
       ref.watch(householdHistoryControllerProvider).valueOrNull ??
-          const <Completion>[];
+      const <Completion>[];
   final chores =
       ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
   final subjects =
@@ -169,7 +169,7 @@ WeeklyAwards weeklyAwards(Ref ref) {
   }
 
   final memberAwards = <MemberAward>[
-    // Comeback Kid leads — it renders second in the Badges grid, right
+    // Comeback Kid leads - it renders second in the Badges grid, right
     // after the household-wide Team Effort card.
     _comebackKid(thisWeek: tally(thisWeek), lastWeek: tally(lastWeek)),
     _award(
@@ -191,30 +191,35 @@ WeeklyAwards weeklyAwards(Ref ref) {
       emoji: '🎯',
       title: 'On the Dot',
       description: 'Most chores done within 15 minutes of schedule',
-      tallies: tally(thisWeek.where((c) {
-        final chore = c.choreId == null ? null : choreById[c.choreId];
-        if (chore == null) return false;
-        final scheduled = chore.rule.scheduledAt(c.completedAt);
-        return (c.completedAt.difference(scheduled)).abs() <=
-            const Duration(minutes: 15);
-      })),
+      tallies: tally(
+        thisWeek.where((c) {
+          final chore = c.choreId == null ? null : choreById[c.choreId];
+          if (chore == null) return false;
+          final scheduled = chore.rule.scheduledAt(c.completedAt);
+          return (c.completedAt.difference(scheduled)).abs() <=
+              const Duration(minutes: 15);
+        }),
+      ),
     ),
     _award(
       id: 'weekend_warrior',
       emoji: '💪',
       title: 'Weekend Warrior',
       description: 'Most chores done on Saturday and Sunday',
-      tallies: tally(thisWeek.where((c) =>
-          c.completedAt.weekday == DateTime.saturday ||
-          c.completedAt.weekday == DateTime.sunday)),
+      tallies: tally(
+        thisWeek.where(
+          (c) =>
+              c.completedAt.weekday == DateTime.saturday ||
+              c.completedAt.weekday == DateTime.sunday,
+        ),
+      ),
     ),
     _award(
       id: 'tag_champion',
       emoji: '🏷️',
       title: 'Tag Champion',
       description: 'Most chores logged with an NFC tap',
-      tallies: tally(
-          thisWeek.where((c) => c.source == CompletionSource.nfc)),
+      tallies: tally(thisWeek.where((c) => c.source == CompletionSource.nfc)),
     ),
   ];
 
@@ -231,36 +236,38 @@ WeeklyAwards weeklyAwards(Ref ref) {
   final maxShare = weekTally.isEmpty
       ? 0.0
       : weekTally.values.reduce((a, b) => a > b ? a : b) / weekTotal;
-  final teamEffort =
-      weekTotal >= 5 && weekTally.length >= 2 && maxShare <= 0.5;
-  final contributorIds = (weekTally.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value)))
-      .map((e) => e.key)
-      .toList();
+  final teamEffort = weekTotal >= 5 && weekTally.length >= 2 && maxShare <= 0.5;
+  final contributorIds =
+      (weekTally.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+          .map((e) => e.key)
+          .toList();
 
   // ---- Character-voiced awards (one per subject) -------------------------
 
   final characterAwards = <CharacterAward>[];
   for (final s in subjects) {
-    final tallies =
-        tally(thisWeek.where((c) => c.subjectId == s.id));
+    final tallies = tally(thisWeek.where((c) => c.subjectId == s.id));
     final winner = _uniqueMax(tallies);
     final characterId = s.icon ?? 'generic';
-    characterAwards.add(CharacterAward(
-      subjectId: s.id,
-      subjectName: s.name,
-      characterId: characterId,
-      title: characterAwardTitles[characterId] ??
-          characterAwardTitles['generic']!,
-      winnerUserId: winner?.userId,
-      count: winner?.value ?? 0,
-    ));
+    characterAwards.add(
+      CharacterAward(
+        subjectId: s.id,
+        subjectName: s.name,
+        characterId: characterId,
+        title:
+            characterAwardTitles[characterId] ??
+            characterAwardTitles['generic']!,
+        winnerUserId: winner?.userId,
+        count: winner?.value ?? 0,
+      ),
+    );
   }
   // Carousel order: won awards first, then by winning tally (busiest
   // subject leads), then alphabetically so the order is stable.
   characterAwards.sort((a, b) {
-    final wonCompare = (a.winnerUserId == null ? 1 : 0)
-        .compareTo(b.winnerUserId == null ? 1 : 0);
+    final wonCompare = (a.winnerUserId == null ? 1 : 0).compareTo(
+      b.winnerUserId == null ? 1 : 0,
+    );
     if (wonCompare != 0) return wonCompare;
     final countCompare = b.count.compareTo(a.count);
     if (countCompare != 0) return countCompare;
@@ -278,7 +285,7 @@ WeeklyAwards weeklyAwards(Ref ref) {
 }
 
 /// Builds a [MemberAward] from per-user tallies. The winner must be a
-/// **unique** maximum — ties hand out nothing (siblings would riot).
+/// **unique** maximum - ties hand out nothing (siblings would riot).
 MemberAward _award({
   required String id,
   required String emoji,
@@ -297,7 +304,7 @@ MemberAward _award({
   );
 }
 
-/// Comeback Kid — biggest improvement on your own last-week count. Only
+/// Comeback Kid - biggest improvement on your own last-week count. Only
 /// positive deltas qualify; unique max wins.
 MemberAward _comebackKid({
   required Map<String, int> thisWeek,
@@ -336,22 +343,21 @@ int _cleanSweepDays({
     final id = c.choreId;
     if (id == null) continue;
     final d = c.completedAt;
-    doneDays
-        .putIfAbsent(id, () => {})
-        .add(DateTime(d.year, d.month, d.day));
+    doneDays.putIfAbsent(id, () => {}).add(DateTime(d.year, d.month, d.day));
   }
 
   var sweeps = 0;
-  for (var day = window.start;
-      !day.isAfter(today) && day.isBefore(window.end);
-      day = day.add(const Duration(days: 1))) {
+  for (
+    var day = window.start;
+    !day.isAfter(today) && day.isBefore(window.end);
+    day = day.add(const Duration(days: 1))
+  ) {
     final due = [
       for (final c in chores)
         if (c.active && c.rule.isDueOn(day)) c,
     ];
     if (due.isEmpty) continue;
-    final allDone =
-        due.every((c) => doneDays[c.id]?.contains(day) ?? false);
+    final allDone = due.every((c) => doneDays[c.id]?.contains(day) ?? false);
     if (allDone) sweeps += 1;
   }
   return sweeps;

@@ -12,10 +12,10 @@ import 'awards_section.dart';
 import 'completion_timeline.dart';
 import 'leaderboard.dart';
 
-/// History tab — household-wide. Stats cards at the top, leaderboard
+/// History tab - household-wide. Stats cards at the top, leaderboard
 /// underneath, then a filter chip row + the full list of completions.
 class HistoryTabScreen extends ConsumerStatefulWidget {
-  /// Optional `?subject=<id>` query param from the deep-link — e.g. when
+  /// Optional `?subject=<id>` query param from the deep-link - e.g. when
   /// "See all" is tapped on a subject detail screen.
   final String? initialSubjectFilter;
 
@@ -59,9 +59,7 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
           data: (list) {
             final filtered = _subjectFilter == null
                 ? list
-                : list
-                    .where((c) => c.subjectId == _subjectFilter)
-                    .toList();
+                : list.where((c) => c.subjectId == _subjectFilter).toList();
 
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
@@ -76,11 +74,13 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                   BadgesSection(householdId: hh.id),
                   const SizedBox(height: 8),
                 ],
-                Text('All activity',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        )),
+                Text(
+                  'All activity',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 if (subjects.length > 1)
                   Padding(
@@ -99,31 +99,33 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                     ),
                   ),
                 if (filtered.isEmpty)
-                  Builder(builder: (context) {
-                    // When a subject filter is active, its own character
-                    // fronts the empty state; "All" falls back to the
-                    // plant.
-                    String? filteredIcon;
-                    if (_subjectFilter != null) {
-                      for (final s in subjects) {
-                        if (s.id == _subjectFilter) {
-                          filteredIcon = s.icon;
-                          break;
+                  Builder(
+                    builder: (context) {
+                      // When a subject filter is active, its own character
+                      // fronts the empty state; "All" falls back to the
+                      // plant.
+                      String? filteredIcon;
+                      if (_subjectFilter != null) {
+                        for (final s in subjects) {
+                          if (s.id == _subjectFilter) {
+                            filteredIcon = s.icon;
+                            break;
+                          }
                         }
                       }
-                    }
-                    final character = _subjectFilter == null
-                        ? CharacterRegistry.plant
-                        : CharacterRegistry.lookup(filteredIcon);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: EmptyState(
-                        character: character,
-                        title: 'Nothing here yet!',
-                        message: 'Be the first one to complete a chore.',
-                      ),
-                    );
-                  })
+                      final character = _subjectFilter == null
+                          ? CharacterRegistry.plant
+                          : CharacterRegistry.lookup(filteredIcon);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: EmptyState(
+                          character: character,
+                          title: 'Nothing here yet!',
+                          message: 'Be the first one to complete a chore.',
+                        ),
+                      );
+                    },
+                  )
                 else
                   CompletionTimeline(
                     completions: filtered,
@@ -146,8 +148,8 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
   }
 }
 
-/// One compact strip combining the household's quick stats — streak,
-/// completions this week, clean sweeps — as three segments with vertical
+/// One compact strip combining the household's quick stats - streak,
+/// completions this week, clean sweeps - as three segments with vertical
 /// dividers, like a scoreboard.
 class _StatsStrip extends ConsumerWidget {
   const _StatsStrip();
@@ -171,9 +173,11 @@ class _StatsStrip extends ConsumerWidget {
               ),
               const VerticalDivider(width: 1),
               _StatSegment(
-                glyph: Icon(Icons.check_circle,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.tertiary),
+                glyph: Icon(
+                  Icons.check_circle,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
                 value: '${thisWeek.total}',
                 label: 'This week',
               ),

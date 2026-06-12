@@ -143,7 +143,7 @@ class ChoreRow extends ConsumerWidget {
         ? _formatOverdue(now.difference(scheduledToday))
         : chore.rule.humanLabel();
 
-    // "Usually around 7:05 AM" — the household's habit for this chore,
+    // "Usually around 7:05 AM" - the household's habit for this chore,
     // from the mean of past completion times.
     final meanTime = ref.watch(choreMeanTimesProvider)[chore.id];
 
@@ -277,8 +277,7 @@ class ChoreRow extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      ScheduleRule.formatClock(
-                          meanTime.hour, meanTime.minute),
+                      ScheduleRule.formatClock(meanTime.hour, meanTime.minute),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: subLineColor,
                         fontWeight: FontWeight.w600,
@@ -329,18 +328,18 @@ class _TrailingStatus extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    // Done — green tick.
+    // Done - green tick.
     if (isDone) {
       return Icon(Icons.check_circle, size: 28, color: Colors.green.shade700);
     }
 
-    // Overdue — red warning icon. The schedule line below already reads
+    // Overdue - red warning icon. The schedule line below already reads
     // "X minutes overdue" so we don't need to repeat the number here.
     if (isOverdue) {
       return Icon(Icons.error_outline, size: 28, color: Colors.red.shade700);
     }
 
-    // Due within the hour — "Due in N mins/hr" stack.
+    // Due within the hour - "Due in N mins/hr" stack.
     if (isDueSoon && dueIn != null) {
       final m = dueIn!.inMinutes;
       final showHours = m >= 60;
@@ -378,12 +377,12 @@ class _TrailingStatus extends StatelessWidget {
       );
     }
 
-    // Anything later than an hour away — neutral clock icon.
+    // Anything later than an hour away - neutral clock icon.
     return Icon(Icons.schedule, size: 28, color: scheme.onSurfaceVariant);
   }
 }
 
-/// Bottom row of a completed [ChoreRow] — small member avatar, name,
+/// Bottom row of a completed [ChoreRow] - small member avatar, name,
 /// completion timestamp.
 class _CompletedByRow extends ConsumerWidget {
   final Completion completion;
@@ -450,8 +449,10 @@ class _CompletedByRow extends ConsumerWidget {
           ),
         ),
         Text(
-          ScheduleRule.formatClock(completion.completedAt.hour,
-              completion.completedAt.minute),
+          ScheduleRule.formatClock(
+            completion.completedAt.hour,
+            completion.completedAt.minute,
+          ),
           style: theme.textTheme.bodySmall?.copyWith(
             color: Colors.green.shade700,
             fontWeight: FontWeight.w600,
@@ -461,7 +462,7 @@ class _CompletedByRow extends ConsumerWidget {
     );
   }
 
-  // Same stable-from-seed colour helpers as HouseholdMembersRow — extracted
+  // Same stable-from-seed colour helpers as HouseholdMembersRow - extracted
   // here too rather than imported because the row is private to that file.
   Color _colorFromSeed(String seed) {
     var hash = 0;

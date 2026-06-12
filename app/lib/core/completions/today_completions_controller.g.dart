@@ -12,7 +12,7 @@ String _$todayCompletionsControllerHash() =>
 /// Completions logged today (local-day) for the current household.
 /// Backs the green/grey state of the chore-status chips on the home screen.
 ///
-/// Day boundary is *local* — converted to UTC for the server filter, since
+/// Day boundary is *local* - converted to UTC for the server filter, since
 /// PocketBase stores `completed_at` in UTC.
 ///
 /// Copied from [TodayCompletionsController].

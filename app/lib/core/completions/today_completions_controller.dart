@@ -9,7 +9,7 @@ part 'today_completions_controller.g.dart';
 /// Completions logged today (local-day) for the current household.
 /// Backs the green/grey state of the chore-status chips on the home screen.
 ///
-/// Day boundary is *local* — converted to UTC for the server filter, since
+/// Day boundary is *local* - converted to UTC for the server filter, since
 /// PocketBase stores `completed_at` in UTC.
 @Riverpod(keepAlive: true)
 class TodayCompletionsController extends _$TodayCompletionsController {
@@ -28,7 +28,9 @@ class TodayCompletionsController extends _$TodayCompletionsController {
     final startUtc = startLocal.toUtc().toIso8601String();
     final endUtc = endLocal.toUtc().toIso8601String();
 
-    final records = await pb.collection('completions').getFullList(
+    final records = await pb
+        .collection('completions')
+        .getFullList(
           filter:
               'subject.household = "${current.id}" && completed_at >= "$startUtc" && completed_at < "$endUtc"',
           sort: '-completed_at',

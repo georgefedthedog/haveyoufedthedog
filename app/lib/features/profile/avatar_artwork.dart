@@ -7,7 +7,7 @@ import '../../core/profile/avatar.dart';
 ///
 /// When [avatar] is null (user hasn't picked yet, or unknown id): draws a
 /// silhouette ([Avatar.fallbackIcon]) on the same cream circle, so the
-/// shape and footprint stay identical to a picked avatar — swapping one
+/// shape and footprint stay identical to a picked avatar - swapping one
 /// for the other in member rows doesn't cause reflow.
 class AvatarArtwork extends StatelessWidget {
   final Avatar? avatar;
@@ -17,11 +17,7 @@ class AvatarArtwork extends StatelessWidget {
   /// "completed by" line in the celebration overlay.
   final double size;
 
-  const AvatarArtwork({
-    super.key,
-    required this.avatar,
-    this.size = 72,
-  });
+  const AvatarArtwork({super.key, required this.avatar, this.size = 72});
 
   @override
   Widget build(BuildContext context) {

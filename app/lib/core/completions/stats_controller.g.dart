@@ -28,7 +28,7 @@ final currentWeekStatsProvider = AutoDisposeProvider<WeeklyStats>.internal(
 typedef CurrentWeekStatsRef = AutoDisposeProviderRef<WeeklyStats>;
 String _$previousWeekStatsHash() => r'177d9fea5e6ef20500b5607116ac7edb3d373fb8';
 
-/// Stats for last week — used for the week-over-week delta on the History
+/// Stats for last week - used for the week-over-week delta on the History
 /// tab. Same data source.
 ///
 /// Copied from [previousWeekStats].
@@ -51,7 +51,7 @@ String _$choreMeanTimesHash() => r'04202d2dc625df8ffa2300a35466405f7acec45b';
 /// Mean completion time-of-day per chore id, derived from the cached
 /// household history. Uses a circular mean (angles on a 24h clock face)
 /// so a chore done at 11pm and 1am averages to midnight, not noon.
-/// Chores with fewer than two logged completions are omitted — one data
+/// Chores with fewer than two logged completions are omitted - one data
 /// point isn't a habit yet.
 ///
 /// Copied from [choreMeanTimes].

@@ -14,7 +14,7 @@ part 'fcm_token_sync.g.dart';
 ///
 /// - On login: fetches the current token and writes it to the user record.
 /// - On token refresh while signed in: writes the new token.
-/// - On logout: stops listening; the previous token row stays put — clearing
+/// - On logout: stops listening; the previous token row stays put - clearing
 ///   it would need an authenticated PB call we no longer have, and the
 ///   notify hook tolerates stale/missing tokens.
 ///
@@ -38,28 +38,24 @@ class FcmTokenSync extends _$FcmTokenSync {
 
     try {
       final token = await FirebaseMessaging.instance.getToken();
-      // Skip the round-trip if the token already matches — belt and
+      // Skip the round-trip if the token already matches - belt and
       // braces against any rebuild that escapes the equality fix in
       // AuthState.
       if (token != null && token != existingToken) {
-        await pb
-            .collection('users')
-            .update(userId, body: {'fcm_token': token});
+        await pb.collection('users').update(userId, body: {'fcm_token': token});
       }
     } catch (e) {
       debugPrint('FCM token initial save failed: $e');
     }
 
-    _refreshSub = FirebaseMessaging.instance.onTokenRefresh.listen(
-      (token) async {
-        try {
-          await pb
-              .collection('users')
-              .update(userId, body: {'fcm_token': token});
-        } catch (e) {
-          debugPrint('FCM token refresh save failed: $e');
-        }
-      },
-    );
+    _refreshSub = FirebaseMessaging.instance.onTokenRefresh.listen((
+      token,
+    ) async {
+      try {
+        await pb.collection('users').update(userId, body: {'fcm_token': token});
+      } catch (e) {
+        debugPrint('FCM token refresh save failed: $e');
+      }
+    });
   }
 }

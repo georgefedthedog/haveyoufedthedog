@@ -14,7 +14,7 @@ import '../profile/avatar_artwork.dart';
 class Leaderboard extends ConsumerWidget {
   final String householdId;
 
-  /// When true, hide the header — useful when this is being embedded under
+  /// When true, hide the header - useful when this is being embedded under
   /// an existing "Leaderboard" title on the host screen.
   final bool dense;
 
@@ -43,7 +43,7 @@ class Leaderboard extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'No completions this week yet — go log one!',
+                  'No completions this week yet - go log one!',
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ),
@@ -189,7 +189,7 @@ class _PodiumColumn extends StatelessWidget {
     final colors = {1: scheme.primaryContainer, 2: runnerUp, 3: runnerUp};
     final medals = {1: '🥇', 2: '🥈', 3: '🥉'};
     // 1st gets the spotlight (2× base), 2nd a clear bump (1.5×), 3rd stays
-    // at the base — visually echoes the podium block heights below.
+    // at the base - visually echoes the podium block heights below.
     final avatarSizes = {1: 88.0, 2: 66.0, 3: 44.0};
     final avatar = slot.userId == null
         ? null
@@ -201,7 +201,7 @@ class _PodiumColumn extends StatelessWidget {
         AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
         const SizedBox(height: 4),
         Text(
-          slot.userId == null ? '—' : nameOf(slot.userId!),
+          slot.userId == null ? '-' : nameOf(slot.userId!),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,

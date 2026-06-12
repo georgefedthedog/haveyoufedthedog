@@ -13,7 +13,7 @@ String _$fcmTokenSyncHash() => r'031b6d92a612f493e7ed530bf3f8b2de6c7cdb5f';
 ///
 /// - On login: fetches the current token and writes it to the user record.
 /// - On token refresh while signed in: writes the new token.
-/// - On logout: stops listening; the previous token row stays put — clearing
+/// - On logout: stops listening; the previous token row stays put - clearing
 ///   it would need an authenticated PB call we no longer have, and the
 ///   notify hook tolerates stale/missing tokens.
 ///

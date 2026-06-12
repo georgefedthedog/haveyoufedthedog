@@ -9,8 +9,8 @@ live data is sacred.
 1. **Drop the `household_invites` collection.** Admin UI → Collections →
    `household_invites` → ⚙ → "..." → Delete collection.
 2. **Add two fields to `households`:**
-   - `invite_code` — Text, optional, Max 32.
-   - `invites_open` — Boolean, default false.
+   - `invite_code` - Text, optional, Max 32.
+   - `invites_open` - Boolean, default false.
 3. **Add a partial unique index on `households.invite_code`** so two
    households can't share the same code (and empty codes don't conflict):
    - Indexes section → New index → Custom SQL:
@@ -40,15 +40,15 @@ Apply these in the PB admin UI under `Collections → <collection> → API
 rules` for each collection listed.
 
 If PB rejects a rule with a parser error, paste the error in chat and
-we'll iterate — the rule expression language is fiddly and some
+we'll iterate - the rule expression language is fiddly and some
 constructs only work in specific versions.
 
-### 1. `users` — revert to strict (self-only reads)
+### 1. `users` - revert to strict (self-only reads)
 
 ```
 listRule:   id = @request.auth.id
 viewRule:   id = @request.auth.id
-createRule: (empty — signup is public)
+createRule: (empty - signup is public)
 updateRule: id = @request.auth.id
 deleteRule: id = @request.auth.id
 ```

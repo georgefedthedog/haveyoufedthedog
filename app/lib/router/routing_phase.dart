@@ -9,8 +9,8 @@ part 'routing_phase.g.dart';
 
 /// The single signal the router cares about.
 ///
-/// Whatever state changes downstream — household renames, invite codes
-/// rotated, chores added or deleted — the *routing decision* only depends
+/// Whatever state changes downstream - household renames, invite codes
+/// rotated, chores added or deleted - the *routing decision* only depends
 /// on these five buckets. By isolating them in their own enum we can wrap
 /// the router's `refreshListenable` around just this provider; deep state
 /// changes (e.g. an invite_code rotating) won't re-fire the redirect,
@@ -29,7 +29,7 @@ enum RoutingPhase {
   /// none persisted. The picker handles both cases.
   needsToPick,
 
-  /// Fully resolved — the user has a current household. Show app routes.
+  /// Fully resolved - the user has a current household. Show app routes.
   ready,
 }
 
@@ -37,7 +37,7 @@ enum RoutingPhase {
 ///
 /// Returns an enum value, so the router's listener only fires on actual
 /// phase transitions. Adding a chore, renaming a household, etc. won't
-/// produce a different phase — so the router doesn't bounce the user.
+/// produce a different phase - so the router doesn't bounce the user.
 @Riverpod(keepAlive: true)
 RoutingPhase routingPhase(Ref ref) {
   final authAsync = ref.watch(authControllerProvider);
@@ -61,7 +61,7 @@ RoutingPhase routingPhase(Ref ref) {
   //
   // Once we have a non-null household, subsequent `AsyncLoading`
   // transitions (e.g. churn from invalidations) keep the previous value,
-  // so this guard doesn't fire — the phase stays `ready` and the user
+  // so this guard doesn't fire - the phase stays `ready` and the user
   // isn't bounced off whatever screen they're on.
   if (currentAsync.isLoading && currentAsync.valueOrNull == null) {
     return RoutingPhase.loading;

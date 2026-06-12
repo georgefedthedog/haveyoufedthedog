@@ -28,7 +28,7 @@ class AppColors {
   static const streakOrange = Color(0xFFF0884A);
   static const streakOrangeSoft = Color(0xFFFFE5D2);
 
-  // Pastel "stage" backgrounds for character heros — pick by character id.
+  // Pastel "stage" backgrounds for character heros - pick by character id.
   // Soft enough to keep contrast on the violet primary.
   static const stageMint = Color(0xFFD8F0E2);
   static const stageLavender = Color(0xFFE6E2F5);
@@ -113,12 +113,12 @@ const _darkScheme = ColorScheme(
 ThemeData _build(ColorScheme scheme, Brightness brightness) {
   final defaults = ThemeData(brightness: brightness).textTheme;
   final body = GoogleFonts.plusJakartaSansTextTheme(defaults);
-  // Two-font system: a display face carries the big moments — household
-  // name, "All done!", screen titles — while Plus Jakarta Sans stays the
+  // Two-font system: a display face carries the big moments - household
+  // name, "All done!", screen titles - while Plus Jakarta Sans stays the
   // workhorse for body/label/title text.
   final display = GoogleFonts.knewaveTextTheme(defaults);
   // Only the headline tier gets the display face. The display* slots stay
-  // on the body font — Material components use them for big *numerals*
+  // on the body font - Material components use them for big *numerals*
   // (the time picker's hour/minute digits), where brush lettering reads
   // badly.
   final textTheme = body
@@ -127,10 +127,7 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
         headlineMedium: display.headlineMedium,
         headlineSmall: display.headlineSmall,
       )
-      .apply(
-        bodyColor: scheme.onSurface,
-        displayColor: scheme.onSurface,
-      );
+      .apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface);
 
   return ThemeData(
     useMaterial3: true,
@@ -158,16 +155,13 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
       color: scheme.surfaceContainer,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       margin: EdgeInsets.zero,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         shape: const StadiumBorder(),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         textStyle: GoogleFonts.plusJakartaSans(
           fontWeight: FontWeight.w700,
           fontSize: 15,
@@ -177,8 +171,7 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: const StadiumBorder(),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         side: BorderSide(color: scheme.outline),
         textStyle: GoogleFonts.plusJakartaSans(
           fontWeight: FontWeight.w600,
@@ -189,8 +182,7 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         shape: const StadiumBorder(),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         textStyle: GoogleFonts.plusJakartaSans(
           fontWeight: FontWeight.w600,
           fontSize: 14,
@@ -220,8 +212,7 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: scheme.surfaceContainerHigh,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
@@ -258,15 +249,11 @@ ThemeData _build(ColorScheme scheme, Brightness brightness) {
     ),
     listTileTheme: ListTileThemeData(
       iconColor: scheme.onSurfaceVariant,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
   );
 }

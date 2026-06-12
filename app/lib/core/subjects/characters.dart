@@ -6,7 +6,7 @@ import 'character.dart';
 /// [Character.id] is what gets stored on `subjects.icon`.
 ///
 /// Characters that ship the full set of poses (idle, happy, sad, celebrate)
-/// declare them via [Character.available] — that's how `assetFor` knows it
+/// declare them via [Character.available] - that's how `assetFor` knows it
 /// can return a real PNG path. Characters with no art fall back to the
 /// Material icon placeholder via [CharacterArtwork].
 class CharacterRegistry {
@@ -21,15 +21,8 @@ class CharacterRegistry {
     CharacterExpression.sleeping,
   };
 
-  /// Ordered list — picker renders them in this order.
-  static const all = <Character>[
-    dog,
-    cat,
-    plant,
-    bin,
-    fish,
-    generic,
-  ];
+  /// Ordered list - picker renders them in this order.
+  static const all = <Character>[dog, cat, plant, bin, fish, generic];
 
   static const dog = Character(
     id: 'dog',

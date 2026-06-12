@@ -9,7 +9,7 @@ import '../../widgets/labeled_field.dart';
 import '../../widgets/password_field.dart';
 
 /// The email + password fields, the submit button, and the in-progress state.
-/// No layout chrome — the screen wraps it in a Scaffold.
+/// No layout chrome - the screen wraps it in a Scaffold.
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
 
@@ -34,17 +34,16 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _busy = true);
     try {
-      await ref.read(authControllerProvider.notifier).login(
-            email: _emailCtrl.text.trim(),
-            password: _passwordCtrl.text,
-          );
+      await ref
+          .read(authControllerProvider.notifier)
+          .login(email: _emailCtrl.text.trim(), password: _passwordCtrl.text);
       // Router will redirect to /home automatically because auth state changed.
     } on ClientException catch (e) {
       final msg = e.response['message'] as String? ?? 'Login failed';
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text(msg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
       }
     } catch (e) {
       if (mounted) {

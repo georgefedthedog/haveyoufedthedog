@@ -38,7 +38,7 @@ class _SystemHash {
 ///     chore doesn't reset its own streak on Wednesday.
 ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
 ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-///     grace pass — an outstanding chore due today doesn't break the
+///     grace pass - an outstanding chore due today doesn't break the
 ///     streak you carried in from earlier days.
 ///
 /// We bound the walk to the earliest completion in the recent list so we
@@ -46,7 +46,7 @@ class _SystemHash {
 /// any completion at all, the streak is 0.
 ///
 /// Derived from [recentCompletionsControllerProvider] and
-/// [choresControllerProvider] — no extra fetch.
+/// [choresControllerProvider] - no extra fetch.
 ///
 /// Copied from [subjectStreak].
 @ProviderFor(subjectStreak)
@@ -61,7 +61,7 @@ const subjectStreakProvider = SubjectStreakFamily();
 ///     chore doesn't reset its own streak on Wednesday.
 ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
 ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-///     grace pass — an outstanding chore due today doesn't break the
+///     grace pass - an outstanding chore due today doesn't break the
 ///     streak you carried in from earlier days.
 ///
 /// We bound the walk to the earliest completion in the recent list so we
@@ -69,7 +69,7 @@ const subjectStreakProvider = SubjectStreakFamily();
 /// any completion at all, the streak is 0.
 ///
 /// Derived from [recentCompletionsControllerProvider] and
-/// [choresControllerProvider] — no extra fetch.
+/// [choresControllerProvider] - no extra fetch.
 ///
 /// Copied from [subjectStreak].
 class SubjectStreakFamily extends Family<int> {
@@ -82,7 +82,7 @@ class SubjectStreakFamily extends Family<int> {
   ///     chore doesn't reset its own streak on Wednesday.
   ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
   ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-  ///     grace pass — an outstanding chore due today doesn't break the
+  ///     grace pass - an outstanding chore due today doesn't break the
   ///     streak you carried in from earlier days.
   ///
   /// We bound the walk to the earliest completion in the recent list so we
@@ -90,7 +90,7 @@ class SubjectStreakFamily extends Family<int> {
   /// any completion at all, the streak is 0.
   ///
   /// Derived from [recentCompletionsControllerProvider] and
-  /// [choresControllerProvider] — no extra fetch.
+  /// [choresControllerProvider] - no extra fetch.
   ///
   /// Copied from [subjectStreak].
   const SubjectStreakFamily();
@@ -104,7 +104,7 @@ class SubjectStreakFamily extends Family<int> {
   ///     chore doesn't reset its own streak on Wednesday.
   ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
   ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-  ///     grace pass — an outstanding chore due today doesn't break the
+  ///     grace pass - an outstanding chore due today doesn't break the
   ///     streak you carried in from earlier days.
   ///
   /// We bound the walk to the earliest completion in the recent list so we
@@ -112,7 +112,7 @@ class SubjectStreakFamily extends Family<int> {
   /// any completion at all, the streak is 0.
   ///
   /// Derived from [recentCompletionsControllerProvider] and
-  /// [choresControllerProvider] — no extra fetch.
+  /// [choresControllerProvider] - no extra fetch.
   ///
   /// Copied from [subjectStreak].
   SubjectStreakProvider call(String subjectId) {
@@ -150,7 +150,7 @@ class SubjectStreakFamily extends Family<int> {
 ///     chore doesn't reset its own streak on Wednesday.
 ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
 ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-///     grace pass — an outstanding chore due today doesn't break the
+///     grace pass - an outstanding chore due today doesn't break the
 ///     streak you carried in from earlier days.
 ///
 /// We bound the walk to the earliest completion in the recent list so we
@@ -158,7 +158,7 @@ class SubjectStreakFamily extends Family<int> {
 /// any completion at all, the streak is 0.
 ///
 /// Derived from [recentCompletionsControllerProvider] and
-/// [choresControllerProvider] — no extra fetch.
+/// [choresControllerProvider] - no extra fetch.
 ///
 /// Copied from [subjectStreak].
 class SubjectStreakProvider extends AutoDisposeProvider<int> {
@@ -171,7 +171,7 @@ class SubjectStreakProvider extends AutoDisposeProvider<int> {
   ///     chore doesn't reset its own streak on Wednesday.
   ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
   ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-  ///     grace pass — an outstanding chore due today doesn't break the
+  ///     grace pass - an outstanding chore due today doesn't break the
   ///     streak you carried in from earlier days.
   ///
   /// We bound the walk to the earliest completion in the recent list so we
@@ -179,7 +179,7 @@ class SubjectStreakProvider extends AutoDisposeProvider<int> {
   /// any completion at all, the streak is 0.
   ///
   /// Derived from [recentCompletionsControllerProvider] and
-  /// [choresControllerProvider] — no extra fetch.
+  /// [choresControllerProvider] - no extra fetch.
   ///
   /// Copied from [subjectStreak].
   SubjectStreakProvider(String subjectId)

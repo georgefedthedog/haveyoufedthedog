@@ -21,7 +21,7 @@ import '../../widgets/dashed_circle_painter.dart';
 import '../chores/chore_row.dart';
 import '../history/completion_timeline.dart';
 
-/// Subject detail — a large character hero up top, status message, today's
+/// Subject detail - a large character hero up top, status message, today's
 /// chores as wide rows, all chores, recent history.
 class SubjectDetailScreen extends ConsumerWidget {
   final String subjectId;
@@ -124,8 +124,8 @@ class _Hero extends ConsumerWidget {
 
     final streak = ref.watch(subjectStreakProvider(subject.id));
 
-    // Gentle diagonal shading on the stage — darker toward the bottom-left,
-    // lighter toward the top-right — derived from the stage colour so it
+    // Gentle diagonal shading on the stage - darker toward the bottom-left,
+    // lighter toward the top-right - derived from the stage colour so it
     // works for every character and both themes.
     final stageHsl = HSLColor.fromColor(character.stageColor);
     final stageLight = stageHsl
@@ -157,84 +157,84 @@ class _Hero extends ConsumerWidget {
                     ),
                   ),
                 ),
-              // Full-width so the column centres in the card — inside a
+              // Full-width so the column centres in the card - inside a
               // Stack it would otherwise shrink-wrap and sit left.
               SizedBox(
                 width: double.infinity,
                 child: Column(
                   children: [
-          // Character floats on a circular stage over the page surface —
-          // the stage colour stays in the circle rather than washing the
-          // whole header.
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.push(Routes.subjectEdit(subject.id)),
-            child: Stack(
-              // Pins the pencil badge onto the ellipse's bottom-right rim.
-              alignment: const Alignment(0.7, 0.88),
-              children: [
-                Container(
-                  width: 220,
-                  height: 260,
-                  decoration: BoxDecoration(
-                    // Ellipse — a circle's border radius stretched to the
-                    // box's unequal width/height. Taller than wide, like
-                    // an upright egg.
-                    borderRadius: const BorderRadius.all(
-                      Radius.elliptical(110, 130),
+                    // Character floats on a circular stage over the page surface -
+                    // the stage colour stays in the circle rather than washing the
+                    // whole header.
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => context.push(Routes.subjectEdit(subject.id)),
+                      child: Stack(
+                        // Pins the pencil badge onto the ellipse's bottom-right rim.
+                        alignment: const Alignment(0.7, 0.88),
+                        children: [
+                          Container(
+                            width: 220,
+                            height: 260,
+                            decoration: BoxDecoration(
+                              // Ellipse - a circle's border radius stretched to the
+                              // box's unequal width/height. Taller than wide, like
+                              // an upright egg.
+                              borderRadius: const BorderRadius.all(
+                                Radius.elliptical(110, 130),
+                              ),
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomLeft,
+                                end: Alignment.topRight,
+                                colors: [stageDark, stageLight],
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(12),
+                            child: CharacterArtwork(
+                              character: character,
+                              expression: mood.expression,
+                              stage: false,
+                              iconSize: 150,
+                            ),
+                          ),
+                          // Small pencil badge on the circle's edge. White ring
+                          // gives it a sticker feel against any stage colour.
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: scheme.primary,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            padding: const EdgeInsets.all(6),
+                            child: Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: scheme.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomLeft,
-                      end: Alignment.topRight,
-                      colors: [stageDark, stageLight],
+                    if (streak >= 3) ...[
+                      const SizedBox(height: 12),
+                      _StreakPill(streak: streak),
+                    ],
+                    const SizedBox(height: 4),
+                    Text(
+                      line.title,
+                      textAlign: TextAlign.center,
+                      // headlineMedium carries the display font (Knewave) - one
+                      // step up from the household name on home.
+                      style: theme.textTheme.headlineMedium,
                     ),
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: CharacterArtwork(
-                    character: character,
-                    expression: mood.expression,
-                    stage: false,
-                    iconSize: 150,
-                  ),
-                ),
-                // Small pencil badge on the circle's edge. White ring
-                // gives it a sticker feel against any stage colour.
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: scheme.primary,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  padding: const EdgeInsets.all(6),
-                  child: Icon(
-                    Icons.edit,
-                    size: 16,
-                    color: scheme.onPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (streak >= 3) ...[
-            const SizedBox(height: 12),
-            _StreakPill(streak: streak),
-          ],
-          const SizedBox(height: 4),
-          Text(
-            line.title,
-            textAlign: TextAlign.center,
-            // headlineMedium carries the display font (Knewave) — one
-            // step up from the household name on home.
-            style: theme.textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            line.body,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
+                    const SizedBox(height: 4),
+                    Text(
+                      line.body,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -320,8 +320,8 @@ class _TodaySection extends ConsumerWidget {
           'Tap to complete',
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 12),
         if (dueToday.isEmpty)
@@ -354,7 +354,7 @@ class _ChoresSection extends ConsumerStatefulWidget {
 }
 
 class _ChoresSectionState extends ConsumerState<_ChoresSection> {
-  /// True while a chore chip is being long-press dragged — the Add slot
+  /// True while a chore chip is being long-press dragged - the Add slot
   /// morphs into the red Remove drop target for the duration.
   bool _dragging = false;
 
@@ -389,10 +389,9 @@ class _ChoresSectionState extends ConsumerState<_ChoresSection> {
       await ref.read(choreActionsProvider).deleteChore(chore.id);
     } catch (e) {
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not delete: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+      );
     }
   }
 
@@ -475,7 +474,7 @@ class _ChoreChip extends StatelessWidget {
       data: chore,
       onDragStarted: () => onDragChanged(true),
       onDragEnd: (_) => onDragChanged(false),
-      // The lifted copy swaps its pencil badge for a red cross — you're
+      // The lifted copy swaps its pencil badge for a red cross - you're
       // carrying it toward the bin, not editing it.
       feedback: Material(
         color: Colors.transparent,
@@ -490,76 +489,79 @@ class _ChoreChip extends StatelessWidget {
     );
   }
 
-  Widget _chipBody(ThemeData theme, ColorScheme scheme,
-      {bool removing = false}) {
+  Widget _chipBody(
+    ThemeData theme,
+    ColorScheme scheme, {
+    bool removing = false,
+  }) {
     return SizedBox(
-        width: 80,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
+      width: 80,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.primaryContainer,
+                ),
+                child: Icon(
+                  Icons.schedule,
+                  size: 24,
+                  color: scheme.onPrimaryContainer,
+                ),
+              ),
+              Positioned(
+                right: -2,
+                bottom: -2,
+                child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: scheme.primaryContainer,
+                    color: removing ? Colors.red : scheme.primary,
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
+                  padding: const EdgeInsets.all(4),
                   child: Icon(
-                    Icons.schedule,
-                    size: 24,
-                    color: scheme.onPrimaryContainer,
+                    removing ? Icons.close : Icons.edit,
+                    size: 11,
+                    color: removing ? Colors.white : scheme.onPrimary,
                   ),
                 ),
-                Positioned(
-                  right: -2,
-                  bottom: -2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: removing ? Colors.red : scheme.primary,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: Icon(
-                      removing ? Icons.close : Icons.edit,
-                      size: 11,
-                      color: removing ? Colors.white : scheme.onPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              chore.name,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
               ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            chore.name,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 2),
-            Text(
-              chore.rule.humanLabel(),
-              textAlign: TextAlign.center,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            chore.rule.humanLabel(),
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: scheme.onSurfaceVariant,
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 /// Drop target the Add slot morphs into while a chore chip is being
-/// dragged — dashed red circle with a bin, fills solid on hover. Dropping
+/// dragged - dashed red circle with a bin, fills solid on hover. Dropping
 /// hands the chore to [onDrop] (which confirms before deleting).
 class _RemoveChoreChip extends StatelessWidget {
   final ValueChanged<Chore> onDrop;
@@ -609,7 +611,7 @@ class _RemoveChoreChip extends StatelessWidget {
   }
 }
 
-/// Trailing "Add chore" affordance — dashed circle with a plus, styled
+/// Trailing "Add chore" affordance - dashed circle with a plus, styled
 /// like the chore chips so it reads as the next empty slot.
 class _AddChoreChip extends StatelessWidget {
   final VoidCallback onTap;
@@ -668,10 +670,9 @@ class _HistorySection extends ConsumerWidget {
         Text(
           'Completed chores',
           textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w800),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         Center(
           child: TextButton(

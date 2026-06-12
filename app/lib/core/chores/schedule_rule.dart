@@ -13,7 +13,7 @@ enum ScheduleType {
   String get wire => name;
 }
 
-/// The recurrence rule for a chore — when it's due. Separated from
+/// The recurrence rule for a chore - when it's due. Separated from
 /// [Chore] so the same rule shape can be used by edit screens and future
 /// notification scheduling without dragging the rest of a chore around.
 class ScheduleRule {
@@ -41,13 +41,12 @@ class ScheduleRule {
     required int hour,
     required int minute,
     required int weekdayMask,
-  }) =>
-      ScheduleRule(
-        type: ScheduleType.weekly,
-        hour: hour,
-        minute: minute,
-        weekdayMask: weekdayMask,
-      );
+  }) => ScheduleRule(
+    type: ScheduleType.weekly,
+    hour: hour,
+    minute: minute,
+    weekdayMask: weekdayMask,
+  );
 
   TimeOfDay get timeOfDay => TimeOfDay(hour: hour, minute: minute);
 
@@ -76,7 +75,7 @@ class ScheduleRule {
     return '${days.join(", ")} at $tStr';
   }
 
-  /// "6:30 pm" — the one clock format for schedule and habit lines, so
+  /// "6:30 pm" - the one clock format for schedule and habit lines, so
   /// stacked times read consistently.
   static String formatClock(int h, int m) {
     final period = h >= 12 ? 'pm' : 'am';

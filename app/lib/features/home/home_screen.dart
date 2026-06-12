@@ -28,8 +28,8 @@ import '../history/leaderboard.dart';
 import '../household/picture_artwork.dart';
 import 'household_members_row.dart';
 
-/// Home screen — household picture, members row, today's chores list,
-/// and leaderboard. The whole body scrolls as one — the picture is part
+/// Home screen - household picture, members row, today's chores list,
+/// and leaderboard. The whole body scrolls as one - the picture is part
 /// of the scrollable content, not a fixed header.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -45,7 +45,7 @@ class HomeScreen extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      // Picture extends behind the transparent status bar — the system
+      // Picture extends behind the transparent status bar - the system
       // bar text (clock / battery) floats over the sky portion of the
       // image. Icon brightness follows the theme: evening/night runs the
       // app in dark mode over a dusky sky, where dark icons would vanish.
@@ -63,7 +63,7 @@ class HomeScreen extends ConsumerWidget {
               ref.read(choresControllerProvider.notifier).refresh(),
               ref.read(todayCompletionsControllerProvider.notifier).refresh(),
               // Members (avatars) + history (leaderboard) sync from other
-              // devices — the refresh people pull for most.
+              // devices - the refresh people pull for most.
               ref.read(householdHistoryControllerProvider.notifier).refresh(),
               if (currentId != null)
                 ref
@@ -87,7 +87,7 @@ class HomeScreen extends ConsumerWidget {
                       householdName,
                       textAlign: TextAlign.center,
                       // Same display slot as the subject hero's message
-                      // title — keeps the two hero surfaces consistent.
+                      // title - keeps the two hero surfaces consistent.
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
@@ -120,7 +120,7 @@ class HomeScreen extends ConsumerWidget {
                       // A different friend fronts the empty state on each
                       // load/refresh. Seeding from the list instance keeps
                       // the pick stable across unrelated rebuilds (theme
-                      // flips, other providers) — it only reshuffles when
+                      // flips, other providers) - it only reshuffles when
                       // the controller actually emits a fresh fetch.
                       final candidates = [
                         for (final c in CharacterRegistry.all)
@@ -239,13 +239,11 @@ class HomeScreen extends ConsumerWidget {
                                 child: Text(
                                   'Tap to complete',
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
+                                  style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                 ),
                               ),
@@ -277,7 +275,7 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
       // FAB now lives on the bottom-nav shell, central-docked over the
-      // notch — handled by `RootNavShell`.
+      // notch - handled by `RootNavShell`.
     );
   }
 }
@@ -307,7 +305,7 @@ class _HouseHero extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            // Soft dark gradient at the top — helps the status-bar text
+            // Soft dark gradient at the top - helps the status-bar text
             // (clock / battery) read on bright sky variants.
             Positioned(
               top: 0,
@@ -329,7 +327,7 @@ class _HouseHero extends StatelessWidget {
                 ),
               ),
             ),
-            // Two diagonal wedges at the bottom corners — each is cream
+            // Two diagonal wedges at the bottom corners - each is cream
             // at its own bottom corner, fading to transparent toward the
             // opposite top corner. Drawn FIRST so the vertical strip
             // below paints over the bottom edge cleanly.
@@ -448,12 +446,12 @@ class _TodaySummaryCard extends StatelessWidget {
     final title = allDone
         ? 'All chores done today!'
         : done == 0
-            ? "Let's get started!"
-            : 'Good progress. Keep it up!';
+        ? "Let's get started!"
+        : 'Good progress. Keep it up!';
     final subtitle = '$done of $total completed';
 
     // Fixed lavender pair (rather than scheme.primaryContainer) so the
-    // card reads as the same soft purple in light AND dark mode — matches
+    // card reads as the same soft purple in light AND dark mode - matches
     // the celebration-style mockup.
     const cardColor = AppColors.violetSoft;
     const inkColor = AppColors.onVioletSoft;
@@ -468,77 +466,79 @@ class _TodaySummaryCard extends StatelessWidget {
           width: 1.5,
         ),
       ),
-      // A finished day is worth celebrating — confetti + cup overlay,
+      // A finished day is worth celebrating - confetti + cup overlay,
       // which then lands on the Awards tab.
       child: InkWell(
         onTap: allDone ? () => context.push(Routes.dayCelebration) : null,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
-        child: Row(
-          children: [
-            // The day's journey in one glyph: flag at the start line,
-            // a growing shoot once underway, the trophy when done.
-            if (allDone)
-              SizedBox(
-                width: 64,
-                height: 64,
-                child: Image.asset(
-                  'assets/awards/all_done_cup.png',
-                  fit: BoxFit.contain,
-                ),
-              )
-            else
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.violet.withValues(alpha: 0.12),
-                ),
-                child: Center(
-                  child: Text(
-                    done == 0 ? '💤' : '🐾',
-                    style: const TextStyle(fontSize: 28),
+          child: Row(
+            children: [
+              // The day's journey in one glyph: flag at the start line,
+              // a growing shoot once underway, the trophy when done.
+              if (allDone)
+                SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: Image.asset(
+                    'assets/awards/all_done_cup.png',
+                    fit: BoxFit.contain,
                   ),
+                )
+              else
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.violet.withValues(alpha: 0.12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      done == 0 ? '💤' : '🐾',
+                      style: const TextStyle(fontSize: 28),
+                    ),
+                  ),
+                ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: inkColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: inkColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: fraction,
+                        minHeight: 8,
+                        backgroundColor: AppColors.violet.withValues(
+                          alpha: 0.15,
+                        ),
+                        valueColor: const AlwaysStoppedAnimation(
+                          AppColors.violet,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: inkColor,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: inkColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(
-                      value: fraction,
-                      minHeight: 8,
-                      backgroundColor:
-                          AppColors.violet.withValues(alpha: 0.15),
-                      valueColor:
-                          const AlwaysStoppedAnimation(AppColors.violet),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
           ),
         ),
       ),

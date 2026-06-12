@@ -9,10 +9,10 @@ record is created.
 
 ## Files
 
-- `index.js` — the service itself
-- `package.json` — deps (express, firebase-admin)
-- `push-notifier.service` — systemd unit
-- `firebase-service-account.json` — Firebase Admin credentials. **Gitignored.**
+- `index.js` - the service itself
+- `package.json` - deps (express, firebase-admin)
+- `push-notifier.service` - systemd unit
+- `firebase-service-account.json` - Firebase Admin credentials. **Gitignored.**
   Place it on the server at `/opt/haveyoufedthedog/push-notifier/firebase-service-account.json`.
 
 ## Deploy

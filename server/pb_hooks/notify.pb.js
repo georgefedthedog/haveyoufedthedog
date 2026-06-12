@@ -3,16 +3,16 @@
 /// state catches up without a manual refresh.
 ///
 /// The shared `notifyHousehold` logic lives in _notify_helper.js and is
-/// `require`d inside each handler — PB runs each handler in its own fresh
+/// `require`d inside each handler - PB runs each handler in its own fresh
 /// Goja runtime, so file-level declarations don't carry over.
 
-onRecordAfterCreateSuccess((e) => {
+onRecordAfterCreateSuccess(e => {
   if (!e.record) return;
   const { notifyHousehold } = require(`${__hooks}/_notify_helper.js`);
   notifyHousehold(e.record, "created");
 }, "completions");
 
-onRecordAfterDeleteSuccess((e) => {
+onRecordAfterDeleteSuccess(e => {
   if (!e.record) return;
   const { notifyHousehold } = require(`${__hooks}/_notify_helper.js`);
   notifyHousehold(e.record, "undone");

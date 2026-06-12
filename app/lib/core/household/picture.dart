@@ -5,7 +5,7 @@ import '../../features/home/time_of_day_bucket.dart';
 /// One of the curated household pictures a user can choose for their
 /// household. The selected [id] is what we store on `households.picture`.
 ///
-/// Each picture ships five PNG variants — one per [TimeOfDayBucket] —
+/// Each picture ships five PNG variants - one per [TimeOfDayBucket] -
 /// living at `assets/households/<id>/<bucket>.png`. Resolve a path with
 /// [assetPathFor].
 @immutable

@@ -3,17 +3,13 @@ import 'package:flutter/material.dart';
 import '../../core/chores/weekdays.dart';
 
 /// Row of 7 toggleable day chips (Mon→Sun). State is a bitmask using
-/// [Weekdays.bits] — bit 0 = Mon, bit 6 = Sun, matching
+/// [Weekdays.bits] - bit 0 = Mon, bit 6 = Sun, matching
 /// `1 << (DateTime.weekday - 1)`.
 class WeekdayPicker extends StatelessWidget {
   final int mask;
   final ValueChanged<int> onChanged;
 
-  const WeekdayPicker({
-    super.key,
-    required this.mask,
-    required this.onChanged,
-  });
+  const WeekdayPicker({super.key, required this.mask, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +21,7 @@ class WeekdayPicker extends StatelessWidget {
           FilterChip(
             label: Text(Weekdays.labels[i]),
             selected: (mask & Weekdays.bits[i]) != 0,
-            // No checkmark — it widens the chip on selection and makes
+            // No checkmark - it widens the chip on selection and makes
             // the whole row reflow. The fill colour change is enough.
             showCheckmark: false,
             onSelected: (s) => onChanged(

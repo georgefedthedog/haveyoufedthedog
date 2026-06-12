@@ -69,9 +69,9 @@ class CompletionTimeline extends ConsumerWidget {
     final chores =
         ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
     final subjects =
-        ref.watch(subjectsControllerProvider).valueOrNull ??
-            const <Subject>[];
-    final members = ref
+        ref.watch(subjectsControllerProvider).valueOrNull ?? const <Subject>[];
+    final members =
+        ref
             .watch(householdMembersControllerProvider(householdId))
             .valueOrNull ??
         const <HouseholdMember>[];
@@ -158,15 +158,18 @@ class _TimelineRow extends StatelessWidget {
     final scheme = theme.colorScheme;
     final character = CharacterRegistry.lookup(subject?.icon);
     final time = ScheduleRule.formatClock(
-        completion.completedAt.hour, completion.completedAt.minute);
+      completion.completedAt.hour,
+      completion.completedAt.minute,
+    );
     final who = isMe ? 'You' : (member?.displayName ?? 'Someone');
 
     // Chore + who + source, hugging the spine: right-aligned when it
     // sits on the left, left-aligned when on the right.
     final details = Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment:
-          isMe ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      crossAxisAlignment: isMe
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.end,
       children: [
         Text(
           chore?.name ?? 'Logged',
@@ -217,7 +220,7 @@ class _TimelineRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Left half — other people's completions live here.
+          // Left half - other people's completions live here.
           Expanded(
             child: isMe
                 ? const SizedBox.shrink()
@@ -228,7 +231,7 @@ class _TimelineRow extends StatelessWidget {
                   ),
           ),
           // The spine: character node with the time beneath it, line
-          // segments running out the top and bottom — skipped at a
+          // segments running out the top and bottom - skipped at a
           // group's first/last so neighbouring rows meet seamlessly.
           SizedBox(
             width: 56,
@@ -265,7 +268,7 @@ class _TimelineRow extends StatelessWidget {
               ],
             ),
           ),
-          // Right half — the signed-in user's completions live here.
+          // Right half - the signed-in user's completions live here.
           Expanded(
             child: !isMe
                 ? const SizedBox.shrink()

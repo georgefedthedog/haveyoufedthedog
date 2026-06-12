@@ -7,7 +7,7 @@ import '../router/routes.dart';
 /// of a central + FAB. The FAB is docked in a notch on the bottom bar and
 /// pushes the new-subject flow.
 ///
-/// Wired by `app_router.dart` via `StatefulShellRoute.indexedStack` — each
+/// Wired by `app_router.dart` via `StatefulShellRoute.indexedStack` - each
 /// branch's root route renders inside [child]; pushing onto a branch
 /// (`context.push('/subject/123')`) replaces the shell entirely until the
 /// pushed route is popped.
@@ -18,15 +18,16 @@ class RootNavShell extends StatelessWidget {
   static const _items = <_NavItem>[
     _NavItem(label: 'Home', icon: Icons.home_outlined, path: Routes.home),
     _NavItem(
-        label: 'Friends',
-        icon: Icons.pets_outlined,
-        path: Routes.subjectsTab),
+      label: 'Friends',
+      icon: Icons.pets_outlined,
+      path: Routes.subjectsTab,
+    ),
     _NavItem(
-        label: 'Awards',
-        icon: Icons.emoji_events_outlined,
-        path: Routes.historyTab),
-    _NavItem(
-        label: 'You', icon: Icons.person_outline, path: Routes.youTab),
+      label: 'Awards',
+      icon: Icons.emoji_events_outlined,
+      path: Routes.historyTab,
+    ),
+    _NavItem(label: 'You', icon: Icons.person_outline, path: Routes.youTab),
   ];
 
   void _goBranch(int index) {
@@ -61,11 +62,7 @@ class _NavItem {
   final String label;
   final IconData icon;
   final String path;
-  const _NavItem({
-    required this.label,
-    required this.icon,
-    required this.path,
-  });
+  const _NavItem({required this.label, required this.icon, required this.path});
 }
 
 class _BottomBar extends StatelessWidget {

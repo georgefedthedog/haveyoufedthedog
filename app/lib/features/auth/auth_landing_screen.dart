@@ -25,7 +25,7 @@ class _AuthLandingScreenState extends State<AuthLandingScreen> {
     // Background gradient comes from the app-wide AppBackdrop.
     return Scaffold(
       body: Stack(
-          children: [
+        children: [
           const Positioned.fill(
             child: IgnorePointer(child: _PawPrintBackdrop()),
           ),
@@ -43,72 +43,71 @@ class _AuthLandingScreenState extends State<AuthLandingScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                    Image.asset(
-                      'assets/general/logo.png',
-                      height: 280,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => const SizedBox(height: 40),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _showLogin ? 'Welcome back!' : 'Join the family',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: scheme.primary,
-                        fontWeight: FontWeight.w800,
+                      Image.asset(
+                        'assets/general/logo.png',
+                        height: 280,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => const SizedBox(height: 40),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _showLogin
-                          ? 'Log in to keep your pup happy and well-fed.'
-                          : 'Sign up and never wonder who fed '
-                              'the dog again.',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
+                      const SizedBox(height: 16),
+                      Text(
+                        _showLogin ? 'Welcome back!' : 'Join the family',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: scheme.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    if (_showLogin) const LoginForm() else const SignupForm(),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _showLogin
-                              ? "Don't have an account?"
-                              : 'Already have an account?',
-                          style: theme.textTheme.bodyMedium,
+                      const SizedBox(height: 6),
+                      Text(
+                        _showLogin
+                            ? 'Log in to keep your pup happy and well-fed.'
+                            : 'Sign up and never wonder who fed '
+                                  'the dog again.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
                         ),
-                        TextButton(
-                          onPressed: () =>
-                              setState(() => _showLogin = !_showLogin),
-                          child: Text(_showLogin ? 'Sign up' : 'Log in'),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 24),
+                      if (_showLogin) const LoginForm() else const SignupForm(),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _showLogin
+                                ? "Don't have an account?"
+                                : 'Already have an account?',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _showLogin = !_showLogin),
+                            child: Text(_showLogin ? 'Sign up' : 'Log in'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          ],
-        ),
+        ],
+      ),
     );
   }
 }
 
-/// Faint paw prints scattered around the page edges — pure [Icons.pets]
+/// Faint paw prints scattered around the page edges - pure [Icons.pets]
 /// at low opacity, no asset needed.
 class _PawPrintBackdrop extends StatelessWidget {
   const _PawPrintBackdrop();
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        Theme.of(context).colorScheme.primary.withValues(alpha: 0.06);
+    final color = Theme.of(context).colorScheme.primary.withValues(alpha: 0.06);
     // (alignment x, alignment y, size, rotation in radians)
     const paws = <(double, double, double, double)>[
       (-0.9, -0.9, 64, -0.4),

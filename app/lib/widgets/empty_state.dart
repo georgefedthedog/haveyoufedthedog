@@ -6,7 +6,7 @@ import '../core/subjects/character_artwork.dart';
 /// Generic empty-state panel.
 ///
 /// Pass either a [Material icon][icon] *or* a [character] to use as the
-/// hero glyph — the character variant pairs the artwork with its stage
+/// hero glyph - the character variant pairs the artwork with its stage
 /// colour for a friendlier surface (used on home, Subjects, History, etc).
 class EmptyState extends StatelessWidget {
   final IconData? icon;
@@ -24,8 +24,10 @@ class EmptyState extends StatelessWidget {
     this.message,
     this.actionLabel,
     this.onAction,
-  }) : assert(icon != null || character != null,
-            'EmptyState needs either an icon or a character');
+  }) : assert(
+         icon != null || character != null,
+         'EmptyState needs either an icon or a character',
+       );
 
   @override
   Widget build(BuildContext context) {

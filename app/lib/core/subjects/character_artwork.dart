@@ -7,7 +7,7 @@ import 'character.dart';
 /// When the character declares at least one expression in
 /// [Character.available], we draw [Image.asset] from its
 /// `assets/subjects/<id>/<expression>.png` path. If the bundled file is
-/// missing — or the character has no art at all — we fall back to the
+/// missing - or the character has no art at all - we fall back to the
 /// character's [Character.fallbackIcon] centred on the coloured stage.
 class CharacterArtwork extends StatelessWidget {
   final Character character;
@@ -45,8 +45,8 @@ class CharacterArtwork extends StatelessWidget {
 
     if (!stage) return Center(child: content);
 
-    // Gentle diagonal shading — darker toward the bottom-left, lighter
-    // toward the top-right — derived from the stage colour so every
+    // Gentle diagonal shading - darker toward the bottom-left, lighter
+    // toward the top-right - derived from the stage colour so every
     // character gets a matching lift. Same recipe as the subject hero
     // egg and the Friends cards.
     final stageHsl = HSLColor.fromColor(character.stageColor);
@@ -77,7 +77,8 @@ class CharacterArtwork extends StatelessWidget {
     final color = _iconColorOn(character.stageColor);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final size = iconSize ??
+        final size =
+            iconSize ??
             (constraints.biggest.shortestSide.isFinite
                 ? constraints.biggest.shortestSide * 0.55
                 : 48.0);
@@ -86,7 +87,7 @@ class CharacterArtwork extends StatelessWidget {
     );
   }
 
-  // Stage colours are pastel — use a darker ink so the icon reads.
+  // Stage colours are pastel - use a darker ink so the icon reads.
   Color _iconColorOn(Color stage) {
     // Mix the stage colour toward black: rough heuristic that picks a
     // legible foreground without needing per-character configuration.

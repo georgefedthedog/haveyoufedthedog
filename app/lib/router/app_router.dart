@@ -50,9 +50,8 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.forgotPassword,
-        builder: (context, state) => ForgotPasswordScreen(
-          initialEmail: state.extra as String?,
-        ),
+        builder: (context, state) =>
+            ForgotPasswordScreen(initialEmail: state.extra as String?),
       ),
       GoRoute(
         path: Routes.householdPicker,
@@ -68,9 +67,8 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.householdDetailsPattern,
-        builder: (context, state) => HouseholdDetailsScreen(
-          householdId: state.pathParameters['id']!,
-        ),
+        builder: (context, state) =>
+            HouseholdDetailsScreen(householdId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: Routes.profile,
@@ -107,59 +105,62 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.subjectEditPattern,
-        builder: (context, state) => EditSubjectScreen(
-          subjectId: state.pathParameters['id'],
-        ),
+        builder: (context, state) =>
+            EditSubjectScreen(subjectId: state.pathParameters['id']),
       ),
       GoRoute(
         path: Routes.subjectDetailPattern,
-        builder: (context, state) => SubjectDetailScreen(
-          subjectId: state.pathParameters['id']!,
-        ),
+        builder: (context, state) =>
+            SubjectDetailScreen(subjectId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: Routes.choreNewPattern,
-        builder: (context, state) => EditChoreScreen(
-          subjectId: state.pathParameters['subjectId'],
-        ),
+        builder: (context, state) =>
+            EditChoreScreen(subjectId: state.pathParameters['subjectId']),
       ),
       GoRoute(
         path: Routes.choreEditPattern,
-        builder: (context, state) => EditChoreScreen(
-          choreId: state.pathParameters['id'],
-        ),
+        builder: (context, state) =>
+            EditChoreScreen(choreId: state.pathParameters['id']),
       ),
-      // Bottom-nav shell — four tab branches.
+      // Bottom-nav shell - four tab branches.
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => RootNavShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.home,
-              builder: (context, state) => const HomeScreen(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.subjectsTab,
-              builder: (context, state) => const SubjectsTabScreen(),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.historyTab,
-              builder: (context, state) => HistoryTabScreen(
-                initialSubjectFilter:
-                    state.uri.queryParameters['subject'],
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.home,
+                builder: (context, state) => const HomeScreen(),
               ),
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.youTab,
-              builder: (context, state) => const YouTabScreen(),
-            ),
-          ]),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.subjectsTab,
+                builder: (context, state) => const SubjectsTabScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.historyTab,
+                builder: (context, state) => HistoryTabScreen(
+                  initialSubjectFilter: state.uri.queryParameters['subject'],
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.youTab,
+                builder: (context, state) => const YouTabScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     ],
@@ -195,10 +196,7 @@ String? _redirect(Ref ref, String loc) {
     case RoutingPhase.ready:
       // Bounce off the forced gates if the user somehow lands on them
       // while already set up.
-      const forcedGates = {
-        Routes.splash,
-        Routes.auth,
-      };
+      const forcedGates = {Routes.splash, Routes.auth};
       if (forcedGates.contains(loc)) return Routes.home;
       return null;
   }

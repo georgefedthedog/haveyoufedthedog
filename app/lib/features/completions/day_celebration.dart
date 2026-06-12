@@ -15,7 +15,7 @@ import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../profile/avatar_artwork.dart';
 
-/// Full-screen "every chore done today!" celebration — the household-wide
+/// Full-screen "every chore done today!" celebration - the household-wide
 /// big sibling of [CompletionCelebration]. Confetti shower around the
 /// trophy cup with everyone who pitched in beneath it, then on dismiss
 /// (button or auto-timer) it lands on the Awards tab rather than back
@@ -51,7 +51,7 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
   void _toAwards() {
     _autoDismiss?.cancel();
     if (!mounted) return;
-    // go() replaces the whole stack — the overlay unmounts and the shell
+    // go() replaces the whole stack - the overlay unmounts and the shell
     // lands on the Awards tab.
     context.go(Routes.historyTab);
   }
@@ -68,16 +68,15 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Everyone who logged at least one of today's completions — the
+    // Everyone who logged at least one of today's completions - the
     // hands the cup belongs to.
     final completions =
-        ref.watch(todayCompletionsControllerProvider).valueOrNull ??
-            const [];
+        ref.watch(todayCompletionsControllerProvider).valueOrNull ?? const [];
     final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
     final members = hh == null
         ? const <HouseholdMember>[]
         : ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
-            const <HouseholdMember>[];
+              const <HouseholdMember>[];
     final completerIds = {for (final c in completions) c.completedById};
     final completers = [
       for (final m in members)
@@ -177,7 +176,9 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                       backgroundColor: AppColors.violet,
                       foregroundColor: AppColors.onViolet,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 48, vertical: 16),
+                        horizontal: 48,
+                        vertical: 16,
+                      ),
                     ),
                     child: const Text('See awards'),
                   ),

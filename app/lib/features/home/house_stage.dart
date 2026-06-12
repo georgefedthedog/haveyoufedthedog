@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 /// - **evening** (16–19): apricot → lavender
 /// - **night** (19–04): deep indigo → muted slate
 ///
-/// Pure Flutter primitives — no images, no extra assets. Wrap the
+/// Pure Flutter primitives - no images, no extra assets. Wrap the
 /// `PictureArtwork` (and its badge) in `HouseStage(child: …)` and the
 /// backdrop appears behind it.
 class HouseStage extends StatelessWidget {
@@ -51,7 +51,7 @@ class HouseStage extends StatelessWidget {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          // Grass band at the bottom — short fade from transparent at the
+          // Grass band at the bottom - short fade from transparent at the
           // horizon, then solid grass for most of the band so it reads as
           // ground, not a hairline. Drawn first so the house's built-in
           // lawn overlays on top, hiding any colour mismatch.
@@ -66,18 +66,14 @@ class HouseStage extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      grass.withValues(alpha: 0),
-                      grass,
-                      grass,
-                    ],
+                    colors: [grass.withValues(alpha: 0), grass, grass],
                     stops: const [0.0, 0.45, 1.0],
                   ),
                 ),
               ),
             ),
           ),
-          // Non-positioned, full-width child — sizes the Stack vertically
+          // Non-positioned, full-width child - sizes the Stack vertically
           // and is drawn on top of the grass.
           SizedBox(
             width: double.infinity,
@@ -90,7 +86,7 @@ class HouseStage extends StatelessWidget {
 }
 
 /// Picks (top, bottom) sky colours for the current hour. Hard buckets for
-/// phase 1 — easy to read, easy to tweak; we can interpolate at hour
+/// phase 1 - easy to read, easy to tweak; we can interpolate at hour
 /// boundaries later if the jump feels abrupt.
 List<Color> _gradientFor(DateTime t) {
   final h = t.hour;
@@ -114,7 +110,7 @@ List<Color> _gradientFor(DateTime t) {
   return const [Color(0xFFFFA987), Color(0xFFD4C0E8)];
 }
 
-/// Grass colour for the foreground strip — same bucket scheme as the sky.
+/// Grass colour for the foreground strip - same bucket scheme as the sky.
 Color _grassFor(DateTime t) {
   final h = t.hour;
   if (h < 4 || h >= 19) return const Color(0xFF4A6B4F); // night

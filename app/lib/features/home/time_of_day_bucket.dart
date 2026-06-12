@@ -1,6 +1,6 @@
 /// Time-of-day buckets used to pick the right household picture variant.
 ///
-/// Each household picture has five PNG variants — one per bucket — living
+/// Each household picture has five PNG variants - one per bucket - living
 /// at `assets/households/<id>/<name>.png`.
 enum TimeOfDayBucket {
   morning,

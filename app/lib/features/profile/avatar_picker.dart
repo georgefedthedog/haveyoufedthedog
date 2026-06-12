@@ -5,14 +5,14 @@ import '../../core/profile/avatars.dart';
 import 'avatar_artwork.dart';
 
 /// Carousel-style picker for profile avatars. Mirror of `PicturePicker`
-/// (households) — one avatar centred, neighbours peek + scale down so the
+/// (households) - one avatar centred, neighbours peek + scale down so the
 /// swipe affordance is obvious. Selection happens by swiping; tapping a
 /// peeking neighbour snaps to it.
 ///
 /// Pass [selected] (nullable) and receive a non-null avatar id via
 /// [onChanged] whenever a new page settles.
 class AvatarPicker extends StatefulWidget {
-  /// Currently-selected avatar id. Null = no avatar chosen yet — carousel
+  /// Currently-selected avatar id. Null = no avatar chosen yet - carousel
   /// opens at the first entry.
   final String? selected;
 
@@ -129,9 +129,9 @@ class _CarouselTile extends StatelessWidget {
         // controller is attached, fall back to initialPage.
         double offset;
         if (controller.position.hasContentDimensions) {
-          offset = ((controller.page ?? controller.initialPage.toDouble()) -
-                  index)
-              .abs();
+          offset =
+              ((controller.page ?? controller.initialPage.toDouble()) - index)
+                  .abs();
         } else {
           offset = (controller.initialPage - index).abs().toDouble();
         }
@@ -148,9 +148,7 @@ class _CarouselTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: AvatarArtwork(avatar: avatar, size: 180),
-        ),
+        child: Center(child: AvatarArtwork(avatar: avatar, size: 180)),
       ),
     );
   }

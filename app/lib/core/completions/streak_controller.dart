@@ -16,7 +16,7 @@ part 'streak_controller.g.dart';
 ///     chore doesn't reset its own streak on Wednesday.
 ///   - **Yes, satisfied** (any completion that day) → +1 to streak.
 ///   - **Yes, unsatisfied** → streak breaks. **Exception**: today gets a
-///     grace pass — an outstanding chore due today doesn't break the
+///     grace pass - an outstanding chore due today doesn't break the
 ///     streak you carried in from earlier days.
 ///
 /// We bound the walk to the earliest completion in the recent list so we
@@ -24,15 +24,14 @@ part 'streak_controller.g.dart';
 /// any completion at all, the streak is 0.
 ///
 /// Derived from [recentCompletionsControllerProvider] and
-/// [choresControllerProvider] — no extra fetch.
+/// [choresControllerProvider] - no extra fetch.
 @riverpod
 int subjectStreak(Ref ref, String subjectId) {
-  final completions = ref
-          .watch(recentCompletionsControllerProvider(subjectId))
-          .valueOrNull ??
+  final completions =
+      ref.watch(recentCompletionsControllerProvider(subjectId)).valueOrNull ??
       const [];
-  final allChores = ref.watch(choresControllerProvider).valueOrNull ??
-      const <Chore>[];
+  final allChores =
+      ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
 
   final subjectChores = [
     for (final c in allChores)
@@ -56,7 +55,7 @@ int subjectStreak(Ref ref, String subjectId) {
   final today = DateTime(now.year, now.month, now.day);
 
   var streak = 0;
-  // Hard cap: walk at most a year — anything older isn't in our recent
+  // Hard cap: walk at most a year - anything older isn't in our recent
   // completions window anyway. We break out via `earliestCompletion`
   // first in practice.
   for (var offset = 0; offset <= 366; offset++) {

@@ -2,7 +2,7 @@
 // non-`.pb.js` file so PocketBase doesn't auto-load it as a hook.
 //
 // Why this isn't inlined into notify.pb.js: PB runs each hook handler in
-// its own Goja runtime — top-level function declarations in the source
+// its own Goja runtime - top-level function declarations in the source
 // file aren't in scope when handlers fire. So we share via `require()`.
 
 function notifyHousehold(record, action) {
@@ -17,14 +17,11 @@ function notifyHousehold(record, action) {
     // The completion's `completed_by` is the original logger. For undo, if
     // they're undoing their own log, this correctly excludes them. If an
     // owner is deleting someone else's completion, the original logger DOES
-    // get a "your completion was undone" push, and so does the owner —
+    // get a "your completion was undone" push, and so does the owner -
     // minor noise we accept for hook simplicity.
     const completedById = record.get("completed_by");
 
-    const members = $app.findAllRecords(
-      "household_members",
-      $dbx.exp("household = {:hh}", { hh: householdId })
-    );
+    const members = $app.findAllRecords("household_members", $dbx.exp("household = {:hh}", { hh: householdId }));
 
     const tokens = [];
     for (const m of members) {
@@ -70,13 +67,9 @@ function notifyHousehold(record, action) {
     const title = subjectName;
     let body;
     if (action === "created") {
-      body = choreName
-        ? `${choreName} done by ${whoName}`
-        : `${whoName} logged a completion`;
+      body = choreName ? `${choreName} done by ${whoName}` : `${whoName} logged a completion`;
     } else {
-      body = choreName
-        ? `${choreName} undone by ${whoName}`
-        : `${whoName} removed a completion`;
+      body = choreName ? `${choreName} undone by ${whoName}` : `${whoName} removed a completion`;
     }
 
     const resp = $http.send({
@@ -88,11 +81,7 @@ function notifyHousehold(record, action) {
     });
 
     if (resp.statusCode !== 200) {
-      console.error(
-        "[notify hook] push-notifier returned",
-        resp.statusCode,
-        resp.raw
-      );
+      console.error("[notify hook] push-notifier returned", resp.statusCode, resp.raw);
     }
   } catch (err) {
     console.error("[notify hook] error:", err);

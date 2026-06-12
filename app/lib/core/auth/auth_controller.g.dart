@@ -10,7 +10,7 @@ String _$authControllerHash() => r'0f9964965485874db7f2f7a94e5718898d2d2fd7';
 
 /// Tracks PocketBase auth state and exposes login / signup / logout.
 ///
-/// `AsyncNotifier` because the PocketBase client is itself async — we wait
+/// `AsyncNotifier` because the PocketBase client is itself async - we wait
 /// for it to load on first build, then watch `authStore.onChange` to push
 /// further updates.
 ///

@@ -39,12 +39,16 @@ class NfcLaunchHandler {
     _channel.setMethodCallHandler(_onCall);
     await _drainPending();
 
-    // Foreground scan path — best-effort; some emulators report no NFC.
+    // Foreground scan path - best-effort; some emulators report no NFC.
     final svc = _ref.read(nfcServiceProvider);
     final available = await svc.isAvailable();
     if (!available) return;
     svc.setHandler((tagId) => _handleTag(tagId));
-    await svc.ensureStarted(onError: (_) {/* swallow */});
+    await svc.ensureStarted(
+      onError: (_) {
+        /* swallow */
+      },
+    );
   }
 
   void stop() {
@@ -58,7 +62,7 @@ class NfcLaunchHandler {
         await _handleTag(pending);
       }
     } catch (_) {
-      // Method not implemented (e.g. iOS / web) or platform error — ignore.
+      // Method not implemented (e.g. iOS / web) or platform error - ignore.
     }
   }
 
@@ -79,32 +83,35 @@ class NfcLaunchHandler {
       // App-launched-by-NFC fires this before the providers have settled.
       // Awaiting `.future` waits for the auth → households → current chain
       // to resolve, instead of reading a transient null.
-      final hh =
-          await _ref.read(currentHouseholdControllerProvider.future);
+      final hh = await _ref.read(currentHouseholdControllerProvider.future);
       if (hh == null) {
-        messenger?.showSnackBar(const SnackBar(
-          showCloseIcon: true,
-          duration: Duration(seconds: 5),
-          content:
-              Text('Sign in and pick a household to use NFC tags.'),
-        ));
+        messenger?.showSnackBar(
+          const SnackBar(
+            showCloseIcon: true,
+            duration: Duration(seconds: 5),
+            content: Text('Sign in and pick a household to use NFC tags.'),
+          ),
+        );
         return;
       }
-      final subject =
-          await _ref.read(subjectActionsProvider).findByNfcTag(tagId);
+      final subject = await _ref
+          .read(subjectActionsProvider)
+          .findByNfcTag(tagId);
       if (subject == null) {
-        messenger?.showSnackBar(SnackBar(
-          showCloseIcon: true,
-          duration: const Duration(seconds: 5),
-          content:
-              Text('Unknown tag $tagId — register it from a friend.'),
-        ));
+        messenger?.showSnackBar(
+          SnackBar(
+            showCloseIcon: true,
+            duration: const Duration(seconds: 5),
+            content: Text('Unknown tag $tagId - register it from a friend.'),
+          ),
+        );
         return;
       }
       // Per-device preference: a tap either completes the closest chore
       // (default) or just opens the friend's page.
-      final completesChore =
-          await _ref.read(nfcTapActionControllerProvider.future);
+      final completesChore = await _ref.read(
+        nfcTapActionControllerProvider.future,
+      );
       if (!completesChore) {
         _ref.read(appRouterProvider).push(Routes.subjectDetail(subject.id));
         return;
@@ -113,26 +120,29 @@ class NfcLaunchHandler {
           .read(completionActionsProvider)
           .logBestChoreFor(subject.id, source: CompletionSource.nfc);
       if (result == null) {
-        messenger?.showSnackBar(SnackBar(
-          duration: const Duration(seconds: 5),
-          content: Text('${subject.name}: nothing left for today.'),
-        ));
+        messenger?.showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 5),
+            content: Text('${subject.name}: nothing left for today.'),
+          ),
+        );
         return;
       }
       // Wait for the post-log invalidation of the recent-completions list
       // to settle so the streak provider has the new completion in scope
       // before we read it.
-      await _ref
-          .read(recentCompletionsControllerProvider(subject.id).future);
+      await _ref.read(recentCompletionsControllerProvider(subject.id).future);
       final streak = _ref.read(subjectStreakProvider(subject.id));
 
       // Success: push the celebration route via the router. NfcLaunchHandler
-      // lives outside the widget tree so it has no BuildContext — the router
+      // lives outside the widget tree so it has no BuildContext - the router
       // instance is the entry point. Re-tap on the chore row/chip undoes if
       // the user wants out; no snackbar Undo button needed.
       final character = CharacterRegistry.lookup(subject.icon);
       final auth = _ref.read(authControllerProvider).valueOrNull;
-      _ref.read(appRouterProvider).push(
+      _ref
+          .read(appRouterProvider)
+          .push(
             Routes.celebration,
             extra: CelebrationArgs(
               character: character,
@@ -143,11 +153,13 @@ class NfcLaunchHandler {
             ),
           );
     } catch (e) {
-      _messengerKey.currentState?.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        duration: const Duration(seconds: 5),
-        content: Text('NFC log failed: $e'),
-      ));
+      _messengerKey.currentState?.showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          duration: const Duration(seconds: 5),
+          content: Text('NFC log failed: $e'),
+        ),
+      );
     } finally {
       _busy = false;
     }

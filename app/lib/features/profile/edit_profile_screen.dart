@@ -10,14 +10,13 @@ import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
 import 'avatar_picker.dart';
 
-/// Edit the current user's profile — email is read-only, name is editable.
+/// Edit the current user's profile - email is read-only, name is editable.
 /// Also hosts the Log out action.
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  ConsumerState<EditProfileScreen> createState() =>
-      _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
@@ -54,10 +53,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           .updateProfile(name: _nameCtrl.text.trim(), avatar: _avatar);
       if (mounted) router.pop();
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not save: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+      );
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -68,13 +66,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final auth = authAsync.valueOrNull;
 
     if (auth == null || !auth.isAuthenticated) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (!_seeded) {
       _nameCtrl.text = auth.displayName ?? '';
-      // Fall back to the first registry avatar — the carousel opens with
+      // Fall back to the first registry avatar - the carousel opens with
       // it centred, and onChanged only fires on swipe, so a no-touch save
       // should store what's visibly selected.
       _avatar = auth.avatar ?? AvatarRegistry.all.first.id;
@@ -108,8 +104,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         child: TextFormField(
                           controller: _nameCtrl,
                           decoration: const InputDecoration(
-                            hintText:
-                                'How others in your household see you',
+                            hintText: 'How others in your household see you',
                           ),
                           textInputAction: TextInputAction.done,
                           validator: (v) => (v == null || v.trim().isEmpty)
@@ -145,52 +140,58 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Builder(builder: (context) {
-                    final theme = Theme.of(context);
-                    final scheme = theme.colorScheme;
-                    final completesChore = ref
-                            .watch(nfcTapActionControllerProvider)
-                            .valueOrNull ??
-                        true;
-                    // Mirrors the invite card's header row on household
-                    // details: icon, titleSmall + bodySmall copy, switch.
-                    return Row(
-                      children: [
-                        const Icon(Icons.nfc),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Complete chore on tap',
-                                  style: theme.textTheme.titleSmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.w700)),
-                              Text(
-                                completesChore
-                                    ? 'Tapping a tag completes the current chore.'
-                                    : "Tapping a tag opens the friend's page.",
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
+                  child: Builder(
+                    builder: (context) {
+                      final theme = Theme.of(context);
+                      final scheme = theme.colorScheme;
+                      final completesChore =
+                          ref
+                              .watch(nfcTapActionControllerProvider)
+                              .valueOrNull ??
+                          true;
+                      // Mirrors the invite card's header row on household
+                      // details: icon, titleSmall + bodySmall copy, switch.
+                      return Row(
+                        children: [
+                          const Icon(Icons.nfc),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Complete chore on tap',
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  completesChore
+                                      ? 'Tapping a tag completes the current chore.'
+                                      : "Tapping a tag opens the friend's page.",
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Switch(
-                          value: completesChore,
-                          // Saves immediately — device preference, not
-                          // part of the profile Save.
-                          onChanged: _busy
-                              ? null
-                              : (v) => ref
-                                  .read(nfcTapActionControllerProvider
-                                      .notifier)
-                                  .setCompletesChore(v),
-                        ),
-                      ],
-                    );
-                  }),
+                          Switch(
+                            value: completesChore,
+                            // Saves immediately - device preference, not
+                            // part of the profile Save.
+                            onChanged: _busy
+                                ? null
+                                : (v) => ref
+                                      .read(
+                                        nfcTapActionControllerProvider.notifier,
+                                      )
+                                      .setCompletesChore(v),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

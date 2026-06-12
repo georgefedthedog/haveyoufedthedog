@@ -18,7 +18,7 @@ import 'celebration_args.dart';
 /// seconds; the "Nice!" button bails earlier.
 ///
 /// Mounted as a real [GoRoute] (`/celebration`) so anyone with the router
-/// instance can push it — including code outside the widget tree (the NFC
+/// instance can push it - including code outside the widget tree (the NFC
 /// handler). Push via `context.push(Routes.celebration, extra: args)` from
 /// a widget, or `ref.read(appRouterProvider).push(...)` from a controller.
 class CompletionCelebration extends StatefulWidget {
@@ -130,7 +130,9 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
@@ -180,7 +182,9 @@ class _CompletionCelebrationState extends State<CompletionCelebration>
                       backgroundColor: scheme.primary,
                       foregroundColor: scheme.onPrimary,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 48, vertical: 16),
+                        horizontal: 48,
+                        vertical: 16,
+                      ),
                     ),
                     child: const Text('Nice!'),
                   ),

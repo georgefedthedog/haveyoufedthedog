@@ -32,7 +32,7 @@ typedef CharacterLine = ({String title, String body});
 
 /// Returns a personality-flavoured (title, body) pair for the given
 /// character at the given mood. Multiple variants per (character × mood)
-/// cell — picks one randomly so repeat visits don't feel scripted.
+/// cell - picks one randomly so repeat visits don't feel scripted.
 ///
 /// Substitutes `{name}` with [subjectName] in both parts.
 CharacterLine characterLine({
@@ -42,7 +42,8 @@ CharacterLine characterLine({
 }) {
   final table = _table[character.id] ?? _table['generic']!;
   final lines =
-      table[mood] ?? const <CharacterLine>[(title: '{name}', body: 'Doing fine.')];
+      table[mood] ??
+      const <CharacterLine>[(title: '{name}', body: 'Doing fine.')];
   final pick = lines[_rand.nextInt(lines.length)];
   return (
     title: pick.title.replaceAll('{name}', subjectName),
@@ -58,7 +59,10 @@ const Map<String, Map<SubjectMood, List<CharacterLine>>> _table = {
   'dog': {
     SubjectMood.allDone: [
       (title: 'Full, happy, snoozing.', body: '{name} had a great day 🐶'),
-      (title: 'Belly rubs were earned.', body: 'Good job looking after {name}.'),
+      (
+        title: 'Belly rubs were earned.',
+        body: 'Good job looking after {name}.',
+      ),
       (title: 'Best human ever.', body: "That's what {name} thinks of you 🩵"),
     ],
     SubjectMood.overdue: [
@@ -93,8 +97,14 @@ const Map<String, Map<SubjectMood, List<CharacterLine>>> _table = {
       (title: 'The bowl is empty.', body: '{name} is making it known.'),
     ],
     SubjectMood.upcoming: [
-      (title: 'On the counter. Waiting.', body: 'Coincidence? {name} thinks not.'),
-      (title: 'Perfect timing.', body: '{name} appeared in the kitchen just now.'),
+      (
+        title: 'On the counter. Waiting.',
+        body: 'Coincidence? {name} thinks not.',
+      ),
+      (
+        title: 'Perfect timing.',
+        body: '{name} appeared in the kitchen just now.',
+      ),
       (title: 'Tail flicking.', body: '{name} senses food approaching.'),
     ],
     SubjectMood.happyForNow: [
@@ -118,7 +128,10 @@ const Map<String, Map<SubjectMood, List<CharacterLine>>> _table = {
       (title: 'Leaves are drooping.', body: '{name} needs a hand.'),
     ],
     SubjectMood.upcoming: [
-      (title: 'Something in the air.', body: '{name} senses the watering can 🌱'),
+      (
+        title: 'Something in the air.',
+        body: '{name} senses the watering can 🌱',
+      ),
       (title: 'Leaning toward the tap.', body: '{name} is ready when you are.'),
     ],
     SubjectMood.happyForNow: [

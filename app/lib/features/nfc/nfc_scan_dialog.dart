@@ -5,7 +5,7 @@ import '../../core/nfc/nfc_service.dart';
 
 /// Modal that captures the next NFC tag scan and returns its id. Uses
 /// [NfcService.pushHandler] so the home-screen listener stays installed
-/// underneath — when the dialog closes the previous handler is restored.
+/// underneath - when the dialog closes the previous handler is restored.
 ///
 /// Returns the scanned tag id, or null if the user dismissed.
 class NfcScanDialog extends ConsumerStatefulWidget {
@@ -70,9 +70,11 @@ class _NfcScanDialogState extends ConsumerState<NfcScanDialog> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(height: 12),
-                    Text(_ready
-                        ? 'Hold the tag near the back of your phone.'
-                        : 'Starting NFC…'),
+                    Text(
+                      _ready
+                          ? 'Hold the tag near the back of your phone.'
+                          : 'Starting NFC…',
+                    ),
                   ],
                 ),
         ),

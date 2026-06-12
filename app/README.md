@@ -1,6 +1,6 @@
 # app
 
-Flutter app — Android + iOS — for *Have You Fed The Dog Yet*. Online-only
+Flutter app - Android + iOS - for _Have You Fed The Dog Yet_. Online-only
 client. Talks to the live PocketBase at `https://api.haveyoufedthedog.com`.
 
 ## Stack
@@ -53,4 +53,4 @@ For wireless ADB to the Pixel see the root README's deploy notes.
 ## Versioning
 
 Bump `version:` in `pubspec.yaml` before every deploy you want to be able to
-identify on the phone — `v0.1.0+1` will appear at the bottom of every screen.
+identify on the phone - `v0.1.0+1` will appear at the bottom of every screen.

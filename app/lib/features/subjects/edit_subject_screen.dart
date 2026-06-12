@@ -29,7 +29,7 @@ class EditSubjectScreen extends ConsumerStatefulWidget {
 class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   final _nameCtrl = TextEditingController();
   // Defaults to the first registry character so a created subject matches
-  // what the carousel visibly shows — onChanged only fires on swipe, so
+  // what the carousel visibly shows - onChanged only fires on swipe, so
   // without this a no-touch save would store null (→ generic).
   String? _icon = CharacterRegistry.all.first.id;
   String? _nfcTagId;
@@ -66,16 +66,17 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       // Save immediately so the binding takes effect even if the user
       // backs out without hitting Save.
       try {
-        await ref.read(subjectActionsProvider).updateSubject(
-              widget.subjectId!,
-              nfcTagId: tagId,
-            );
+        await ref
+            .read(subjectActionsProvider)
+            .updateSubject(widget.subjectId!, nfcTagId: tagId);
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            showCloseIcon: true,
-            content: Text('Could not save tag: $e'),
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              showCloseIcon: true,
+              content: Text('Could not save tag: $e'),
+            ),
+          );
         }
       }
     }
@@ -113,16 +114,17 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     setState(() => _nfcTagId = null);
     if (_isEdit) {
       try {
-        await ref.read(subjectActionsProvider).updateSubject(
-              widget.subjectId!,
-              clearNfcTag: true,
-            );
+        await ref
+            .read(subjectActionsProvider)
+            .updateSubject(widget.subjectId!, clearNfcTag: true);
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            showCloseIcon: true,
-            content: Text('Could not remove tag: $e'),
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              showCloseIcon: true,
+              content: Text('Could not remove tag: $e'),
+            ),
+          );
         }
       }
     }
@@ -138,11 +140,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     try {
       final actions = ref.read(subjectActionsProvider);
       if (_isEdit) {
-        await actions.updateSubject(
-          widget.subjectId!,
-          name: name,
-          icon: _icon,
-        );
+        await actions.updateSubject(widget.subjectId!, name: name, icon: _icon);
         if (mounted) router.pop();
       } else {
         final created = await actions.createSubject(name: name, icon: _icon);
@@ -151,22 +149,21 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
           await actions.updateSubject(created.id, nfcTagId: _nfcTagId);
         }
         // Wait for the invalidated subjects list to refetch so the detail
-        // screen finds the new record immediately — otherwise the screen's
+        // screen finds the new record immediately - otherwise the screen's
         // "subject missing → bounce to home" guard fires on the stale list.
         await ref.read(subjectsControllerProvider.future);
         // Drop the user on the new subject's detail page so they can add
         // chores immediately. `pushReplacement` swaps this create form out
-        // of the stack — Back from detail goes to home, not back into the
+        // of the stack - Back from detail goes to home, not back into the
         // (now-stale) form.
         if (mounted) {
           router.pushReplacement(Routes.subjectDetail(created.id));
         }
       }
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not save: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+      );
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -208,15 +205,14 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       // screen doesn't flash the just-deleted subject before the cache
       // catches up.
       await ref.read(subjectsControllerProvider.future);
-      // Jump to home instead of popping — popping would land on the
+      // Jump to home instead of popping - popping would land on the
       // subject detail screen which would then notice the subject is gone
       // and show a "no longer exists" page.
       if (mounted) router.go(Routes.home);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not delete: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+      );
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -248,11 +244,9 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       }
       // Either still loading, or the subject was just deleted under us and
       // we're mid-navigation back to home. Show a spinner instead of
-      // throwing — the screen will unmount in a frame or two.
+      // throwing - the screen will unmount in a frame or two.
       if (existing == null) {
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
       _seedFromExisting(existing);
     }
@@ -309,12 +303,12 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                             ? const SizedBox(
                                 width: 18,
                                 height: 18,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Icon(Icons.check),
-                        label:
-                            Text(_isEdit ? 'Save changes' : 'Add friend'),
+                        label: Text(_isEdit ? 'Save changes' : 'Add friend'),
                         onPressed: (_busy || !_isDirty(existing))
                             ? null
                             : _save,
@@ -327,140 +321,151 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Builder(builder: (context) {
-                    final theme = Theme.of(context);
-                    final scheme = theme.colorScheme;
-                    final completesChore = ref
-                            .watch(nfcTapActionControllerProvider)
-                            .valueOrNull ??
-                        true;
+                  child: Builder(
+                    builder: (context) {
+                      final theme = Theme.of(context);
+                      final scheme = theme.colorScheme;
+                      final completesChore =
+                          ref
+                              .watch(nfcTapActionControllerProvider)
+                              .valueOrNull ??
+                          true;
 
-                    // Both states share the drag mechanic: carry the tag
-                    // chip into the dashed circle — purple "Register"
-                    // (starts the scan) when unbound, red "Remove" bin
-                    // when bound. Same gesture as members and chores.
-                    final bound = _nfcTagId != null;
-                    final tagChip = Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: scheme.primaryContainer,
+                      // Both states share the drag mechanic: carry the tag
+                      // chip into the dashed circle - purple "Register"
+                      // (starts the scan) when unbound, red "Remove" bin
+                      // when bound. Same gesture as members and chores.
+                      final bound = _nfcTagId != null;
+                      final tagChip = Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: scheme.primaryContainer,
+                            ),
+                            child: Icon(
+                              Icons.nfc,
+                              size: 24,
+                              color: scheme.onPrimaryContainer,
+                            ),
                           ),
-                          child: Icon(Icons.nfc,
-                              size: 24, color: scheme.onPrimaryContainer),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Tag',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: scheme.primary,
-                            fontWeight: FontWeight.w600,
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tag',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: scheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
-                    );
+                        ],
+                      );
 
-    final title = bound ? 'Tag registered' : 'No tag registered';
-                    final subtitle = bound
-                        ? (completesChore
-                            ? 'On this phone, a tap ticks off the '
-                                'current chore. Change this setting in '
-                                'Edit Profile.'
-                            : "On this phone, a tap opens this friend's "
-                                'page. Change this setting in '
-                                'Edit Profile.')
-                        : 'Drag the tag to bind one to '
-                            '${_nameCtrl.text.trim().isEmpty ? "this friend" : _nameCtrl.text.trim()}.';
-                    final targetBase =
-                        bound ? Colors.red.shade300 : scheme.primary;
-                    final targetHover = bound ? Colors.red : scheme.primary;
-                    final targetIcon =
-                        bound ? Icons.delete_outline : Icons.add;
-                    final targetLabel = bound ? 'Remove' : 'Register';
+                      final title = bound
+                          ? 'Tag registered'
+                          : 'No tag registered';
+                      final subtitle = bound
+                          ? (completesChore
+                                ? 'On this phone, a tap ticks off the '
+                                      'current chore. Change this setting in '
+                                      'Edit Profile.'
+                                : "On this phone, a tap opens this friend's "
+                                      'page. Change this setting in '
+                                      'Edit Profile.')
+                          : 'Drag the tag to bind one to '
+                                '${_nameCtrl.text.trim().isEmpty ? "this friend" : _nameCtrl.text.trim()}.';
+                      final targetBase = bound
+                          ? Colors.red.shade300
+                          : scheme.primary;
+                      final targetHover = bound ? Colors.red : scheme.primary;
+                      final targetIcon = bound
+                          ? Icons.delete_outline
+                          : Icons.add;
+                      final targetLabel = bound ? 'Remove' : 'Register';
 
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        LongPressDraggable<String>(
-                          data: _nfcTagId ?? 'register',
-                          feedback: Material(
-                            color: Colors.transparent,
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          LongPressDraggable<String>(
+                            data: _nfcTagId ?? 'register',
+                            feedback: Material(
+                              color: Colors.transparent,
+                              child: tagChip,
+                            ),
+                            childWhenDragging: Opacity(
+                              opacity: 0.3,
+                              child: tagChip,
+                            ),
                             child: tagChip,
                           ),
-                          childWhenDragging:
-                              Opacity(opacity: 0.3, child: tagChip),
-                          child: tagChip,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                title,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                subtitle,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        DragTarget<String>(
-                          onWillAcceptWithDetails: (_) => true,
-                          onAcceptWithDetails: (_) {
-                            if (_busy) return;
-                            bound ? _removeTag() : _scanAndBindTag();
-                          },
-                          builder: (context, candidate, _) {
-                            final hovering = candidate.isNotEmpty;
-                            final color =
-                                hovering ? targetHover : targetBase;
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CustomPaint(
-                                  painter: DashedCirclePainter(
-                                      color: color, filled: hovering),
-                                  child: SizedBox(
-                                    width: 56,
-                                    height: 56,
-                                    child: Icon(
-                                      targetIcon,
-                                      size: 24,
-                                      color:
-                                          hovering ? Colors.white : color,
-                                    ),
+                                Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
                                 Text(
-                                  targetLabel,
-                                  style:
-                                      theme.textTheme.bodySmall?.copyWith(
-                                    color: color,
-                                    fontWeight: FontWeight.w600,
+                                  subtitle,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: scheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
-                            );
-                          },
-                        ),
-                      ],
-                    );
-                  }),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          DragTarget<String>(
+                            onWillAcceptWithDetails: (_) => true,
+                            onAcceptWithDetails: (_) {
+                              if (_busy) return;
+                              bound ? _removeTag() : _scanAndBindTag();
+                            },
+                            builder: (context, candidate, _) {
+                              final hovering = candidate.isNotEmpty;
+                              final color = hovering ? targetHover : targetBase;
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CustomPaint(
+                                    painter: DashedCirclePainter(
+                                      color: color,
+                                      filled: hovering,
+                                    ),
+                                    child: SizedBox(
+                                      width: 56,
+                                      height: 56,
+                                      child: Icon(
+                                        targetIcon,
+                                        size: 24,
+                                        color: hovering ? Colors.white : color,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    targetLabel,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: color,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

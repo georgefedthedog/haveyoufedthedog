@@ -7,7 +7,7 @@ This is a monorepo with two independent sub-projects:
 
 ```
 server/   PocketBase schema, hooks, push-notifier service, deploy scripts.
-          This IS the API — PB auto-generates REST endpoints from the schema.
+          This IS the API - PB auto-generates REST endpoints from the schema.
 
 app/      Flutter app. Online-only client. Consumes the server contract.
 

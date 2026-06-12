@@ -13,7 +13,7 @@ import '../../core/subjects/characters.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../profile/avatar_artwork.dart';
 
-/// The character-voiced featured awards — one card per subject in a
+/// The character-voiced featured awards - one card per subject in a
 /// swipeable carousel. Renders nothing when there's nothing to show.
 ///
 /// Pass [onlyWonBy] to filter to awards a specific member holds (the
@@ -22,11 +22,7 @@ class FeaturedAwards extends ConsumerWidget {
   final String householdId;
   final String? onlyWonBy;
 
-  const FeaturedAwards({
-    super.key,
-    required this.householdId,
-    this.onlyWonBy,
-  });
+  const FeaturedAwards({super.key, required this.householdId, this.onlyWonBy});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,17 +32,15 @@ class FeaturedAwards extends ConsumerWidget {
         if (onlyWonBy == null || a.winnerUserId == onlyWonBy) a,
     ];
     if (visible.isEmpty) return const SizedBox.shrink();
-    final members = ref
+    final members =
+        ref
             .watch(householdMembersControllerProvider(householdId))
             .valueOrNull ??
         const <HouseholdMember>[];
     final memberById = <String, HouseholdMember>{
       for (final m in members) m.userId: m,
     };
-    return _CharacterAwardCarousel(
-      awards: visible,
-      memberById: memberById,
-    );
+    return _CharacterAwardCarousel(awards: visible, memberById: memberById);
   }
 }
 
@@ -62,7 +56,8 @@ class BadgesSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final awards = ref.watch(weeklyAwardsProvider);
-    final members = ref
+    final members =
+        ref
             .watch(householdMembersControllerProvider(householdId))
             .valueOrNull ??
         const <HouseholdMember>[];
@@ -81,8 +76,7 @@ class BadgesSection extends ConsumerWidget {
       for (final a in awards.memberAwards)
         MemberAwardCard(
           award: a,
-          winner:
-              a.winnerUserId == null ? null : memberById[a.winnerUserId],
+          winner: a.winnerUserId == null ? null : memberById[a.winnerUserId],
         ),
     ];
 
@@ -92,10 +86,9 @@ class BadgesSection extends ConsumerWidget {
         Text(
           'Badges',
           textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w800),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
         for (var i = 0; i < cards.length; i += 2)
@@ -119,7 +112,7 @@ class BadgesSection extends ConsumerWidget {
   }
 }
 
-/// Team Effort — the household-wide badge. Earned when nobody carries
+/// Team Effort - the household-wide badge. Earned when nobody carries
 /// more than half the week's load. The footer shows everyone who chipped
 /// in (overlapping avatar stack) rather than a single winner.
 class _TeamEffortCard extends StatelessWidget {
@@ -141,8 +134,7 @@ class _TeamEffortCard extends StatelessWidget {
             Center(
               child: ColorFiltered(
                 colorFilter: awarded
-                    ? const ColorFilter.mode(
-                        Colors.transparent, BlendMode.dst)
+                    ? const ColorFilter.mode(Colors.transparent, BlendMode.dst)
                     : _greyscale,
                 child: Image.asset(
                   'assets/awards/badge_team_effort.png',
@@ -164,7 +156,7 @@ class _TeamEffortCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Everyone shares the load — nobody does more than half',
+              'Everyone shares the load - nobody does more than half',
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.onSurfaceVariant,
@@ -183,7 +175,8 @@ class _TeamEffortCard extends StatelessWidget {
                           message: contributors[i].displayName,
                           child: AvatarArtwork(
                             avatar: AvatarRegistry.lookup(
-                                contributors[i].avatar),
+                              contributors[i].avatar,
+                            ),
                             size: 24,
                           ),
                         ),
@@ -196,8 +189,7 @@ class _TeamEffortCard extends StatelessWidget {
                 children: [
                   CustomPaint(
                     painter: DashedCirclePainter(
-                      color:
-                          scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                     child: const SizedBox(width: 24, height: 24),
                   ),
@@ -217,7 +209,7 @@ class _TeamEffortCard extends StatelessWidget {
   }
 }
 
-/// Swipeable carousel of featured character awards — one page per
+/// Swipeable carousel of featured character awards - one page per
 /// subject, with indicator dots when there's more than one.
 class _CharacterAwardCarousel extends StatefulWidget {
   final List<CharacterAward> awards;
@@ -277,9 +269,7 @@ class _CharacterAwardCarouselState extends State<_CharacterAwardCarousel> {
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: i == _page
-                        ? scheme.primary
-                        : scheme.outlineVariant,
+                    color: i == _page ? scheme.primary : scheme.outlineVariant,
                   ),
                 ),
             ],
@@ -290,13 +280,29 @@ class _CharacterAwardCarouselState extends State<_CharacterAwardCarousel> {
   }
 }
 
-/// Luminance-preserving greyscale — unclaimed badge art renders washed
+/// Luminance-preserving greyscale - unclaimed badge art renders washed
 /// out until somebody earns it.
 const _greyscale = ColorFilter.matrix(<double>[
-  0.2126, 0.7152, 0.0722, 0, 0,
-  0.2126, 0.7152, 0.0722, 0, 0,
-  0.2126, 0.7152, 0.0722, 0, 0,
-  0, 0, 0, 1, 0,
+  0.2126,
+  0.7152,
+  0.0722,
+  0,
+  0,
+  0.2126,
+  0.7152,
+  0.0722,
+  0,
+  0,
+  0.2126,
+  0.7152,
+  0.0722,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
 ]);
 
 /// Heart-shaped confetti particle for the appreciation burst.
@@ -313,7 +319,7 @@ Path _heartPath(Size size) {
 /// "Kiko-dog's Best Human 🩵" as a featured-award spread: the character's
 /// trophy pose on a lavender panel, a FEATURED AWARD pill, the title,
 /// a thank-you line in the character's voice, and the winner. Tapping a
-/// winning character bursts hearts — a little thank-you back.
+/// winning character bursts hearts - a little thank-you back.
 class _FeaturedAwardCard extends ConsumerStatefulWidget {
   final CharacterAward award;
   final HouseholdMember? winner;
@@ -321,8 +327,7 @@ class _FeaturedAwardCard extends ConsumerStatefulWidget {
   const _FeaturedAwardCard({required this.award, required this.winner});
 
   @override
-  ConsumerState<_FeaturedAwardCard> createState() =>
-      _FeaturedAwardCardState();
+  ConsumerState<_FeaturedAwardCard> createState() => _FeaturedAwardCardState();
 }
 
 class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
@@ -386,16 +391,15 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Big trophy pose standing in front of a gradient circle —
+            // Big trophy pose standing in front of a gradient circle -
             // the character overflows the circle for the poster look.
-            // Only the award's winner gets the heart burst on tap — it's
+            // Only the award's winner gets the heart burst on tap - it's
             // the character thanking *their* human.
             GestureDetector(
-              onTap: winner != null &&
+              onTap:
+                  winner != null &&
                       winner!.userId ==
-                          ref.watch(authControllerProvider)
-                              .valueOrNull
-                              ?.userId
+                          ref.watch(authControllerProvider).valueOrNull?.userId
                   ? _hearts.play
                   : null,
               behavior: HitTestBehavior.opaque,
@@ -449,8 +453,7 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                       alignment: Alignment.center,
                       child: ConfettiWidget(
                         confettiController: _hearts,
-                        blastDirectionality:
-                            BlastDirectionality.explosive,
+                        blastDirectionality: BlastDirectionality.explosive,
                         emissionFrequency: 0.6,
                         numberOfParticles: 6,
                         gravity: 0.1,
@@ -480,7 +483,9 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                   if (winner != null) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: pillColor,
                         borderRadius: BorderRadius.circular(20),
@@ -529,14 +534,12 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                   Text(
                     winner != null
                         ? (characterAwardThanks[award.characterId] ??
-                            characterAwardThanks['generic']!)
-                        : 'Up for grabs — do the most of '
-                            "${award.subjectName}'s chores to win it!",
+                              characterAwardThanks['generic']!)
+                        : 'Up for grabs - do the most of '
+                              "${award.subjectName}'s chores to win it!",
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: mutedInk,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: mutedInk),
                   ),
                   const SizedBox(height: 16),
                   if (winner != null)
@@ -554,8 +557,7 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                               Text(
                                 winner!.displayName,
                                 overflow: TextOverflow.ellipsis,
-                                style:
-                                    theme.textTheme.bodySmall?.copyWith(
+                                style: theme.textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: inkColor,
                                 ),
@@ -563,8 +565,7 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                               Text(
                                 '${award.count} '
                                 '${award.count == 1 ? "chore" : "chores"}',
-                                style: theme.textTheme.labelSmall
-                                    ?.copyWith(
+                                style: theme.textTheme.labelSmall?.copyWith(
                                   color: mutedInk,
                                 ),
                               ),
@@ -578,11 +579,8 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                     Row(
                       children: [
                         CustomPaint(
-                          painter: DashedCirclePainter(
-                            color: mutedInk,
-                          ),
-                          child:
-                              const SizedBox(width: 32, height: 32),
+                          painter: DashedCirclePainter(color: mutedInk),
+                          child: const SizedBox(width: 32, height: 32),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -611,11 +609,7 @@ class MemberAwardCard extends StatelessWidget {
   final MemberAward award;
   final HouseholdMember? winner;
 
-  const MemberAwardCard({
-    super.key,
-    required this.award,
-    required this.winner,
-  });
+  const MemberAwardCard({super.key, required this.award, required this.winner});
 
   @override
   Widget build(BuildContext context) {
@@ -631,17 +625,14 @@ class MemberAwardCard extends StatelessWidget {
               child: ColorFiltered(
                 colorFilter: winner == null
                     ? _greyscale
-                    : const ColorFilter.mode(
-                        Colors.transparent, BlendMode.dst),
+                    : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
                 child: Image.asset(
                   award.assetPath,
                   width: 108,
                   height: 108,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => Text(
-                    award.emoji,
-                    style: const TextStyle(fontSize: 48),
-                  ),
+                  errorBuilder: (_, _, _) =>
+                      Text(award.emoji, style: const TextStyle(fontSize: 48)),
                 ),
               ),
             ),
@@ -679,8 +670,7 @@ class MemberAwardCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(Icons.check_circle,
-                      size: 16, color: scheme.tertiary),
+                  Icon(Icons.check_circle, size: 16, color: scheme.tertiary),
                   const SizedBox(width: 3),
                   Text(
                     '${award.value}',
@@ -695,8 +685,7 @@ class MemberAwardCard extends StatelessWidget {
                 children: [
                   CustomPaint(
                     painter: DashedCirclePainter(
-                      color: scheme.onSurfaceVariant
-                          .withValues(alpha: 0.5),
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                     child: const SizedBox(width: 24, height: 24),
                   ),

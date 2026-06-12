@@ -34,9 +34,8 @@ class HouseholdDetailsScreen extends ConsumerWidget {
     final asyncHouseholds = ref.watch(householdsControllerProvider);
 
     return asyncHouseholds.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(title: const Text('Household')),
         body: Center(child: Text('Error: $e')),
@@ -65,8 +64,7 @@ class HouseholdDetailsScreen extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
                   tooltip: 'Delete household',
-                  onPressed: () =>
-                      _confirmAndDelete(context, ref, household),
+                  onPressed: () => _confirmAndDelete(context, ref, household),
                 ),
             ],
           ),
@@ -78,11 +76,15 @@ class HouseholdDetailsScreen extends ConsumerWidget {
 }
 
 Future<void> _confirmAndDelete(
-    BuildContext context, WidgetRef ref, Household household) async {
+  BuildContext context,
+  WidgetRef ref,
+  Household household,
+) async {
   final confirmed = await _confirm(
     context,
     title: 'Delete ${household.name}?',
-    body: 'All subjects, chores and history for this household will be '
+    body:
+        'All subjects, chores and history for this household will be '
         'permanently removed for everyone in it. This cannot be undone.',
     action: 'Delete',
   );
@@ -94,20 +96,23 @@ Future<void> _confirmAndDelete(
     if (context.mounted) context.go(Routes.home);
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('$e'),
-      ));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
     }
   }
 }
 
 Future<void> _confirmAndLeave(
-    BuildContext context, WidgetRef ref, Household household) async {
+  BuildContext context,
+  WidgetRef ref,
+  Household household,
+) async {
   final confirmed = await _confirm(
     context,
     title: 'Leave ${household.name}?',
-    body: "You won't see this household's chores or completions any more. "
+    body:
+        "You won't see this household's chores or completions any more. "
         'You can re-join later with an invite code.',
     action: 'Leave',
   );
@@ -119,10 +124,9 @@ Future<void> _confirmAndLeave(
     if (context.mounted) context.go(Routes.home);
   } catch (e) {
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('$e'),
-      ));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
     }
   }
 }
@@ -183,8 +187,8 @@ class _BodyState extends ConsumerState<_Body> {
   void didUpdateWidget(covariant _Body oldWidget) {
     super.didUpdateWidget(oldWidget);
     // If the household's name changed under us (e.g. another member
-    // renamed it and a refresh brought the new value in) — and the user
-    // isn't mid-edit on the field — re-seed.
+    // renamed it and a refresh brought the new value in) - and the user
+    // isn't mid-edit on the field - re-seed.
     if (widget.household.name != oldWidget.household.name &&
         _nameCtrl.text == _seededName) {
       _nameCtrl.text = widget.household.name;
@@ -220,7 +224,9 @@ class _BodyState extends ConsumerState<_Body> {
     final router = GoRouter.of(context);
     final newName = _nameCtrl.text.trim();
     try {
-      await ref.read(householdActionsProvider).updateHousehold(
+      await ref
+          .read(householdActionsProvider)
+          .updateHousehold(
             householdId: widget.household.id,
             name: _isNameDirty ? newName : null,
             picture: _isPictureDirty ? (_stagedPicture ?? '') : null,
@@ -229,16 +235,17 @@ class _BodyState extends ConsumerState<_Body> {
       // Save succeeded → drop the user back on home.
       if (mounted) router.go(Routes.home);
     } on ClientException catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text(e.response['message'] as String? ?? 'Save failed'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(e.response['message'] as String? ?? 'Save failed'),
+        ),
+      );
       if (mounted) setState(() => _busy = false);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('$e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('$e')),
+      );
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -251,13 +258,12 @@ class _BodyState extends ConsumerState<_Body> {
     return RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(householdMembersControllerProvider(h.id));
-        await ref
-            .read(householdMembersControllerProvider(h.id).future);
+        await ref.read(householdMembersControllerProvider(h.id).future);
       },
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Picture carousel — staged selection only; written to PB by
+          // Picture carousel - staged selection only; written to PB by
           // the Save changes button along with any name edit. Picture is
           // editable by everyone (kids included); name stays owner-only.
           IgnorePointer(
@@ -312,13 +318,12 @@ class _BodyState extends ConsumerState<_Body> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Members',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  _MembersList(
-                    household: h,
-                    viewerIsOwner: isOwner,
+                  Text(
+                    'Members',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  const SizedBox(height: 12),
+                  _MembersList(household: h, viewerIsOwner: isOwner),
                 ],
               ),
             ),
@@ -343,16 +348,14 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
   Future<void> _toggle(bool open) async {
     setState(() => _busy = true);
     try {
-      await ref.read(householdActionsProvider).setInvitesOpen(
-            householdId: widget.household.id,
-            open: open,
-          );
+      await ref
+          .read(householdActionsProvider)
+          .setInvitesOpen(householdId: widget.household.id, open: open);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text('$e'),
-        ));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -367,10 +370,9 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
           .rotateInviteCode(widget.household.id);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text('$e'),
-        ));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -383,7 +385,7 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     await Share.share(
       'Join our household on Have You Fed The Dog? '
       'Open the app and enter invite code $code',
-      subject: 'Have You Fed The Dog? — household invite',
+      subject: 'Have You Fed The Dog? - household invite',
     );
   }
 
@@ -409,9 +411,12 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Invite someone',
-                          style: theme.textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(
+                        'Invite someone',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       Text(
                         'Invite family or flatmates',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -462,13 +467,17 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.calendar_today_outlined,
-                      size: 14, color: scheme.onSurfaceVariant),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 14,
+                    color: scheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Live until you turn invites off',
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: scheme.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -530,26 +539,24 @@ class _MembersList extends ConsumerWidget {
     );
     if (confirmed != true) return;
     try {
-      await ref.read(householdActionsProvider).kickMember(
-            membershipId: m.membershipId,
-            householdId: household.id,
-          );
+      await ref
+          .read(householdActionsProvider)
+          .kickMember(membershipId: m.membershipId, householdId: household.id);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          showCloseIcon: true,
-          content: Text('$e'),
-        ));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
       }
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncMembers =
-        ref.watch(householdMembersControllerProvider(household.id));
-    final myUserId =
-        ref.watch(authControllerProvider).valueOrNull?.userId;
+    final asyncMembers = ref.watch(
+      householdMembersControllerProvider(household.id),
+    );
+    final myUserId = ref.watch(authControllerProvider).valueOrNull?.userId;
 
     return asyncMembers.when(
       loading: () => const Padding(
@@ -565,10 +572,9 @@ class _MembersList extends ConsumerWidget {
       data: (members) {
         // One mechanism for everyone: owners drag *others* into the bin
         // to remove them; non-owners drag *themselves* in to leave. An
-        // owner can't drag their own chip — to step away they delete the
+        // owner can't drag their own chip - to step away they delete the
         // household.
-        final otherCount =
-            members.where((m) => m.userId != myUserId).length;
+        final otherCount = members.where((m) => m.userId != myUserId).length;
         final showBin = viewerIsOwner ? otherCount > 0 : true;
 
         return Wrap(
@@ -585,14 +591,16 @@ class _MembersList extends ConsumerWidget {
                     : m.userId == myUserId,
               ),
             if (showBin)
-              Builder(builder: (binContext) {
-                return _RemoveBinChip(
-                  label: viewerIsOwner ? 'Remove' : 'Leave',
-                  onDrop: (m) => m.userId == myUserId
-                      ? _confirmAndLeave(binContext, ref, household)
-                      : _kick(binContext, ref, m),
-                );
-              }),
+              Builder(
+                builder: (binContext) {
+                  return _RemoveBinChip(
+                    label: viewerIsOwner ? 'Remove' : 'Leave',
+                    onDrop: (m) => m.userId == myUserId
+                        ? _confirmAndLeave(binContext, ref, household)
+                        : _kick(binContext, ref, m),
+                  );
+                },
+              ),
           ],
         );
       },
@@ -600,13 +608,13 @@ class _MembersList extends ConsumerWidget {
   }
 }
 
-/// Drop target for removing a member — a ghosted dashed red circle with a
+/// Drop target for removing a member - a ghosted dashed red circle with a
 /// bin icon, sized and labelled like a member chip so it reads as part of
 /// the cloud. Fills solid red while a dragged avatar hovers over it.
 class _RemoveBinChip extends StatelessWidget {
   final ValueChanged<HouseholdMember> onDrop;
 
-  /// Caption under the circle — "Remove" for owners kicking others,
+  /// Caption under the circle - "Remove" for owners kicking others,
   /// "Leave" for a member dragging themselves out.
   final String label;
 
@@ -693,8 +701,7 @@ class _MemberChip extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 padding: const EdgeInsets.all(4),
-                child: Icon(Icons.star,
-                    size: 12, color: scheme.onPrimary),
+                child: Icon(Icons.star, size: 12, color: scheme.onPrimary),
               ),
             ),
           ],
@@ -733,7 +740,7 @@ class _MemberChip extends StatelessWidget {
     final restingChip = chip(avatarSize: 56);
     if (!canDrag) return restingChip;
 
-    // Long-press to lift — a plain Draggable claims the gesture arena
+    // Long-press to lift - a plain Draggable claims the gesture arena
     // immediately, which makes the page hard to scroll when a thumb
     // lands on an avatar.
     return LongPressDraggable<HouseholdMember>(

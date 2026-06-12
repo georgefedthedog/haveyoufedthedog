@@ -16,8 +16,9 @@ class HouseholdMembersRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final asyncMembers =
-        ref.watch(householdMembersControllerProvider(householdId));
+    final asyncMembers = ref.watch(
+      householdMembersControllerProvider(householdId),
+    );
     final members = asyncMembers.valueOrNull ?? const [];
     if (members.isEmpty) return const SizedBox.shrink();
 
@@ -32,20 +33,22 @@ class HouseholdMembersRow extends ConsumerWidget {
             children: [
               for (var i = 0; i < members.length; i++) ...[
                 if (i > 0) const SizedBox(width: 10),
-                Builder(builder: (_) {
-                  final m = members[i];
-                  final name = m.displayName;
-                  final initial = name.trim().isEmpty
-                      ? '?'
-                      : name.trim()[0].toUpperCase();
-                  return _Avatar(
-                    avatarId: m.avatar,
-                    initial: initial,
-                    seed: m.userId,
-                    name: name,
-                    isOwner: m.isOwner,
-                  );
-                }),
+                Builder(
+                  builder: (_) {
+                    final m = members[i];
+                    final name = m.displayName;
+                    final initial = name.trim().isEmpty
+                        ? '?'
+                        : name.trim()[0].toUpperCase();
+                    return _Avatar(
+                      avatarId: m.avatar,
+                      initial: initial,
+                      seed: m.userId,
+                      name: name,
+                      isOwner: m.isOwner,
+                    );
+                  },
+                ),
               ],
             ],
           ),
@@ -125,7 +128,7 @@ class _Avatar extends StatelessWidget {
     return Tooltip(message: name, child: circle);
   }
 
-  /// Stable pastel colour from a seed string — same id → same colour.
+  /// Stable pastel colour from a seed string - same id → same colour.
   Color _colorFromSeed(String seed) {
     var hash = 0;
     for (final c in seed.codeUnits) {

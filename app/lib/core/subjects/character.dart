@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/theme.dart';
 
 /// Expressions a character can be drawn in. Not every character has every
-/// expression — see [Character.assetFor] for the fallback chain.
+/// expression - see [Character.assetFor] for the fallback chain.
 ///
 /// Enum value names match the on-disk file names
 /// (`assets/subjects/<id>/<name>.png`) so there's a single vocabulary
@@ -12,16 +12,16 @@ enum CharacterExpression {
   /// Default; on home cards, subject hero, picker thumbnails.
   idle,
 
-  /// "All happy and fed" — subject detail when everything for today is done.
+  /// "All happy and fed" - subject detail when everything for today is done.
   happy,
 
-  /// "Hey, the bowl's empty" — pending / overdue.
+  /// "Hey, the bowl's empty" - pending / overdue.
   sad,
 
   /// Mid-confetti, arms up. Completion celebration screen.
   celebrate,
 
-  /// Peacefully snoozing — home's "nothing due today" state.
+  /// Peacefully snoozing - home's "nothing due today" state.
   sleeping,
 }
 
@@ -29,7 +29,7 @@ enum CharacterExpression {
 ///
 /// Characters live in [CharacterRegistry] (lower-level lookup) and are
 /// picked via the [CharacterPicker] widget. The stored value on
-/// `subjects.icon` is the [id] string — see [CharacterRegistry.lookup]
+/// `subjects.icon` is the [id] string - see [CharacterRegistry.lookup]
 /// for the fallback chain.
 @immutable
 class Character {
@@ -61,28 +61,28 @@ class Character {
     this.available = const {CharacterExpression.idle},
   });
 
-  /// Asset path for the closest expression we ship — defaults via
+  /// Asset path for the closest expression we ship - defaults via
   /// `celebrating → happy → idle`.
   String assetFor(CharacterExpression expression) {
     final ordered = switch (expression) {
       CharacterExpression.celebrate => const [
-          CharacterExpression.celebrate,
-          CharacterExpression.happy,
-          CharacterExpression.idle,
-        ],
+        CharacterExpression.celebrate,
+        CharacterExpression.happy,
+        CharacterExpression.idle,
+      ],
       CharacterExpression.happy => const [
-          CharacterExpression.happy,
-          CharacterExpression.celebrate,
-          CharacterExpression.idle,
-        ],
+        CharacterExpression.happy,
+        CharacterExpression.celebrate,
+        CharacterExpression.idle,
+      ],
       CharacterExpression.sad => const [
-          CharacterExpression.sad,
-          CharacterExpression.idle,
-        ],
+        CharacterExpression.sad,
+        CharacterExpression.idle,
+      ],
       CharacterExpression.sleeping => const [
-          CharacterExpression.sleeping,
-          CharacterExpression.idle,
-        ],
+        CharacterExpression.sleeping,
+        CharacterExpression.idle,
+      ],
       CharacterExpression.idle => const [CharacterExpression.idle],
     };
     final pick = ordered.firstWhere(
@@ -92,10 +92,10 @@ class Character {
     return 'assets/subjects/$id/${pick.name}.png';
   }
 
-  /// Asset path for the idle expression — most-used shortcut.
+  /// Asset path for the idle expression - most-used shortcut.
   String get idleAsset => assetFor(CharacterExpression.idle);
 
-  /// The character holding its weekly trophy — used on the featured
+  /// The character holding its weekly trophy - used on the featured
   /// award cards. Not an expression: it's a one-off celebratory pose.
   String get awardAsset => 'assets/subjects/$id/award.png';
 }

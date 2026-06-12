@@ -10,7 +10,7 @@ part 'auth_controller.g.dart';
 
 /// Tracks PocketBase auth state and exposes login / signup / logout.
 ///
-/// `AsyncNotifier` because the PocketBase client is itself async — we wait
+/// `AsyncNotifier` because the PocketBase client is itself async - we wait
 /// for it to load on first build, then watch `authStore.onChange` to push
 /// further updates.
 @Riverpod(keepAlive: true)
@@ -49,15 +49,17 @@ class AuthController extends _$AuthController {
     required String displayName,
   }) async {
     final pb = await ref.read(pocketbaseClientProvider.future);
-    await pb.collection('users').create(
-      body: {
-        'email': email,
-        'password': password,
-        'passwordConfirm': password,
-        'name': displayName,
-      },
-    );
-    // PB doesn't sign you in on create — log in immediately so the rest of
+    await pb
+        .collection('users')
+        .create(
+          body: {
+            'email': email,
+            'password': password,
+            'passwordConfirm': password,
+            'name': displayName,
+          },
+        );
+    // PB doesn't sign you in on create - log in immediately so the rest of
     // the app sees you as authenticated.
     await pb.collection('users').authWithPassword(email, password);
   }
@@ -76,7 +78,7 @@ class AuthController extends _$AuthController {
 
   /// Updates editable profile fields on the signed-in user.
   ///
-  /// Doesn't trigger an `AuthState` rebuild — [AuthState] compares on
+  /// Doesn't trigger an `AuthState` rebuild - [AuthState] compares on
   /// `(isAuthenticated, userId)` only, so name/avatar changes don't
   /// invalidate downstream watchers. Screens reading `auth.displayName`
   /// see the new value on their next read because the underlying

@@ -491,19 +491,19 @@ The setting should support the house but not overpower it. Keep the setting simp
 
 
 Times of day:
-Scene 1 — MORNING:
+Scene 1 - MORNING:
 Soft peach-pink morning sky. Low warm sun in the upper-left of the scene. A few wispy clouds. Fresh, cheerful, early-day feeling. Soft warm light on the front of the house.
 
-Scene 2 — MIDDAY:
+Scene 2 - MIDDAY:
 Bright pale-blue sky. Soft fluffy clouds. Sun high and gentle, partly behind one cloud. Clean, happy, daytime feeling. Lighting is clear but still soft and pastel.
 
-Scene 3 — AFTERNOON:
+Scene 3 - AFTERNOON:
 Warm sky-blue fading slightly toward peach near the horizon. Golden but gentle light. A few rounded clouds. The house feels cosy and welcoming, with slightly warmer highlights than midday.
 
-Scene 4 — EVENING:
+Scene 4 - EVENING:
 Soft apricot-to-lavender gradient sky. Sun setting low near the horizon on the right. A few soft purple clouds with warm pink undersides. House has warm sunset highlights and slightly cooler soft shadows. Peaceful, settling-down feeling, but not dark.
 
-Scene 5 — NIGHT:
+Scene 5 - NIGHT:
 Deep indigo sky fading to navy. Small crescent moon in the upper-right of the scene. Small scattered stars. House is softly visible with cosy warm window glow. Gentle nighttime ambience, not spooky, not too dark.
 
 Consistency:
@@ -551,19 +551,19 @@ The character must remain identical in every cell:
 * same lighting
 * same scale
 
-Pose 1 — IDLE:
+Pose 1 - IDLE:
 Calm, standing or resting naturally, neutral friendly expression, gentle smile.
 
-Pose 2 — HAPPY:
+Pose 2 - HAPPY:
 Eyes closed, big smile, content expression, slight blush if appropriate.
 
-Pose 3 — SAD:
+Pose 3 - SAD:
 Droopy posture, frown, eyes looking down, single tear optional.
 
-Pose 4 — CELEBRATING:
+Pose 4 - CELEBRATING:
 Arms up or equivalent, wide open eyes, huge smile, energetic pose, motion lines, mid-jump if appropriate.
 
-Pose 5 — SLEEPING:
+Pose 5 - SLEEPING:
 Asleep in a charming way. If an animal, curled up asleep. If an object or plant, relaxed sleepy posture with closed eyes. Optional small “Z” symbols are allowed.
 
 Consistency:

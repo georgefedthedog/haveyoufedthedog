@@ -5,7 +5,7 @@ import '../../core/household/picture.dart';
 import '../home/time_of_day_bucket.dart';
 
 /// Renders a household's chosen [Picture] in the variant matching the
-/// current time of day (or [bucketOverride] when supplied — useful for
+/// current time of day (or [bucketOverride] when supplied - useful for
 /// previewing other times).
 ///
 /// When [picture] is null (unset on the household, or unknown id): draws
@@ -46,7 +46,7 @@ class PictureArtwork extends StatelessWidget {
       );
     }
 
-    // Fallback panel — cosy generic house on a cream stage.
+    // Fallback panel - cosy generic house on a cream stage.
     final theme = Theme.of(context);
     return SizedBox(
       height: height,

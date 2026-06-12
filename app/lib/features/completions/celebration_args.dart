@@ -14,7 +14,7 @@ class CelebrationArgs {
   final String? whoName;
 
   /// Avatar id of the user who completed the chore (matches `AvatarRegistry`).
-  /// Null when the logger hasn't picked an avatar — overlay renders the
+  /// Null when the logger hasn't picked an avatar - overlay renders the
   /// silhouette next to their name.
   final String? whoAvatar;
   final int streak;

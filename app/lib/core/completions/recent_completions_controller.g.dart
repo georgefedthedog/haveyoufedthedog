@@ -37,10 +37,10 @@ abstract class _$RecentCompletionsController
   FutureOr<List<Completion>> build(String subjectId);
 }
 
-/// Recent completions for one subject — backs the history list on the
+/// Recent completions for one subject - backs the history list on the
 /// subject detail screen. Family parameter: the subject id.
 ///
-/// Uses `getList` with `perPage: 50` rather than `getFullList` — we don't
+/// Uses `getList` with `perPage: 50` rather than `getFullList` - we don't
 /// need every completion ever, just the recent ones. If history grows huge
 /// we can paginate later.
 ///
@@ -48,30 +48,30 @@ abstract class _$RecentCompletionsController
 @ProviderFor(RecentCompletionsController)
 const recentCompletionsControllerProvider = RecentCompletionsControllerFamily();
 
-/// Recent completions for one subject — backs the history list on the
+/// Recent completions for one subject - backs the history list on the
 /// subject detail screen. Family parameter: the subject id.
 ///
-/// Uses `getList` with `perPage: 50` rather than `getFullList` — we don't
+/// Uses `getList` with `perPage: 50` rather than `getFullList` - we don't
 /// need every completion ever, just the recent ones. If history grows huge
 /// we can paginate later.
 ///
 /// Copied from [RecentCompletionsController].
 class RecentCompletionsControllerFamily
     extends Family<AsyncValue<List<Completion>>> {
-  /// Recent completions for one subject — backs the history list on the
+  /// Recent completions for one subject - backs the history list on the
   /// subject detail screen. Family parameter: the subject id.
   ///
-  /// Uses `getList` with `perPage: 50` rather than `getFullList` — we don't
+  /// Uses `getList` with `perPage: 50` rather than `getFullList` - we don't
   /// need every completion ever, just the recent ones. If history grows huge
   /// we can paginate later.
   ///
   /// Copied from [RecentCompletionsController].
   const RecentCompletionsControllerFamily();
 
-  /// Recent completions for one subject — backs the history list on the
+  /// Recent completions for one subject - backs the history list on the
   /// subject detail screen. Family parameter: the subject id.
   ///
-  /// Uses `getList` with `perPage: 50` rather than `getFullList` — we don't
+  /// Uses `getList` with `perPage: 50` rather than `getFullList` - we don't
   /// need every completion ever, just the recent ones. If history grows huge
   /// we can paginate later.
   ///
@@ -102,10 +102,10 @@ class RecentCompletionsControllerFamily
   String? get name => r'recentCompletionsControllerProvider';
 }
 
-/// Recent completions for one subject — backs the history list on the
+/// Recent completions for one subject - backs the history list on the
 /// subject detail screen. Family parameter: the subject id.
 ///
-/// Uses `getList` with `perPage: 50` rather than `getFullList` — we don't
+/// Uses `getList` with `perPage: 50` rather than `getFullList` - we don't
 /// need every completion ever, just the recent ones. If history grows huge
 /// we can paginate later.
 ///
@@ -116,10 +116,10 @@ class RecentCompletionsControllerProvider
           RecentCompletionsController,
           List<Completion>
         > {
-  /// Recent completions for one subject — backs the history list on the
+  /// Recent completions for one subject - backs the history list on the
   /// subject detail screen. Family parameter: the subject id.
   ///
-  /// Uses `getList` with `perPage: 50` rather than `getFullList` — we don't
+  /// Uses `getList` with `perPage: 50` rather than `getFullList` - we don't
   /// need every completion ever, just the recent ones. If history grows huge
   /// we can paginate later.
   ///

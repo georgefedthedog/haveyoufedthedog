@@ -37,21 +37,21 @@ class Routes {
   static const historyTab = '/history';
   static const youTab = '/you';
 
-  /// Edit profile — full-screen edit pushed from outside the shell.
+  /// Edit profile - full-screen edit pushed from outside the shell.
   static const profile = '/profile';
 
   /// Full-screen celebration overlay (confetti + character) shown after a
   /// completion is logged. Push with a `CelebrationArgs` instance in `extra`.
   static const celebration = '/celebration';
 
-  /// Household-wide "every chore done today" celebration — confetti +
+  /// Household-wide "every chore done today" celebration - confetti +
   /// trophy cup, then lands on the Awards tab.
   static const dayCelebration = '/day-celebration';
 
   /// Create a new subject in the current household.
   static const subjectNew = '/subject/new';
 
-  /// View one subject — detail + history. Path parameter `id` is the
+  /// View one subject - detail + history. Path parameter `id` is the
   /// subject id.
   static const subjectDetailPattern = '/subject/:id';
   static String subjectDetail(String id) => '/subject/$id';

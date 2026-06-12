@@ -10,7 +10,7 @@ import '../../router/routes.dart';
 import '../../widgets/empty_state.dart';
 import '../home/subject_hero_card.dart';
 
-/// Subjects tab — a grid of every subject in the current household with a
+/// Subjects tab - a grid of every subject in the current household with a
 /// quick-status line. Tap any tile to dive into its detail screen.
 class SubjectsTabScreen extends ConsumerWidget {
   const SubjectsTabScreen({super.key});

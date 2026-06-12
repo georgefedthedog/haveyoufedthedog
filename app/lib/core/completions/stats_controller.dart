@@ -8,7 +8,7 @@ import 'household_history_controller.dart';
 
 part 'stats_controller.g.dart';
 
-/// Weekly window for stats — Monday→Sunday based on the user's local clock.
+/// Weekly window for stats - Monday→Sunday based on the user's local clock.
 class WeekWindow {
   final DateTime start; // inclusive, at 00:00 local
   final DateTime end; // exclusive, at next-Monday 00:00 local
@@ -25,10 +25,7 @@ class WeekWindow {
   }
 
   WeekWindow previous() {
-    return WeekWindow(
-      start.subtract(const Duration(days: 7)),
-      start,
-    );
+    return WeekWindow(start.subtract(const Duration(days: 7)), start);
   }
 }
 
@@ -49,21 +46,17 @@ class WeeklyStats {
 /// [householdHistoryControllerProvider]; no extra fetch.
 @riverpod
 WeeklyStats currentWeekStats(Ref ref) {
-  final list = ref
-          .watch(householdHistoryControllerProvider)
-          .valueOrNull ??
-      const [];
+  final list =
+      ref.watch(householdHistoryControllerProvider).valueOrNull ?? const [];
   return _windowStats(list, WeekWindow.current());
 }
 
-/// Stats for last week — used for the week-over-week delta on the History
+/// Stats for last week - used for the week-over-week delta on the History
 /// tab. Same data source.
 @riverpod
 WeeklyStats previousWeekStats(Ref ref) {
-  final list = ref
-          .watch(householdHistoryControllerProvider)
-          .valueOrNull ??
-      const [];
+  final list =
+      ref.watch(householdHistoryControllerProvider).valueOrNull ?? const [];
   return _windowStats(list, WeekWindow.current().previous());
 }
 
@@ -88,21 +81,18 @@ WeeklyStats _windowStats(List list, WeekWindow window) {
 /// Mean completion time-of-day per chore id, derived from the cached
 /// household history. Uses a circular mean (angles on a 24h clock face)
 /// so a chore done at 11pm and 1am averages to midnight, not noon.
-/// Chores with fewer than two logged completions are omitted — one data
+/// Chores with fewer than two logged completions are omitted - one data
 /// point isn't a habit yet.
 @riverpod
 Map<String, TimeOfDay> choreMeanTimes(Ref ref) {
-  final list = ref
-          .watch(householdHistoryControllerProvider)
-          .valueOrNull ??
-      const [];
+  final list =
+      ref.watch(householdHistoryControllerProvider).valueOrNull ?? const [];
 
   final sums = <String, List<double>>{}; // choreId -> [sinSum, cosSum, n]
   for (final c in list) {
     final choreId = c.choreId;
     if (choreId == null) continue;
-    final minutes =
-        c.completedAt.hour * 60 + c.completedAt.minute.toDouble();
+    final minutes = c.completedAt.hour * 60 + c.completedAt.minute.toDouble();
     final angle = minutes / (24 * 60) * 2 * pi;
     final acc = sums.putIfAbsent(choreId, () => [0, 0, 0]);
     acc[0] += sin(angle);
@@ -126,10 +116,8 @@ Map<String, TimeOfDay> choreMeanTimes(Ref ref) {
 /// `subjectStreakProvider` but aggregated.
 @riverpod
 int householdStreak(Ref ref) {
-  final list = ref
-          .watch(householdHistoryControllerProvider)
-          .valueOrNull ??
-      const [];
+  final list =
+      ref.watch(householdHistoryControllerProvider).valueOrNull ?? const [];
   if (list.isEmpty) return 0;
 
   final now = DateTime.now();

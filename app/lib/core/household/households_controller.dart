@@ -44,11 +44,13 @@ class HouseholdsController extends _$HouseholdsController {
 
       try {
         final h = await pb.collection('households').getOne(hhId);
-        result.add(Household(
-          record: h,
-          role: m.data['role'] as String? ?? 'member',
-          membershipId: m.id,
-        ));
+        result.add(
+          Household(
+            record: h,
+            role: m.data['role'] as String? ?? 'member',
+            membershipId: m.id,
+          ),
+        );
       } catch (e) {
         // Likely a stale membership pointing at a deleted household, or a
         // perm issue. Skip rather than crash the whole list.
@@ -62,7 +64,7 @@ class HouseholdsController extends _$HouseholdsController {
 
   /// Updates one household in place without going through `AsyncLoading`.
   /// Used for actions that change a household's fields (rename, invite
-  /// settings) — these don't change the LIST, so the router doesn't bump
+  /// settings) - these don't change the LIST, so the router doesn't bump
   /// the user to splash and back.
   ///
   /// Mutates the underlying RecordModel's `data` map directly. Safe here

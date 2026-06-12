@@ -9,14 +9,13 @@ import 'character_message.dart';
 
 part 'subject_mood_controller.g.dart';
 
-/// How [subjectId] is doing right now — see [SubjectMood] for the
+/// How [subjectId] is doing right now - see [SubjectMood] for the
 /// priority order. Derived from the chores + today-completions
 /// controllers; no extra fetch. Watch this anywhere a subject's state
 /// drives UI (hero expression, status copy, card art).
 @riverpod
 SubjectMood subjectMood(Ref ref, String subjectId) {
-  final allChores =
-      ref.watch(choresControllerProvider).valueOrNull ?? const [];
+  final allChores = ref.watch(choresControllerProvider).valueOrNull ?? const [];
   final completions =
       ref.watch(todayCompletionsControllerProvider).valueOrNull ?? const [];
 
@@ -53,7 +52,7 @@ SubjectMood subjectMood(Ref ref, String subjectId) {
 /// (detail hero, cards, future read-sites) agrees.
 extension SubjectMoodExpression on SubjectMood {
   CharacterExpression get expression {
-    // Everything done and it's night (after 20:00) — tucked in for the
+    // Everything done and it's night (after 20:00) - tucked in for the
     // day rather than grinning into the dark.
     if (this == SubjectMood.allDone &&
         bucketFor(DateTime.now()) == TimeOfDayBucket.night) {
@@ -64,7 +63,7 @@ extension SubjectMoodExpression on SubjectMood {
       SubjectMood.overdue => CharacterExpression.sad,
       SubjectMood.upcoming => CharacterExpression.idle,
       SubjectMood.happyForNow => CharacterExpression.idle,
-      // Day off — nothing due today, let them snooze.
+      // Day off - nothing due today, let them snooze.
       SubjectMood.none => CharacterExpression.sleeping,
     };
   }

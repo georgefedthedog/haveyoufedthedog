@@ -11,7 +11,7 @@ String _$householdHistoryControllerHash() =>
 
 /// Recent completions across every subject in the current household. Used
 /// by the History tab. Returns the last `perPage` entries (100 by default
-/// — small households' "everything since forever" fits comfortably).
+/// - small households' "everything since forever" fits comfortably).
 ///
 /// Copied from [HouseholdHistoryController].
 @ProviderFor(HouseholdHistoryController)

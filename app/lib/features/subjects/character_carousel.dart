@@ -5,7 +5,7 @@ import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/characters.dart';
 
 /// Carousel-style picker for subject characters. Mirror of `PicturePicker`
-/// used on household details — one character is centred at a time, with
+/// used on household details - one character is centred at a time, with
 /// neighbours peeking + faded on either side. Swipe (or tap a peeking
 /// neighbour) to scroll; selection happens on settle.
 ///
@@ -120,9 +120,9 @@ class _CarouselTile extends StatelessWidget {
       builder: (context, child) {
         double offset;
         if (controller.position.hasContentDimensions) {
-          offset = ((controller.page ?? controller.initialPage.toDouble()) -
-                  index)
-              .abs();
+          offset =
+              ((controller.page ?? controller.initialPage.toDouble()) - index)
+                  .abs();
         } else {
           offset = (controller.initialPage - index).abs().toDouble();
         }

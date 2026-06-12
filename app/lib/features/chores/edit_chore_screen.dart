@@ -20,12 +20,11 @@ class EditChoreScreen extends ConsumerStatefulWidget {
   /// Required when creating; ignored when editing (read off the chore).
   final String? subjectId;
 
-  const EditChoreScreen({
-    super.key,
-    this.choreId,
-    this.subjectId,
-  }) : assert(choreId != null || subjectId != null,
-            'Need either choreId (edit) or subjectId (create).');
+  const EditChoreScreen({super.key, this.choreId, this.subjectId})
+    : assert(
+        choreId != null || subjectId != null,
+        'Need either choreId (edit) or subjectId (create).',
+      );
 
   @override
   ConsumerState<EditChoreScreen> createState() => _EditChoreScreenState();
@@ -57,7 +56,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     _seeded = true;
   }
 
-  /// Static preview of the chore in its neutral state — always shows the
+  /// Static preview of the chore in its neutral state - always shows the
   /// full name and the complete schedule line (days + time), regardless
   /// of whether the chore would currently be overdue / due-soon. The
   /// styling mirrors ChoreRow's resting look without its live status.
@@ -69,8 +68,9 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
       type: _scheduleType,
       hour: _time.hour,
       minute: _time.minute,
-      weekdayMask:
-          _scheduleType == ScheduleType.daily ? Weekdays.all : _weekdayMask,
+      weekdayMask: _scheduleType == ScheduleType.daily
+          ? Weekdays.all
+          : _weekdayMask,
     );
     return Card(
       shape: RoundedRectangleBorder(
@@ -118,10 +118,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   }
 
   Future<void> _pickTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _time,
-    );
+    final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked != null) setState(() => _time = picked);
   }
 
@@ -132,8 +129,9 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     // For daily chores the mask is irrelevant; force `all` so the server
     // never stores a meaningless mask. (Also satisfies the schema's
     // required+non-zero check, which doubles as a safety net for weekly.)
-    final maskToSend =
-        _scheduleType == ScheduleType.daily ? Weekdays.all : _weekdayMask;
+    final maskToSend = _scheduleType == ScheduleType.daily
+        ? Weekdays.all
+        : _weekdayMask;
 
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
@@ -161,10 +159,9 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
       }
       if (mounted) router.pop();
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not save: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+      );
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -203,10 +200,9 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
       await ref.read(choreActionsProvider).deleteChore(widget.choreId!);
       if (mounted) router.pop();
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
-        showCloseIcon: true,
-        content: Text('Could not delete: $e'),
-      ));
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+      );
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -220,9 +216,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
         orElse: () => throw StateError('Chore ${widget.choreId} missing'),
       );
       if (existing == null) {
-        return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        );
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
       _seedFromExisting(existing);
     }
@@ -297,8 +291,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                           label: 'On these days',
                           child: WeekdayPicker(
                             mask: _weekdayMask,
-                            onChanged: (m) =>
-                                setState(() => _weekdayMask = m),
+                            onChanged: (m) => setState(() => _weekdayMask = m),
                           ),
                         ),
                         if (_weekdayMask == 0) ...[
@@ -317,8 +310,12 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                           color: scheme.surfaceContainerHigh,
                           child: ListTile(
                             leading: const Icon(Icons.schedule),
-                            title: Text(ScheduleRule.formatClock(
-                                _time.hour, _time.minute)),
+                            title: Text(
+                              ScheduleRule.formatClock(
+                                _time.hour,
+                                _time.minute,
+                              ),
+                            ),
                             trailing: const Icon(Icons.edit),
                             onTap: _pickTime,
                           ),

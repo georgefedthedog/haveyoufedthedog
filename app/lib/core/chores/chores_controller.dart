@@ -7,7 +7,7 @@ import 'chore.dart';
 part 'chores_controller.g.dart';
 
 /// All chores in the current household, across every subject. The home
-/// screen filters down to "due today" per-subject when rendering chips —
+/// screen filters down to "due today" per-subject when rendering chips -
 /// it's a small list and that derivation lives close to the UI.
 ///
 /// One query per household instead of one per subject so the home screen
@@ -23,7 +23,9 @@ class ChoresController extends _$ChoresController {
     final current = currentAsync.valueOrNull;
     if (current == null) return const [];
 
-    final records = await pb.collection('chores').getFullList(
+    final records = await pb
+        .collection('chores')
+        .getFullList(
           // PocketBase supports relation dot-notation in filters.
           filter: 'subject.household = "${current.id}" && active = true',
           sort: 'sort_order,name',

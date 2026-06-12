@@ -9,7 +9,7 @@ part of 'chores_controller.dart';
 String _$choresControllerHash() => r'0efe531341c2bea618b84b2df504674787e05eba';
 
 /// All chores in the current household, across every subject. The home
-/// screen filters down to "due today" per-subject when rendering chips —
+/// screen filters down to "due today" per-subject when rendering chips -
 /// it's a small list and that derivation lives close to the UI.
 ///
 /// One query per household instead of one per subject so the home screen

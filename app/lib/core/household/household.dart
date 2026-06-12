@@ -2,7 +2,7 @@ import 'package:pocketbase/pocketbase.dart';
 
 /// A household, as seen by a member of it. Wraps the `households` record
 /// and carries the user's [role] + [membershipId] from the related
-/// `household_members` row — because we only ever look at households in
+/// `household_members` row - because we only ever look at households in
 /// the context of the current user being a member.
 ///
 /// Distinct from [HouseholdMember], which represents a *peer* user's row
@@ -11,7 +11,7 @@ class Household {
   /// The underlying `households` record.
   final RecordModel record;
 
-  /// The current user's role in this household — `owner` or `member`.
+  /// The current user's role in this household - `owner` or `member`.
   final String role;
 
   /// Primary key of the `household_members` row that grants the current

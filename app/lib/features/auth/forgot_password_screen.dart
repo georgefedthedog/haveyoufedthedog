@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../widgets/labeled_field.dart';
 
-/// "Forgot password?" — takes an email, asks PB to send a reset link,
+/// "Forgot password?" - takes an email, asks PB to send a reset link,
 /// then flips to a check-your-inbox confirmation. The actual password
 /// change happens on the link in the email.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
-  /// Pre-fills the email field — passed through from whatever the user
+  /// Pre-fills the email field - passed through from whatever the user
   /// had typed on the login form.
   final String? initialEmail;
 
@@ -65,10 +65,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reset password'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Reset password'), centerTitle: true),
       body: SafeArea(
         child: Align(
           alignment: const Alignment(0, -0.4),
@@ -101,7 +98,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No worries — it happens to the best of us.\n'
+            'No worries - it happens to the best of us.\n'
             "We'll email you a link to set a new one.",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -147,8 +144,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Icon(Icons.mark_email_read_outlined,
-            size: 64, color: scheme.primary),
+        Icon(Icons.mark_email_read_outlined, size: 64, color: scheme.primary),
         const SizedBox(height: 16),
         Text(
           'Check your inbox!',

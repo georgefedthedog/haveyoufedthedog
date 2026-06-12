@@ -29,7 +29,7 @@ class _SystemHash {
   }
 }
 
-/// How [subjectId] is doing right now — see [SubjectMood] for the
+/// How [subjectId] is doing right now - see [SubjectMood] for the
 /// priority order. Derived from the chores + today-completions
 /// controllers; no extra fetch. Watch this anywhere a subject's state
 /// drives UI (hero expression, status copy, card art).
@@ -38,14 +38,14 @@ class _SystemHash {
 @ProviderFor(subjectMood)
 const subjectMoodProvider = SubjectMoodFamily();
 
-/// How [subjectId] is doing right now — see [SubjectMood] for the
+/// How [subjectId] is doing right now - see [SubjectMood] for the
 /// priority order. Derived from the chores + today-completions
 /// controllers; no extra fetch. Watch this anywhere a subject's state
 /// drives UI (hero expression, status copy, card art).
 ///
 /// Copied from [subjectMood].
 class SubjectMoodFamily extends Family<SubjectMood> {
-  /// How [subjectId] is doing right now — see [SubjectMood] for the
+  /// How [subjectId] is doing right now - see [SubjectMood] for the
   /// priority order. Derived from the chores + today-completions
   /// controllers; no extra fetch. Watch this anywhere a subject's state
   /// drives UI (hero expression, status copy, card art).
@@ -53,7 +53,7 @@ class SubjectMoodFamily extends Family<SubjectMood> {
   /// Copied from [subjectMood].
   const SubjectMoodFamily();
 
-  /// How [subjectId] is doing right now — see [SubjectMood] for the
+  /// How [subjectId] is doing right now - see [SubjectMood] for the
   /// priority order. Derived from the chores + today-completions
   /// controllers; no extra fetch. Watch this anywhere a subject's state
   /// drives UI (hero expression, status copy, card art).
@@ -85,14 +85,14 @@ class SubjectMoodFamily extends Family<SubjectMood> {
   String? get name => r'subjectMoodProvider';
 }
 
-/// How [subjectId] is doing right now — see [SubjectMood] for the
+/// How [subjectId] is doing right now - see [SubjectMood] for the
 /// priority order. Derived from the chores + today-completions
 /// controllers; no extra fetch. Watch this anywhere a subject's state
 /// drives UI (hero expression, status copy, card art).
 ///
 /// Copied from [subjectMood].
 class SubjectMoodProvider extends AutoDisposeProvider<SubjectMood> {
-  /// How [subjectId] is doing right now — see [SubjectMood] for the
+  /// How [subjectId] is doing right now - see [SubjectMood] for the
   /// priority order. Derived from the chores + today-completions
   /// controllers; no extra fetch. Watch this anywhere a subject's state
   /// drives UI (hero expression, status copy, card art).

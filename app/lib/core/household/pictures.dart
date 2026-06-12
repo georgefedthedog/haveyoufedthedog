@@ -9,11 +9,8 @@ import 'picture.dart';
 class PictureRegistry {
   PictureRegistry._();
 
-  /// Ordered list — picker renders them in this order.
-  static const all = <Picture>[
-    paihia,
-    terrace,
-  ];
+  /// Ordered list - picker renders them in this order.
+  static const all = <Picture>[paihia, terrace];
 
   static const paihia = Picture(id: 'paihia', displayName: 'Paihia House');
   static const terrace = Picture(id: 'terrace', displayName: 'Terrace');

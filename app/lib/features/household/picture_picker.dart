@@ -8,13 +8,13 @@ import 'picture_artwork.dart';
 ///
 /// One picture is shown centred at a time; neighbours peek at the edges so
 /// the swipe affordance is obvious. The currently-staged picture is whatever
-/// is centred — selection happens by swiping, not tapping. Tapping a peeking
+/// is centred - selection happens by swiping, not tapping. Tapping a peeking
 /// neighbour snaps to it.
 ///
 /// Pass [selected] (nullable) and receive a non-null picture id via
 /// [onChanged] whenever a new page settles.
 class PicturePicker extends StatefulWidget {
-  /// Currently-selected picture id. Null = no picture chosen yet —
+  /// Currently-selected picture id. Null = no picture chosen yet -
   /// carousel opens at the first entry.
   final String? selected;
 
@@ -129,9 +129,9 @@ class _CarouselTile extends StatelessWidget {
         // Before the controller is attached, fall back to initialPage.
         double offset;
         if (controller.position.hasContentDimensions) {
-          offset = ((controller.page ?? controller.initialPage.toDouble()) -
-                  index)
-              .abs();
+          offset =
+              ((controller.page ?? controller.initialPage.toDouble()) - index)
+                  .abs();
         } else {
           offset = (controller.initialPage - index).abs().toDouble();
         }

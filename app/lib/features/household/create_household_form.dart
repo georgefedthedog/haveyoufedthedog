@@ -36,15 +36,15 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
     } on ClientException catch (e) {
       final msg = e.response['message'] as String? ?? 'Could not create';
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text(msg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text('$e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -60,7 +60,7 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
         children: [
           const SizedBox(height: 16),
           Text(
-            'Start a new household — for your family, flatmates, '
+            'Start a new household - for your family, flatmates, '
             'or anyone you share chores with.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),

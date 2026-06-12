@@ -11,7 +11,7 @@ String _$pocketbaseClientHash() => r'c900560531629b042433d9c981bc3c8316043f2e';
 /// Async-initialised PocketBase client. Reads any persisted auth token
 /// from secure storage so the user stays signed in across launches.
 ///
-/// Self-contained — no `main()` override dance. Downstream providers
+/// Self-contained - no `main()` override dance. Downstream providers
 /// `await ref.watch(pocketbaseClientProvider.future)` once and the SDK
 /// caches the resolved client for the rest of the session.
 ///

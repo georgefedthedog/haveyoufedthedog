@@ -13,17 +13,13 @@ import '../../core/subjects/subject_mood_controller.dart';
 
 /// Home-screen card for one subject. Stage-coloured panel with the
 /// character on the left and name + today's progress on the right. The
-/// whole card is one tap target — chip-level interaction lives on the
+/// whole card is one tap target - chip-level interaction lives on the
 /// subject detail screen now.
 class SubjectHeroCard extends ConsumerWidget {
   final Subject subject;
   final VoidCallback? onTap;
 
-  const SubjectHeroCard({
-    super.key,
-    required this.subject,
-    this.onTap,
-  });
+  const SubjectHeroCard({super.key, required this.subject, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,7 +32,9 @@ class SubjectHeroCard extends ConsumerWidget {
 
     final allChores = asyncChores.valueOrNull ?? const <Chore>[];
     final mineToday = allChores
-        .where((c) => c.subjectId == subject.id && c.rule.isDueOn(DateTime.now()))
+        .where(
+          (c) => c.subjectId == subject.id && c.rule.isDueOn(DateTime.now()),
+        )
         .toList();
     final hasAnyChores = allChores.any((c) => c.subjectId == subject.id);
 
@@ -44,8 +42,9 @@ class SubjectHeroCard extends ConsumerWidget {
       for (final c in asyncCompletions.valueOrNull ?? const [])
         if (c.choreId != null) c.choreId!,
     };
-    final doneCount =
-        mineToday.where((c) => doneChoreIds.contains(c.id)).length;
+    final doneCount = mineToday
+        .where((c) => doneChoreIds.contains(c.id))
+        .length;
     final total = mineToday.length;
     final allDone = total > 0 && doneCount == total;
 
@@ -55,7 +54,7 @@ class SubjectHeroCard extends ConsumerWidget {
 
     final streak = ref.watch(subjectStreakProvider(subject.id));
 
-    // Same gentle diagonal shading as the subject hero's stage — darker
+    // Same gentle diagonal shading as the subject hero's stage - darker
     // toward the bottom-left, lighter toward the top-right, derived from
     // the stage colour so every character gets a matching lift.
     final stageHsl = HSLColor.fromColor(character.stageColor);
@@ -88,8 +87,9 @@ class SubjectHeroCard extends ConsumerWidget {
                   ),
                   child: CharacterArtwork(
                     character: character,
-                    expression:
-                        ref.watch(subjectMoodProvider(subject.id)).expression,
+                    expression: ref
+                        .watch(subjectMoodProvider(subject.id))
+                        .expression,
                     stage: false,
                     iconSize: 56,
                   ),

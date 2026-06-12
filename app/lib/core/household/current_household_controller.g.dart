@@ -11,7 +11,7 @@ String _$currentHouseholdControllerHash() =>
 
 /// Picks the currently-active household for the signed-in user.
 ///
-/// Async — consistent with the rest of the data-fetching controllers. The
+/// Async - consistent with the rest of the data-fetching controllers. The
 /// router's `routingPhase` provider buffers this controller's transient
 /// `AsyncLoading` states so deep state churn doesn't bounce the user off
 /// the screen they're on.

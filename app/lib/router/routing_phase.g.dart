@@ -12,7 +12,7 @@ String _$routingPhaseHash() => r'13f262af698cbeea5b04dfb7e089d2fb6373e0ca';
 ///
 /// Returns an enum value, so the router's listener only fires on actual
 /// phase transitions. Adding a chore, renaming a household, etc. won't
-/// produce a different phase — so the router doesn't bounce the user.
+/// produce a different phase - so the router doesn't bounce the user.
 ///
 /// Copied from [routingPhase].
 @ProviderFor(routingPhase)

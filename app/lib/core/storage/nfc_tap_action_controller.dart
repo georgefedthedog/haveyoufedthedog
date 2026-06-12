@@ -6,9 +6,9 @@ part 'nfc_tap_action_controller.g.dart';
 
 /// Per-device preference for what an NFC tag tap does:
 ///
-/// - **true** (default) — complete the closest due chore for the bound
+/// - **true** (default) - complete the closest due chore for the bound
 ///   subject, with the celebration overlay. The original behaviour.
-/// - **false** — just open the subject's detail screen.
+/// - **false** - just open the subject's detail screen.
 ///
 /// Lives in SharedPreferences (each phone configures its own tap
 /// behaviour) and is toggled from the Edit Profile screen.

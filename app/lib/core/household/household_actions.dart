@@ -15,7 +15,7 @@ part 'household_actions.g.dart';
 @Riverpod(keepAlive: true)
 HouseholdActions householdActions(Ref ref) => HouseholdActions(ref);
 
-/// **Not** a Riverpod notifier — actions don't have their own state. State
+/// **Not** a Riverpod notifier - actions don't have their own state. State
 /// lives in `HouseholdsController` / `CurrentHouseholdController`.
 class HouseholdActions {
   final Ref _ref;
@@ -37,17 +37,17 @@ class HouseholdActions {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final userId = await _currentUserId();
 
-    final household = await pb.collection('households').create(body: {
-      'name': name,
-      'created_by': userId,
-      'invites_open': false,
-    });
+    final household = await pb
+        .collection('households')
+        .create(
+          body: {'name': name, 'created_by': userId, 'invites_open': false},
+        );
 
-    await pb.collection('household_members').create(body: {
-      'household': household.id,
-      'user': userId,
-      'role': 'owner',
-    });
+    await pb
+        .collection('household_members')
+        .create(
+          body: {'household': household.id, 'user': userId, 'role': 'owner'},
+        );
 
     _ref.invalidate(householdsControllerProvider);
     await _ref
@@ -96,7 +96,9 @@ class HouseholdActions {
     if (name != null) body['name'] = name;
     if (picture != null) body['picture'] = picture;
     await pb.collection('households').update(householdId, body: body);
-    _ref.read(householdsControllerProvider.notifier).updateOneInPlace(
+    _ref
+        .read(householdsControllerProvider.notifier)
+        .updateOneInPlace(
           householdId: householdId,
           name: name,
           picture: picture,
@@ -135,10 +137,12 @@ class HouseholdActions {
   }) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final code = open ? _generateInviteCode() : null;
-    await pb.collection('households').update(householdId, body: {
-      'invites_open': open,
-      'invite_code': code ?? '',
-    });
+    await pb
+        .collection('households')
+        .update(
+          householdId,
+          body: {'invites_open': open, 'invite_code': code ?? ''},
+        );
     _ref
         .read(householdsControllerProvider.notifier)
         .updateOneInPlace(
@@ -154,9 +158,9 @@ class HouseholdActions {
   Future<void> rotateInviteCode(String householdId) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final code = _generateInviteCode();
-    await pb.collection('households').update(householdId, body: {
-      'invite_code': code,
-    });
+    await pb
+        .collection('households')
+        .update(householdId, body: {'invite_code': code});
     _ref
         .read(householdsControllerProvider.notifier)
         .updateOneInPlace(householdId: householdId, inviteCode: code);
@@ -170,8 +174,8 @@ final _inviteRand = Random.secure();
 
 String _generateInviteCode() {
   String chunk() => List.generate(
-        4,
-        (_) => _inviteAlphabet[_inviteRand.nextInt(_inviteAlphabet.length)],
-      ).join();
+    4,
+    (_) => _inviteAlphabet[_inviteRand.nextInt(_inviteAlphabet.length)],
+  ).join();
   return '${chunk()}-${chunk()}';
 }
