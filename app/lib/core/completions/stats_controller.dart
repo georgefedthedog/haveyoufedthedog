@@ -4,6 +4,8 @@ import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../chores/chore.dart';
+import '../chores/chores_controller.dart';
 import 'household_history_controller.dart';
 
 part 'stats_controller.g.dart';
@@ -111,37 +113,50 @@ Map<String, TimeOfDay> choreMeanTimes(Ref ref) {
   return result;
 }
 
-/// Number of consecutive days (ending today or yesterday) the household has
-/// had at least one completion across any subject. Mirror of
-/// `subjectStreakProvider` but aggregated.
+/// Number of consecutive **due days** with at least one completion,
+/// household-wide. Same schedule-aware walk as `subjectStreakProvider`:
+/// days where no chore in the household is due are skipped (they neither
+/// count nor break), and today gets a grace pass while its chores are
+/// still outstanding.
 @riverpod
 int householdStreak(Ref ref) {
   final list =
       ref.watch(householdHistoryControllerProvider).valueOrNull ?? const [];
-  if (list.isEmpty) return 0;
+  final allChores =
+      ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
+  final activeChores = [
+    for (final c in allChores)
+      if (c.active) c,
+  ];
+  if (list.isEmpty || activeChores.isEmpty) return 0;
+
+  final completedDays = <DateTime>{};
+  DateTime? earliestCompletion;
+  for (final c in list) {
+    final d = c.completedAt;
+    final day = DateTime(d.year, d.month, d.day);
+    completedDays.add(day);
+    if (earliestCompletion == null || day.isBefore(earliestCompletion)) {
+      earliestCompletion = day;
+    }
+  }
 
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
 
-  final dayKeys = <DateTime>{};
-  for (final c in list) {
-    final d = c.completedAt;
-    dayKeys.add(DateTime(d.year, d.month, d.day));
-  }
-  final sortedDays = dayKeys.toList()..sort((a, b) => b.compareTo(a));
+  var streak = 0;
+  for (var offset = 0; offset <= 366; offset++) {
+    final day = today.subtract(Duration(days: offset));
+    if (day.isBefore(earliestCompletion!)) break;
 
-  final latest = sortedDays.first;
-  if (today.difference(latest).inDays > 1) return 0;
+    final isDueDay = activeChores.any((c) => c.rule.isDueOn(day));
+    if (!isDueDay) continue;
 
-  var streak = 1;
-  var prev = latest;
-  for (final d in sortedDays.skip(1)) {
-    final expected = prev.subtract(const Duration(days: 1));
-    if (d.year == expected.year &&
-        d.month == expected.month &&
-        d.day == expected.day) {
+    if (completedDays.contains(day)) {
       streak += 1;
-      prev = d;
+    } else if (offset == 0) {
+      // Grace: today's outstanding chores don't break a carried streak.
+      continue;
     } else {
       break;
     }
