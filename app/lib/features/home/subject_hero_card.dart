@@ -67,6 +67,15 @@ class SubjectHeroCard extends ConsumerWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      // Same thin white border as the poster cards (awards, chore rows)
+      // so the tiles read crisply on the gradient in both themes.
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.white.withValues(alpha: 0.9),
+          width: 1.5,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
         child: SizedBox(

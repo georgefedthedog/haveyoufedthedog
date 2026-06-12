@@ -195,10 +195,41 @@ class _PodiumColumn extends StatelessWidget {
         ? null
         : AvatarRegistry.lookup(avatarOf(slot.userId!));
 
+    // First place gets laurel sprigs hugging the avatar - the asset is a
+    // single branch curving up-left (concave side right), so it sits on
+    // the left as-is and mirrors for the right.
+    Widget avatarArt = AvatarArtwork(
+      avatar: avatar,
+      size: avatarSizes[slot.rank]!,
+    );
+    if (slot.rank == 1) {
+      // Overlaid, not in a Row - the podium column is too narrow to give
+      // the sprigs their own layout width, so they paint outside the
+      // avatar's bounds instead (Clip.none) and tuck behind it.
+      final sprig = Image.asset(
+        'assets/awards/wreath.png',
+        height: 70,
+        errorBuilder: (_, _, _) => const SizedBox.shrink(),
+      );
+      avatarArt = Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Positioned(left: -26, top: 14, child: sprig),
+          Positioned(
+            right: -26,
+            top: 14,
+            child: Transform.flip(flipX: true, child: sprig),
+          ),
+          avatarArt,
+        ],
+      );
+    }
+
     final column = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AvatarArtwork(avatar: avatar, size: avatarSizes[slot.rank]!),
+        avatarArt,
         const SizedBox(height: 4),
         Text(
           slot.userId == null ? '-' : nameOf(slot.userId!),

@@ -34,7 +34,7 @@ class HouseholdActions {
   /// Creates a household, makes the current user its owner, and switches
   /// to it. The router redirect will send the user to /home as soon as
   /// the household list updates.
-  Future<void> createHousehold(String name) async {
+  Future<void> createHousehold(String name, {String residents = ''}) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final userId = await _currentUserId();
 
@@ -55,6 +55,7 @@ class HouseholdActions {
             'created_by': userId,
             'invites_open': false,
             'timezone': timezone,
+            'residents': residents,
           },
         );
 

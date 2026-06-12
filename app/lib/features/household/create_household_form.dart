@@ -17,11 +17,13 @@ class CreateHouseholdForm extends ConsumerStatefulWidget {
 class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
+  final _residentsCtrl = TextEditingController();
   bool _busy = false;
 
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _residentsCtrl.dispose();
     super.dispose();
   }
 
@@ -31,7 +33,10 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
     try {
       await ref
           .read(householdActionsProvider)
-          .createHousehold(_nameCtrl.text.trim());
+          .createHousehold(
+            _nameCtrl.text.trim(),
+            residents: _residentsCtrl.text.trim(),
+          );
       // Router redirects when memberships update.
     } on ClientException catch (e) {
       final msg = e.response['message'] as String? ?? 'Could not create';
@@ -65,31 +70,56 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          LabeledField(
-            label: 'Household name',
-            child: TextFormField(
-              controller: _nameCtrl,
-              decoration: const InputDecoration(
-                hintText: 'e.g. "Paihia House" or "Home"',
+          // Same card layout as the household details screen.
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LabeledField(
+                    label: 'Household name',
+                    child: TextFormField(
+                      controller: _nameCtrl,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g. "Paihia House" or "Home"',
+                      ),
+                      autofocus: true,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.next,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Optional, same field as on household details - empty
+                  // is fine.
+                  LabeledField(
+                    label: 'Who lives here?',
+                    child: TextFormField(
+                      controller: _residentsCtrl,
+                      decoration: const InputDecoration(
+                        hintText: 'The Goodchilds',
+                      ),
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _submit(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: _busy ? null : _submit,
+                    child: _busy
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Create household'),
+                  ),
+                ],
               ),
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _submit(),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _busy ? null : _submit,
-            child: _busy
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Create household'),
           ),
         ],
       ),

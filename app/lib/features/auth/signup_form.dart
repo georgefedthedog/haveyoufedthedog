@@ -34,7 +34,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _busy = true);
     try {
-      await ref.read(authControllerProvider.notifier).signup(
+      await ref
+          .read(authControllerProvider.notifier)
+          .signup(
             email: _emailCtrl.text.trim(),
             password: _passwordCtrl.text,
             displayName: _nameCtrl.text.trim(),
@@ -42,9 +44,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     } on ClientException catch (e) {
       final msg = e.response['message'] as String? ?? 'Signup failed';
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text(msg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
       }
     } catch (e) {
       if (mounted) {
@@ -69,7 +71,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
             child: TextFormField(
               controller: _nameCtrl,
               decoration: const InputDecoration(
-                hintText: 'Shown next to your completions',
+                hintText: 'Seen by your housemates',
                 prefixIcon: Icon(Icons.person_outline),
               ),
               autofillHints: const [AutofillHints.name],

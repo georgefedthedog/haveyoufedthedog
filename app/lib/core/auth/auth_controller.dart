@@ -69,6 +69,22 @@ class AuthController extends _$AuthController {
     pb.authStore.clear();
   }
 
+  /// Permanently deletes the signed-in user's account, then signs out
+  /// locally (the router's signedOut phase takes over from there).
+  ///
+  /// Server-side: memberships cascade-delete (cleanup.pb.js then removes
+  /// empty households or promotes a new owner), and completions survive
+  /// with `completed_by` blanked - household history stays, anonymised.
+  Future<void> deleteAccount() async {
+    final pb = await ref.read(pocketbaseClientProvider.future);
+    final userId = pb.authStore.record?.id;
+    if (userId == null) {
+      throw StateError('Cannot delete account when signed out.');
+    }
+    await pb.collection('users').delete(userId);
+    pb.authStore.clear();
+  }
+
   /// Emails a password-reset link to [email]. PB returns success whether
   /// or not the address exists, so this can't be used to probe accounts.
   Future<void> requestPasswordReset(String email) async {

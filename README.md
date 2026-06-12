@@ -56,7 +56,9 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   `active`. **Times are family wall-clock with no timezone** - see the
   timezone contract below.
 - **completions** - `subject`, `chore`, `completed_by`, `completed_at` (UTC),
-  `source` (`button`/`nfc`).
+  `source` (`button`/`nfc`). `completed_by` is **optional and non-cascading**
+  on purpose: deleting a user account blanks it (PB clears optional
+  references), so household history survives anonymised.
 
 All API rules are membership-scoped (you only see rows for households you're
 in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
@@ -69,6 +71,11 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
   pushes "Brekkie done by George" to every _other_ member via the notifier.
   (There is no overdue hook — that cron lives in the push-notifier, below.)
+- **cleanup.pb.js** - after any `household_members` delete (leaving, or a
+  deleted user account cascading): deletes the household when its last
+  member is gone; promotes the longest-standing member to owner if the
+  owner's account was deleted. Keeps households from ending up empty or
+  unmanageable.
 
 > **Goja gotcha:** PB runs every hook handler in its own fresh JS runtime.
 > File-level declarations don't carry into handlers - share helpers with

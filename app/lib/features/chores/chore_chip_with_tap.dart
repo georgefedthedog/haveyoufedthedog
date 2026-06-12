@@ -13,6 +13,7 @@ import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
 import 'chore_status_chip.dart';
+import 'undo_confirm_dialog.dart';
 
 /// Wraps [ChoreStatusChip] with toggle-to-log behaviour. The chip itself
 /// stays presentational and reusable; the action lives here so it can be
@@ -94,6 +95,7 @@ class ChoreChipWithTap extends ConsumerWidget {
       ));
       return;
     }
+    if (!await confirmUndoCompletion(context, chore.name)) return;
     try {
       await ref.read(completionActionsProvider).undo(completion.id);
       messenger.hideCurrentSnackBar();

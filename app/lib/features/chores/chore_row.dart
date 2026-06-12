@@ -19,6 +19,7 @@ import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
 import '../profile/avatar_artwork.dart';
+import 'undo_confirm_dialog.dart';
 
 /// A wide, tappable row representing one chore for today on the subject
 /// detail screen. Renders the chore name + schedule line; trailing shows
@@ -114,6 +115,7 @@ class ChoreRow extends ConsumerWidget {
       );
       return;
     }
+    if (!await confirmUndoCompletion(context, chore.name)) return;
     try {
       await ref.read(completionActionsProvider).undo(completion.id);
       messenger.hideCurrentSnackBar();
