@@ -10,6 +10,7 @@ import '../../app/theme.dart';
 import '../../features/home/time_of_day_bucket.dart';
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
+import '../household/current_household_controller.dart';
 import '../household/picture.dart';
 import '../household/pictures.dart';
 import '../profile/avatar.dart';
@@ -37,30 +38,51 @@ Future<RemoteCatalog> remoteCatalog(Ref ref) async {
   final userIdFuture = ref.watch(
     authControllerProvider.selectAsync((a) => a.userId),
   );
+  // The current household's applied packs gate which rows we're served.
+  // Selected as a stable joined string so household-list churn (renames,
+  // refetches) doesn't refetch the catalog - only an actual pack change
+  // (redeem, household switch) does.
+  final packsKeyFuture = ref.watch(
+    currentHouseholdControllerProvider.selectAsync(
+      (h) => (h?.packIds ?? const []).join(','),
+    ),
+  );
   final prefsFuture = ref.watch(sharedPreferencesProvider.future);
 
   final pb = await pbFuture;
   final userId = await userIdFuture;
+  final packsKey = await packsKeyFuture;
   final prefs = await prefsFuture;
 
   if (userId == null) return RemoteCatalog.empty;
 
+  final packIds = packsKey.isEmpty ? const <String>[] : packsKey.split(',');
+
   try {
     final results = await Future.wait([
-      _rows(pb, 'catalog_avatars'),
-      _rows(pb, 'catalog_pictures'),
-      _rows(pb, 'catalog_characters'),
+      _rows(pb, 'catalog_avatars', packIds),
+      _rows(pb, 'catalog_pictures', packIds),
+      _rows(pb, 'catalog_characters', packIds),
+      pb.collection('catalog_packs').getFullList(filter: 'enabled = true'),
     ]);
     await _saveSnapshot(prefs, results);
-    return RemoteCatalog(
-      avatars: [for (final r in results[0]) ?_avatarFrom(pb, r)],
-      pictures: [for (final r in results[1]) ?_pictureFrom(pb, r)],
-      characters: [for (final r in results[2]) ?_characterFrom(pb, r)],
-    );
+    return _catalogFrom(pb, results);
   } catch (e) {
     debugPrint('Remote catalog unavailable, trying last snapshot: $e');
     return _loadSnapshot(prefs, pb) ?? RemoteCatalog.empty;
   }
+}
+
+RemoteCatalog _catalogFrom(PocketBase pb, List<List<RecordModel>> results) {
+  return RemoteCatalog(
+    avatars: [for (final r in results[0]) ?_avatarFrom(pb, r)],
+    pictures: [for (final r in results[1]) ?_pictureFrom(pb, r)],
+    characters: [for (final r in results[2]) ?_characterFrom(pb, r)],
+    packNames: {
+      for (final r in results[3])
+        if (r.getStringValue('name').isNotEmpty) r.id: r.getStringValue('name'),
+    },
+  );
 }
 
 const _kSnapshotKey = 'catalog_snapshot_v1';
@@ -79,6 +101,7 @@ Future<void> _saveSnapshot(
         'avatars': [for (final r in results[0]) r.toJson()],
         'pictures': [for (final r in results[1]) r.toJson()],
         'characters': [for (final r in results[2]) r.toJson()],
+        'packs': [for (final r in results[3]) r.toJson()],
       }),
     );
   } catch (e) {
@@ -97,13 +120,12 @@ RemoteCatalog? _loadSnapshot(SharedPreferences prefs, PocketBase pb) {
       for (final j in map[key] as List? ?? const [])
         RecordModel.fromJson((j as Map).cast<String, dynamic>()),
     ];
-    return RemoteCatalog(
-      avatars: [for (final r in records('avatars')) ?_avatarFrom(pb, r)],
-      pictures: [for (final r in records('pictures')) ?_pictureFrom(pb, r)],
-      characters: [
-        for (final r in records('characters')) ?_characterFrom(pb, r),
-      ],
-    );
+    return _catalogFrom(pb, [
+      records('avatars'),
+      records('pictures'),
+      records('characters'),
+      records('packs'),
+    ]);
   } catch (e) {
     debugPrint('Catalog snapshot unreadable, using bundled art only: $e');
     return null;
@@ -120,14 +142,30 @@ Catalog catalog(Ref ref) {
     avatars: _merge(AvatarRegistry.all, remote.avatars, (a) => a.id),
     pictures: _merge(PictureRegistry.all, remote.pictures, (p) => p.id),
     characters: _merge(CharacterRegistry.all, remote.characters, (c) => c.id),
+    packNames: remote.packNames,
   );
 }
 
-Future<List<RecordModel>> _rows(PocketBase pb, String collection) =>
-    pb.collection(collection).getFullList(
-      filter: 'enabled = true',
-      sort: 'sort_order,created',
-    );
+/// Rows visible to this household: general-catalog rows (no pack) plus
+/// rows belonging to any applied pack that is still enabled. There's no
+/// per-row enabled flag - a saved row is live; staging/retiring is done
+/// by assigning the row to a disabled pack (the "Vault" trick), and
+/// disabling a pack suspends its art even for households that applied
+/// it. Pack ids are PB-generated alphanumerics, safe to interpolate.
+Future<List<RecordModel>> _rows(
+  PocketBase pb,
+  String collection,
+  List<String> packIds,
+) {
+  final applied = [for (final id in packIds) "pack = '$id'"].join(' || ');
+  final filter = applied.isEmpty
+      ? "pack = ''"
+      : "pack = '' || (($applied) && pack.enabled = true)";
+  return pb.collection(collection).getFullList(
+    filter: filter,
+    sort: 'sort_order,created',
+  );
+}
 
 List<T> _merge<T>(List<T> bundled, List<T> remote, String Function(T) idOf) {
   final seen = bundled.map(idOf).toSet();

@@ -96,6 +96,51 @@ class HouseholdActions {
         .setCurrent(householdId);
   }
 
+  /// Redeems an image-pack code for [householdId] via the custom server
+  /// endpoint (the pack code field is hidden from clients, so only the
+  /// hook can resolve it). Idempotent server-side. On success, patches
+  /// the cached household's pack list in place - the catalog provider
+  /// watches it and refetches with the new pack included, so the art
+  /// appears in pickers without any navigation or refetch bounce.
+  ///
+  /// Returns the pack's display name for the confirmation snackbar.
+  Future<({String name, bool alreadyApplied})> redeemPackCode({
+    required String householdId,
+    required String rawCode,
+  }) async {
+    final code = rawCode.trim().toUpperCase();
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+
+    final response = await pb.send<Map<String, dynamic>>(
+      '/api/custom/redeem-pack-code',
+      method: 'POST',
+      body: {'code': code, 'householdId': householdId},
+    );
+
+    final packId = response['packId'] as String?;
+    final name = response['name'] as String?;
+    if (packId == null || name == null) {
+      throw Exception('Server returned an unexpected response.');
+    }
+    final alreadyApplied = response['alreadyApplied'] == true;
+
+    if (!alreadyApplied) {
+      final current = _ref
+          .read(householdsControllerProvider)
+          .valueOrNull
+          ?.where((h) => h.id == householdId)
+          .firstOrNull;
+      _ref
+          .read(householdsControllerProvider.notifier)
+          .updateOneInPlace(
+            householdId: householdId,
+            packs: [...?current?.packIds, packId],
+          );
+    }
+    return (name: name, alreadyApplied: alreadyApplied);
+  }
+
   /// Updates one or more user-editable fields on a household in a single
   /// PB call. Pass `null` for fields you don't want to touch; pass an
   /// empty string to clear a string field. Patches the cached household

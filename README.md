@@ -39,18 +39,22 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 
 ### Collections (`server/pb_schema.json` is the canonical export)
 
-- **users** - PB auth collection. Extra fields: `name`, `avatar` (text id into
-  the app's avatar registry), `fcm_token` (this device's push token).
+- **users** - PB auth collection. Extra fields: `name`, `avatar` (text id -
+  a bundled-registry id or a `catalog_avatars` slug), `fcm_token` (this
+  device's push token).
 - **households** - `name`, `picture` (text id into the house-picture registry),
   `invite_code` + `invites_open` (single shareable code, toggleable),
   `timezone` (IANA name, captured from the creator's phone; empty =
   Europe/London), `residents` ("Who lives here?" label, e.g. "The
-  Goodchilds").
+  Goodchilds"), `packs` (**multi**-relation to `catalog_packs` - the image
+  packs this household has redeemed; PB serializes single relations as a
+  bare string, so keep it multi).
 - **household_members** - user ↔ household join with `role` (`owner`/`member`).
 - **household_member_details** - read-only SQL **view** joining members to
   `users` so the app gets `user_name` + `user_avatar` in one fetch.
 - **subjects** - the characters. `name`, `household`, `icon` (character id:
-  dog/cat/plant/bin/fish/generic), `nfc_tag_id`.
+  dog/cat/plant/bin/fish/generic, or a `catalog_characters` slug),
+  `nfc_tag_id`.
 - **chores** - `subject`, `name`, `schedule_type` (`daily`/`weekly`), `hour`,
   `minute`, `weekday_mask` (Mon=1 … Sun=64, i.e. `1 << (weekday-1)`),
   `active`. **Times are family wall-clock with no timezone** - see the
@@ -59,6 +63,16 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   `source` (`button`/`nfc`). `completed_by` is **optional and non-cascading**
   on purpose: deleting a user account blanks it (PB clears optional
   references), so household history survives anonymised.
+- **catalog_avatars / catalog_pictures / catalog_characters** - the remote
+  art catalog (ship new art without an app release). Per row: `slug` (the
+  forever-id stored on user/household/subject records), `display_name`,
+  `sort_order`, the art file field(s), and an optional `pack` relation
+  (empty = general catalog, everyone sees it). No per-row draft flag:
+  saved = live; stage/retire via the Vault pack trick (see "Publishing").
+- **catalog_packs** - gift-able art bundles. `code` (**hidden field** -
+  clients can't read or filter it; only the redeem hook resolves it),
+  `name`, `enabled` (pack live at all), `redeemable` (accepts new
+  households). Redeemed via `packs.pb.js`, never by direct client writes.
 
 All API rules are membership-scoped (you only see rows for households you're
 in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
@@ -68,6 +82,10 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
 - **join.pb.js** - `POST /api/custom/join-household-by-code`. Runs privileged
   so non-members can redeem a code without weakening household read rules.
   Idempotent.
+- **packs.pb.js** - `POST /api/custom/redeem-pack-code` `{code, householdId}`.
+  Runs privileged because `catalog_packs.code` is hidden from clients.
+  Checks membership, requires the pack `enabled` + `redeemable`, appends to
+  `households.packs`. Idempotent (`alreadyApplied: true`).
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
   pushes "Brekkie done by George" to every _other_ member via the notifier.
   (There is no overdue hook - that cron lives in the push-notifier, below.)
@@ -282,8 +300,8 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
 
 ## Publishing new design assets (day-to-day)
 
-- **Avatar:** new `catalog_avatars` row - slug, display name, square PNG,
-  enabled. Done.
+- **Avatar:** new `catalog_avatars` row - slug, display name, square PNG.
+  Saved = live (next app launch); there's no per-row draft state.
 - **Household picture:** new `catalog_pictures` row - all five
   time-of-day PNGs are required (morning / midday / afternoon / evening /
   night), same framing as the bundled sets.
@@ -296,8 +314,48 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
 - `sort_order` orders rows within the remote block (bundled art always
   comes first in pickers). Slugs are forever - they're stored on user /
   household / subject records; never rename or reuse one.
+- **Image pack (gift art to friends):** `catalog_packs` row (code + name +
+  enabled + redeemable), then set `pack` on the art rows that belong to it -
+  those rows are only served to households that have redeemed the code
+  (Household details → Image packs). Untagged rows stay visible to
+  everyone. Full workflow + schema: `server/scripts/apply-packs.md`.
+- **Staging / retiring an item:** assign its `pack` to a disabled pack
+  nobody redeems (keep a permanent "Vault" pack for this); clear the field
+  to (re)publish. Never delete a row someone may have picked - slugs are
+  forever.
 - Files are public-read by URL (not `protected`) so Cloudflare edge-caches
   them; don't upload anything private.
+
+---
+
+## Publishing a pack (day-to-day)
+
+1. `catalog_packs` row: pick a code (share-friendly, e.g. `WOOF-2026` -
+   it's normalised to upper-case on redeem), a name (what friends see in
+   the snackbar / household details), enabled ✓ AND redeemable ✓.
+2. Create the art rows as usual (see README "Publishing new design
+   assets") and set each row's `pack` to the pack. A row belongs to at
+   most one pack; want the same art in two packs → two rows (distinct
+   slugs).
+   Tip: keep one permanent disabled pack named "Vault" (any code, never
+   share it) - parking a row's `pack` there hides it everywhere,
+   reversibly. That's the staging/retiring mechanism for general-catalog
+   rows.
+3. Share the code. Any member applies it once per household (Household
+   details → Image packs); everyone in that household then sees the art
+   in their pickers.
+
+Caveats:
+
+- To retire a code without punishing existing households, untick
+  `redeemable` (newcomers get "That pack is no longer available to
+  redeem."; applied households are untouched). Unticking `enabled` is the
+  bigger hammer: it also hides the items from everyone, including
+  households that already applied it - members who picked that art fall
+  back to defaults until re-enabled.
+- To revoke a single household, remove the pack from its `packs` field in
+  the admin UI.
+- Pack slugs follow the same forever-rule as all catalog slugs.
 
 ---
 
@@ -305,14 +363,33 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
 
 - **Where state lives.** Everything is server-truth via Riverpod controllers
   (`app/lib/core/**`); the only on-device state is SharedPreferences
-  (NFC tap preference `nfc_tap_completes_chore`, onboarding-seen flag) and
-  the PB auth token in secure storage.
-- **The visual registries.** Three parallel id→asset systems:
-  `CharacterRegistry` (subjects: dog/cat/plant/bin/fish/generic, each with
-  expression PNGs idle/happy/sad/sleeping/celebrate + `award.png`),
-  `PictureRegistry` (household houses), `AvatarRegistry` (user avatars).
-  Adding art = drop PNG in `app/assets/...`, add a registry entry. Asset
-  art is generated by image-gen then background-removed with `rembg`.
+  (NFC tap preference `nfc_tap_completes_chore`, onboarding-seen flag, and
+  `catalog_snapshot_v1` - the last successful catalog fetch, for offline
+  cold starts), the cached_network_image disk cache (remote art bytes),
+  and the PB auth token in secure storage.
+- **The art system is two layers.** Bundled: three id→asset registries -
+  `CharacterRegistry` (dog/cat/plant/bin/fish/generic, expression PNGs
+  idle/happy/sad/sleeping/celebrate + `award.png`), `PictureRegistry`
+  (houses, five time-of-day variants), `AvatarRegistry` (user avatars) -
+  PNGs in `app/assets/...`. Remote: the `catalog_*` PB collections, merged
+  after the bundled entries by `catalogProvider` (`app/lib/core/catalog/`);
+  bundled wins slug collisions; pack-tagged rows only reach households
+  that redeemed the pack (`pack.enabled` checked in the fetch filter).
+  **Widgets must read art via `ref.watch(catalogProvider).lookupX(id)` and
+  the models' `imageProvider` getters** - never the static registries or
+  `Image.asset` directly - or remote art won't resolve. Fail-soft chain:
+  live fetch → SharedPreferences snapshot → bundled-only. New art ships
+  via the catalog (no app release); bundled is only for the day-one
+  defaults. Asset art is generated by image-gen then background-removed
+  with `rembg`.
+- **Don't watch `authControllerProvider.future`.** Riverpod re-notifies
+  `.future` watchers on every state assignment regardless of equality, and
+  auth re-emits on every profile/fcm_token write - that combination once
+  refetched the world and bounced the router through splash on every
+  avatar save. Identity-scoped controllers watch
+  `authControllerProvider.selectAsync((a) => a.userId)` instead (see the
+  comment in `auth_controller.dart`); one-shot `ref.read(...future)` in
+  actions is fine.
 - **Awards & stats are pure derivations** of the last ~100 cached completions
   (`weeklyAwardsProvider`, `choreMeanTimesProvider`, leaderboard). No server
   aggregation. Weeks are Mon→Sun local; ties award nobody.

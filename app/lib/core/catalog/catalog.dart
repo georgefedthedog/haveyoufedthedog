@@ -13,10 +13,16 @@ class RemoteCatalog {
   final List<Picture> pictures;
   final List<Character> characters;
 
+  /// Display names of enabled `catalog_packs` rows, keyed by pack id.
+  /// Used to label the household's applied packs - pack *codes* never
+  /// reach the client (hidden field).
+  final Map<String, String> packNames;
+
   const RemoteCatalog({
     required this.avatars,
     required this.pictures,
     required this.characters,
+    this.packNames = const {},
   });
 
   static const empty = RemoteCatalog(
@@ -41,11 +47,19 @@ class Catalog {
   final List<Picture> pictures;
   final List<Character> characters;
 
+  /// Pack id → display name for enabled packs (see [RemoteCatalog.packNames]).
+  final Map<String, String> packNames;
+
   const Catalog({
     required this.avatars,
     required this.pictures,
     required this.characters,
+    this.packNames = const {},
   });
+
+  /// Display name for an applied pack id; null when the pack is unknown
+  /// (disabled, deleted, or the catalog hasn't loaded) - callers skip it.
+  String? packName(String id) => packNames[id];
 
   Avatar? lookupAvatar(String? id) {
     if (id == null || id.isEmpty) return null;

@@ -465,16 +465,6 @@
         "type": "number"
       },
       {
-        "help": "Only enabled rows are served to the app. Stage new art disabled, flip when ready.",
-        "hidden": false,
-        "id": "bool_cav_enabled_0001",
-        "name": "enabled",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "bool"
-      },
-      {
         "help": "Square PNG, same framing as assets/avatars/*.png.",
         "hidden": false,
         "id": "file_cav_image_00001",
@@ -488,6 +478,20 @@
         "system": false,
         "thumbs": [],
         "type": "file"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_3923328239",
+        "help": "Empty = general catalog, visible to everyone. Set = only households that redeemed this pack's code see this row.",
+        "hidden": false,
+        "id": "relation2547932707",
+        "maxSelect": 0,
+        "minSelect": 0,
+        "name": "pack",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
       },
       {
         "hidden": false,
@@ -580,16 +584,6 @@
         "required": false,
         "system": false,
         "type": "number"
-      },
-      {
-        "help": "Only enabled rows are served to the app. Stage new art disabled, flip when ready.",
-        "hidden": false,
-        "id": "bool_cch_enabled_0001",
-        "name": "enabled",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "bool"
       },
       {
         "autogeneratePattern": "",
@@ -697,6 +691,20 @@
         "type": "file"
       },
       {
+        "cascadeDelete": false,
+        "collectionId": "pbc_3923328239",
+        "help": "Empty = general catalog, visible to everyone. Set = only households that redeemed this pack's code see this row.",
+        "hidden": false,
+        "id": "relation2547932707",
+        "maxSelect": 0,
+        "minSelect": 0,
+        "name": "pack",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
         "hidden": false,
         "id": "autodate_cch_created1",
         "name": "created",
@@ -718,6 +726,105 @@
       }
     ],
     "indexes": ["CREATE UNIQUE INDEX `idx_catalog_characters_slug` ON `catalog_characters` (`slug`);"],
+    "system": false
+  },
+  {
+    "id": "pbc_3923328239",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "catalog_packs",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "help": "",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": true,
+        "id": "text1997877400",
+        "max": 32,
+        "min": 4,
+        "name": "code",
+        "pattern": "^[A-Z0-9-]+$",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "text1579384326",
+        "max": 60,
+        "min": 1,
+        "name": "name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "bool1358543748",
+        "name": "enabled",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "bool2402232186",
+        "name": "redeemable",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": ["CREATE UNIQUE INDEX `idx_catalog_packs_code` ON `catalog_packs` (`code`)"],
     "system": false
   },
   {
@@ -787,16 +894,6 @@
         "required": false,
         "system": false,
         "type": "number"
-      },
-      {
-        "help": "Only enabled rows are served to the app. Stage new art disabled, flip when ready.",
-        "hidden": false,
-        "id": "bool_cpi_enabled_0001",
-        "name": "enabled",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "bool"
       },
       {
         "help": "Time-of-day variant, same framing as assets/households/<id>/morning.png.",
@@ -872,6 +969,20 @@
         "system": false,
         "thumbs": [],
         "type": "file"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_3923328239",
+        "help": "Empty = general catalog, visible to everyone. Set = only households that redeemed this pack's code see this row.",
+        "hidden": false,
+        "id": "relation2547932707",
+        "maxSelect": 0,
+        "minSelect": 0,
+        "name": "pack",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
       },
       {
         "hidden": false,
@@ -1391,6 +1502,20 @@
         "required": false,
         "system": false,
         "type": "text"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_3923328239",
+        "help": "Packs this household has redeemed. Managed by the redeem-pack-code hook; hand-edit here to grant or revoke.",
+        "hidden": false,
+        "id": "relation3120455719",
+        "maxSelect": 100,
+        "minSelect": 0,
+        "name": "packs",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
       },
       {
         "hidden": false,

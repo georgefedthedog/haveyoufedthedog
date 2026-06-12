@@ -54,5 +54,18 @@ class Household {
 
   bool get invitesOpen => (record.data['invites_open'] as bool?) ?? false;
 
+  /// Ids of the image packs this household has redeemed (`catalog_packs`
+  /// relation). Empty for households on the general catalog only.
+  ///
+  /// Tolerates both PB serializations: multi relations arrive as a list,
+  /// but a mis-configured single relation (max select 1) arrives as a
+  /// bare string - better to surface that one pack than silently none.
+  List<String> get packIds {
+    final v = record.data['packs'];
+    if (v is List) return [for (final id in v) id.toString()];
+    if (v is String && v.isNotEmpty) return [v];
+    return const [];
+  }
+
   bool get isOwner => role == 'owner';
 }

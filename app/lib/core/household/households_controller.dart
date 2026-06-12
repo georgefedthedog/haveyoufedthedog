@@ -84,6 +84,7 @@ class HouseholdsController extends _$HouseholdsController {
     String? picture,
     String? residents,
     String? timezone,
+    List<String>? packs,
   }) {
     final current = state.valueOrNull;
     if (current == null) return;
@@ -100,6 +101,7 @@ class HouseholdsController extends _$HouseholdsController {
       if (picture != null) h.record.data['picture'] = picture;
       if (residents != null) h.record.data['residents'] = residents;
       if (timezone != null) h.record.data['timezone'] = timezone;
+      if (packs != null) h.record.data['packs'] = packs;
       break;
     }
     state = AsyncData([...current]);

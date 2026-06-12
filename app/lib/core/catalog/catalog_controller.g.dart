@@ -6,7 +6,7 @@ part of 'catalog_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$remoteCatalogHash() => r'9393091fdd594b650724a88bdf648cafd65920ee';
+String _$remoteCatalogHash() => r'dd3e4f3111faf30dfcdb1c1115c405e68f342f0f';
 
 /// Fetches the enabled rows of the three `catalog_*` collections once per
 /// session (rebuilds on auth change). **Fail-soft by design:** when the
@@ -33,7 +33,7 @@ final remoteCatalogProvider = FutureProvider<RemoteCatalog>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef RemoteCatalogRef = FutureProviderRef<RemoteCatalog>;
-String _$catalogHash() => r'57685582cca556ef41d221492d6abcb907b8c5aa';
+String _$catalogHash() => r'c2c244d3a5793b3e33c7dffd447ce4bfe9b25409';
 
 /// Merged bundled + remote catalog. Synchronous and always usable: starts
 /// as bundled-only, re-emits once (if) the remote fetch lands.

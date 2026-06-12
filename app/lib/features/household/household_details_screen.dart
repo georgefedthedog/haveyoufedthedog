@@ -405,8 +405,6 @@ class _BodyState extends ConsumerState<_Body> {
             ),
           ),
           const SizedBox(height: 24),
-          _InviteSettings(household: h),
-          const SizedBox(height: 24),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -423,6 +421,10 @@ class _BodyState extends ConsumerState<_Body> {
               ),
             ),
           ),
+          const SizedBox(height: 24),
+          _InviteSettings(household: h),
+          const SizedBox(height: 24),
+          _PackSettings(household: h),
         ],
       ),
     );
@@ -590,6 +592,183 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                   label: const Text('Generate new code'),
                   onPressed: _busy ? null : _rotate,
                 ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Redeem an image-pack code for this household, and list the packs it
+/// already has. Any member can redeem - codes are gifts, not licences.
+/// The new art appears in the pickers as soon as the catalog refetches
+/// (triggered automatically by the in-place pack update).
+class _PackSettings extends ConsumerStatefulWidget {
+  final Household household;
+  const _PackSettings({required this.household});
+
+  @override
+  ConsumerState<_PackSettings> createState() => _PackSettingsState();
+}
+
+class _PackSettingsState extends ConsumerState<_PackSettings> {
+  final _codeCtrl = TextEditingController();
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _codeCtrl.dispose();
+    super.dispose();
+  }
+
+  bool get _canApply => _codeCtrl.text.trim().isNotEmpty && !_busy;
+
+  Future<void> _apply() async {
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final result = await ref
+          .read(householdActionsProvider)
+          .redeemPackCode(
+            householdId: widget.household.id,
+            rawCode: _codeCtrl.text,
+          );
+      _codeCtrl.clear();
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(
+            result.alreadyApplied
+                ? '${result.name} is already applied.'
+                : '${result.name} applied!',
+          ),
+        ),
+      );
+    } on ClientException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(
+            e.response['message'] as String? ?? 'Could not apply that code',
+          ),
+        ),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('$e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    // Names resolve through the catalog; ids whose pack is unknown
+    // (disabled / deleted / catalog not loaded yet) are silently skipped.
+    final catalog = ref.watch(catalogProvider);
+    final appliedNames = [
+      for (final id in widget.household.packIds) ?catalog.packName(id),
+    ];
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.card_giftcard_outlined),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Image packs',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        'Unlock extra art with a pack code',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            LabeledField(
+              label: 'Pack code',
+              child: TextField(
+                controller: _codeCtrl,
+                enabled: !_busy,
+                textCapitalization: TextCapitalization.characters,
+                textInputAction: TextInputAction.done,
+                decoration: const InputDecoration(hintText: 'WOOF-2026'),
+                onChanged: (_) => setState(() {}),
+                onSubmitted: (_) {
+                  if (_canApply) _apply();
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.redeem),
+              label: const Text('Apply pack'),
+              onPressed: _canApply ? _apply : null,
+            ),
+            if (appliedNames.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final name in appliedNames)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: scheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            size: 16,
+                            color: scheme.tertiary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            name,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ],
           ],
         ),
