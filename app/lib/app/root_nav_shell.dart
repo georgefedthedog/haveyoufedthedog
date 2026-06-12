@@ -82,8 +82,8 @@ class _BottomBar extends StatelessWidget {
     return BottomAppBar(
       color: scheme.surfaceContainer,
       surfaceTintColor: Colors.transparent,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8,
+      // No notch shape: the docked FAB sits on a solid bar instead of a
+      // cutout that lets the page backdrop peek through around it.
       child: SizedBox(
         height: 56,
         child: Row(

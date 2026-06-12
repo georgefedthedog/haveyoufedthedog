@@ -139,7 +139,21 @@ class _CarouselTile extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: CharacterArtwork(character: character),
+          child: DecoratedBox(
+            // Gentle lift off the page; radius matches the artwork's
+            // stage panel so the shadow hugs its corners.
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: CharacterArtwork(character: character),
+          ),
         ),
       ),
     );

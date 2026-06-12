@@ -151,9 +151,22 @@ class _CarouselTile extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: PictureArtwork(picture: picture, fit: BoxFit.cover),
+          child: DecoratedBox(
+            // Gentle lift off the page, matching the other pickers.
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: PictureArtwork(picture: picture, fit: BoxFit.cover),
+            ),
           ),
         ),
       ),

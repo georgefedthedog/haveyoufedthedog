@@ -148,7 +148,22 @@ class _CarouselTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: Center(child: AvatarArtwork(avatar: avatar, size: 180)),
+        child: Center(
+          child: DecoratedBox(
+            // Gentle lift off the page, matching the other pickers.
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: AvatarArtwork(avatar: avatar, size: 180),
+          ),
+        ),
       ),
     );
   }

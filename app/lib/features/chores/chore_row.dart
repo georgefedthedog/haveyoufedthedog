@@ -179,10 +179,15 @@ class ChoreRow extends ConsumerWidget {
       color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Colors.white.withValues(alpha: 0.9),
-          width: 1.5,
-        ),
+        // Plain (not-yet-due) cards get a soft warm stroke so the white
+        // separates from the cream backdrop; the green/red tinted states
+        // keep the white border that makes the pastels read.
+        side: isDone || isOverdue
+            ? BorderSide(
+                color: Colors.white.withValues(alpha: 0.9),
+                width: 1.5,
+              )
+            : BorderSide(color: scheme.outline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
