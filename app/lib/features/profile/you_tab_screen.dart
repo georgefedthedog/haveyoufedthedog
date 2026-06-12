@@ -11,6 +11,7 @@ import '../../core/profile/avatar.dart';
 import '../../core/profile/avatars.dart';
 import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
+import '../../widgets/page_title.dart';
 import '../history/awards_section.dart';
 import 'avatar_artwork.dart';
 
@@ -30,11 +31,16 @@ class YouTabScreen extends ConsumerWidget {
     final email = auth?.email ?? '';
     final avatar = AvatarRegistry.lookup(auth?.avatar);
 
+    // Status-bar inset as scroll padding, not SafeArea: content starts
+    // below the status bar but scrolls clean to the physical top edge
+    // instead of clipping at the inset line.
+    final topInset = MediaQuery.paddingOf(context).top;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('You'), centerTitle: true),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+        padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
         children: [
+          const PageTitle(text: 'You'),
           Card(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),

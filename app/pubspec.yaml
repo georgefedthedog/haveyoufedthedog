@@ -25,7 +25,6 @@ dependencies:
   confetti: ^0.8.0
   share_plus: ^10.1.0
   flutter_timezone: ^4.1.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -307,7 +307,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Icon(Icons.check),
+                            : Icon(_isEdit ? Icons.check : Icons.pets),
                         label: Text(_isEdit ? 'Save changes' : 'Add friend'),
                         onPressed: (_busy || !_isDirty(existing))
                             ? null

@@ -123,9 +123,13 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) =>
             EditChoreScreen(choreId: state.pathParameters['id']),
       ),
-      // Bottom-nav shell - four tab branches.
-      StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => RootNavShell(shell: shell),
+      // Bottom-nav shell - four tab branches in a swipeable PageView.
+      // The custom container form (not .indexedStack) hands every branch
+      // Navigator to RootNavShell so it can host them as pages.
+      StatefulShellRoute(
+        builder: (context, state, shell) => shell,
+        navigatorContainerBuilder: (context, shell, children) =>
+            RootNavShell(shell: shell, children: children),
         branches: [
           StatefulShellBranch(
             routes: [

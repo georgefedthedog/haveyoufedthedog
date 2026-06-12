@@ -161,7 +161,9 @@ class _CarouselTile extends StatelessWidget {
                 ),
               ],
             ),
-            child: AvatarArtwork(avatar: avatar, size: 180),
+            // 168, not 180: leaves room in the 200-high page for the drop
+            // shadow (extends ~8 up / ~16 down), which the PageView clips.
+            child: AvatarArtwork(avatar: avatar, size: 168),
           ),
         ),
       ),

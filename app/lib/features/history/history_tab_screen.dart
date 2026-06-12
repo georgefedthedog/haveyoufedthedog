@@ -8,6 +8,7 @@ import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/page_title.dart';
 import 'awards_section.dart';
 import 'completion_timeline.dart';
 import 'leaderboard.dart';
@@ -41,15 +42,21 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
     final subjects =
         ref.watch(subjectsControllerProvider).valueOrNull ?? const [];
 
+    // Status-bar inset as scroll padding, not SafeArea: content starts
+    // below the status bar but scrolls clean to the physical top edge
+    // instead of clipping at the inset line.
+    final topInset = MediaQuery.paddingOf(context).top;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Awards'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(householdHistoryControllerProvider.notifier).refresh(),
         child: asyncHistory.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => ListView(
+            padding: EdgeInsets.fromLTRB(16, topInset, 16, 0),
             children: [
+              const PageTitle(text: 'Awards'),
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text('Could not load history: $e'),
@@ -62,8 +69,9 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
                 : list.where((c) => c.subjectId == _subjectFilter).toList();
 
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+              padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
               children: [
+                const PageTitle(text: 'Awards'),
                 const _StatsStrip(),
                 const SizedBox(height: 20),
                 if (hh != null) ...[

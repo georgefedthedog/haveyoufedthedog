@@ -138,7 +138,9 @@ class _CarouselTile extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          // Vertical room for the drop shadow (extends ~8 up / ~16 down)
+          // - the PageView clips at the tile bounds.
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 16),
           child: DecoratedBox(
             // Gentle lift off the page; radius matches the artwork's
             // stage panel so the shadow hugs its corners.

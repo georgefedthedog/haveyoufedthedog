@@ -8,6 +8,7 @@ import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/page_title.dart';
 import '../home/subject_hero_card.dart';
 
 /// Subjects tab - a grid of every subject in the current household with a
@@ -19,8 +20,16 @@ class SubjectsTabScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncSubjects = ref.watch(subjectsControllerProvider);
 
+    // Title lives inside the scroll views (PageTitle) so it scrolls out
+    // of the way instead of content sliding under a fixed bar.
+    const title = PageTitle(text: 'Friends');
+
+    // Status-bar inset as scroll padding, not SafeArea: content starts
+    // below the status bar but scrolls clean to the physical top edge
+    // instead of clipping at the inset line.
+    final topInset = MediaQuery.paddingOf(context).top;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Friends'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait([
@@ -32,7 +41,9 @@ class SubjectsTabScreen extends ConsumerWidget {
         child: asyncSubjects.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => ListView(
+            padding: EdgeInsets.fromLTRB(16, topInset, 16, 0),
             children: [
+              title,
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text('Could not load friends: $e'),
@@ -42,26 +53,46 @@ class SubjectsTabScreen extends ConsumerWidget {
           data: (subjects) {
             if (subjects.isEmpty) {
               return ListView(
+                padding: EdgeInsets.fromLTRB(16, topInset, 16, 0),
                 children: [
+                  title,
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: EmptyState(
                       character: CharacterRegistry.cat,
                       title: 'No friends yet',
-                      message: 'The + button below adds your first one.',
+                      message:
+                          'Add a dog, cat, plant, or whatever else needs '
+                          'looking after.',
                       actionLabel: 'Add a friend',
+                      actionIcon: Icons.pets,
                       onAction: () => context.push(Routes.subjectNew),
                     ),
                   ),
                 ],
               );
             }
+            // Index 0 is the in-page title, last index is the add
+            // button; subjects sit in between.
             return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-              itemCount: subjects.length,
+              padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
+              itemCount: subjects.length + 2,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
-                final s = subjects[i];
+                if (i == 0) return title;
+                if (i == subjects.length + 1) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Center(
+                      child: FilledButton.icon(
+                        onPressed: () => context.push(Routes.subjectNew),
+                        icon: const Icon(Icons.pets),
+                        label: const Text('Add a friend'),
+                      ),
+                    ),
+                  );
+                }
+                final s = subjects[i - 1];
                 return SubjectHeroCard(
                   subject: s,
                   onTap: () => context.push(Routes.subjectDetail(s.id)),

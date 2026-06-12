@@ -14,6 +14,9 @@ class EmptyState extends StatelessWidget {
   final String title;
   final String? message;
   final String? actionLabel;
+
+  /// Optional glyph on the action button (e.g. the paw on "Add a friend").
+  final IconData? actionIcon;
   final VoidCallback? onAction;
 
   const EmptyState({
@@ -23,6 +26,7 @@ class EmptyState extends StatelessWidget {
     required this.title,
     this.message,
     this.actionLabel,
+    this.actionIcon,
     this.onAction,
   }) : assert(
          icon != null || character != null,
@@ -72,7 +76,14 @@ class EmptyState extends StatelessWidget {
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 24),
-              FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+              if (actionIcon != null)
+                FilledButton.icon(
+                  onPressed: onAction,
+                  icon: Icon(actionIcon),
+                  label: Text(actionLabel!),
+                )
+              else
+                FilledButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
         ),

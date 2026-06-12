@@ -158,6 +158,7 @@ class HomeScreen extends ConsumerWidget {
                                 'Add a dog, cat, plant, or whatever else needs '
                                 'looking after.',
                             actionLabel: 'Add a friend',
+                            actionIcon: Icons.pets,
                             onAction: () => context.push(Routes.subjectNew),
                           ),
                         ),
