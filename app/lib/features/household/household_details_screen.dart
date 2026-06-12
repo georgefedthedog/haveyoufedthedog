@@ -411,8 +411,11 @@ class _BodyState extends ConsumerState<_Body> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // "Who lives here?" label when set ("The Goodchilds"),
+                  // plain 'Members' otherwise. The getter already maps
+                  // blank to null.
                   Text(
-                    'Members',
+                    h.residents ?? 'Members',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -602,8 +605,15 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
 
 /// Redeem an image-pack code for this household, and list the packs it
 /// already has. Any member can redeem - codes are gifts, not licences.
-/// The new art appears in the pickers as soon as the catalog refetches
-/// (triggered automatically by the in-place pack update).
+///
+/// Collapsed to its header row by default - tap to expand (this is the
+/// rarest-used card on the screen).
+/// Type the code, then long-press the gift chip (the code shows beneath
+/// it) and carry it into the dashed Apply circle - same drag mechanic as
+/// the account card's switch/log-out. The deliberate gesture *is* the
+/// confirmation. The new art appears in the pickers as soon as the
+/// catalog refetches (triggered automatically by the in-place pack
+/// update).
 class _PackSettings extends ConsumerStatefulWidget {
   final Household household;
   const _PackSettings({required this.household});
@@ -615,14 +625,17 @@ class _PackSettings extends ConsumerStatefulWidget {
 class _PackSettingsState extends ConsumerState<_PackSettings> {
   final _codeCtrl = TextEditingController();
   bool _busy = false;
+  bool _expanded = false;
+
+  /// Matches the server-side minimum code length (catalog_packs.code
+  /// min 4) - below this the gift chip is visibly parked and won't drag.
+  bool get _codeReady => _codeCtrl.text.trim().length >= 4;
 
   @override
   void dispose() {
     _codeCtrl.dispose();
     super.dispose();
   }
-
-  bool get _canApply => _codeCtrl.text.trim().isNotEmpty && !_busy;
 
   Future<void> _apply() async {
     final messenger = ScaffoldMessenger.of(context);
@@ -634,6 +647,9 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
             householdId: widget.household.id,
             rawCode: _codeCtrl.text,
           );
+      // Unfocus before clearing: with the field still focused, Android's
+      // IME can reassert its composing text over a programmatic clear.
+      FocusManager.instance.primaryFocus?.unfocus();
       _codeCtrl.clear();
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
@@ -664,6 +680,70 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
     }
   }
 
+  /// The thing you drag: a gift badge with the typed code beneath it.
+  /// Same chip sizing as the account card (56 resting, 72 in flight).
+  /// Greyed and inert until the code reaches 4 characters; while busy it
+  /// hosts the spinner instead - no scrim, per the house busy-state rule.
+  Widget _giftChipDraggable(ThemeData theme) {
+    final scheme = theme.colorScheme;
+    final code = _codeCtrl.text.trim().toUpperCase();
+    final active = _codeReady && !_busy;
+
+    Widget chip({required double size}) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _codeReady
+                  ? scheme.primaryContainer
+                  : scheme.surfaceContainerHighest,
+            ),
+            child: _busy
+                ? const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    Icons.card_giftcard,
+                    size: size * 0.45,
+                    color: _codeReady
+                        ? scheme.onPrimaryContainer
+                        : scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 110,
+            child: Text(
+              code,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+                color: _codeReady ? null : scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final resting = chip(size: 56);
+    if (!active) return resting;
+    return LongPressDraggable<String>(
+      data: code,
+      feedback: Material(color: Colors.transparent, child: chip(size: 72)),
+      childWhenDragging: Opacity(opacity: 0.3, child: resting),
+      child: resting,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -681,60 +761,48 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.card_giftcard_outlined),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Image packs',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+            // Accordion header - whole row toggles.
+            InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  const Icon(Icons.card_giftcard_outlined),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Image packs',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Unlock extra art with a pack code',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
+                        Text(
+                          'Unlock extra art with a pack code',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            LabeledField(
-              label: 'Pack code',
-              child: TextField(
-                controller: _codeCtrl,
-                enabled: !_busy,
-                textCapitalization: TextCapitalization.characters,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(hintText: 'WOOF-2026'),
-                onChanged: (_) => setState(() {}),
-                onSubmitted: (_) {
-                  if (_canApply) _apply();
-                },
+                  AnimatedRotation(
+                    turns: _expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.expand_more,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.redeem),
-              label: const Text('Apply pack'),
-              onPressed: _canApply ? _apply : null,
-            ),
+            // Applied packs stay visible even when collapsed - the pills
+            // are the at-a-glance proof of what this household has.
             if (appliedNames.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -770,9 +838,104 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                 ],
               ),
             ],
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: !_expanded
+                  ? const SizedBox(width: double.infinity)
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 16),
+                        LabeledField(
+                          label: 'Pack code',
+                          child: TextField(
+                            controller: _codeCtrl,
+                            enabled: !_busy,
+                            textCapitalization: TextCapitalization.characters,
+                            textInputAction: TextInputAction.done,
+                            decoration: const InputDecoration(
+                              hintText: 'WOOF-2026',
+                            ),
+                            onChanged: (_) => setState(() {}),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _giftChipDraggable(theme),
+                              _ApplyDropCircle(
+                                enabled: !_busy,
+                                onDrop: _apply,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The dashed Apply circle the gift chip gets carried into. Fills solid
+/// primary while a drag hovers, mirroring the account card's circles.
+/// Applying a pack is additive and reversible-by-admin, so no confirm
+/// dialog - the deliberate drag is the confirmation.
+class _ApplyDropCircle extends StatelessWidget {
+  final bool enabled;
+  final VoidCallback onDrop;
+
+  const _ApplyDropCircle({required this.enabled, required this.onDrop});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.primary;
+    return DragTarget<String>(
+      onWillAcceptWithDetails: (_) => enabled,
+      onAcceptWithDetails: (_) => onDrop(),
+      builder: (context, candidate, _) {
+        final hovering = candidate.isNotEmpty;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomPaint(
+              painter: DashedCirclePainter(color: color, filled: hovering),
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Icon(
+                  Icons.redeem,
+                  size: 24,
+                  color: hovering ? Colors.white : color,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              width: 110,
+              child: Text(
+                'Apply pack',
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
