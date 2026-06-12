@@ -138,6 +138,20 @@ domain `haveyoufedthedog.com` is verified in Resend via Cloudflare DNS.
 
 ---
 
+## The website
+
+`https://haveyoufedthedog.com` — static landing page + the privacy policy and
+account-deletion pages the Play Store requires. Source in `landing_page/src/`
+(plain HTML + Tailwind v4; brand tokens in `landing_page/tailwind.css`).
+After editing HTML classes run `npm run build` from `landing_page/` (the
+built `src/style.css` is committed), then `bash landing_page/deploy-site.sh`
+to publish. Served by nginx on the same box as the API
+(`/var/www/haveyoufedthedog`, config reference in `landing_page/nginx-site.conf`,
+TLS via the box's existing certbot). `hello@haveyoufedthedog.com` forwards to
+georgefedthedog@gmail.com (steel) via Cloudflare Email Routing.
+
+---
+
 ## Running the app locally
 
 Built and shipped with **Flutter 3.44.1 (stable) / Dart 3.12.1**. Package

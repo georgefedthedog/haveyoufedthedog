@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Brand tokens lifted from app/lib/app/theme.dart — keep in sync by hand. */
+@theme {
+  --font-heading: "Knewave", "Comic Sans MS", cursive;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+
+  --color-cream: #faf3e8;
+  /* Page gradient stops: the app's house recipe, lightness offsets of cream. */
+  --color-cream-dark: #f0e2ca;
+  --color-cream-light: #fffbf4;
+  --color-card: #ffffff;
+  --color-card-subtle: #fff7ec;
+  --color-violet: #6b4fe0;
+  --color-violet-soft: #e8e4ff;
+  --color-on-violet-soft: #3a2a8c;
+  --color-mint: #4fbf85;
+  --color-mint-soft: #dcf4e5;
+  --color-on-mint-soft: #1f5a3a;
+  --color-ink: #2a2530;
+  --color-ink-soft: #6a6373;
+  --color-outline: #e0d8cb;
+
+  /* Dark theme (deliberately flat — no gradient). */
+  --color-night: #1a1620;
+  --color-night-card: #262031;
+  --color-night-outline: #3b3447;
+  --color-paper: #ece6f0;
+  --color-paper-soft: #aaa1b5;
+  --color-violet-bright: #c9bcff;
+}
