@@ -9,6 +9,7 @@ import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/labeled_field.dart';
+import '../store/browse_packs_button.dart';
 import 'avatar_picker.dart';
 
 /// Edit the current user's profile - email is read-only, name is editable.
@@ -125,6 +126,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   onChanged: (id) => setState(() => _avatar = id),
                 ),
               ),
+              const BrowsePacksButton(),
               const SizedBox(height: 16),
               Card(
                 child: Padding(

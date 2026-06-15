@@ -11,6 +11,7 @@ import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/labeled_field.dart';
 import '../nfc/nfc_scan_dialog.dart';
+import '../store/browse_packs_button.dart';
 import 'character_carousel.dart';
 
 /// Create or edit a [Subject]. When [subjectId] is null we're creating;
@@ -276,6 +277,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                   onChanged: (id) => setState(() => _icon = id),
                 ),
               ),
+              const BrowsePacksButton(),
               const SizedBox(height: 24),
               Card(
                 child: Padding(

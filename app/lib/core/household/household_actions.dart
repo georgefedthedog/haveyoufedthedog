@@ -141,6 +141,61 @@ class HouseholdActions {
     return (name: name, alreadyApplied: alreadyApplied);
   }
 
+  /// Verifies a completed store purchase server-side and applies the packs it
+  /// grants to [householdId]. Calls `/api/custom/verify-purchase`, which
+  /// validates the receipt with the store (Play / App Store), records the
+  /// transaction, and appends the product's granted packs to the household's
+  /// `packs` relation. Idempotent server-side: a Restore re-verifies the same
+  /// transaction and returns `alreadyApplied`.
+  ///
+  /// On a fresh grant, patches the cached household's pack list in place - the
+  /// catalog watches it and refetches with the new packs, so the art appears
+  /// in the pickers without any navigation bounce (same as [redeemPackCode]).
+  ///
+  /// Returns the product name + the granted pack ids for the confirmation.
+  Future<({String name, List<String> packIds, bool alreadyApplied})>
+  verifyAndApplyPurchase({
+    required String householdId,
+    required String platform,
+    required String sku,
+    required String purchaseToken,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+
+    final response = await pb.send<Map<String, dynamic>>(
+      '/api/custom/verify-purchase',
+      method: 'POST',
+      body: {
+        'platform': platform,
+        'sku': sku,
+        'purchaseToken': purchaseToken,
+        'householdId': householdId,
+      },
+    );
+
+    final name = response['name'] as String?;
+    final packIdsRaw = response['packIds'] as List?;
+    if (name == null || packIdsRaw == null) {
+      throw Exception('Server returned an unexpected response.');
+    }
+    final packIds = [for (final p in packIdsRaw) p.toString()];
+    final alreadyApplied = response['alreadyApplied'] == true;
+
+    if (!alreadyApplied) {
+      final current = _ref
+          .read(householdsControllerProvider)
+          .valueOrNull
+          ?.where((h) => h.id == householdId)
+          .firstOrNull;
+      final merged = <String>{...?current?.packIds, ...packIds}.toList();
+      _ref
+          .read(householdsControllerProvider.notifier)
+          .updateOneInPlace(householdId: householdId, packs: merged);
+    }
+    return (name: name, packIds: packIds, alreadyApplied: alreadyApplied);
+  }
+
   /// Updates one or more user-editable fields on a household in a single
   /// PB call. Pass `null` for fields you don't want to touch; pass an
   /// empty string to clear a string field. Patches the cached household

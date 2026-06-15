@@ -19,6 +19,7 @@ import '../features/household/join_household_screen.dart';
 import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/you_tab_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/store/store_screen.dart';
 import '../features/subjects/edit_subject_screen.dart';
 import '../features/subjects/subject_detail_screen.dart';
 import '../features/subjects/subjects_tab_screen.dart';
@@ -73,6 +74,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.profile,
         builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.store,
+        builder: (context, state) => const StoreScreen(),
       ),
       GoRoute(
         path: Routes.celebration,

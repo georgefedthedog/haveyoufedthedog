@@ -40,6 +40,10 @@ class Routes {
   /// Edit profile - full-screen edit pushed from outside the shell.
   static const profile = '/profile';
 
+  /// The pack shop - buy content packs via in-app purchase. Pushed from the
+  /// household pack settings (and, later, locked art in the pickers).
+  static const store = '/store';
+
   /// Full-screen celebration overlay (confetti + character) shown after a
   /// completion is logged. Push with a `CelebrationArgs` instance in `extra`.
   static const celebration = '/celebration';

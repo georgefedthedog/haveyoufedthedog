@@ -53,11 +53,17 @@ final catalogProvider = Provider<Catalog>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CatalogRef = ProviderRef<Catalog>;
-String _$selectableCatalogHash() => r'1fe9e539797a578eb931ab95205fd6f7d0ef1779';
+String _$selectableCatalogHash() => r'e8f37910d05228f7699720cc6c9cb658bccaae8d';
 
-/// The art the *current* household may select in the pickers - bundled and
-/// general-catalog art (always), plus art from the packs that household has
-/// applied. Rebuilds on household switch / pack redeem via the packs key.
+/// The art a user may select in the pickers - bundled and general-catalog
+/// art (always), plus packed art they're entitled to. Entitlement differs
+/// by art *kind*, matching what each thing belongs to:
+///
+/// - **Avatars** are personal, so they're gated by the *union* of packs
+///   across all the user's households - a packed avatar can be chosen from
+///   any household once any of the user's households has the pack.
+/// - **Pictures** and **characters** belong to a household, so they're gated
+///   by the *current* household's packs only.
 ///
 /// This is the entitlement gate that used to live in the catalog fetch
 /// itself. Rendering (resolving any chosen id) goes through [catalogProvider]

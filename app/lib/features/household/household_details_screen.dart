@@ -16,6 +16,7 @@ import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/labeled_field.dart';
 import '../profile/avatar_artwork.dart';
+import '../store/browse_packs_button.dart';
 import 'picture_picker.dart';
 
 /// View / edit one household the user is a member of.
@@ -323,6 +324,7 @@ class _BodyState extends ConsumerState<_Body> {
                   setState(() => _stagedPicture = pictureId),
             ),
           ),
+          const BrowsePacksButton(),
           const SizedBox(height: 24),
           Card(
             child: Padding(
