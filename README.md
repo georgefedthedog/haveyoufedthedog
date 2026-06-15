@@ -13,13 +13,13 @@ Monorepo, two independent halves:
 
 ```
 app/      Flutter app (Android-first). Online-only PocketBase client.
-server/   PocketBase schema + JS hooks + Node push-notifier + deploy scripts.
+server/   PocketBase schema + JS hooks + Node worker service + deploy scripts.
 _old/     Previous attempt, gitignored, reference only.
 ```
 
 Stack: **Flutter** (Riverpod codegen, GoRouter, google_fonts) ·
 **PocketBase** (the entire API - REST endpoints auto-derived from the schema) ·
-**Node push-notifier** (FCM relay) · **Firebase Cloud Messaging** · **Resend** (SMTP).
+**Node worker service** (FCM relay, IAP verification, cron) · **Firebase Cloud Messaging** · **Resend** (SMTP).
 
 ---
 
@@ -33,9 +33,9 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 | SSH           | `ssh -i ~/.ssh/dogbox -p 2222 george@65.108.215.132`                                         |
 | PocketBase    | systemd `pocketbase@8090`, data in `/var/lib/pocketbase/8090/`                               |
 | Hooks         | `/var/lib/pocketbase/8090/pb_hooks/`                                                         |
-| Push-notifier | systemd `push-notifier`, `/opt/haveyoufedthedog/push-notifier/`, listens on `127.0.0.1:3055` |
+| Worker        | systemd `worker`, `/opt/haveyoufedthedog/worker/`, listens on `127.0.0.1:3055`               |
 | Admin UI      | `https://api.haveyoufedthedog.com/_/`                                                        |
-| Logs          | `bash server/scripts/view-logs.sh` or `journalctl -u pocketbase@8090 -f`                     |
+| Logs          | `bash server/.deploy/view-logs.sh` or `journalctl -u pocketbase@8090 -f`                     |
 
 ### Collections (`server/pb_schema.json` is the canonical export)
 
@@ -75,7 +75,7 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   households). Redeemed via `packs.pb.js`, never by direct client writes.
 
 All API rules are membership-scoped (you only see rows for households you're
-in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
+in). Rule recipes and pitfalls: `server/.deploy/apply-schema.md`.
 
 ### Hooks (`server/pb_hooks/`)
 
@@ -87,8 +87,8 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
   Checks membership, requires the pack `enabled` + `redeemable`, appends to
   `households.packs`. Idempotent (`alreadyApplied: true`).
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
-  pushes "Brekkie done by George" to every _other_ member via the notifier.
-  (There is no overdue hook - that cron lives in the push-notifier, below.)
+  pushes "Brekkie done by George" to every _other_ member via the worker.
+  (There is no overdue hook - that cron lives in the worker service, below.)
 - **cleanup.pb.js** - after any `household_members` delete (leaving, or a
   deleted user account cascading): deletes the household when its last
   member is gone; promotes the longest-standing member to owner if the
@@ -106,9 +106,10 @@ in). Rule recipes and pitfalls: `server/scripts/apply-schema.md`.
 > setting doesn't matter. Households with an empty timezone are treated as
 > Europe/London.
 
-### Push-notifier (`server/services/push-notifier/`)
+### Worker service (`server/services/worker/`)
 
-Node/Express service with two jobs:
+Node/Express service with three jobs (composed in `index.js`; each concern is
+its own module):
 
 1. **FCM relay** - hooks POST `{tokens, title, body, data}` to
    `http://127.0.0.1:3055/notify`; it fans out via
@@ -120,7 +121,7 @@ Node/Express service with two jobs:
    that zone's previous minute and weren't completed since that household's
    local midnight, and pushes "Brekkie is overdue - Kiko-dog is waiting!"
    to the whole household. Queries PB directly, which needs superuser
-   credentials supplied via `/opt/haveyoufedthedog/push-notifier/.env`
+   credentials supplied via `/opt/haveyoufedthedog/worker/.env`
    (loaded by the systemd unit, **never committed** - template in
    `.env.example`):
 
@@ -137,13 +138,19 @@ Node/Express service with two jobs:
    cron, and a leaked `.env` is revoked by deleting one service account.
    Without the `.env` the service still relays hook pushes - it just logs
    "[overdue] cron disabled" and sends no nudges.
+3. **In-app-purchase verification** (`verify.js`) - hooks POST a receipt to
+   `http://127.0.0.1:3055/verify-purchase`; it validates with the store
+   (Android via the Play Developer API, using `play-service-account.json` -
+   another **gitignored secret**) and reports back so `purchases.pb.js` can
+   grant the household its packs. Config-gated: no Play creds → it just
+   rejects Android verifications and the rest of the service runs on.
 
 ### Backups
 
 PB's built-in scheduled backups (admin UI → **Settings → Backups**) push to
 **Cloudflare R2**: [R2 dashboard](https://dash.cloudflare.com/b19d93b69fec96bb747af3f99da2d936/r2/overview).
 The SQLite data dir is the only irreplaceable thing on the box - everything
-else (hooks, notifier, nginx config) is in this repo or re-derivable.
+else (hooks, worker, nginx config) is in this repo or re-derivable.
 
 To restore: admin UI → Settings → Backups → restore from the list; or
 manually unzip a backup into `/var/lib/pocketbase/8090/` (stop PB first,
@@ -278,12 +285,12 @@ Launcher icons are generated, not hand-made: source art in
 
 ## Deploying to the server
 
-Hooks and/or notifier (the common case):
+Hooks and/or worker (the common case):
 
 ```bash
-bash server/scripts/deploy-hooks.sh      # pb_hooks + PB restart
-bash server/scripts/deploy-notifier.sh   # push-notifier + service restart
-bash server/scripts/deploy-all.sh        # both
+bash server/.deploy/deploy-hooks.sh      # pb_hooks + PB restart
+bash server/.deploy/deploy-worker.sh     # worker + service restart
+bash server/.deploy/deploy-all.sh        # both
 ```
 
 Run from Git Bash / WSL. The SSH key may prompt for its passphrase
@@ -294,7 +301,7 @@ means adding it to the `tar` line in the script.
 Schema changes are **manual and admin-UI-first** (live data is sacred, PB's
 import diff is fiddly): make the change in the live admin UI, then Settings →
 Export collections, replace `server/pb_schema.json` with the export, commit.
-Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
+Full walkthrough + rule recipes: `server/.deploy/apply-schema.md`.
 
 ---
 
@@ -318,7 +325,7 @@ Full walkthrough + rule recipes: `server/scripts/apply-schema.md`.
   enabled + redeemable), then set `pack` on the art rows that belong to it -
   those rows are only served to households that have redeemed the code
   (Household details → Image packs). Untagged rows stay visible to
-  everyone. Full workflow + schema: `server/scripts/apply-packs.md`.
+  everyone. Full workflow + schema: `server/.deploy/apply-packs.md`.
 - **Staging / retiring an item:** assign its `pack` to a disabled pack
   nobody redeems (keep a permanent "Vault" pack for this); clear the field
   to (re)publish. Never delete a row someone may have picked - slugs are
@@ -432,6 +439,6 @@ Caveats:
   the binary on the server.
 - **Where the secrets are:** Resend API key → PB admin Mail settings only.
   Firebase service account JSON → on the server only. Cron superuser creds
-  → `/opt/haveyoufedthedog/push-notifier/.env` on the server only. SSH key
+  → `/opt/haveyoufedthedog/worker/.env` on the server only. SSH key
   → `~/.ssh/dogbox`. Release keystore → `app/android/` (gitignored) +
   Google Drive. Nothing secret is in this repo.

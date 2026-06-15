@@ -15,7 +15,7 @@ const _channelDescription = 'When someone in your household logs a chore.';
 
 /// Sets up notification rendering - Firebase Messaging gives us the
 /// payload, `flutter_local_notifications` paints it. Channel id matches
-/// what the push-notifier service sends to.
+/// what the worker service sends to.
 ///
 /// Background message delivery is handled by the FCM SDK + system tray
 /// directly. Foreground delivery on Android shows nothing by default, so

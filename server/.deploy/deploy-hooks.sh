@@ -11,7 +11,7 @@ REMOTE_HOOKS="/var/lib/pocketbase/8090/pb_hooks"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> Uploading hooks + restarting pocketbase@8090..."
-# NOTE: overdue.pb.js retired (cron lives in the push-notifier now) - the
+# NOTE: overdue.pb.js retired (cron lives in the worker service now) - the
 # rm below clears it from the server.
 tar -cz -C "$DIR/pb_hooks" notify.pb.js join.pb.js packs.pb.js purchases.pb.js cleanup.pb.js _notify_helper.js \
   | ssh "${SSH_OPTS[@]}" "$SERVER" "sudo bash -c '

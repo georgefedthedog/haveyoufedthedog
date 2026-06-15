@@ -81,7 +81,7 @@ function notifyHousehold(record, action) {
     });
 
     if (resp.statusCode !== 200) {
-      console.error("[notify hook] push-notifier returned", resp.statusCode, resp.raw);
+      console.error("[notify hook] worker returned", resp.statusCode, resp.raw);
     }
   } catch (err) {
     console.error("[notify hook] error:", err);

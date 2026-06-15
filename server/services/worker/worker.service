@@ -1,17 +1,17 @@
 [Unit]
-Description=Have You Fed The Dog - push notification relay
+Description=Have You Fed The Dog - worker service (push relay, IAP verify, cron)
 After=network.target
 
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/haveyoufedthedog/push-notifier
+WorkingDirectory=/opt/haveyoufedthedog/worker
 ExecStart=/usr/bin/node index.js
 Restart=on-failure
 RestartSec=5
 Environment=PORT=3055
 # PB superuser creds for the overdue cron (optional; see .env.example).
-EnvironmentFile=-/opt/haveyoufedthedog/push-notifier/.env
+EnvironmentFile=-/opt/haveyoufedthedog/worker/.env
 
 [Install]
 WantedBy=multi-user.target

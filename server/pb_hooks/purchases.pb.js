@@ -6,7 +6,7 @@
 ///
 /// Confirms the caller is a member of the household, resolves the SKU to an
 /// enabled `catalog_products` row, asks the internal Node verifier
-/// (push-notifier on :3055) to validate the receipt with the store, records
+/// (the worker service on :3055) to validate the receipt with the store, records
 /// the transaction in `purchases`, then appends the product's granted packs to
 /// the household's `packs` relation - the same household-scoped entitlement
 /// that redeem-pack-code writes.

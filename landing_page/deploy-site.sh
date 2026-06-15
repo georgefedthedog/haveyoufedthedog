@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copies the landing page (src/) to the live server.
 # Run from Git Bash / WSL. Single SSH connection, same pattern as
-# server/scripts/deploy-hooks.sh. The Tailwind output (src/style.css) is
+# server/.deploy/deploy-hooks.sh. The Tailwind output (src/style.css) is
 # committed, so no build step is needed here - but if you've edited HTML
 # classes since the last build, run `npm run build` first.
 set -e

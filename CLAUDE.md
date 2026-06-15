@@ -31,8 +31,8 @@ flutter build apk --release --split-per-abi       # bump pubspec version first
 dart run flutter_launcher_icons                   # after changing app icon art
 ```
 
-Server deploys (Git Bash/WSL): `bash server/scripts/deploy-hooks.sh` /
-`deploy-notifier.sh` / `deploy-all.sh`. **deploy-hooks.sh has a hardcoded
+Server deploys (Git Bash/WSL): `bash server/.deploy/deploy-hooks.sh` /
+`deploy-worker.sh` / `deploy-all.sh`. **deploy-hooks.sh has a hardcoded
 file list** - new hook files must be added to its `tar` line.
 
 ## Architecture
@@ -70,7 +70,7 @@ file list** - new hook files must be added to its `tar` line.
   and render through the models' `imageProvider` getters
   (cached_network_image disk cache); the three pickers read
   `selectableCatalogProvider` instead. Publishing workflow:
-  `server/scripts/apply-catalog.md`.
+  `server/.deploy/apply-catalog.md`.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).
@@ -81,7 +81,7 @@ file list** - new hook files must be added to its `tar` line.
   `weekday_mask` is Mon=1 … Sun=64 (`1 << (weekday-1)`). `completed_at` is UTC.
 - The overdue cron (`server/pb_hooks/overdue.pb.js`) assumes the **server
   timezone == family timezone** (Europe/London). Multi-TZ households would
-  need `households.timezone` + moving the cron to the Node notifier.
+  need `households.timezone` + moving the cron to the Node worker service.
 - Weekly windows everywhere are Mon→Sun local. Award ties go to nobody.
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
   - never `TimeOfDay.format(context)`.
@@ -93,7 +93,7 @@ file list** - new hook files must be added to its `tar` line.
   to handlers. Helper files must not end in `.pb.js` or PB auto-loads them.
 - Schema changes are admin-UI-first: change live, re-export to
   `server/pb_schema.json`, commit. Never hand-edit the live DB schema via
-  import unless following `server/scripts/apply-schema.md`.
+  import unless following `server/.deploy/apply-schema.md`.
 - Secrets (Resend API key, Firebase service account) live only on the
   server / in PB settings. Never in the repo.
 
