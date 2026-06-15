@@ -54,6 +54,13 @@ app.post("/notify", async (req, res) => {
   }
 });
 
+// POST /verify-purchase - called by the purchases.pb.js hook (internal only).
+// Body: { platform, sku, purchaseToken }. Verifies with the store; the hook
+// does the entitlement write.
+const { initPlayVerifier, verifyPurchaseHandler } = require("./verify");
+initPlayVerifier();
+app.post("/verify-purchase", verifyPurchaseHandler);
+
 app.get("/health", (_, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3055;

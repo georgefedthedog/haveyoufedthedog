@@ -5,6 +5,7 @@
 # First-time setup on the server (do this once, by hand):
 #   ssh ... 'sudo mkdir -p /opt/haveyoufedthedog/push-notifier && sudo chown -R george:george /opt/haveyoufedthedog'
 #   scp services/push-notifier/firebase-service-account.json ...:/opt/haveyoufedthedog/push-notifier/
+#   scp services/push-notifier/play-service-account.json ...:/opt/haveyoufedthedog/push-notifier/
 set -e
 
 SERVER="george@65.108.215.132"
@@ -15,7 +16,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> Uploading notifier + restarting push-notifier..."
 tar -cz -C "$DIR/services/push-notifier" \
-    index.js overdue-cron.js package.json push-notifier.service \
+    index.js overdue-cron.js verify.js package.json push-notifier.service \
   | ssh "${SSH_OPTS[@]}" "$SERVER" "
       set -e
       mkdir -p $REMOTE
