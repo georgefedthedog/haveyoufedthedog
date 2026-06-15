@@ -12,6 +12,11 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="chore_completions" />
+        <!-- Small icon for background/system-tray pushes. White paw
+             silhouette; Android tints it by the alpha channel. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notification" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

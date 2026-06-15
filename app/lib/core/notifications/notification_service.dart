@@ -48,7 +48,7 @@ class NotificationService with WidgetsBindingObserver {
         >()
         ?.createNotificationChannel(channel);
 
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidInit = AndroidInitializationSettings('ic_stat_notification');
     const initSettings = InitializationSettings(android: androidInit);
     await _local.initialize(initSettings);
 
@@ -76,6 +76,7 @@ class NotificationService with WidgetsBindingObserver {
           _channelId,
           _channelName,
           channelDescription: _channelDescription,
+          icon: 'ic_stat_notification',
           importance: Importance.high,
           priority: Priority.high,
         ),

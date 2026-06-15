@@ -1,0 +1,17 @@
+<!-- Notification small icon: a paw silhouette. Android masks the small
+     icon by its alpha channel and paints it solid white, so this is a
+     flat white-on-transparent shape (no colour / detail). 24dp viewport.
+     Four toe beans in an arc over one large main pad. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M3.5,9 a2,2.6 0 1,0 4,0 a2,2.6 0 1,0 -4,0 Z
+                          M7.5,6 a2,2.6 0 1,0 4,0 a2,2.6 0 1,0 -4,0 Z
+                          M12.5,6 a2,2.6 0 1,0 4,0 a2,2.6 0 1,0 -4,0 Z
+                          M16.5,9 a2,2.6 0 1,0 4,0 a2,2.6 0 1,0 -4,0 Z
+                          M7,16.5 a5,4.5 0 1,0 10,0 a5,4.5 0 1,0 -10,0 Z" />
+</vector>

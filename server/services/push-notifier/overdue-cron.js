@@ -21,6 +21,7 @@ const HOUSEHOLDS_CACHE_MS = 5 * 60 * 1000;
 function startOverdueCron({ pbUrl, identity, password, sendPush }) {
   let token = null;
   let householdsCache = { at: 0, timezones: [] };
+  let lastLoggedTimezones = null;
   let running = false;
 
   async function authenticate() {
@@ -53,6 +54,13 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
     const data = await pbGet(`/api/collections/households/records?perPage=500&fields=id,timezone`);
     const set = new Set((data.items || []).map(h => h.timezone || DEFAULT_TZ));
     householdsCache = { at: Date.now(), timezones: [...set] };
+    // Log only when the set changes - it "changes about never", so a
+    // per-refresh print would just be 288 redundant lines a day.
+    const fingerprint = [...set].sort().join(",");
+    if (fingerprint !== lastLoggedTimezones) {
+      console.log("[overdue] polling timezones:", householdsCache.timezones);
+      lastLoggedTimezones = fingerprint;
+    }
     return householdsCache.timezones;
   }
 
@@ -93,30 +101,48 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
     const filter = encodeURIComponent(`active = true && hour = ${p.hour} && minute = ${p.minute} && ${tzMatch}`);
     const chores = await pbGet(`/api/collections/chores/records?perPage=200&filter=${filter}&expand=subject`);
 
+    const clock = `${String(p.hour).padStart(2, "0")}:${String(p.minute).padStart(2, "0")}`;
+    if ((chores.items || []).length) {
+      console.log(`[overdue] ${tz} ${clock} matched ${chores.items.length} chore(s)`);
+    }
+
     for (const chore of chores.items || []) {
       try {
         const mask = chore.weekday_mask || 127;
-        if ((mask & p.weekdayBit) === 0) continue;
+        if ((mask & p.weekdayBit) === 0) {
+          console.log(`[overdue] skip "${chore.name}" - weekday mask ${mask} excludes bit ${p.weekdayBit}`);
+          continue;
+        }
 
         const subject = chore.expand?.subject;
-        if (!subject) continue;
+        if (!subject) {
+          console.log(`[overdue] skip "${chore.name}" - subject not expanded`);
+          continue;
+        }
 
         const since = sinceLocalMidnight(target, p);
         const doneFilter = encodeURIComponent(`chore = '${chore.id}' && completed_at >= "${since}"`);
         const done = await pbGet(`/api/collections/completions/records?perPage=1&filter=${doneFilter}`);
-        if ((done.items || []).length) continue;
+        if ((done.items || []).length) {
+          console.log(`[overdue] skip "${chore.name}" - already completed since ${since}`);
+          continue;
+        }
 
         const memberFilter = encodeURIComponent(`household = '${subject.household}'`);
         const members = await pbGet(`/api/collections/household_members/records?perPage=100&filter=${memberFilter}&expand=user`);
         const tokens = (members.items || []).map(m => m.expand?.user?.fcm_token).filter(Boolean);
-        if (!tokens.length) continue;
+        if (!tokens.length) {
+          console.log(`[overdue] skip "${chore.name}" - no fcm_tokens among ${(members.items || []).length} member(s)`);
+          continue;
+        }
 
-        await sendPush({
+        const result = await sendPush({
           tokens,
           title: subject.name || "Someone",
           body: `${chore.name || "A chore"} is overdue - ${subject.name || "someone"} is waiting!`,
           data: { subjectId: subject.id, type: "overdue" },
         });
+        console.log(`[overdue] sent "${chore.name}" to ${tokens.length} token(s):`, result);
       } catch (err) {
         console.error("[overdue] chore", chore.id, "error:", err.message);
       }
