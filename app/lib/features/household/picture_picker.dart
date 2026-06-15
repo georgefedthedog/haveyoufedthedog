@@ -40,7 +40,7 @@ class _PicturePickerState extends ConsumerState<PicturePicker> {
   @override
   void initState() {
     super.initState();
-    _pictures = ref.read(catalogProvider).pictures;
+    _pictures = ref.read(selectableCatalogProvider).pictures;
     _currentIndex = _initialIndex();
     _controller = PageController(
       initialPage: _currentIndex,
@@ -87,7 +87,7 @@ class _PicturePickerState extends ConsumerState<PicturePicker> {
     // Remote catalog entries can land after first build (the merged list
     // only ever grows). Re-resolve the selected id's index when it does -
     // same deferred-jump dance as didUpdateWidget.
-    final pictures = ref.watch(catalogProvider).pictures;
+    final pictures = ref.watch(selectableCatalogProvider).pictures;
     if (pictures.length != _pictures.length) {
       _pictures = pictures;
       final target = _initialIndex();

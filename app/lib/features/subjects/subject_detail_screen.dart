@@ -676,8 +676,7 @@ class _HistorySection extends ConsumerWidget {
         ),
         Center(
           child: TextButton(
-            onPressed: () =>
-                context.go('${Routes.historyTab}?subject=${subject.id}'),
+            onPressed: () => context.go('${Routes.home}?subject=${subject.id}'),
             child: const Text('See all →'),
           ),
         ),

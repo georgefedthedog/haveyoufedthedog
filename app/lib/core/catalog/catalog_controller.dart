@@ -11,6 +11,7 @@ import '../../features/home/time_of_day_bucket.dart';
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
 import '../household/current_household_controller.dart';
+import '../household/households_controller.dart';
 import '../household/picture.dart';
 import '../household/pictures.dart';
 import '../profile/avatar.dart';
@@ -38,31 +39,19 @@ Future<RemoteCatalog> remoteCatalog(Ref ref) async {
   final userIdFuture = ref.watch(
     authControllerProvider.selectAsync((a) => a.userId),
   );
-  // The current household's applied packs gate which rows we're served.
-  // Selected as a stable joined string so household-list churn (renames,
-  // refetches) doesn't refetch the catalog - only an actual pack change
-  // (redeem, household switch) does.
-  final packsKeyFuture = ref.watch(
-    currentHouseholdControllerProvider.selectAsync(
-      (h) => (h?.packIds ?? const []).join(','),
-    ),
-  );
   final prefsFuture = ref.watch(sharedPreferencesProvider.future);
 
   final pb = await pbFuture;
   final userId = await userIdFuture;
-  final packsKey = await packsKeyFuture;
   final prefs = await prefsFuture;
 
   if (userId == null) return RemoteCatalog.empty;
 
-  final packIds = packsKey.isEmpty ? const <String>[] : packsKey.split(',');
-
   try {
     final results = await Future.wait([
-      _rows(pb, 'catalog_avatars', packIds),
-      _rows(pb, 'catalog_pictures', packIds),
-      _rows(pb, 'catalog_characters', packIds),
+      _rows(pb, 'catalog_avatars'),
+      _rows(pb, 'catalog_pictures'),
+      _rows(pb, 'catalog_characters'),
       pb.collection('catalog_packs').getFullList(filter: 'enabled = true'),
     ]);
     await _saveSnapshot(prefs, results);
@@ -146,23 +135,80 @@ Catalog catalog(Ref ref) {
   );
 }
 
-/// Rows visible to this household: general-catalog rows (no pack) plus
-/// rows belonging to any applied pack that is still enabled. There's no
-/// per-row enabled flag - a saved row is live; staging/retiring is done
-/// by assigning the row to a disabled pack (the "Vault" trick), and
-/// disabling a pack suspends its art even for households that applied
-/// it. Pack ids are PB-generated alphanumerics, safe to interpolate.
-Future<List<RecordModel>> _rows(
-  PocketBase pb,
-  String collection,
-  List<String> packIds,
-) {
-  final applied = [for (final id in packIds) "pack = '$id'"].join(' || ');
-  final filter = applied.isEmpty
-      ? "pack = ''"
-      : "pack = '' || (($applied) && pack.enabled = true)";
+/// The art a user may select in the pickers - bundled and general-catalog
+/// art (always), plus packed art they're entitled to. Entitlement differs
+/// by art *kind*, matching what each thing belongs to:
+///
+/// - **Avatars** are personal, so they're gated by the *union* of packs
+///   across all the user's households - a packed avatar can be chosen from
+///   any household once any of the user's households has the pack.
+/// - **Pictures** and **characters** belong to a household, so they're gated
+///   by the *current* household's packs only.
+///
+/// This is the entitlement gate that used to live in the catalog fetch
+/// itself. Rendering (resolving any chosen id) goes through [catalogProvider]
+/// instead, which is deliberately ungated so chosen art travels across the
+/// user's households. Disabled-pack art is already absent from [catalog]
+/// (the fetch drops it), so it can't leak into the picker here either.
+@Riverpod(keepAlive: true)
+SelectableCatalog selectableCatalog(Ref ref) {
+  final catalog = ref.watch(catalogProvider);
+  // Current household's packs gate pictures + characters. Selected as a
+  // stable joined string so unrelated household churn (renames, refetches)
+  // doesn't rebuild the picker - only an actual pack change does.
+  final householdPacksKey = ref.watch(
+    currentHouseholdControllerProvider.select(
+      (h) => (h.valueOrNull?.packIds ?? const <String>[]).join(','),
+    ),
+  );
+  // Union of packs across all the user's households gates avatars. Sorted
+  // before joining so the key is order-independent (same stability goal).
+  final avatarPacksKey = ref.watch(
+    householdsControllerProvider.select((async) {
+      final union = <String>{};
+      for (final h in async.valueOrNull ?? const []) {
+        union.addAll(h.packIds);
+      }
+      final sorted = union.toList()..sort();
+      return sorted.join(',');
+    }),
+  );
+
+  Set<String> packSet(String key) =>
+      key.isEmpty ? const <String>{} : key.split(',').toSet();
+  final householdPacks = packSet(householdPacksKey);
+  final avatarPacks = packSet(avatarPacksKey);
+
+  bool selectable(String? packId, Set<String> entitled) =>
+      packId == null || entitled.contains(packId);
+  return SelectableCatalog(
+    avatars: [
+      for (final a in catalog.avatars)
+        if (selectable(a.packId, avatarPacks)) a,
+    ],
+    pictures: [
+      for (final p in catalog.pictures)
+        if (selectable(p.packId, householdPacks)) p,
+    ],
+    characters: [
+      for (final c in catalog.characters)
+        if (selectable(c.packId, householdPacks)) c,
+    ],
+  );
+}
+
+/// Every resolvable row, ungated by which packs a household has applied:
+/// general-catalog rows (no pack) plus every row whose pack is enabled.
+/// This is the *resolution* set - a chosen avatar/picture/character must
+/// render in any household the viewer is in, not just one that redeemed
+/// the pack; the picker gating (which packs you may *select* from) lives
+/// in [selectableCatalogProvider]. There's no per-row enabled flag - a
+/// saved row is live; staging/retiring is done by assigning the row to a
+/// disabled pack (the "Vault" trick), and disabling a pack suspends its
+/// art everywhere, including already-chosen art.
+Future<List<RecordModel>> _rows(PocketBase pb, String collection) {
   return pb.collection(collection).getFullList(
-    filter: filter,
+    filter: "pack = '' || pack.enabled = true",
     sort: 'sort_order,created',
   );
 }
@@ -180,10 +226,12 @@ Avatar? _avatarFrom(PocketBase pb, RecordModel r) {
   final slug = r.getStringValue('slug');
   final image = r.getStringValue('image');
   if (slug.isEmpty || image.isEmpty) return null;
+  final pack = r.getStringValue('pack');
   return Avatar(
     id: slug,
     displayName: r.getStringValue('display_name'),
     remoteImage: pb.files.getUrl(r, image),
+    packId: pack.isEmpty ? null : pack,
   );
 }
 
@@ -196,10 +244,12 @@ Picture? _pictureFrom(PocketBase pb, RecordModel r) {
     if (file.isEmpty) return null; // All five are required; skip bad rows.
     variants[bucket] = pb.files.getUrl(r, file);
   }
+  final pack = r.getStringValue('pack');
   return Picture(
     id: slug,
     displayName: r.getStringValue('display_name'),
     remoteVariants: variants,
+    packId: pack.isEmpty ? null : pack,
   );
 }
 
@@ -213,6 +263,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
   }
   if (!expressions.containsKey(CharacterExpression.idle)) return null;
   final award = r.getStringValue('award');
+  final pack = r.getStringValue('pack');
   return Character(
     id: slug,
     displayName: r.getStringValue('display_name'),
@@ -221,6 +272,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
     available: expressions.keys.toSet(),
     remoteExpressions: expressions,
     remoteAward: award.isEmpty ? null : pb.files.getUrl(r, award),
+    packId: pack.isEmpty ? null : pack,
   );
 }
 

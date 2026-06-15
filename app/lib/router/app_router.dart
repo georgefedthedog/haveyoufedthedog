@@ -135,7 +135,9 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.home,
-                builder: (context, state) => const HomeScreen(),
+                builder: (context, state) => HomeScreen(
+                  initialSubjectFilter: state.uri.queryParameters['subject'],
+                ),
               ),
             ],
           ),
@@ -151,9 +153,7 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.historyTab,
-                builder: (context, state) => HistoryTabScreen(
-                  initialSubjectFilter: state.uri.queryParameters['subject'],
-                ),
+                builder: (context, state) => const HistoryTabScreen(),
               ),
             ],
           ),

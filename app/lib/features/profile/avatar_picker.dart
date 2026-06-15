@@ -40,7 +40,7 @@ class _AvatarPickerState extends ConsumerState<AvatarPicker> {
   @override
   void initState() {
     super.initState();
-    _avatars = ref.read(catalogProvider).avatars;
+    _avatars = ref.read(selectableCatalogProvider).avatars;
     _currentIndex = _initialIndex();
     _controller = PageController(
       initialPage: _currentIndex,
@@ -87,7 +87,7 @@ class _AvatarPickerState extends ConsumerState<AvatarPicker> {
     // Remote catalog entries can land after first build (the merged list
     // only ever grows). Re-resolve the selected id's index when it does -
     // same deferred-jump dance as didUpdateWidget.
-    final avatars = ref.watch(catalogProvider).avatars;
+    final avatars = ref.watch(selectableCatalogProvider).avatars;
     if (avatars.length != _avatars.length) {
       _avatars = avatars;
       final target = _initialIndex();

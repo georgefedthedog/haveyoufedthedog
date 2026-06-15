@@ -24,6 +24,7 @@ import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/empty_state.dart';
 import '../chores/chore_row.dart';
+import '../history/all_activity_section.dart';
 import '../history/leaderboard.dart';
 import '../household/picture_artwork.dart';
 import 'household_members_row.dart';
@@ -31,11 +32,90 @@ import 'household_members_row.dart';
 /// Home screen - household picture, members row, today's chores list,
 /// and leaderboard. The whole body scrolls as one - the picture is part
 /// of the scrollable content, not a fixed header.
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends ConsumerStatefulWidget {
+  /// Optional `?subject=<id>` query param - the subject detail screen's
+  /// "See all" deep-links here to open All activity pre-filtered to one pet,
+  /// scrolling the page down to it.
+  final String? initialSubjectFilter;
+
+  const HomeScreen({super.key, this.initialSubjectFilter});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final _scrollController = ScrollController();
+  final _allActivityKey = GlobalKey();
+
+  /// Set when we arrive with a subject filter but the All activity section
+  /// isn't laid out yet (household/subjects still loading). Each build
+  /// retries the scroll post-frame until the section's context exists.
+  bool _pendingActivityScroll = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingActivityScroll = widget.initialSubjectFilter != null;
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A fresh "See all" deep-link re-enters this (kept-alive) branch with a
+    // new subject id - scroll to the feed again.
+    final incoming = widget.initialSubjectFilter;
+    if (incoming != null && incoming != oldWidget.initialSubjectFilter) {
+      _pendingActivityScroll = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _scrollToActivity() async {
+    if (!_pendingActivityScroll) return;
+    if (!_scrollController.hasClients) return; // Not attached - retry next build.
+    _pendingActivityScroll = false;
+
+    // The All activity section is the last child of a lazy ListView, so
+    // while it's off-screen it isn't built and its GlobalKey has no context
+    // to ensureVisible against. Animate toward the bottom in passes - each
+    // scroll builds more children (and grows the real maxScrollExtent) until
+    // the section materialises, then align its title to the top.
+    for (var pass = 0; pass < 6; pass++) {
+      final ctx = _allActivityKey.currentContext;
+      if (ctx != null && ctx.mounted) {
+        await Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOut,
+          alignment: 0,
+        );
+        return;
+      }
+      final max = _scrollController.position.maxScrollExtent;
+      if (_scrollController.offset >= max - 1) break; // Already at the bottom.
+      await _scrollController.animateTo(
+        max,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+      if (!mounted || !_scrollController.hasClients) return;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_pendingActivityScroll) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _scrollToActivity();
+      });
+    }
+
     final asyncCurrent = ref.watch(currentHouseholdControllerProvider);
     final asyncSubjects = ref.watch(subjectsControllerProvider);
 
@@ -77,6 +157,7 @@ class HomeScreen extends ConsumerWidget {
             context: context,
             removeTop: true,
             child: ListView(
+              controller: _scrollController,
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 96),
               children: [
                 if (asyncCurrent.valueOrNull != null) ...[
@@ -283,6 +364,14 @@ class HomeScreen extends ConsumerWidget {
                     ];
                   },
                 ),
+                if (asyncCurrent.valueOrNull != null)
+                  Padding(
+                    key: _allActivityKey,
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                    child: AllActivitySection(
+                      initialSubjectFilter: widget.initialSubjectFilter,
+                    ),
+                  ),
               ],
             ),
           ),

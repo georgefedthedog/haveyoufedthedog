@@ -4,15 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
-import '../../core/completions/awards_controller.dart';
-import '../../core/household/current_household_controller.dart';
-import '../../core/household/household_member.dart';
-import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
 import '../../router/routes.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/page_title.dart';
-import '../history/awards_section.dart';
 import 'avatar_artwork.dart';
 
 /// "You" bottom-nav branch: a polished profile + settings landing surface.
@@ -93,8 +88,6 @@ class YouTabScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          if (auth != null) _MyAwardsCard(myUserId: auth.userId),
           const SizedBox(height: 16),
           Text(
             'Moving day?',
@@ -261,99 +254,6 @@ class _DropCircle extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-/// Card listing every weekly award the signed-in user currently holds -
-/// the personality awards plus any character-given ones. Quiet "nothing
-/// yet" line when the trophy shelf is empty.
-class _MyAwardsCard extends ConsumerWidget {
-  final String? myUserId;
-
-  const _MyAwardsCard({required this.myUserId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final awards = ref.watch(weeklyAwardsProvider);
-
-    // Me as a HouseholdMember - the badge card footer wants the avatar.
-    final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
-    final members = hh == null
-        ? const <HouseholdMember>[]
-        : ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
-              const <HouseholdMember>[];
-    HouseholdMember? me;
-    for (final m in members) {
-      if (m.userId == myUserId) {
-        me = m;
-        break;
-      }
-    }
-
-    final mine = [
-      for (final a in awards.memberAwards)
-        if (a.winnerUserId == myUserId) a,
-    ];
-    final mineFromCharacters = [
-      for (final a in awards.characterAwards)
-        if (a.winnerUserId == myUserId) a,
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          'Your awards and badges',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (mine.isEmpty && mineFromCharacters.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Nothing yet - plenty of week left!',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-          )
-        else ...[
-          // Same featured-award carousel as the Awards tab, filtered to
-          // the awards this user holds.
-          if (mineFromCharacters.isNotEmpty && hh != null) ...[
-            FeaturedAwards(householdId: hh.id, onlyWonBy: myUserId),
-            const SizedBox(height: 12),
-          ],
-          // Same trophy-cabinet badge cards as the Awards tab, two-up.
-          for (var i = 0; i < mine.length; i += 2)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: MemberAwardCard(award: mine[i], winner: me),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: i + 1 < mine.length
-                        ? MemberAwardCard(award: mine[i + 1], winner: me)
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ],
     );
   }
 }

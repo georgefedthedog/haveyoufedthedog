@@ -24,10 +24,18 @@ class Picture {
   /// Download URLs per bucket for catalog pictures; null for bundled ones.
   final Map<TimeOfDayBucket, Uri>? remoteVariants;
 
+  /// Id of the `catalog_packs` row this picture belongs to, or null for
+  /// bundled art and general-catalog rows (`pack = ''`). Used only to gate
+  /// the *picker* to a household's entitled packs - resolution is ungated,
+  /// so a household's chosen picture renders in the switcher even from
+  /// another household that lacks the pack.
+  final String? packId;
+
   const Picture({
     required this.id,
     required this.displayName,
     this.remoteVariants,
+    this.packId,
   });
 
   /// Asset path for a bundled picture's variant matching [bucket].

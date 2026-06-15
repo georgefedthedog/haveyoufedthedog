@@ -1,47 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/awards_controller.dart';
 import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/household/current_household_controller.dart';
-import '../../core/subjects/characters.dart';
-import '../../core/subjects/subjects_controller.dart';
-import '../../widgets/empty_state.dart';
 import '../../widgets/page_title.dart';
 import 'awards_section.dart';
-import 'completion_timeline.dart';
 import 'leaderboard.dart';
 
-/// History tab - household-wide. Stats cards at the top, leaderboard
-/// underneath, then a filter chip row + the full list of completions.
-class HistoryTabScreen extends ConsumerStatefulWidget {
-  /// Optional `?subject=<id>` query param from the deep-link - e.g. when
-  /// "See all" is tapped on a subject detail screen.
-  final String? initialSubjectFilter;
-
-  const HistoryTabScreen({super.key, this.initialSubjectFilter});
+/// Awards tab - household-wide. Quick-stats strip at the top, then the
+/// featured awards, leaderboard, and badge cabinet. (The "All activity"
+/// completion feed lives at the bottom of the Home page.)
+class HistoryTabScreen extends ConsumerWidget {
+  const HistoryTabScreen({super.key});
 
   @override
-  ConsumerState<HistoryTabScreen> createState() => _HistoryTabScreenState();
-}
-
-class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
-  String? _subjectFilter; // null = all subjects
-
-  @override
-  void initState() {
-    super.initState();
-    _subjectFilter = widget.initialSubjectFilter;
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final asyncHistory = ref.watch(householdHistoryControllerProvider);
     final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
-    final subjects =
-        ref.watch(subjectsControllerProvider).valueOrNull ?? const [];
 
     // Status-bar inset as scroll padding, not SafeArea: content starts
     // below the status bar but scrolls clean to the physical top edge
@@ -64,97 +41,23 @@ class _HistoryTabScreenState extends ConsumerState<HistoryTabScreen> {
               ),
             ],
           ),
-          data: (list) {
-            final filtered = _subjectFilter == null
-                ? list
-                : list.where((c) => c.subjectId == _subjectFilter).toList();
-
-            return ListView(
-              padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
-              children: [
-                const PageTitle(text: 'Awards'),
-                const _StatsStrip(),
+          data: (_) => ListView(
+            padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
+            children: [
+              const PageTitle(text: 'Awards'),
+              const _StatsStrip(),
+              const SizedBox(height: 20),
+              if (hh != null) ...[
+                FeaturedAwards(householdId: hh.id),
                 const SizedBox(height: 20),
-                if (hh != null) ...[
-                  FeaturedAwards(householdId: hh.id),
-                  const SizedBox(height: 20),
-                  Leaderboard(householdId: hh.id),
-                  const SizedBox(height: 20),
-                  BadgesSection(householdId: hh.id),
-                  const SizedBox(height: 8),
-                ],
-                Text(
-                  'All activity',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (subjects.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    // Wrap centres the chips (and flows onto a second
-                    // line if a household has lots of subjects).
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _filterChip(label: 'All', value: null),
-                        for (final s in subjects)
-                          _filterChip(label: s.name, value: s.id),
-                      ],
-                    ),
-                  ),
-                if (filtered.isEmpty)
-                  Builder(
-                    builder: (context) {
-                      // When a subject filter is active, its own character
-                      // fronts the empty state; "All" falls back to the
-                      // plant.
-                      String? filteredIcon;
-                      if (_subjectFilter != null) {
-                        for (final s in subjects) {
-                          if (s.id == _subjectFilter) {
-                            filteredIcon = s.icon;
-                            break;
-                          }
-                        }
-                      }
-                      final character = _subjectFilter == null
-                          ? CharacterRegistry.plant
-                          : ref
-                                .watch(catalogProvider)
-                                .lookupCharacter(filteredIcon);
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: EmptyState(
-                          character: character,
-                          title: 'Nothing here yet!',
-                          message: 'Be the first one to complete a chore.',
-                        ),
-                      );
-                    },
-                  )
-                else
-                  CompletionTimeline(
-                    completions: filtered,
-                    householdId: hh?.id ?? '',
-                  ),
+                Leaderboard(householdId: hh.id),
+                const SizedBox(height: 20),
+                BadgesSection(householdId: hh.id),
               ],
-            );
-          },
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _filterChip({required String label, required String? value}) {
-    return FilterChip(
-      label: Text(label),
-      selected: _subjectFilter == value,
-      onSelected: (_) => setState(() => _subjectFilter = value),
     );
   }
 }

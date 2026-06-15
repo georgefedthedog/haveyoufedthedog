@@ -25,7 +25,7 @@ class CharacterPicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final characters = ref.watch(catalogProvider).characters;
+    final characters = ref.watch(selectableCatalogProvider).characters;
     return SizedBox(
       height: 96,
       child: ListView.separated(

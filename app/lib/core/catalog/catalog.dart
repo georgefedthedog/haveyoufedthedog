@@ -85,3 +85,21 @@ class Catalog {
     return CharacterRegistry.lookup(id);
   }
 }
+
+/// The subset of catalog art the *current* household may **select** in the
+/// pickers: bundled and general-catalog art always, plus art from the packs
+/// that household has applied. Distinct from [Catalog], which **resolves**
+/// any id for rendering regardless of the active household - so an avatar or
+/// picture chosen in one household still renders when the user is active in
+/// another that never redeemed the pack.
+class SelectableCatalog {
+  final List<Avatar> avatars;
+  final List<Picture> pictures;
+  final List<Character> characters;
+
+  const SelectableCatalog({
+    required this.avatars,
+    required this.pictures,
+    required this.characters,
+  });
+}

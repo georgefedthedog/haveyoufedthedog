@@ -66,6 +66,11 @@ class Character {
   /// that haven't shipped it.
   final Uri? remoteAward;
 
+  /// Id of the `catalog_packs` row this character belongs to, or null for
+  /// bundled art and general-catalog rows (`pack = ''`). Used only to gate
+  /// the *picker* to a household's entitled packs - resolution is ungated.
+  final String? packId;
+
   const Character({
     required this.id,
     required this.displayName,
@@ -74,6 +79,7 @@ class Character {
     this.available = const {CharacterExpression.idle},
     this.remoteExpressions,
     this.remoteAward,
+    this.packId,
   });
 
   /// The closest available expression - defaults via
