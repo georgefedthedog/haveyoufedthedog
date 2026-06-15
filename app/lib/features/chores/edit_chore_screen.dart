@@ -36,6 +36,10 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   TimeOfDay _time = const TimeOfDay(hour: 8, minute: 0);
   ScheduleType _scheduleType = ScheduleType.daily;
   int _weekdayMask = Weekdays.all;
+  int _weekInterval = 1;
+  // The user's chosen anchor; the stored/previewed start is this snapped
+  // forward to the next day that's actually in the mask (_snappedStartDate).
+  DateTime _startDate = DateTime.now();
   bool _seeded = false;
   bool _busy = false;
 
@@ -53,7 +57,24 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     _time = TimeOfDay(hour: existing.hour, minute: existing.minute);
     _scheduleType = ScheduleType.fromWire(existing.scheduleType);
     _weekdayMask = existing.weekdayMask;
+    _weekInterval = const {1, 2, 4}.contains(existing.weekInterval)
+        ? existing.weekInterval
+        : 1;
+    final es = existing.startDate;
+    if (es != null) _startDate = DateTime(es.year, es.month, es.day);
     _seeded = true;
+  }
+
+  /// The chosen anchor snapped forward to the next day whose weekday is in
+  /// the mask - so the stored start is always a real occurrence. Returns the
+  /// raw anchor unchanged when the mask is empty (save is guarded anyway).
+  DateTime _snappedStartDate() {
+    var d = DateTime(_startDate.year, _startDate.month, _startDate.day);
+    for (var i = 0; i < 7; i++) {
+      if ((_weekdayMask & Weekdays.bitFor(d)) != 0) return d;
+      d = d.add(const Duration(days: 1));
+    }
+    return d;
   }
 
   /// Static preview of the chore in its neutral state - always shows the
@@ -64,13 +85,14 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final name = _nameCtrl.text.trim();
+    final weekly = _scheduleType == ScheduleType.weekly;
     final rule = ScheduleRule(
       type: _scheduleType,
       hour: _time.hour,
       minute: _time.minute,
-      weekdayMask: _scheduleType == ScheduleType.daily
-          ? Weekdays.all
-          : _weekdayMask,
+      weekdayMask: weekly ? _weekdayMask : Weekdays.all,
+      weekInterval: weekly ? _weekInterval : 1,
+      startDate: weekly && _weekInterval > 1 ? _snappedStartDate() : null,
     );
     return Card(
       shape: RoundedRectangleBorder(
@@ -122,6 +144,16 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     if (picked != null) setState(() => _time = picked);
   }
 
+  Future<void> _pickStartDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _snappedStartDate(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+    );
+    if (picked != null) setState(() => _startDate = picked);
+  }
+
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
     if (_scheduleType == ScheduleType.weekly && _weekdayMask == 0) return;
@@ -129,9 +161,10 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     // For daily chores the mask is irrelevant; force `all` so the server
     // never stores a meaningless mask. (Also satisfies the schema's
     // required+non-zero check, which doubles as a safety net for weekly.)
-    final maskToSend = _scheduleType == ScheduleType.daily
-        ? Weekdays.all
-        : _weekdayMask;
+    final weekly = _scheduleType == ScheduleType.weekly;
+    final maskToSend = weekly ? _weekdayMask : Weekdays.all;
+    final intervalToSend = weekly ? _weekInterval : 1;
+    final startToSend = weekly && _weekInterval > 1 ? _snappedStartDate() : null;
 
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
@@ -146,6 +179,8 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
           hour: _time.hour,
           minute: _time.minute,
           weekdayMask: maskToSend,
+          weekInterval: intervalToSend,
+          startDate: startToSend,
         );
       } else {
         await actions.createChore(
@@ -155,6 +190,8 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
           hour: _time.hour,
           minute: _time.minute,
           weekdayMask: maskToSend,
+          weekInterval: intervalToSend,
+          startDate: startToSend,
         );
       }
       if (mounted) router.pop();
@@ -270,6 +307,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       LabeledField(
                         label: 'Repeats',
                         child: SegmentedButton<ScheduleType>(
+                          showSelectedIcon: false,
                           segments: const [
                             ButtonSegment(
                               value: ScheduleType.daily,
@@ -299,6 +337,49 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                           Text(
                             'Pick at least one day.',
                             style: TextStyle(color: scheme.error),
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        LabeledField(
+                          label: 'How often',
+                          child: SegmentedButton<int>(
+                            showSelectedIcon: false,
+                            segments: const [
+                              ButtonSegment(
+                                value: 1,
+                                label: Text('Every week'),
+                              ),
+                              ButtonSegment(
+                                value: 2,
+                                label: Text('Fortnightly'),
+                              ),
+                              ButtonSegment(value: 4, label: Text('4 weeks')),
+                            ],
+                            selected: {_weekInterval},
+                            onSelectionChanged: (s) =>
+                                setState(() => _weekInterval = s.first),
+                          ),
+                        ),
+                        if (_weekInterval > 1) ...[
+                          const SizedBox(height: 16),
+                          LabeledField(
+                            label: 'Starts',
+                            child: Card(
+                              margin: EdgeInsets.zero,
+                              color: scheme.surfaceContainerHigh,
+                              child: ListTile(
+                                leading: const Icon(Icons.event),
+                                title: Text(
+                                  _weekdayMask == 0
+                                      ? 'Pick a day first'
+                                      : MaterialLocalizations.of(
+                                          context,
+                                        ).formatMediumDate(_snappedStartDate()),
+                                ),
+                                trailing: const Icon(Icons.edit),
+                                onTap: _weekdayMask == 0 ? null : _pickStartDate,
+                              ),
+                            ),
                           ),
                         ],
                       ],

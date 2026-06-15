@@ -10,14 +10,13 @@ class PictureRegistry {
   PictureRegistry._();
 
   /// Ordered list - picker renders them in this order.
-  static const all = <Picture>[paihia, terrace];
+  static const all = <Picture>[terrace];
 
-  static const paihia = Picture(id: 'paihia', displayName: 'Paihia House');
   static const terrace = Picture(id: 'terrace', displayName: 'Terrace');
 
   /// Shown for households that haven't picked a picture yet (or whose
   /// stored id no longer matches a registry entry).
-  static const defaultPicture = paihia;
+  static const defaultPicture = terrace;
 
   /// Look up a picture by stored id. Falls back to [defaultPicture] for
   /// null, empty, or unknown values.

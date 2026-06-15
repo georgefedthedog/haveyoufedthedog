@@ -60,7 +60,6 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    - assets/households/paihia/
     - assets/households/terrace/
     - assets/subjects/dog/
     - assets/subjects/cat/
