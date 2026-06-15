@@ -47,7 +47,7 @@ class YouTabScreen extends ConsumerWidget {
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        AvatarArtwork(avatar: avatar, size: 144),
+                        AvatarArtwork(avatar: avatar, size: 162),
                         Positioned(
                           right: 0,
                           bottom: 0,

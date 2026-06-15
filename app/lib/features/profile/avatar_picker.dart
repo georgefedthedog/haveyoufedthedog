@@ -1,20 +1,24 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/profile/avatar.dart';
+import '../../widgets/dashed_circle_painter.dart';
 import 'avatar_artwork.dart';
 
-/// Carousel-style picker for profile avatars. Mirror of `PicturePicker`
-/// (households) - one avatar centred, neighbours peek + scale down so the
-/// swipe affordance is obvious. Selection happens by swiping; tapping a
-/// peeking neighbour snaps to it.
+/// "Stage + tray" picker for profile avatars. The chosen avatar lives on a
+/// big dashed-circle [DragTarget] (the app's signature "drop here" shape);
+/// the full set scrolls in a grid tray below. Drag a tray avatar up onto
+/// the stage - or just tap it - and the stage gives a springy bounce.
 ///
-/// Pass [selected] (nullable) and receive a non-null avatar id via
-/// [onChanged] whenever a new page settles.
-class AvatarPicker extends ConsumerStatefulWidget {
-  /// Currently-selected avatar id. Null = no avatar chosen yet - carousel
-  /// opens at the first entry.
+/// Scales to a large catalog (the tray scrolls; the stage stays pinned) and
+/// needs no filter UI. Same contract as before: pass [selected] (nullable),
+/// receive a non-null id via [onChanged].
+class AvatarPicker extends ConsumerWidget {
+  /// Currently-selected avatar id. Null = nothing chosen yet (stage shows
+  /// the inviting empty silhouette).
   final String? selected;
 
   final ValueChanged<String> onChanged;
@@ -26,168 +30,240 @@ class AvatarPicker extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AvatarPicker> createState() => _AvatarPickerState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final avatars = ref.watch(selectableCatalogProvider).avatars;
+    final current = _byId(avatars, selected);
 
-class _AvatarPickerState extends ConsumerState<AvatarPicker> {
-  // Wide enough that the 180dp avatar never gets width-squeezed into an
-  // ellipse on a ~390dp-wide phone, while neighbours still peek.
-  static const _viewportFraction = 0.48;
-  late final PageController _controller;
-  late int _currentIndex;
-  late List<Avatar> _avatars;
-
-  @override
-  void initState() {
-    super.initState();
-    _avatars = ref.read(selectableCatalogProvider).avatars;
-    _currentIndex = _initialIndex();
-    _controller = PageController(
-      initialPage: _currentIndex,
-      viewportFraction: _viewportFraction,
+    return Column(
+      children: [
+        _Stage(
+          avatar: current,
+          onAccept: (a) => onChanged(a.id),
+          onSurprise: avatars.length < 2
+              ? null
+              : () => onChanged(_randomOther(avatars, selected).id),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Drag or tap',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Bounded so the stage stays pinned while the tray scrolls inside.
+        // ShaderMask fades the scroll edges so rows dissolve in/out rather
+        // than clipping hard against the stage and the form below.
+        SizedBox(
+          height: 240,
+          child: ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (bounds) => const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black,
+                Colors.black,
+                Colors.transparent,
+              ],
+              stops: [0.0, 0.08, 0.92, 1.0],
+            ).createShader(bounds),
+            child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+              ),
+              itemCount: avatars.length,
+              itemBuilder: (context, i) => _TrayTile(
+                avatar: avatars[i],
+                selected: avatars[i].id == selected,
+                onTap: () => onChanged(avatars[i].id),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  int _initialIndex() {
-    final id = widget.selected;
-    if (id == null) return 0;
-    for (var i = 0; i < _avatars.length; i++) {
-      if (_avatars[i].id == id) return i;
+  static Avatar? _byId(List<Avatar> avatars, String? id) {
+    if (id == null) return null;
+    for (final a in avatars) {
+      if (a.id == id) return a;
     }
-    return 0;
+    return null;
   }
 
+  static Avatar _randomOther(List<Avatar> avatars, String? id) {
+    final pool = avatars.where((a) => a.id != id).toList();
+    return pool[Random().nextInt(pool.length)];
+  }
+}
+
+/// The hero target. A dashed circle that fills solid + previews the avatar
+/// while a tray chip hovers over it, and bounces whenever the selection
+/// settles.
+class _Stage extends StatefulWidget {
+  final Avatar? avatar;
+  final ValueChanged<Avatar> onAccept;
+  final VoidCallback? onSurprise;
+
+  const _Stage({
+    required this.avatar,
+    required this.onAccept,
+    required this.onSurprise,
+  });
+
   @override
-  void didUpdateWidget(covariant AvatarPicker oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Honour external changes (e.g. a different user loaded under us) by
-    // jumping silently. Deferred to a post-frame callback because
-    // jumpToPage fires onPageChanged synchronously, which would call the
-    // parent's setState during build.
-    if (widget.selected != oldWidget.selected) {
-      final target = _initialIndex();
-      if (target != _currentIndex) {
-        _currentIndex = target;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          if (_controller.hasClients) _controller.jumpToPage(target);
-        });
-      }
+  State<_Stage> createState() => _StageState();
+}
+
+class _StageState extends State<_Stage> with SingleTickerProviderStateMixin {
+  static const _size = 176.0;
+  late final AnimationController _pop = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+    value: 1,
+  );
+  late final Animation<double> _scale = Tween(
+    begin: 0.7,
+    end: 1.0,
+  ).animate(CurvedAnimation(parent: _pop, curve: Curves.elasticOut));
+
+  @override
+  void didUpdateWidget(covariant _Stage old) {
+    super.didUpdateWidget(old);
+    if (widget.avatar?.id != old.avatar?.id && widget.avatar != null) {
+      _pop.forward(from: 0);
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _pop.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Remote catalog entries can land after first build (the merged list
-    // only ever grows). Re-resolve the selected id's index when it does -
-    // same deferred-jump dance as didUpdateWidget.
-    final avatars = ref.watch(selectableCatalogProvider).avatars;
-    if (avatars.length != _avatars.length) {
-      _avatars = avatars;
-      final target = _initialIndex();
-      if (target != _currentIndex) {
-        _currentIndex = target;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          if (_controller.hasClients) _controller.jumpToPage(target);
-        });
-      }
-    } else {
-      _avatars = avatars;
-    }
+    final scheme = Theme.of(context).colorScheme;
 
-    return SizedBox(
-      height: 200,
-      child: PageView.builder(
-        controller: _controller,
-        itemCount: _avatars.length,
-        onPageChanged: (i) {
-          _currentIndex = i;
-          widget.onChanged(_avatars[i].id);
-        },
-        itemBuilder: (context, i) {
-          return _CarouselTile(
-            avatar: _avatars[i],
-            controller: _controller,
-            index: i,
-            onTap: () => _controller.animateToPage(
-              i,
-              duration: const Duration(milliseconds: 280),
+    return DragTarget<Avatar>(
+      onAcceptWithDetails: (d) => widget.onAccept(d.data),
+      builder: (context, candidate, rejected) {
+        final hovering = candidate.isNotEmpty;
+        final shown = hovering ? candidate.first : widget.avatar;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            AnimatedScale(
+              scale: hovering ? 1.06 : 1.0,
+              duration: const Duration(milliseconds: 160),
               curve: Curves.easeOut,
+              child: ScaleTransition(
+                scale: _scale,
+                child: SizedBox(
+                  width: _size,
+                  height: _size,
+                  child: CustomPaint(
+                    painter: DashedCirclePainter(
+                      color: hovering
+                          ? scheme.primaryContainer
+                          : scheme.outline,
+                      filled: hovering,
+                    ),
+                    child: Center(
+                      child: AvatarArtwork(avatar: shown, size: _size - 14),
+                    ),
+                  ),
+                ),
+              ),
             ),
-          );
-        },
-      ),
+            if (widget.onSurprise != null)
+              Positioned(
+                right: 4,
+                bottom: 4,
+                child: Material(
+                  color: scheme.secondaryContainer,
+                  shape: const CircleBorder(),
+                  elevation: 2,
+                  child: IconButton(
+                    tooltip: 'Surprise me',
+                    color: scheme.onSecondaryContainer,
+                    icon: const Icon(Icons.casino),
+                    onPressed: widget.onSurprise,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
 
-class _CarouselTile extends StatelessWidget {
+/// One avatar in the scrollable tray. Long-press to drag onto the stage;
+/// tap to select. Mirrors the app's drag conventions: feedback rendered
+/// larger, the source ghosted to 0.3 while dragging.
+class _TrayTile extends StatelessWidget {
   final Avatar avatar;
-  final PageController controller;
-  final int index;
+  final bool selected;
   final VoidCallback onTap;
 
-  const _CarouselTile({
+  const _TrayTile({
     required this.avatar,
-    required this.controller,
-    required this.index,
+    required this.selected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        // Distance from this tile's index to the centred page. Before the
-        // controller is attached, fall back to initialPage.
-        double offset;
-        if (controller.position.hasContentDimensions) {
-          offset =
-              ((controller.page ?? controller.initialPage.toDouble()) - index)
-                  .abs();
-        } else {
-          offset = (controller.initialPage - index).abs().toDouble();
-        }
-        // Centre (offset 0) → full size + opaque.
-        // 1 page away → 78% size + 45% opacity.
-        final t = offset.clamp(0.0, 1.0);
-        final scale = 1.0 - (t * 0.22);
-        final opacity = 1.0 - (t * 0.55);
-        return Transform.scale(
-          scale: scale,
-          child: Opacity(opacity: opacity, child: child),
-        );
-      },
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: DecoratedBox(
-            // Gentle lift off the page, matching the other pickers.
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            // 168, not 180: leaves room in the 200-high page for the drop
-            // shadow (extends ~8 up / ~16 down), which the PageView clips.
-            child: AvatarArtwork(avatar: avatar, size: 168),
+    final scheme = Theme.of(context).colorScheme;
+    final tile = GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: selected ? scheme.primary : Colors.transparent,
+            width: 3,
           ),
         ),
+        padding: const EdgeInsets.all(3),
+        // Fill the grid cell minus the selection-ring padding.
+        child: LayoutBuilder(
+          builder: (context, c) =>
+              AvatarArtwork(avatar: avatar, size: c.maxWidth),
+        ),
       ),
+    );
+
+    return LongPressDraggable<Avatar>(
+      data: avatar,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      feedback: Transform.translate(
+        offset: const Offset(-48, -48),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: AvatarArtwork(avatar: avatar, size: 96),
+        ),
+      ),
+      childWhenDragging: Opacity(opacity: 0.3, child: tile),
+      child: tile,
     );
   }
 }

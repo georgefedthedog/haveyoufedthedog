@@ -17,6 +17,30 @@
 const DEFAULT_TZ = "Europe/London";
 const WEEKDAY_BIT = { Mon: 1, Tue: 2, Wed: 4, Thu: 8, Fri: 16, Sat: 32, Sun: 64 };
 const HOUSEHOLDS_CACHE_MS = 5 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * DAY_MS;
+
+/// Monday (UTC midnight epoch) of the week containing UTC-midnight epoch `ms`.
+function utcMondayMs(ms) {
+  const dow = new Date(ms).getUTCDay(); // 0=Sun .. 6=Sat
+  return ms - ((dow + 6) % 7) * DAY_MS;
+}
+
+/// Whether a chore's week cadence is "on" for the local calendar date
+/// `dateMs` (a UTC-midnight epoch). Mirrors ScheduleRule._isOnWeek in the
+/// app: no start anchor = always on; otherwise gate on the start date and,
+/// for fortnightly+, the Mon→Sun week parity from the anchor week.
+function isOnWeek(chore, dateMs) {
+  const raw = chore.start_date;
+  if (!raw) return true;
+  const sd = new Date(raw); // stored as UTC midnight
+  const startMs = Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate());
+  if (dateMs < startMs) return false; // not started yet
+  const interval = Number(chore.week_interval) || 1;
+  if (interval <= 1) return true;
+  const weeks = Math.round((utcMondayMs(dateMs) - utcMondayMs(startMs)) / WEEK_MS);
+  return weeks % interval === 0;
+}
 
 function startOverdueCron({ pbUrl, identity, password, sendPush }) {
   let token = null;
@@ -70,6 +94,9 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
       timeZone,
       hour12: false,
       weekday: "short",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -81,6 +108,14 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
       hour: Number(get("hour")) % 24,
       minute: Number(get("minute")),
       second: Number(get("second")),
+      // The chore's local calendar date as a UTC-midnight epoch, so the
+      // week-cadence math matches the app (ScheduleRule normalises to UTC
+      // dates too).
+      dateMs: Date.UTC(
+        Number(get("year")),
+        Number(get("month")) - 1,
+        Number(get("day")),
+      ),
     };
   }
 
@@ -111,6 +146,11 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
         const mask = chore.weekday_mask || 127;
         if ((mask & p.weekdayBit) === 0) {
           console.log(`[overdue] skip "${chore.name}" - weekday mask ${mask} excludes bit ${p.weekdayBit}`);
+          continue;
+        }
+
+        if (!isOnWeek(chore, p.dateMs)) {
+          console.log(`[overdue] skip "${chore.name}" - off-week (interval ${chore.week_interval || 1}, start ${chore.start_date || "none"})`);
           continue;
         }
 
