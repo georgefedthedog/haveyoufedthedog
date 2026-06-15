@@ -58,10 +58,18 @@ file list** - new hook files must be added to its `tar` line.
   `catalog_characters` PB collections serve extra art without an app
   release. `catalogProvider` (`core/catalog/`) merges bundled + enabled
   remote rows (bundled first, bundled wins slug collisions; fail-soft to
-  bundled-only offline). Widgets read lookups via
+  bundled-only offline). **Resolution and selection are split.**
+  `catalogProvider` is ungated: the fetch pulls every row from an `enabled`
+  pack (plus general rows), so chosen art resolves in *any* household the
+  viewer is in - a packed avatar/picture renders even where the pack was
+  never redeemed. `selectableCatalogProvider` is the entitlement gate for
+  the *pickers*: pictures + characters by the current household's packs,
+  avatars by the union of packs across all the user's households (avatars
+  are personal, so they travel). Widgets read lookups via
   `ref.watch(catalogProvider).lookupX(id)` - never the static registries -
   and render through the models' `imageProvider` getters
-  (cached_network_image disk cache). Publishing workflow:
+  (cached_network_image disk cache); the three pickers read
+  `selectableCatalogProvider` instead. Publishing workflow:
   `server/scripts/apply-catalog.md`.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
