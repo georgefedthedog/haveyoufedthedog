@@ -44,7 +44,7 @@
             class="w-28"
         /></a>
         <h1 class="font-heading text-3xl md:text-4xl text-violet dark:text-violet-bright mt-5">Privacy policy</h1>
-        <p class="mt-2 text-sm text-ink-soft dark:text-paper-soft">Effective 12 June 2026</p>
+        <p class="mt-2 text-sm text-ink-soft dark:text-paper-soft">Effective 16 June 2026</p>
       </header>
 
       <div class="rounded-2xl bg-card dark:bg-night-card border border-outline dark:border-night-outline shadow-sm p-7 md:p-10 space-y-8 leading-relaxed">
@@ -73,6 +73,10 @@
               <strong>A push notification token</strong> - a device identifier issued by Google's Firebase Cloud Messaging, so we can tell your household when a chore is done or
               overdue.
             </li>
+            <li>
+              <strong>Purchase records</strong> - when you buy a content pack, the purchase is processed by Google Play (and, in future, the Apple App Store). We store a record of
+              the transaction - which pack, a store transaction id, and the platform - to unlock your packs and verify the purchase. We never see your card or payment details.
+            </li>
           </ul>
           <p class="mt-3">That's everything. There are <strong>no ads, no analytics, no tracking</strong>, and we never sell or share your data for marketing.</p>
         </section>
@@ -92,6 +96,7 @@
             <li><strong>Cloudflare</strong> - DNS, proxying, and encrypted backups (Cloudflare R2).</li>
             <li><strong>Google Firebase Cloud Messaging</strong> - delivers push notifications to your device.</li>
             <li><strong>Resend</strong> - sends transactional email (password resets) only. No marketing email, ever.</li>
+            <li><strong>Google Play</strong> - processes in-app purchases and provides the receipts we verify. (The Apple App Store will do the same on iOS.)</li>
           </ul>
         </section>
 
@@ -100,7 +105,8 @@
           <p>
             Your data is kept while your account exists. You can delete your account in the app (Edit Profile → the bin icon). When your account is deleted, your account details,
             household memberships, and push token are removed from the live database; chores you completed stay in your household's history with your name removed, so nothing links
-            them to you. Deleted data may persist in encrypted backups for a limited period before those backups are rotated out. See
+            them to you. Purchase and transaction records are kept as long as required for financial and legal record-keeping, even after your account is deleted. Deleted data may
+            persist in encrypted backups for a limited period before those backups are rotated out. See
             <a
               href="delete-account.html"
               class="font-semibold text-violet dark:text-violet-bright hover:underline"
