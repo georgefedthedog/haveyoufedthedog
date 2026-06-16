@@ -89,6 +89,11 @@ class PurchaseController extends _$PurchaseController {
 
   Future<void> _onPurchases(List<PurchaseDetails> purchases) async {
     for (final p in purchases) {
+      // Whether to acknowledge/finish the transaction with the store. We only
+      // finalize a successful (or terminal) purchase - never a purchased item
+      // whose server-side grant failed, so it can be retried.
+      var finalize = false;
+
       switch (p.status) {
         case PurchaseStatus.pending:
           state = PurchaseProgress(PurchasePhase.pending, sku: p.productID);
@@ -98,30 +103,41 @@ class PurchaseController extends _$PurchaseController {
             sku: p.productID,
             message: p.error?.message ?? 'The purchase failed.',
           );
+          finalize = true; // dead transaction - clear it
         case PurchaseStatus.canceled:
           state = PurchaseProgress(PurchasePhase.idle, sku: p.productID);
+          finalize = true;
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          await _verifyAndGrant(p);
+          // Only finalize once the server has actually granted. A failed
+          // verify (transient error, or the Play service-account permission
+          // still propagating) then leaves the purchase un-acknowledged, so
+          // Play re-delivers it and a later Buy/Restore retries - rather than
+          // acknowledging a purchase the user never received.
+          finalize = await _verifyAndGrant(p);
       }
 
-      // Always finish the transaction so the store stops re-delivering it.
-      // (Pending purchases have pendingCompletePurchase == false.)
-      if (p.pendingCompletePurchase) {
+      if (finalize && p.pendingCompletePurchase) {
         await InAppPurchase.instance.completePurchase(p);
       }
     }
   }
 
-  Future<void> _verifyAndGrant(PurchaseDetails p) async {
+  /// Verifies the purchase server-side and applies its packs to the current
+  /// household. Returns true only when the grant succeeded (or was already
+  /// applied) - the caller uses this to decide whether to finalize the
+  /// transaction with the store.
+  Future<bool> _verifyAndGrant(PurchaseDetails p) async {
     final household = ref.read(currentHouseholdControllerProvider).valueOrNull;
     if (household == null) {
+      // No household to grant to yet - leave the purchase pending so it
+      // retries once one is active.
       state = PurchaseProgress(
         PurchasePhase.error,
         sku: p.productID,
         message: 'Choose a household before buying packs.',
       );
-      return;
+      return false;
     }
 
     final platform = Platform.isIOS ? 'ios' : 'android';
@@ -142,6 +158,7 @@ class PurchaseController extends _$PurchaseController {
             ? '${result.name} is already unlocked.'
             : '${result.name} unlocked!',
       );
+      return true;
     } on ClientException catch (e) {
       state = PurchaseProgress(
         PurchasePhase.error,
@@ -149,12 +166,14 @@ class PurchaseController extends _$PurchaseController {
         message:
             e.response['message'] as String? ?? "Couldn't verify that purchase.",
       );
+      return false;
     } catch (e) {
       state = PurchaseProgress(
         PurchasePhase.error,
         sku: p.productID,
         message: '$e',
       );
+      return false;
     }
   }
 }

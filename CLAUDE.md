@@ -71,6 +71,17 @@ file list** - new hook files must be added to its `tar` line.
   (cached_network_image disk cache); the three pickers read
   `selectableCatalogProvider` instead. Publishing workflow:
   `server/.deploy/apply-catalog.md`.
+- **Selling packs (IAP):** `core/store/` layers paid unlocks on the catalog.
+  A `catalog_products` row (a `sku` + `grants` → one-or-more `catalog_packs`)
+  is sold via native store IAP (`in_app_purchase`); `storeProductsProvider`
+  merges enabled rows with live store prices (a product shows only if the
+  store knows its `sku`). `purchaseController` drives buy/restore and calls
+  `/api/custom/verify-purchase` → the worker's `verify.js` validates the
+  receipt → the hook appends the granted packs to `households.packs` (same
+  household-scoped entitlement as code redemption). The `sku` must equal the
+  store product id byte-for-byte (convention: `sku_<YYYYMMDD>_<NNN>_<name>`).
+  Android is live; iOS is pending a Mac (StoreKit 2 + JWS). Entry points: "Visit the art
+  gallery" under each picker → `features/store/`.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).

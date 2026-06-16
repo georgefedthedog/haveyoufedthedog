@@ -86,6 +86,12 @@ in). Rule recipes and pitfalls: `server/.deploy/apply-schema.md`.
   Runs privileged because `catalog_packs.code` is hidden from clients.
   Checks membership, requires the pack `enabled` + `redeemable`, appends to
   `households.packs`. Idempotent (`alreadyApplied: true`).
+- **purchases.pb.js** - `POST /api/custom/verify-purchase`
+  `{platform, sku, purchaseToken, householdId}`. The paid counterpart to
+  redeem: checks membership, resolves the `sku` to a `catalog_products` row,
+  asks the worker (`/verify-purchase`) to validate the receipt with the store,
+  records the transaction in `purchases`, then appends the product's `grants`
+  packs to `households.packs`. Idempotent on `store_transaction_id`.
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
   pushes "Brekkie done by George" to every _other_ member via the worker.
   (There is no overdue hook - that cron lives in the worker service, below.)
