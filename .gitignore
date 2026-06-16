@@ -9,6 +9,7 @@ _old/
 
 # Secrets (per-sub-project gitignores also enforce these)
 **/firebase-service-account.json
+**/play.service-account.json
 **/.env
 **/.env.*
 !**/.env.example
