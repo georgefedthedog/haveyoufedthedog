@@ -6,8 +6,9 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/profile/avatar.dart';
 import '../../router/routes.dart';
-import '../../widgets/dashed_circle_painter.dart';
+import '../../widgets/drop_target_circle.dart';
 import '../../widgets/page_title.dart';
+import '../../widgets/wiggle.dart';
 import 'avatar_artwork.dart';
 
 /// "You" bottom-nav branch: a polished profile + settings landing surface.
@@ -114,7 +115,7 @@ class YouTabScreen extends ConsumerWidget {
 /// the right - purple "Switch household" above red "Log out". Long-press
 /// the avatar and carry it into a circle. The deliberate gesture *is*
 /// the confirmation - no dialog.
-class _AccountActionsCard extends StatelessWidget {
+class _AccountActionsCard extends StatefulWidget {
   final Avatar? avatar;
   final String name;
   final VoidCallback onSwitchHousehold;
@@ -128,6 +129,21 @@ class _AccountActionsCard extends StatelessWidget {
   });
 
   @override
+  State<_AccountActionsCard> createState() => _AccountActionsCardState();
+}
+
+class _AccountActionsCardState extends State<_AccountActionsCard> {
+  // Tapping either drop circle pokes this; the draggable chip wiggles to
+  // reveal it can be carried into the targets.
+  final _wiggle = WiggleController();
+
+  @override
+  void dispose() {
+    _wiggle.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -135,12 +151,12 @@ class _AccountActionsCard extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AvatarArtwork(avatar: avatar, size: size),
+          AvatarArtwork(avatar: widget.avatar, size: size),
           const SizedBox(height: 6),
           SizedBox(
             width: 80,
             child: Text(
-              name,
+              widget.name,
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -162,98 +178,44 @@ class _AccountActionsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            LongPressDraggable<bool>(
-              data: true,
-              feedback: Material(
-                color: Colors.transparent,
-                child: chip(size: 72),
+            Wiggle(
+              controller: _wiggle,
+              child: LongPressDraggable<bool>(
+                data: true,
+                feedback: Material(
+                  color: Colors.transparent,
+                  child: chip(size: 72),
+                ),
+                childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
+                child: restingChip,
               ),
-              childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
-              child: restingChip,
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _DropCircle(
+                DropTargetCircle<bool>(
                   icon: Icons.swap_horiz,
                   label: 'Switch household',
                   baseColor: theme.colorScheme.primary,
-                  onDrop: onSwitchHousehold,
+                  labelWidth: 110,
+                  onDrop: (_) => widget.onSwitchHousehold(),
+                  onTap: _wiggle.poke,
                 ),
                 const SizedBox(height: 16),
-                _DropCircle(
+                DropTargetCircle<bool>(
                   icon: Icons.logout,
                   label: 'Log out',
                   baseColor: Colors.red.shade300,
                   hoverColor: Colors.red,
-                  onDrop: onLogout,
+                  labelWidth: 110,
+                  onDrop: (_) => widget.onLogout(),
+                  onTap: _wiggle.poke,
                 ),
               ],
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-/// One dashed drop circle + caption for the account card. Fills solid
-/// (in [hoverColor], defaulting to [baseColor]) while a drag hovers.
-class _DropCircle extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color baseColor;
-  final Color? hoverColor;
-  final VoidCallback onDrop;
-
-  const _DropCircle({
-    required this.icon,
-    required this.label,
-    required this.baseColor,
-    this.hoverColor,
-    required this.onDrop,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DragTarget<bool>(
-      onWillAcceptWithDetails: (_) => true,
-      onAcceptWithDetails: (_) => onDrop(),
-      builder: (context, candidate, _) {
-        final hovering = candidate.isNotEmpty;
-        final color = hovering ? (hoverColor ?? baseColor) : baseColor;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomPaint(
-              painter: DashedCirclePainter(color: color, filled: hovering),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: Icon(
-                  icon,
-                  size: 24,
-                  color: hovering ? Colors.white : color,
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            SizedBox(
-              width: 110,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

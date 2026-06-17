@@ -10,8 +10,9 @@ import '../../core/household/household_actions.dart';
 import '../../core/store/purchase_controller.dart';
 import '../../core/store/store_controller.dart';
 import '../../core/store/store_product.dart';
-import '../../widgets/dashed_circle_painter.dart';
+import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
+import '../../widgets/wiggle.dart';
 
 /// The pack shop. Lists purchasable products (a `catalog_products` row + live
 /// store price), each previewing the packs it unlocks. Buying verifies the
@@ -151,6 +152,9 @@ class _PackSettings extends ConsumerStatefulWidget {
 
 class _PackSettingsState extends ConsumerState<_PackSettings> {
   final _codeCtrl = TextEditingController();
+  // Tapping the Apply circle pokes this; the gift chip wiggles to reveal it's
+  // dragged onto the target (only when there's actually a code to carry).
+  final _wiggle = WiggleController();
   bool _busy = false;
   bool _expanded = false;
 
@@ -161,6 +165,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
   @override
   void dispose() {
     _codeCtrl.dispose();
+    _wiggle.dispose();
     super.dispose();
   }
 
@@ -395,8 +400,24 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              _giftChipDraggable(theme),
-                              _ApplyDropCircle(enabled: !_busy, onDrop: _apply),
+                              Wiggle(
+                                controller: _wiggle,
+                                child: _giftChipDraggable(theme),
+                              ),
+                              DropTargetCircle<String>(
+                                icon: Icons.redeem,
+                                label: 'Apply pack',
+                                baseColor: theme.colorScheme.primary,
+                                labelWidth: 110,
+                                labelMaxLines: 1,
+                                enabled: !_busy,
+                                onDrop: (_) => _apply(),
+                                // Only hint when there's a code to carry -
+                                // wiggling the parked chip would mislead.
+                                onTap: (_codeReady && !_busy)
+                                    ? _wiggle.poke
+                                    : null,
+                              ),
                             ],
                           ),
                         ),
@@ -406,60 +427,6 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// The dashed Apply circle the gift chip gets carried into. Fills solid
-/// primary while a drag hovers, mirroring the account card's circles.
-/// Applying a pack is additive and reversible-by-admin, so no confirm
-/// dialog - the deliberate drag is the confirmation.
-class _ApplyDropCircle extends StatelessWidget {
-  final bool enabled;
-  final VoidCallback onDrop;
-
-  const _ApplyDropCircle({required this.enabled, required this.onDrop});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme.primary;
-    return DragTarget<String>(
-      onWillAcceptWithDetails: (_) => enabled,
-      onAcceptWithDetails: (_) => onDrop(),
-      builder: (context, candidate, _) {
-        final hovering = candidate.isNotEmpty;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomPaint(
-              painter: DashedCirclePainter(color: color, filled: hovering),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: Icon(
-                  Icons.redeem,
-                  size: 24,
-                  color: hovering ? Colors.white : color,
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            SizedBox(
-              width: 110,
-              child: Text(
-                'Apply pack',
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

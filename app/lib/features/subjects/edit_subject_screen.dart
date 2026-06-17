@@ -5,11 +5,12 @@ import 'package:go_router/go_router.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
-import '../../widgets/dashed_circle_painter.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
+import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
+import '../../widgets/wiggle.dart';
 import '../nfc/nfc_scan_dialog.dart';
 import '../store/browse_packs_button.dart';
 import 'character_carousel.dart';
@@ -37,11 +38,16 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   bool _seeded = false;
   bool _busy = false;
 
+  // Tapping the Register/Remove target pokes this; the tag chip wiggles to
+  // reveal it's dragged across to bind/unbind.
+  final _wiggle = WiggleController();
+
   bool get _isEdit => widget.subjectId != null;
 
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _wiggle.dispose();
     super.dispose();
   }
 
@@ -390,17 +396,20 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          LongPressDraggable<String>(
-                            data: _nfcTagId ?? 'register',
-                            feedback: Material(
-                              color: Colors.transparent,
+                          Wiggle(
+                            controller: _wiggle,
+                            child: LongPressDraggable<String>(
+                              data: _nfcTagId ?? 'register',
+                              feedback: Material(
+                                color: Colors.transparent,
+                                child: tagChip,
+                              ),
+                              childWhenDragging: Opacity(
+                                opacity: 0.3,
+                                child: tagChip,
+                              ),
                               child: tagChip,
                             ),
-                            childWhenDragging: Opacity(
-                              opacity: 0.3,
-                              child: tagChip,
-                            ),
-                            child: tagChip,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -425,44 +434,15 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          DragTarget<String>(
-                            onWillAcceptWithDetails: (_) => true,
-                            onAcceptWithDetails: (_) {
-                              if (_busy) return;
-                              bound ? _removeTag() : _scanAndBindTag();
-                            },
-                            builder: (context, candidate, _) {
-                              final hovering = candidate.isNotEmpty;
-                              final color = hovering ? targetHover : targetBase;
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CustomPaint(
-                                    painter: DashedCirclePainter(
-                                      color: color,
-                                      filled: hovering,
-                                    ),
-                                    child: SizedBox(
-                                      width: 56,
-                                      height: 56,
-                                      child: Icon(
-                                        targetIcon,
-                                        size: 24,
-                                        color: hovering ? Colors.white : color,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    targetLabel,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: color,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
+                          DropTargetCircle<String>(
+                            icon: targetIcon,
+                            label: targetLabel,
+                            baseColor: targetBase,
+                            hoverColor: targetHover,
+                            enabled: !_busy,
+                            onDrop: (_) =>
+                                bound ? _removeTag() : _scanAndBindTag(),
+                            onTap: _wiggle.poke,
                           ),
                         ],
                       );

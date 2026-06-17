@@ -13,8 +13,9 @@ import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/dashed_circle_painter.dart';
+import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
+import '../../widgets/wiggle.dart';
 import '../profile/avatar_artwork.dart';
 import '../store/browse_packs_button.dart';
 import 'picture_picker.dart';
@@ -603,10 +604,25 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
   }
 }
 
-class _MembersList extends ConsumerWidget {
+class _MembersList extends ConsumerStatefulWidget {
   final Household household;
   final bool viewerIsOwner;
   const _MembersList({required this.household, required this.viewerIsOwner});
+
+  @override
+  ConsumerState<_MembersList> createState() => _MembersListState();
+}
+
+class _MembersListState extends ConsumerState<_MembersList> {
+  // Tapping the bin pokes this; the draggable member chips wiggle to reveal
+  // they can be carried in (owners remove others, members drag themselves out).
+  final _wiggle = WiggleController();
+
+  @override
+  void dispose() {
+    _wiggle.dispose();
+    super.dispose();
+  }
 
   Future<void> _kick(
     BuildContext context,
@@ -641,7 +657,10 @@ class _MembersList extends ConsumerWidget {
     try {
       await ref
           .read(householdActionsProvider)
-          .kickMember(membershipId: m.membershipId, householdId: household.id);
+          .kickMember(
+            membershipId: m.membershipId,
+            householdId: widget.household.id,
+          );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
@@ -652,9 +671,9 @@ class _MembersList extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final asyncMembers = ref.watch(
-      householdMembersControllerProvider(household.id),
+      householdMembersControllerProvider(widget.household.id),
     );
     final myUserId = ref.watch(authControllerProvider).valueOrNull?.userId;
 
@@ -675,7 +694,7 @@ class _MembersList extends ConsumerWidget {
         // owner can't drag their own chip - to step away they delete the
         // household.
         final otherCount = members.where((m) => m.userId != myUserId).length;
-        final showBin = viewerIsOwner ? otherCount > 0 : true;
+        final showBin = widget.viewerIsOwner ? otherCount > 0 : true;
 
         return Wrap(
           spacing: 16,
@@ -686,18 +705,20 @@ class _MembersList extends ConsumerWidget {
               _MemberChip(
                 member: m,
                 isMe: m.userId == myUserId,
-                canDrag: viewerIsOwner
+                canDrag: widget.viewerIsOwner
                     ? m.userId != myUserId
                     : m.userId == myUserId,
+                wiggle: _wiggle,
               ),
             if (showBin)
               Builder(
                 builder: (binContext) {
                   return _RemoveBinChip(
-                    label: viewerIsOwner ? 'Remove' : 'Leave',
+                    label: widget.viewerIsOwner ? 'Remove' : 'Leave',
                     onDrop: (m) => m.userId == myUserId
-                        ? _confirmAndLeave(binContext, ref, household)
+                        ? _confirmAndLeave(binContext, ref, widget.household)
                         : _kick(binContext, ref, m),
+                    onTap: _wiggle.poke,
                   );
                 },
               ),
@@ -718,47 +739,25 @@ class _RemoveBinChip extends StatelessWidget {
   /// "Leave" for a member dragging themselves out.
   final String label;
 
-  const _RemoveBinChip({required this.onDrop, this.label = 'Remove'});
+  /// Tapped (not dropped) - wiggles the draggable member chips.
+  final VoidCallback? onTap;
+
+  const _RemoveBinChip({
+    required this.onDrop,
+    this.label = 'Remove',
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DragTarget<HouseholdMember>(
-      onWillAcceptWithDetails: (_) => true,
-      onAcceptWithDetails: (details) => onDrop(details.data),
-      builder: (context, candidate, _) {
-        final hovering = candidate.isNotEmpty;
-        final red = hovering ? Colors.red : Colors.red.shade300;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomPaint(
-              painter: DashedCirclePainter(color: red, filled: hovering),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 24,
-                  color: hovering ? Colors.white : red,
-                ),
-              ),
-            ),
-            const SizedBox(height: 6),
-            SizedBox(
-              width: 80,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: red,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+    return DropTargetCircle<HouseholdMember>(
+      icon: Icons.delete_outline,
+      label: label,
+      baseColor: Colors.red.shade300,
+      hoverColor: Colors.red,
+      labelWidth: 80,
+      onDrop: onDrop,
+      onTap: onTap,
     );
   }
 }
@@ -771,10 +770,14 @@ class _MemberChip extends ConsumerWidget {
   final bool isMe;
   final bool canDrag;
 
+  /// Shared poke signal - a draggable chip wiggles when the bin is tapped.
+  final WiggleController wiggle;
+
   const _MemberChip({
     required this.member,
     required this.isMe,
     required this.canDrag,
+    required this.wiggle,
   });
 
   @override
@@ -843,14 +846,17 @@ class _MemberChip extends ConsumerWidget {
     // Long-press to lift - a plain Draggable claims the gesture arena
     // immediately, which makes the page hard to scroll when a thumb
     // lands on an avatar.
-    return LongPressDraggable<HouseholdMember>(
-      data: member,
-      feedback: Material(
-        color: Colors.transparent,
-        child: chip(avatarSize: 72),
+    return Wiggle(
+      controller: wiggle,
+      child: LongPressDraggable<HouseholdMember>(
+        data: member,
+        feedback: Material(
+          color: Colors.transparent,
+          child: chip(avatarSize: 72),
+        ),
+        childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
+        child: restingChip,
       ),
-      childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
-      child: restingChip,
     );
   }
 }
