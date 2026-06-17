@@ -76,7 +76,7 @@ function notifyHousehold(record, action) {
       method: "POST",
       url: "http://127.0.0.1:3055/notify",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tokens, title, body, data: { subjectId } }),
+      body: JSON.stringify({ tokens, title, body, data: { subjectId, type: "subject" } }),
       timeout: 5,
     });
 

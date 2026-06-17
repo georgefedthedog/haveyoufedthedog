@@ -108,9 +108,10 @@ file list** - new hook files must be added to its `tar` line.
   across subjects). **The app and the cron compute winners independently and
   must stay in sync** - if you touch any of these, change both sides:
   the presentation hour (`awardPresentationHour` ⇔ `AWARD_HOUR`), the Sun→Sun
-  window math (`WeekWindow.settledAward` ⇔ the cron's `tick`), the unique-max
-  tiebreak (`_uniqueMax` ⇔ `uniqueMax`), and the title flavour map
-  (`characterAwardTitles` ⇔ `AWARD_TITLES`).
+  window math (`WeekWindow.settledAward` ⇔ `award-cron.js`'s window math), the
+  unique-max tiebreak (`_uniqueMax` ⇔ `uniqueMax`), and the title flavour map
+  (`characterAwardTitles` ⇔ `AWARD_TITLES`). (The two crons' shared PB/timezone
+  plumbing lives in `server/services/worker/pb-cron.js`.)
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
   - never `TimeOfDay.format(context)`.
 

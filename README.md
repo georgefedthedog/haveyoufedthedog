@@ -115,7 +115,9 @@ in). Rule recipes and pitfalls: `server/.deploy/apply-schema.md`.
 ### Worker service (`server/services/worker/`)
 
 Node/Express service with four jobs (composed in `index.js`; each concern is
-its own module):
+its own module). The two per-timezone crons share `pb-cron.js` - the PB
+superuser client (auth + paginated `list`), `zonedParts`, the once-a-minute
+non-overlapping scheduler, and the household-by-timezone cache:
 
 1. **FCM relay** - hooks POST `{tokens, title, body, data}` to
    `http://127.0.0.1:3055/notify`; it fans out via

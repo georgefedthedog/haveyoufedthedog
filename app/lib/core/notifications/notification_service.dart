@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../router/app_router.dart';
+import '../../router/routes.dart';
 import '../completions/recent_completions_controller.dart';
 import '../completions/today_completions_controller.dart';
+import '../household/current_household_controller.dart';
 
 part 'notification_service.g.dart';
 
@@ -54,10 +59,45 @@ class NotificationService with WidgetsBindingObserver {
 
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
 
+    // Tapping a notification: from background (onMessageOpenedApp) or from a
+    // cold launch where the tap started the app (getInitialMessage).
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleTap);
+    final initial = await FirebaseMessaging.instance.getInitialMessage();
+    if (initial != null) unawaited(_handleTap(initial));
+
     WidgetsBinding.instance.addObserver(this);
     _ref.onDispose(() => WidgetsBinding.instance.removeObserver(this));
 
     await FirebaseMessaging.instance.requestPermission();
+  }
+
+  /// Routes a tapped notification to where it's about: award pushes land on
+  /// the Awards tab, completion/overdue pushes (which carry a `subjectId`)
+  /// open that friend's page.
+  ///
+  /// Awaits the auth → household chain first so a cold launch from a tap
+  /// doesn't push a route the redirect immediately bounces. A null
+  /// household means signed out / nothing picked - the redirect already
+  /// lands them correctly, so we leave navigation alone.
+  Future<void> _handleTap(RemoteMessage message) async {
+    final data = message.data;
+    if (await _ref.read(currentHouseholdControllerProvider.future) == null) {
+      return;
+    }
+    final router = _ref.read(appRouterProvider);
+
+    switch (data['type']) {
+      case 'award':
+        router.go(Routes.historyTab);
+      case 'subject':
+        // Completion + overdue pushes name the subject they're about.
+        final subjectId = data['subjectId'];
+        if (subjectId is String && subjectId.isNotEmpty) {
+          router.push(Routes.subjectDetail(subjectId));
+        }
+      // Any other / unknown type: no navigation - just bring the app to the
+      // foreground where the user left it.
+    }
   }
 
   void _onForegroundMessage(RemoteMessage message) {
