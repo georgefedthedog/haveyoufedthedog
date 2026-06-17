@@ -36,8 +36,8 @@ class StoreScreen extends ConsumerWidget {
     });
 
     final asyncProducts = ref.watch(storeProductsProvider);
-    final busy = ref.watch(purchaseControllerProvider).phase ==
-        PurchasePhase.pending;
+    final busy =
+        ref.watch(purchaseControllerProvider).phase == PurchasePhase.pending;
     final household = ref.watch(currentHouseholdControllerProvider).valueOrNull;
 
     return Scaffold(
@@ -53,11 +53,17 @@ class StoreScreen extends ConsumerWidget {
           ),
         ],
       ),
-      // The purchasable packs, then the redeem-a-gift-code card at the
-      // bottom (a code applies a pack to this household without a purchase).
+      // A scope note, then the redeem-a-gift-code card, then the
+      // purchasable packs - the free path leads.
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
         children: [
+          if (household != null) ...[
+            _AppliesToNote(householdName: household.name),
+            const SizedBox(height: 16),
+            _PackSettings(household: household),
+            const SizedBox(height: 24),
+          ],
           ...asyncProducts.when(
             loading: () => const [
               Padding(
@@ -75,10 +81,51 @@ class StoreScreen extends ConsumerWidget {
                     ],
                   ],
           ),
-          if (household != null) ...[
-            const SizedBox(height: 24),
-            _PackSettings(household: household),
-          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A small banner clarifying that everything here unlocks for the household
+/// the buyer is currently in - purchases and gift codes alike are
+/// household-scoped entitlements.
+class _AppliesToNote extends StatelessWidget {
+  final String householdName;
+  const _AppliesToNote({required this.householdName});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                text: 'Packs you buy or redeem are unlocked for members of ',
+                children: [
+                  TextSpan(
+                    text: householdName,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const TextSpan(text: ' only.'),
+                ],
+              ),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -349,10 +396,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               _giftChipDraggable(theme),
-                              _ApplyDropCircle(
-                                enabled: !_busy,
-                                onDrop: _apply,
-                              ),
+                              _ApplyDropCircle(enabled: !_busy, onDrop: _apply),
                             ],
                           ),
                         ),
@@ -437,12 +481,13 @@ class _ProductCard extends ConsumerWidget {
     final householdPacks = household?.packIds ?? const <String>[];
 
     // Owned once the household already holds every pack this product grants.
-    final owned = product.packIds.isNotEmpty &&
+    final owned =
+        product.packIds.isNotEmpty &&
         product.packIds.every(householdPacks.contains);
 
     final progress = ref.watch(purchaseControllerProvider);
-    final thisPending = progress.phase == PurchasePhase.pending &&
-        progress.sku == product.sku;
+    final thisPending =
+        progress.phase == PurchasePhase.pending && progress.sku == product.sku;
 
     // Resolvable pack names (enabled packs only) - what the buyer unlocks.
     final includes = [for (final id in product.packIds) ?catalog.packName(id)];
@@ -468,15 +513,17 @@ class _ProductCard extends ConsumerWidget {
             ],
             Text(
               product.name,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
             ),
             if (product.description.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
                 product.description,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: scheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ],
             if (includes.isNotEmpty) ...[
@@ -509,8 +556,9 @@ class _ProductCard extends ConsumerWidget {
                 label: Text(thisPending ? 'Working…' : 'Buy  ${product.price}'),
                 onPressed: busy
                     ? null
-                    : () =>
-                        ref.read(purchaseControllerProvider.notifier).buy(product),
+                    : () => ref
+                          .read(purchaseControllerProvider.notifier)
+                          .buy(product),
               ),
           ],
         ),
@@ -552,8 +600,8 @@ class _Message extends StatelessWidget {
           text,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );

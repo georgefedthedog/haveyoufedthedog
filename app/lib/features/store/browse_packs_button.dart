@@ -8,7 +8,7 @@ import '../../router/routes.dart';
 /// A "Get more …" link that deep-links to the store. Placed below the
 /// picture / character / avatar carousels so buyers discover purchasable
 /// packs right where they pick it. [label] is set by the caller to match
-/// what that picker offers ("Get more images / characters / avatars").
+/// what that picker offers ("Get more homes / characters / avatars").
 ///
 /// Renders nothing when there's no current household, since a purchase has to
 /// be applied to one (the picker screens are reachable in that state).

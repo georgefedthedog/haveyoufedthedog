@@ -32,8 +32,12 @@ dart run flutter_launcher_icons                   # after changing app icon art
 ```
 
 Server deploys (Git Bash/WSL): `bash server/.deploy/deploy-hooks.sh` /
-`deploy-worker.sh` / `deploy-all.sh`. **deploy-hooks.sh has a hardcoded
-file list** - new hook files must be added to its `tar` line.
+`deploy-worker.sh` / `deploy-public.sh` / `deploy-all.sh`. **deploy-hooks.sh
+has a hardcoded file list** - new hook files must be added to its `tar` line.
+`deploy-public.sh` syncs `server/pb_public/` (static files served at the API
+domain root, e.g. `.well-known/assetlinks.json`); PB only serves that dir
+because the systemd unit sets `--publicDir` to the per-instance path - its
+default is the *binary* dir, a documented gotcha (README → "Static files").
 
 ## Architecture
 
@@ -148,6 +152,11 @@ file list** - new hook files must be added to its `tar` line.
 - **Inputs:** theme-level filled rounded boxes (`inputDecorationTheme`,
   radius 16, borderless). Never style a field inline. Labels above fields
   via the shared `LabeledField(label:, child:)` - primary colour, w600.
+  Because the label sits *outside* the field (no `InputDecoration.labelText`),
+  credential autofill rides entirely on `autofillHints`: wrap login/signup
+  fields in an `AutofillGroup`, hint each field, and call
+  `TextInput.finishAutofillContext()` on a successful submit so the OS offers
+  to save (see `login_form.dart` / `signup_form.dart`).
 - **Gradients:** the house recipe is HSL lightness offsets of a base colour,
   bottom-left dark → top-right light (e.g. −0.07/+0.05 on stage colours).
   Page background comes from `AppBackdrop` via `MaterialApp.builder` with

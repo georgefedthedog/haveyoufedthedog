@@ -33,6 +33,7 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 | SSH           | `ssh -i ~/.ssh/dogbox -p 2222 george@65.108.215.132`                                         |
 | PocketBase    | systemd `pocketbase@8090`, data in `/var/lib/pocketbase/8090/`                               |
 | Hooks         | `/var/lib/pocketbase/8090/pb_hooks/`                                                         |
+| Static files  | `/var/lib/pocketbase/8090/pb_public/` - served at the API domain root (`--publicDir`)         |
 | Worker        | systemd `worker`, `/opt/haveyoufedthedog/worker/`, listens on `127.0.0.1:3055`               |
 | Admin UI      | `https://api.haveyoufedthedog.com/_/`                                                        |
 | Logs          | `bash server/.deploy/view-logs.sh` or `journalctl -u pocketbase@8090 -f`                     |
@@ -189,6 +190,27 @@ the box), Auto/StartTLS, username `resend`, password = the Resend API key -
 configured in PB admin → Settings → Mail and stored **nowhere else**. Sender
 domain `haveyoufedthedog.com` is verified in Resend via Cloudflare DNS.
 
+### Static files & the Android app association (`pb_public`)
+
+PocketBase serves anything under `/var/lib/pocketbase/8090/pb_public/` at the
+API domain root. **Gotcha:** unlike `--hooksDir` (which defaults relative to
+`--dir`), PB's `--publicDir` defaults to the *binary* dir
+(`/opt/pocketbase/pb_public`), so the systemd unit passes
+`--publicDir=/var/lib/pocketbase/%i/pb_public` to keep data + hooks + public
+together. Files live in the repo at `server/pb_public/` and ship with
+`bash server/.deploy/deploy-public.sh` (no PB restart - served live).
+
+What's there today: **`.well-known/assetlinks.json`**, a Digital Asset Links
+statement (`delegate_permission/common.get_login_creds`) tying the app to this
+domain so a password set on PB's web **reset-password** page autofills back in
+the app instead of being stranded under a separate "website" entry in the
+password manager. It lists the **Play app signing key** SHA-256 - Play re-signs
+uploads, so a locally-signed APK won't match; test the association via a Play
+track, not a sideload. The app vouches from its side via an `asset_statements`
+meta-data (`app/android/app/src/main/res/values/strings.xml` + a `<meta-data>`
+in the manifest, compiled into the build). Both halves must be live for autofill
+to treat web + app as one identity.
+
 ---
 
 ## The website
@@ -311,7 +333,8 @@ Hooks and/or worker (the common case):
 ```bash
 bash server/.deploy/deploy-hooks.sh      # pb_hooks + PB restart
 bash server/.deploy/deploy-worker.sh     # worker + service restart
-bash server/.deploy/deploy-all.sh        # both
+bash server/.deploy/deploy-public.sh     # pb_public static files (no restart)
+bash server/.deploy/deploy-all.sh        # all three
 ```
 
 Run from Git Bash / WSL. The SSH key may prompt for its passphrase
@@ -480,7 +503,10 @@ Caveats:
 - **Theme conventions.** Knewave on `headline*` + AppBar titles, Plus Jakarta
   Sans everywhere else (keep `display*` on the body font or the time picker
   goes funky). Inputs are theme-level filled boxes - never style per-field;
-  labels via `LabeledField`. Page background is a BL→TR gradient from
+  labels via `LabeledField` (the label sits *outside* the field, so credential
+  autofill on login/signup rides on `autofillHints` + an `AutofillGroup` +
+  `TextInput.finishAutofillContext()` on submit - see `login_form.dart`).
+  Page background is a BL→TR gradient from
   `AppBackdrop` (scaffolds are transparent); dark mode is deliberately flat
   (gradients band near black). Dark/light follows the phone.
 - **NFC flows.** Tag → subject binding lives on `subjects.nfc_tag_id`; a tap

@@ -321,7 +321,7 @@ class _BodyState extends ConsumerState<_Body> {
                   setState(() => _stagedPicture = pictureId),
             ),
           ),
-          const BrowsePacksButton(label: 'Get more images'),
+          const BrowsePacksButton(label: 'Get more homes'),
           const SizedBox(height: 24),
           Card(
             child: Padding(
