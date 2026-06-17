@@ -73,7 +73,12 @@ file list** - new hook files must be added to its `tar` line.
   and render through the models' `imageProvider` getters
   (cached_network_image disk cache); the three pickers read
   `selectableCatalogProvider` instead. Publishing workflow:
-  `server/.deploy/apply-catalog.md`.
+  `server/.deploy/apply-catalog.md`. **Pack characters can carry their own
+  personality copy:** the optional `messages` JSON field on `catalog_characters`
+  (parsed into `Character.messages`) overrides the mood status lines and the
+  weekly award title/thanks - per slot, falling back to the bundled `generic`
+  voice for anything omitted. Bundled characters keep their hardcoded copy
+  (`character_message.dart`, `characterAwardTitles`/`characterAwardThanks`).
 - **Selling packs (IAP):** `core/store/` layers paid unlocks on the catalog.
   A `catalog_products` row (a `sku` + `grants` → one-or-more `catalog_packs`)
   is sold via native store IAP (`in_app_purchase`); `storeProductsProvider`
@@ -110,10 +115,14 @@ file list** - new hook files must be added to its `tar` line.
   across subjects). **The app and the cron compute winners independently and
   must stay in sync** - if you touch any of these, change both sides:
   the presentation hour (`awardPresentationHour` ⇔ `AWARD_HOUR`), the Sun→Sun
-  window math (`WeekWindow.settledAward` ⇔ `award-cron.js`'s window math), the
-  unique-max tiebreak (`_uniqueMax` ⇔ `uniqueMax`), and the title flavour map
-  (`characterAwardTitles` ⇔ `AWARD_TITLES`). (The two crons' shared PB/timezone
-  plumbing lives in `server/services/worker/pb-cron.js`.)
+  window math (`WeekWindow.settledAward` ⇔ `award-cron.js`'s window math), and
+  the unique-max tiebreak (`_uniqueMax` ⇔ `uniqueMax`). (The two crons' shared
+  PB/timezone plumbing lives in `server/services/worker/pb-cron.js`.) The award
+  **title and thanks line are app-only** (`characterAwardTitles` /
+  `characterAwardThanks` in `awards_controller.dart`, overridable per pack
+  character via `catalog_characters.messages` - see Remote content catalog); the
+  push deliberately names only the subject, so there's no title to mirror
+  server-side.
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
   - never `TimeOfDay.format(context)`.
 

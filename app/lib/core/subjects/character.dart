@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import 'character_messages.dart';
 
 /// Expressions a character can be drawn in. Not every character has every
 /// expression - see [Character.imageProviderFor] for the fallback chain.
@@ -71,6 +72,11 @@ class Character {
   /// the *picker* to a household's entitled packs - resolution is ungated.
   final String? packId;
 
+  /// Author-supplied copy overrides (mood lines, award title/thanks) for
+  /// remote characters; null for bundled ones, which keep their hardcoded
+  /// copy in `character_message.dart` / `awards_controller.dart`.
+  final CharacterMessages? messages;
+
   const Character({
     required this.id,
     required this.displayName,
@@ -80,6 +86,7 @@ class Character {
     this.remoteExpressions,
     this.remoteAward,
     this.packId,
+    this.messages,
   });
 
   /// The closest available expression - defaults via

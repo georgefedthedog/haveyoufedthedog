@@ -40,9 +40,12 @@ CharacterLine characterLine({
   required SubjectMood mood,
   required String subjectName,
 }) {
-  final table = _table[character.id] ?? _table['generic']!;
+  // Per-slot override: a pack character's custom lines for this mood win,
+  // else the bundled table for this character, else the generic table.
   final lines =
-      table[mood] ??
+      character.messages?.lines[mood.name] ??
+      _table[character.id]?[mood] ??
+      _table['generic']![mood] ??
       const <CharacterLine>[(title: '{name}', body: 'Doing fine.')];
   final pick = lines[_rand.nextInt(lines.length)];
   return (

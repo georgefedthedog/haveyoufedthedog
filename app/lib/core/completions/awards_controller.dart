@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../catalog/catalog_controller.dart';
 import '../chores/chore.dart';
 import '../chores/chores_controller.dart';
 import '../subjects/subject.dart';
@@ -55,6 +56,9 @@ class CharacterAward {
   /// The character-voiced award name, e.g. "Least Disappointing Human".
   final String title;
 
+  /// The thank-you line shown under the featured award title.
+  final String thanks;
+
   final String? winnerUserId;
   final int count;
 
@@ -63,6 +67,7 @@ class CharacterAward {
     required this.subjectName,
     required this.characterId,
     required this.title,
+    required this.thanks,
     required this.winnerUserId,
     required this.count,
   });
@@ -139,6 +144,10 @@ WeeklyAwards weeklyAwards(Ref ref) {
       ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
   final subjects =
       ref.watch(subjectsControllerProvider).valueOrNull ?? const <Subject>[];
+  // Resolves each subject's character (bundled or remote) so pack characters
+  // can voice custom award title/thanks. Synchronous, bundled-first; re-emits
+  // once the remote catalog lands.
+  final catalog = ref.watch(catalogProvider);
   if (history.isEmpty) return WeeklyAwards.empty;
 
   final window = WeekWindow.current();
@@ -261,14 +270,22 @@ WeeklyAwards weeklyAwards(Ref ref) {
     final tallies = tally(awardWeek.where((c) => c.subjectId == s.id));
     final winner = _uniqueMax(tallies);
     final characterId = s.icon ?? 'generic';
+    // Pack characters can override the award voice via their `messages`;
+    // bundled ones (messages == null) fall through to the hardcoded tables.
+    final messages = catalog.lookupCharacter(characterId).messages;
     characterAwards.add(
       CharacterAward(
         subjectId: s.id,
         subjectName: s.name,
         characterId: characterId,
         title:
+            messages?.awardTitle ??
             characterAwardTitles[characterId] ??
             characterAwardTitles['generic']!,
+        thanks:
+            messages?.awardThanks ??
+            characterAwardThanks[characterId] ??
+            characterAwardThanks['generic']!,
         winnerUserId: winner?.userId,
         count: winner?.value ?? 0,
       ),

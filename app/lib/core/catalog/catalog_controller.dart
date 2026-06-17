@@ -18,6 +18,7 @@ import '../profile/avatar.dart';
 import '../profile/avatars.dart';
 import '../storage/shared_preferences_provider.dart';
 import '../subjects/character.dart';
+import '../subjects/character_messages.dart';
 import '../subjects/characters.dart';
 import 'catalog.dart';
 
@@ -273,6 +274,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
     remoteExpressions: expressions,
     remoteAward: award.isEmpty ? null : pb.files.getUrl(r, award),
     packId: pack.isEmpty ? null : pack,
+    messages: CharacterMessages.fromJson(r.data['messages']),
   );
 }
 

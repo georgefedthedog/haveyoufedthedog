@@ -525,8 +525,7 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                   const SizedBox(height: 6),
                   Text(
                     winner != null
-                        ? (characterAwardThanks[award.characterId] ??
-                              characterAwardThanks['generic']!)
+                        ? award.thanks
                         : 'No winner last week - do the most of '
                               "${award.subjectName}'s chores to take it next time!",
                     maxLines: 2,

@@ -17,32 +17,16 @@
 // what's here is award-specific (the settle window, the unique-winner tally,
 // and the per-winner push).
 
-const {
-  DEFAULT_TZ,
-  WEEK_MS,
-  WEEKDAY,
-  createPbClient,
-  zonedParts,
-  makeHouseholdsByZone,
-  everyMinute,
-} = require("./pb-cron");
+const { DEFAULT_TZ, WEEK_MS, WEEKDAY, createPbClient, zonedParts, makeHouseholdsByZone, everyMinute } = require("./pb-cron");
 
 // Sunday hour (local, 24h) when awards present. Must match the app's
 // awardPresentationHour in stats_controller.dart.
 const AWARD_HOUR = 18;
 
-// Character-voiced award titles per subject icon - mirrors
-// characterAwardTitles in awards_controller.dart so the push reads the same
-// as the card the winner will see.
-const AWARD_TITLES = {
-  dog: "Best Human 🩵",
-  cat: "Least Disappointing Human",
-  plant: "Greenest Thumb",
-  bin: "Lord of the Kerb",
-  fish: "Keeper of the Tank",
-  generic: "Star Helper",
-};
-const titleFor = (icon) => AWARD_TITLES[icon] || AWARD_TITLES.generic;
+// The push intentionally does NOT name the award - the title lives only in
+// the app (and is customizable per pack character via catalog_characters.
+// messages), so the notification just says who has an award and lets the
+// winner tap through to see it.
 
 /// Unique top scorer of a userId->count map, or null on a tie / no entries
 /// / all-zero. Mirrors _uniqueMax in awards_controller.dart.
@@ -68,21 +52,17 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
   const householdsByZone = makeHouseholdsByZone(pb, "[awards]");
 
   /// PB datetime literal (UTC) for an epoch-ms instant.
-  const pbDate = (ms) => new Date(ms).toISOString().replace("T", " ");
+  const pbDate = ms => new Date(ms).toISOString().replace("T", " ");
 
   /// Settle one household's award week and push to its winners.
   async function presentHousehold(hid, startLit, endLit) {
-    const subjects = await pb.list(
-      `/api/collections/subjects/records?filter=${encodeURIComponent(
-        `household = '${hid}'`
-      )}&fields=id,name,icon`
-    );
+    const subjects = await pb.list(`/api/collections/subjects/records?filter=${encodeURIComponent(`household = '${hid}'`)}&fields=id,name,icon`);
     if (!subjects.length) return;
 
     const completions = await pb.list(
       `/api/collections/completions/records?filter=${encodeURIComponent(
-        `subject.household = '${hid}' && completed_at >= "${startLit}" && completed_at < "${endLit}"`
-      )}&fields=subject,completed_by`
+        `subject.household = '${hid}' && completed_at >= "${startLit}" && completed_at < "${endLit}"`,
+      )}&fields=subject,completed_by`,
     );
     if (!completions.length) return;
 
@@ -99,22 +79,18 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
       m.set(uid, (m.get(uid) || 0) + 1);
     }
 
-    // userId -> [{ subjectName, title }] of the awards they won.
+    // userId -> [{ subjectName }] of the awards they won.
     const wins = new Map();
     for (const s of subjects) {
       const winner = uniqueMax(bySubject.get(s.id) || new Map());
       if (!winner) continue;
       const list = wins.get(winner) || [];
-      list.push({ subjectName: s.name, title: titleFor(s.icon) });
+      list.push({ subjectName: s.name });
       wins.set(winner, list);
     }
     if (!wins.size) return;
 
-    const members = await pb.list(
-      `/api/collections/household_members/records?filter=${encodeURIComponent(
-        `household = '${hid}'`
-      )}&expand=user`
-    );
+    const members = await pb.list(`/api/collections/household_members/records?filter=${encodeURIComponent(`household = '${hid}'`)}&expand=user`);
     const tokenByUser = {};
     for (const m of members) {
       const u = m.expand?.user;
@@ -130,9 +106,7 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
       const first = awards[0];
       const single = awards.length === 1;
       const title = single ? "🏆 You won an award!" : `🏆 You won ${awards.length} awards!`;
-      const body = single
-        ? `${first.subjectName} crowned you their ${first.title} for last week!`
-        : `You won ${awards.length} awards last week - open to see who crowned you!`;
+      const body = single ? `You've received an award from ${first.subjectName} - tap to receive it!` : `You won ${awards.length} awards last week - open to see who crowned you!`;
       try {
         const result = await sendPush({
           tokens: [tkn],
@@ -147,7 +121,7 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
     }
   }
 
-  everyMinute(async (target) => {
+  everyMinute(async target => {
     const byZone = await householdsByZone();
     for (const [tz, hids] of Object.entries(byZone)) {
       try {
@@ -162,9 +136,7 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
         const endMs = target.getTime() - p.second * 1000;
         const startLit = pbDate(endMs - WEEK_MS);
         const endLit = pbDate(endMs);
-        console.log(
-          `[awards] ${tz} presenting week ${startLit} -> ${endLit} for ${hids.length} household(s)`
-        );
+        console.log(`[awards] ${tz} presenting week ${startLit} -> ${endLit} for ${hids.length} household(s)`);
         for (const hid of hids) {
           try {
             await presentHousehold(hid, startLit, endLit);

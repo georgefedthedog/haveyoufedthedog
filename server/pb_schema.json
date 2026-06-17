@@ -691,6 +691,17 @@
         "type": "file"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "json3674349206",
+        "maxSize": 0,
+        "name": "messages",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
         "cascadeDelete": false,
         "collectionId": "pbc_3923328239",
         "help": "Empty = general catalog, visible to everyone. Set = only households that redeemed this pack's code see this row.",
@@ -1097,7 +1108,7 @@
         "id": "bool1358543748",
         "name": "enabled",
         "presentable": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "bool"
       },

@@ -338,6 +338,38 @@ Full walkthrough + rule recipes: `server/.deploy/apply-schema.md`.
   and fall back along the same chain as bundled art (celebrate→happy→idle
   etc.). Remote characters use the generic task-tick as their icon
   fallback while art is loading/failed.
+  - **Personality copy (`messages`, optional JSON):** gives a pack character
+    its own voice instead of the bundled `generic` lines. Everything is
+    optional and falls back **per slot** to the generic copy - omit a mood,
+    or the whole field, to inherit it. Hand-authored when creating the row:
+
+    ```json
+    {
+      "lines": {
+        "allDone":     [{ "title": "Full and snoozing.", "body": "{name} had a great day 🦊" }],
+        "overdue":     [{ "title": "Still waiting…",     "body": "{name} keeps checking the bowl." }],
+        "upcoming":    [{ "title": "Ears up!",           "body": "{name} heard the cupboard." }],
+        "happyForNow": [{ "title": "All chill.",         "body": "{name} is having a relaxed one." }],
+        "none":        [{ "title": "Day off!",           "body": "{name} approves." }]
+      },
+      "awardTitle":  "Best Floof 🦊",
+      "awardThanks": "Thanks for the snuggles last week!"
+    }
+    ```
+
+    - `lines` drives the subject-hero status line. The five mood keys are
+      fixed: `allDone` (all today's chores logged), `overdue` (one is past
+      its time), `upcoming` (due within 60 min), `happyForNow` (pending but
+      >60 min off), `none` (nothing due today). Each is a **list** of
+      `{title, body}` variants - one is picked at random per view, so add a
+      few to keep it fresh. `{name}` is replaced with the subject's name in
+      both fields.
+    - `awardTitle` / `awardThanks` are single strings shown on the weekly
+      featured-award card. The Sunday award push names only the subject
+      ("You've received an award from {subject}"), so the title never has to
+      match anything server-side.
+    - Bundled characters (dog/cat/etc.) ignore this field - their copy is
+      hardcoded in the app.
 - `sort_order` orders rows within the remote block (bundled art always
   comes first in pickers). Slugs are forever - they're stored on user /
   household / subject records; never rename or reuse one.
