@@ -161,11 +161,16 @@ non-overlapping scheduler, and the household-by-timezone cache:
    duplicated from the app's award logic - change both sides together (the
    app names each app↔cron pair in `CLAUDE.md` → Data conventions).
 4. **In-app-purchase verification** (`verify.js`) - hooks POST a receipt to
-   `http://127.0.0.1:3055/verify-purchase`; it validates with the store
-   (Android via the Play Developer API, using `play-service-account.json` -
-   another **gitignored secret**) and reports back so `purchases.pb.js` can
-   grant the household its packs. Config-gated: no Play creds → it just
-   rejects Android verifications and the rest of the service runs on.
+   `http://127.0.0.1:3055/verify-purchase`; it validates with the store and
+   reports back so `purchases.pb.js` can grant the household its packs.
+   **Android** uses the Play Developer API (`play-service-account.json`, another
+   **gitignored secret**); config-gated, so no Play creds → it just rejects
+   Android verifications and the rest of the service runs on. **iOS** POSTs the
+   app receipt to Apple's `verifyReceipt` (production, then the sandbox endpoint
+   on a `21007` so one build covers TestFlight + the App Store) - stateless, no
+   credentials. `verifyReceipt` is deprecated but operational; a future
+   StoreKit 2 + JWS move would retire it (and needs the client switched off
+   StoreKit 1, which currently sends the receipt).
 
 ### Backups
 

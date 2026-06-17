@@ -106,7 +106,9 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   receipt → the hook appends the granted packs to `households.packs` (same
   household-scoped entitlement as code redemption). The `sku` must equal the
   store product id byte-for-byte (convention: `sku_<YYYYMMDD>_<NNN>_<name>`).
-  Android is live; iOS is pending a Mac (StoreKit 2 + JWS). Entry points: the
+  Both platforms verify server-side: Android via the Play API, iOS via Apple's
+  `verifyReceipt` (deprecated but operational - a later StoreKit 2 + JWS move
+  would retire it and also needs the client off StoreKit 1). Entry points: the
   `BrowsePacksButton` under each picker (labelled per type - "Get more
   images / characters / avatars") → `features/store/` (the "Image packs"
   screen, which also hosts gift-code redemption).

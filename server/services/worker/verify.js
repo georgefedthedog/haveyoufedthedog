@@ -1,9 +1,9 @@
 // Server-side purchase verification for the in-app store.
 //
 // The PB hook (purchases.pb.js) holds the auth context and does the
-// entitlement write; this module does the heavy lifting it can't: calling
-// the store's API with a signed service-account token. Android first; iOS
-// (App Store Server API) slots in alongside verifyAndroid later.
+// entitlement write; this module does the heavy lifting it can't: validating
+// the receipt with the store. Android goes through the Play Developer API;
+// iOS through Apple's verifyReceipt endpoint (see verifyIos).
 //
 // Verification is config-gated like the overdue cron - if the Play
 // credentials aren't present the service still boots for FCM/cron and just
@@ -14,6 +14,17 @@ const path = require("path");
 
 let androidPublisher = null;
 let playPackageName = null;
+
+// iOS App Store receipt verification is stateless - no credentials to load
+// (unlike Android's service account), so there's no init step. We POST the
+// base64 app receipt the client sends to Apple's verifyReceipt endpoint.
+// NOTE: verifyReceipt is deprecated by Apple but still operational. Moving to
+// StoreKit 2 + JWS / the App Store Server API would retire it - and would also
+// need the client switched to StoreKit 2 (it currently sends a StoreKit 1
+// receipt). See README -> "Selling packs".
+const APPLE_VERIFY_PROD = "https://buy.itunes.apple.com/verifyReceipt";
+const APPLE_VERIFY_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
+const IOS_BUNDLE_ID = process.env.IOS_BUNDLE_ID || "com.haveyoufedthedog.app";
 
 // Called once at startup. Safe to call without Play creds - leaves Android
 // verification disabled.
@@ -106,6 +117,79 @@ async function verifyAndroid({ sku, purchaseToken }) {
   };
 }
 
+// POSTs a base64 app receipt to Apple's verifyReceipt and returns the parsed
+// JSON. Apple mandates trying production first; a 21007 status means the
+// receipt is from the sandbox (TestFlight / a sandbox tester), so we retry the
+// sandbox endpoint - this is what lets one build work in both environments.
+async function appleVerifyReceipt(receiptData) {
+  // No "password" field: that's only for auto-renewable subscriptions; our
+  // packs are non-consumables, so it isn't needed.
+  const body = JSON.stringify({ "receipt-data": receiptData });
+  async function post(url) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    });
+    return res.json();
+  }
+
+  let data = await post(APPLE_VERIFY_PROD);
+  if (data.status === 21007) data = await post(APPLE_VERIFY_SANDBOX);
+  return data;
+}
+
+// Verifies an iOS App Store purchase from the base64 app receipt the client
+// sends as `purchaseToken`. Returns { valid, ... } - never throws for a bad
+// receipt.
+async function verifyIos({ sku, purchaseToken }) {
+  if (!sku || !purchaseToken) {
+    return { valid: false, error: "sku and purchaseToken are required" };
+  }
+
+  let data;
+  try {
+    data = await appleVerifyReceipt(purchaseToken);
+  } catch (err) {
+    console.warn("[verify] Apple verifyReceipt request failed:", err.message);
+    return { valid: false, error: `verifyReceipt request failed: ${err.message}` };
+  }
+
+  // status 0 = valid receipt. Anything else => forged / malformed / expired.
+  if (data.status !== 0) {
+    return { valid: false, error: `verifyReceipt status=${data.status}` };
+  }
+
+  const receipt = data.receipt || {};
+  if (receipt.bundle_id && receipt.bundle_id !== IOS_BUNDLE_ID) {
+    return { valid: false, error: `bundle_id mismatch: ${receipt.bundle_id}` };
+  }
+
+  // The app receipt lists every transaction; pick the one for this product.
+  // Non-consumables live in `in_app` (latest_receipt_info is for subs).
+  const inApp = Array.isArray(receipt.in_app) ? receipt.in_app : [];
+  const matches = inApp.filter(t => t.product_id === sku);
+  if (matches.length === 0) {
+    return { valid: false, error: `no transaction for product ${sku}` };
+  }
+  const txn = matches[matches.length - 1];
+
+  // original_transaction_id is stable across restores of a non-consumable, so
+  // it's the right idempotency key for the purchases ledger (mirrors how
+  // Android keys on orderId).
+  const txnId = txn.original_transaction_id || txn.transaction_id;
+  return {
+    valid: true,
+    platform: "ios",
+    sku,
+    transactionId: txnId,
+    originalTransactionId: txnId,
+    // Keep the ledger's raw small: the full verifyReceipt response re-embeds
+    // the entire receipt. Store just what's useful for debugging.
+    raw: { status: data.status, environment: data.environment, transaction: txn },
+  };
+}
+
 // Express handler. Body: { platform, sku, purchaseToken }.
 // 200 = verified, 422 = a well-formed request that failed verification,
 // 400 = bad request, 500 = unexpected error.
@@ -116,6 +200,8 @@ async function verifyPurchaseHandler(req, res) {
     let result;
     if (platform === "android") {
       result = await verifyAndroid({ sku, purchaseToken });
+    } else if (platform === "ios") {
+      result = await verifyIos({ sku, purchaseToken });
     } else {
       return res
         .status(400)
@@ -130,4 +216,4 @@ async function verifyPurchaseHandler(req, res) {
   }
 }
 
-module.exports = { initPlayVerifier, verifyPurchaseHandler, verifyAndroid };
+module.exports = { initPlayVerifier, verifyPurchaseHandler, verifyAndroid, verifyIos };
