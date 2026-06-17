@@ -42,7 +42,10 @@ file list** - new hook files must be added to its `tar` line.
   `@riverpod` codegen; async-init via AsyncNotifier/FutureProvider - never
   override-in-main hacks. Derived stats (awards, leaderboard, streaks, mean
   times) are pure functions over the cached last-100 completions
-  (`householdHistoryControllerProvider`) - no extra fetches.
+  (`householdHistoryControllerProvider`) - no extra fetches. (The character
+  awards within `weeklyAwardsProvider` are the one twist: they read a
+  *settled* past week, not the live one, and are mirrored server-side - see
+  Data conventions.)
 - `app/lib/features/<area>/` - screens + feature widgets. One class per file
   (small private helper widgets in the same file are fine).
 - Router: GoRouter behind `appRouterProvider`; redirect logic is a single
@@ -94,6 +97,20 @@ file list** - new hook files must be added to its `tar` line.
   timezone == family timezone** (Europe/London). Multi-TZ households would
   need `households.timezone` + moving the cron to the Node worker service.
 - Weekly windows everywhere are Mon→Sun local. Award ties go to nobody.
+- **Character "Best Human" awards are settled, not live.** The personality
+  badges + Team Effort + leaderboard track the in-progress Mon→Sun week, but
+  the per-subject character awards lock to the last *finished* week so they
+  can't change hands mid-week. Award weeks run Sunday 18:00 → next Sunday
+  18:00 (`WeekWindow.settledAward`, `awardPresentationHour` in
+  `stats_controller.dart`); the winner shown is the most recently closed
+  window. At each Sunday-18:00 boundary the worker's `award-cron.js` settles
+  the *same* window and pushes one notification per winning user (deduped
+  across subjects). **The app and the cron compute winners independently and
+  must stay in sync** - if you touch any of these, change both sides:
+  the presentation hour (`awardPresentationHour` ⇔ `AWARD_HOUR`), the Sun→Sun
+  window math (`WeekWindow.settledAward` ⇔ the cron's `tick`), the unique-max
+  tiebreak (`_uniqueMax` ⇔ `uniqueMax`), and the title flavour map
+  (`characterAwardTitles` ⇔ `AWARD_TITLES`).
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
   - never `TimeOfDay.format(context)`.
 

@@ -122,12 +122,12 @@ const characterAwardTitles = <String, String>{
 
 /// Thank-you line per character id, shown under the featured award title.
 const characterAwardThanks = <String, String>{
-  'dog': 'Thanks for being paws-itively amazing this week!',
-  'cat': 'Gracious enough to accept your service this week.',
-  'plant': 'Thanks for keeping things growing this week!',
-  'bin': 'Thanks for keeping things rolling this week!',
-  'fish': 'Thanks for making a splash this week!',
-  'generic': 'Thanks for being amazing this week!',
+  'dog': 'Thanks for being paws-itively amazing last week!',
+  'cat': 'Gracious enough to accept your service last week.',
+  'plant': 'Thanks for keeping things growing last week!',
+  'bin': 'Thanks for keeping things rolling last week!',
+  'fish': 'Thanks for making a splash last week!',
+  'generic': 'Thanks for being amazing last week!',
 };
 
 @riverpod
@@ -243,10 +243,22 @@ WeeklyAwards weeklyAwards(Ref ref) {
           .toList();
 
   // ---- Character-voiced awards (one per subject) -------------------------
+  //
+  // Unlike the personality badges above, these lock to the last *settled*
+  // award week (Sun→Sun, presented Sunday evening) so a character's "Best
+  // Human" can't change hands mid-week - see WeekWindow.settledAward.
+
+  final awardWindow = WeekWindow.settledAward();
+  final awardWeek = [
+    for (final c in history)
+      if (!c.completedAt.isBefore(awardWindow.start) &&
+          c.completedAt.isBefore(awardWindow.end))
+        c,
+  ];
 
   final characterAwards = <CharacterAward>[];
   for (final s in subjects) {
-    final tallies = tally(thisWeek.where((c) => c.subjectId == s.id));
+    final tallies = tally(awardWeek.where((c) => c.subjectId == s.id));
     final winner = _uniqueMax(tallies);
     final characterId = s.icon ?? 'generic';
     characterAwards.add(

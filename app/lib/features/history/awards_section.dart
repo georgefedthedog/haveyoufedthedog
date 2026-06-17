@@ -493,24 +493,13 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                         color: pillColor,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.check,
-                            size: 12,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'AWARDED',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        "LAST WEEK'S WINNER",
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -538,8 +527,8 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                     winner != null
                         ? (characterAwardThanks[award.characterId] ??
                               characterAwardThanks['generic']!)
-                        : 'Up for grabs - do the most of '
-                              "${award.subjectName}'s chores to win it!",
+                        : 'No winner last week - do the most of '
+                              "${award.subjectName}'s chores to take it next time!",
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(color: mutedInk),

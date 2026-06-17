@@ -29,7 +29,35 @@ class WeekWindow {
   WeekWindow previous() {
     return WeekWindow(start.subtract(const Duration(days: 7)), start);
   }
+
+  /// The most recently *settled* award week. Award weeks run from one
+  /// Sunday [awardPresentationHour]:00 to the next; the winners are locked
+  /// when the window closes and stay shown until the following close. So
+  /// the character awards always reflect the last fully-finished week and
+  /// never change hands mid-week. Completions logged after the Sunday
+  /// cutoff count toward the next week's trophy.
+  static WeekWindow settledAward([DateTime? clock]) {
+    final now = clock ?? DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    // This calendar week's Sunday at 00:00 (weekday: Mon=1 … Sun=7).
+    final thisSunday = today.add(
+      Duration(days: DateTime.sunday - today.weekday),
+    );
+    final presentation = thisSunday.add(
+      const Duration(hours: awardPresentationHour),
+    );
+    // The window whose Sunday cutoff has most recently passed.
+    final end = now.isBefore(presentation)
+        ? presentation.subtract(const Duration(days: 7))
+        : presentation;
+    return WeekWindow(end.subtract(const Duration(days: 7)), end);
+  }
 }
+
+/// The hour (local, 24h) on Sunday when the week's character awards are
+/// presented: the award window closes and its winners lock until the next
+/// Sunday at this hour. The worker's award cron fires at the same instant.
+const awardPresentationHour = 18;
 
 class WeeklyStats {
   /// Total completions in the window, across the whole household.

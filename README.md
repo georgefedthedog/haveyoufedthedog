@@ -114,7 +114,7 @@ in). Rule recipes and pitfalls: `server/.deploy/apply-schema.md`.
 
 ### Worker service (`server/services/worker/`)
 
-Node/Express service with three jobs (composed in `index.js`; each concern is
+Node/Express service with four jobs (composed in `index.js`; each concern is
 its own module):
 
 1. **FCM relay** - hooks POST `{tokens, title, body, data}` to
@@ -144,7 +144,19 @@ its own module):
    cron, and a leaked `.env` is revoked by deleting one service account.
    Without the `.env` the service still relays hook pushes - it just logs
    "[overdue] cron disabled" and sends no nudges.
-3. **In-app-purchase verification** (`verify.js`) - hooks POST a receipt to
+3. **Award cron** (`award-cron.js`) - once a minute, per distinct household
+   timezone, checks whether that zone just crossed the Sunday award cutoff
+   (18:00 local). When it has, it settles that zone's just-finished award
+   week (the seven days ending at the cutoff - the same Sun→Sun window the
+   app shows via `WeekWindow.settledAward`), works out each subject's unique
+   top contributor (ties win nobody), and pushes **one** notification per
+   winning member however many subjects they topped ("Kiko-dog crowned you
+   their Best Human for last week!"). Same superuser `.env` as the overdue
+   cron. **Kept in lockstep with the app:** the presentation hour, the Sun→Sun
+   window, the unique-max tiebreak, and the award-title flavour map are all
+   duplicated from the app's award logic - change both sides together (the
+   app names each app↔cron pair in `CLAUDE.md` → Data conventions).
+4. **In-app-purchase verification** (`verify.js`) - hooks POST a receipt to
    `http://127.0.0.1:3055/verify-purchase`; it validates with the store
    (Android via the Play Developer API, using `play-service-account.json` -
    another **gitignored secret**) and reports back so `purchases.pb.js` can
@@ -417,7 +429,12 @@ Caveats:
   actions is fine.
 - **Awards & stats are pure derivations** of the last ~100 cached completions
   (`weeklyAwardsProvider`, `choreMeanTimesProvider`, leaderboard). No server
-  aggregation. Weeks are Mon→Sun local; ties award nobody.
+  aggregation. Weeks are Mon→Sun local; ties award nobody. **Exception:** the
+  per-subject character "Best Human" awards lock to the last *settled* week
+  (Sunday 18:00 → next Sunday 18:00, `WeekWindow.settledAward`) so they don't
+  change hands mid-week, and that same window/winner logic is mirrored in the
+  worker's `award-cron.js` for the weekly push - the two must stay in sync
+  (`CLAUDE.md` → Data conventions lists each app↔cron pair).
 - **The drag-and-drop language.** Removing members, leaving a household,
   deleting chores, logging out, binding/removing NFC tags - all
   `LongPressDraggable` onto a dashed-circle `DragTarget`
