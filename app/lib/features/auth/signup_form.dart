@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
@@ -41,6 +42,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
             password: _passwordCtrl.text,
             displayName: _nameCtrl.text.trim(),
           );
+      // Close the autofill flow so the platform can offer to save the newly
+      // created credential.
+      TextInput.finishAutofillContext();
     } on ClientException catch (e) {
       final msg = e.response['message'] as String? ?? 'Signup failed';
       if (mounted) {
@@ -63,64 +67,66 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          LabeledField(
-            label: 'Your name',
-            child: TextFormField(
-              controller: _nameCtrl,
-              decoration: const InputDecoration(
-                hintText: 'Seen by your housemates',
-                prefixIcon: Icon(Icons.person_outline),
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            LabeledField(
+              label: 'Your name',
+              child: TextFormField(
+                controller: _nameCtrl,
+                decoration: const InputDecoration(
+                  hintText: 'Seen by your housemates',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                autofillHints: const [AutofillHints.name],
+                textCapitalization: TextCapitalization.words,
+                textInputAction: TextInputAction.next,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
-              autofillHints: const [AutofillHints.name],
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.next,
+            ),
+            const SizedBox(height: 16),
+            LabeledField(
+              label: 'Email',
+              child: TextFormField(
+                controller: _emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                autofillHints: const [AutofillHints.email],
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your email',
+                  prefixIcon: Icon(Icons.mail_outline),
+                ),
+                validator: (v) => (v == null || !v.contains('@'))
+                    ? 'Enter a valid email'
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 16),
+            PasswordField(
+              controller: _passwordCtrl,
+              helperText: 'At least 8 characters',
+              hintText: 'Choose a password',
+              prefixIcon: const Icon(Icons.lock_outline),
+              autofillHints: const [AutofillHints.newPassword],
+              onFieldSubmitted: (_) => _submit(),
               validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  (v == null || v.length < 8) ? 'At least 8 characters' : null,
             ),
-          ),
-          const SizedBox(height: 16),
-          LabeledField(
-            label: 'Email',
-            child: TextFormField(
-              controller: _emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              autofillHints: const [AutofillHints.email],
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.mail_outline),
-              ),
-              validator: (v) => (v == null || !v.contains('@'))
-                  ? 'Enter a valid email'
-                  : null,
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _busy ? null : _submit,
+              child: _busy
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Sign up'),
             ),
-          ),
-          const SizedBox(height: 16),
-          PasswordField(
-            controller: _passwordCtrl,
-            helperText: 'At least 8 characters',
-            hintText: 'Choose a password',
-            prefixIcon: const Icon(Icons.lock_outline),
-            autofillHints: const [AutofillHints.newPassword],
-            onFieldSubmitted: (_) => _submit(),
-            validator: (v) =>
-                (v == null || v.length < 8) ? 'At least 8 characters' : null,
-          ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _busy ? null : _submit,
-            child: _busy
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Sign up'),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
