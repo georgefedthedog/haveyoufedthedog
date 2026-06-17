@@ -30,6 +30,8 @@ workflows:
       flutter: stable                   # pin to a specific version if a stable bump ever breaks the build
       xcode: latest
       cocoapods: default
+      groups:
+        - ios_signing                   # Codemagic variable group holding CERTIFICATE_PRIVATE_KEY (secure)
 
     scripts:
       - name: Get Flutter packages
@@ -42,9 +44,14 @@ workflows:
         script: keychain initialize
 
       - name: Fetch or create signing files
+        # --certificate-key supplies OUR distribution private key (from the
+        # ios_signing group). With --create it builds the cert from that key on
+        # the first run and reuses the same cert afterwards - no cert sprawl.
+        # That key is the one irreplaceable artifact; keep a backup.
         script: |
           app-store-connect fetch-signing-files "com.haveyoufedthedog.app" \
             --type IOS_APP_STORE \
+            --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
             --create
 
       - name: Add certificates to keychain
