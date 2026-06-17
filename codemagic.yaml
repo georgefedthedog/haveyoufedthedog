@@ -72,6 +72,10 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
-        # beta_groups:            # uncomment + name a TestFlight group to auto-add testers
-        #   - Internal Testers
+        submit_to_testflight: true      # external testers need Beta App Review
+        beta_groups:
+          - "Family And Friends"        # must match the EXTERNAL group name in App Store Connect
+        # This step waits for Apple's processing then submits for beta review. If
+        # processing is slow it can still red-flag ("unable to find build") even
+        # though the upload succeeded - just submit the build to the group in the
+        # App Store Connect UI as a fallback. Internal testers get builds regardless.

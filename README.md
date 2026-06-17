@@ -369,10 +369,20 @@ build_runner.
   notifications** (APNs key + `aps-environment` entitlement +
   `remote-notification` background mode) and **iOS IAP verification** (StoreKit 2
   + JWS in the worker) are deliberately **deferred** - not in the first build.
-- **First TestFlight upload** shows "Missing Compliance" until you answer the
-  export-compliance (encryption) question; the app uses only standard HTTPS, so
-  the answer is "No" (equivalently, set `ITSAppUsesNonExemptEncryption` = false in
-  Info.plist to skip the prompt permanently).
+- **Export compliance** is declared in `ios/Runner/Info.plist`
+  (`ITSAppUsesNonExemptEncryption` = false - the app uses only standard HTTPS),
+  so uploads skip the "Missing Compliance" gate and are immediately installable.
+- **TestFlight distribution:** internal testers (App Store Connect team members)
+  auto-receive every uploaded build once processed. **External** testers (invited
+  by email, e.g. family) need **Beta App Review**, so the `publishing` block sets
+  `submit_to_testflight: true` + `beta_groups` to auto-submit each build to the
+  named external group. That submit step waits on Apple's processing and can
+  occasionally red-flag ("unable to find build") if processing is slow even though
+  the build uploaded fine - submit it to the group in the UI as a fallback. The
+  first external build also needs **Test Information** + a **demo login account**
+  (the app is login-gated) or beta review bounces it. **Bump the build number
+  every release** (`pubspec.yaml`, the `+N`) - App Store Connect rejects a re-used
+  number, same as Android.
 
 ---
 
