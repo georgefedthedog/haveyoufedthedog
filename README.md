@@ -390,9 +390,10 @@ build_runner.
   re-pair the key with the public cert (downloadable from the portal) into a
   `.p12`.
 - **App ID capabilities must mirror the app's entitlements** (Apple Developer →
-  Identifiers); the app declares none, so the App ID has none. **Push
-  notifications** (APNs key + `aps-environment` + `remote-notification`) and **iOS
-  IAP verification** (StoreKit 2 + JWS in the worker) are deferred.
+  Identifiers). The app declares **NFC Tag Reading** + **Push** (`aps-environment`)
+  entitlements in `Runner.entitlements`, with the APNs auth key uploaded to
+  Firebase. **iOS IAP verification** (StoreKit 2 + JWS in the worker) is still
+  deferred.
 - **Export compliance** is declared in `ios/Runner/Info.plist`
   (`ITSAppUsesNonExemptEncryption` = false - the app uses only standard HTTPS),
   so uploads skip the "Missing Compliance" gate and are immediately installable.

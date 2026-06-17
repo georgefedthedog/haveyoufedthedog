@@ -54,7 +54,17 @@ class NotificationService with WidgetsBindingObserver {
         ?.createNotificationChannel(channel);
 
     const androidInit = AndroidInitializationSettings('ic_stat_notification');
-    const initSettings = InitializationSettings(android: androidInit);
+    // iOS: don't prompt for permission here - FirebaseMessaging.requestPermission()
+    // below is the single source of the notification-permission request.
+    const iosInit = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+    const initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
     await _local.initialize(initSettings);
 
     FirebaseMessaging.onMessage.listen(_onForegroundMessage);
@@ -120,6 +130,7 @@ class NotificationService with WidgetsBindingObserver {
           importance: Importance.high,
           priority: Priority.high,
         ),
+        iOS: DarwinNotificationDetails(),
       ),
     );
   }

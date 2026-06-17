@@ -37,8 +37,7 @@ at the repo root (workflow `ios-release`, `working_directory: app`); push to `ma
 then Start build in the Codemagic UI. iOS bundle id `com.haveyoufedthedog.app` is
 deliberately *not* the Android `com.haveyoufedthedog`. Edit `ios/` config
 (Info.plist, entitlements, `project.pbxproj`) as plain text. The App ID's
-capabilities must mirror the app's entitlements (push + iOS IAP both deferred, so
-none yet). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
+capabilities must mirror the app's entitlements (NFC Tag Reading + Push are wired; iOS IAP still deferred). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
 `project.pbxproj` (native Firebase config, no `firebase_options.dart`). Signing is a
 self-managed distribution cert (RSA key in Codemagic group `ios_signing` + Google
 Drive backup) via the `haveyoufedthedog_asc` integration. Full walkthrough: README →
