@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_members_controller.dart';
+import '../../router/routes.dart';
 import '../profile/avatar_artwork.dart';
 
 /// Horizontal row of member avatars for a household. Each avatar shows the
@@ -21,6 +24,12 @@ class HouseholdMembersRow extends ConsumerWidget {
     );
     final members = asyncMembers.valueOrNull ?? const [];
     if (members.isEmpty) return const SizedBox.shrink();
+
+    // Identity-only watch so profile-data churn (name/avatar saves) doesn't
+    // rebuild the row - just whether each avatar is the signed-in user's.
+    final currentUserId = ref.watch(
+      authControllerProvider.select((a) => a.valueOrNull?.userId),
+    );
 
     return SizedBox(
       height: 56,
@@ -46,6 +55,7 @@ class HouseholdMembersRow extends ConsumerWidget {
                       seed: m.userId,
                       name: name,
                       isOwner: m.isOwner,
+                      isCurrentUser: m.userId == currentUserId,
                     );
                   },
                 ),
@@ -69,12 +79,17 @@ class _Avatar extends ConsumerWidget {
   final String name;
   final bool isOwner;
 
+  /// True for the signed-in user's own chip - taps deep-link to the You tab
+  /// (their profile). Everyone else's avatar is display-only.
+  final bool isCurrentUser;
+
   const _Avatar({
     required this.avatarId,
     required this.initial,
     required this.seed,
     required this.name,
     required this.isOwner,
+    required this.isCurrentUser,
   });
 
   @override
@@ -125,7 +140,13 @@ class _Avatar extends ConsumerWidget {
       );
     }
 
-    return Tooltip(message: name, child: circle);
+    final chip = Tooltip(message: name, child: circle);
+    if (!isCurrentUser) return chip;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.go(Routes.youTab),
+      child: chip,
+    );
   }
 
   /// Stable pastel colour from a seed string - same id → same colour.
