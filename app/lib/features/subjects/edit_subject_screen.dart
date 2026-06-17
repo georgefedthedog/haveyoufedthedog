@@ -277,7 +277,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                   onChanged: (id) => setState(() => _icon = id),
                 ),
               ),
-              const BrowsePacksButton(),
+              const BrowsePacksButton(label: 'Get more characters'),
               const SizedBox(height: 24),
               Card(
                 child: Padding(

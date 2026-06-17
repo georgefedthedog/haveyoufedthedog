@@ -83,8 +83,10 @@ file list** - new hook files must be added to its `tar` line.
   receipt → the hook appends the granted packs to `households.packs` (same
   household-scoped entitlement as code redemption). The `sku` must equal the
   store product id byte-for-byte (convention: `sku_<YYYYMMDD>_<NNN>_<name>`).
-  Android is live; iOS is pending a Mac (StoreKit 2 + JWS). Entry points: "Visit the art
-  gallery" under each picker → `features/store/`.
+  Android is live; iOS is pending a Mac (StoreKit 2 + JWS). Entry points: the
+  `BrowsePacksButton` under each picker (labelled per type - "Get more
+  images / characters / avatars") → `features/store/` (the "Image packs"
+  screen, which also hosts gift-code redemption).
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).
