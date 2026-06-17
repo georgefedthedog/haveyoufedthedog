@@ -27,27 +27,22 @@ cd app                                            # everything runs from app/
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs   # after @riverpod edits
 flutter analyze
-flutter build apk --release --split-per-abi       # bump pubspec version first
+flutter build appbundle --release                 # Play release: .aab -> Play Console track (bump pubspec version first)
+flutter build apk --release --split-per-abi       # sideload only: hand the arm64 APK to someone
 dart run flutter_launcher_icons                   # after changing app icon art
 ```
 
-**iOS release** runs on Codemagic (cloud macOS - no local Xcode). Config is
-`codemagic.yaml` at the repo root (workflow `ios-release`, `working_directory:
-app`, `mac_mini_m2`); Codemagic reads it from the pushed repo, so push to `main`
-then Start build in the Codemagic UI. Pipeline: `pub get` → fetch/create signing
-files → `xcode-project use-profiles` → `flutter build ipa` → TestFlight (no
-build_runner - `*.g.dart` are committed). iOS bundle id `com.haveyoufedthedog.app`
-is deliberately *not* the Android `com.haveyoufedthedog`. Edit `ios/` config
-(Info.plist, entitlements, `project.pbxproj`) as plain text; the App ID's
-capabilities must mirror the app's entitlements (push + iOS IAP deferred, so none
-yet). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
-`project.pbxproj` (native Firebase config, no `firebase_options.dart` - the iOS
-twin of Android's `google-services.json`). Signing uses the App Store Connect
-API-key integration `haveyoufedthedog_asc` + a self-managed distribution cert:
-an RSA private key is supplied via `--certificate-key=@env:CERTIFICATE_PRIVATE_KEY`
-(secure Codemagic group `ios_signing`), so `--create` builds the cert from it once
-and reuses it (no sprawl). That key is the one irreplaceable artifact - backed up
-in Google Drive.
+**iOS release** runs on Codemagic (cloud macOS - no local Xcode): `codemagic.yaml`
+at the repo root (workflow `ios-release`, `working_directory: app`); push to `main`
+then Start build in the Codemagic UI. iOS bundle id `com.haveyoufedthedog.app` is
+deliberately *not* the Android `com.haveyoufedthedog`. Edit `ios/` config
+(Info.plist, entitlements, `project.pbxproj`) as plain text. The App ID's
+capabilities must mirror the app's entitlements (push + iOS IAP both deferred, so
+none yet). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
+`project.pbxproj` (native Firebase config, no `firebase_options.dart`). Signing is a
+self-managed distribution cert (RSA key in Codemagic group `ios_signing` + Google
+Drive backup) via the `haveyoufedthedog_asc` integration. Full walkthrough: README →
+"Building an iOS release (Codemagic)".
 
 Server deploys (Git Bash/WSL): `bash server/.deploy/deploy-hooks.sh` /
 `deploy-worker.sh` / `deploy-public.sh` / `deploy-all.sh`. **deploy-hooks.sh

@@ -294,28 +294,54 @@ hot-reload-and-look.
 
 ---
 
-## Building a release APK
+## Building an Android release
+
+Two outputs: an **app bundle** (`.aab`) for the Play Store - the real release
+channel - or a **split APK** to hand someone directly. Either way, **bump the
+version in `pubspec.yaml` first** (`version: 0.4.3+2006` - semver `+` build
+number; Play and Android both reject a build number that isn't higher than
+what's already there). There's no Android CI - both are built locally and
+uploaded / sent by hand (`codemagic.yaml` is iOS-only).
+
+### Play Store (`.aab`) - the primary path
 
 ```bash
 cd app
-# 1. Bump the version FIRST - Android refuses to install a build number
-#    that isn't higher than what's on the phone:
-#    pubspec.yaml -> version: 0.21.0+53   (semver + build number)
+flutter build appbundle --release
+```
+
+Upload `app/build/app/outputs/bundle/release/app-release.aab` to a track in
+Play Console (Internal / Closed / Production), create the release, and roll it
+out. Every new bundle is reviewed (testing tracks clear faster than
+production; **Internal testing is review-free**). Google **re-signs** the
+bundle with the Play app signing key before delivery, so installed apps carry
+Google's cert, not your upload key - which is why `assetlinks.json` lists the
+*Play app signing key* SHA-256 and the credential association only verifies on
+Play-distributed builds (see "Static files & the Android app association").
+
+### Sideload (`.apk`) - quick hand-off
+
+```bash
+cd app
 flutter build apk --release --split-per-abi
 ```
 
 Send `app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` (works on
-any modern phone, half the size of the universal APK) via WhatsApp/Drive/etc.
-The recipient taps it and allows "install from unknown sources".
+any modern phone, half the size of the universal APK) via WhatsApp/Drive/etc.;
+the recipient taps it and allows "install from unknown sources". These are
+signed with your upload key (not Play's), so they can't upgrade over a
+Play-installed copy and the assetlinks association won't match them.
 
 **Signing:** release builds are signed with the real keystore at
 `app/android/app/upload-keystore.jks`; passwords live in
 `app/android/key.properties` (both **gitignored** - backup copies are in
-Google Drive). The Gradle config falls back to debug signing if
-`key.properties` is missing, so a keystore-less clone still builds - but
-those APKs can't upgrade over a properly-signed install. Losing the
-keystore = the family must uninstall/reinstall, and Play Store would be a
-new app. Don't lose it.
+Google Drive). Gradle falls back to debug signing if `key.properties` is
+missing, so a keystore-less clone still builds - but Play rejects debug-signed
+bundles and those artifacts can't upgrade a properly-signed install. **Play App
+Signing is on**, so this keystore is your *upload* key (Google holds the real
+app signing key): losing it is recoverable via an upload-key reset in Play
+Console - but it still signs your sideload APKs and is your identity to Google,
+so keep the Google Drive backup.
 
 Launcher icons are generated, not hand-made: source art in
 `app/assets/general/app_icon*.png`, regenerate with
@@ -338,14 +364,13 @@ Codemagic UI (branch `main`, workflow `iOS Release`). The pipeline is
 upload to TestFlight. Generated `*.g.dart` are committed, so CI doesn't run
 build_runner.
 
-- **Bundle id** is `com.haveyoufedthedog.app` (iOS) - deliberately *different*
-  from the Android `applicationId` `com.haveyoufedthedog`; App Store and Play are
-  independent registries. It's permanent once the App Store record exists.
+- **Bundle id** `com.haveyoufedthedog.app` (iOS) is deliberately *different* from
+  the Android `applicationId` `com.haveyoufedthedog` (App Store and Play are
+  independent registries); permanent now the App Store record exists.
 - **No Xcode locally:** edit everything under `ios/` (Info.plist, entitlements,
   `Runner.xcodeproj/project.pbxproj`) as plain text. Adding a bundled resource
-  means four coordinated `project.pbxproj` entries (file reference, build file,
-  group child, Copy Bundle Resources phase) - that's how
-  `GoogleService-Info.plist` was added.
+  takes four coordinated `project.pbxproj` entries: file reference, build file,
+  group child, and Copy Bundle Resources phase.
 - **Firebase on iOS** is native-config, mirroring Android: `GoogleService-Info.plist`
   is committed at `app/ios/Runner/` and wired into the build, so
   `Firebase.initializeApp()` finds it. No `firebase_options.dart`. It's not a
@@ -365,24 +390,20 @@ build_runner.
   re-pair the key with the public cert (downloadable from the portal) into a
   `.p12`.
 - **App ID capabilities must mirror the app's entitlements** (Apple Developer →
-  Identifiers). The app declares none today, so the App ID has none. **Push
-  notifications** (APNs key + `aps-environment` entitlement +
-  `remote-notification` background mode) and **iOS IAP verification** (StoreKit 2
-  + JWS in the worker) are deliberately **deferred** - not in the first build.
+  Identifiers); the app declares none, so the App ID has none. **Push
+  notifications** (APNs key + `aps-environment` + `remote-notification`) and **iOS
+  IAP verification** (StoreKit 2 + JWS in the worker) are deferred.
 - **Export compliance** is declared in `ios/Runner/Info.plist`
   (`ITSAppUsesNonExemptEncryption` = false - the app uses only standard HTTPS),
   so uploads skip the "Missing Compliance" gate and are immediately installable.
-- **TestFlight distribution:** internal testers (App Store Connect team members)
-  auto-receive every uploaded build once processed. **External** testers (invited
-  by email, e.g. family) need **Beta App Review**, so the `publishing` block sets
-  `submit_to_testflight: true` + `beta_groups` to auto-submit each build to the
-  named external group. That submit step waits on Apple's processing and can
-  occasionally red-flag ("unable to find build") if processing is slow even though
-  the build uploaded fine - submit it to the group in the UI as a fallback. The
-  first external build also needs **Test Information** + a **demo login account**
-  (the app is login-gated) or beta review bounces it. **Bump the build number
-  every release** (`pubspec.yaml`, the `+N`) - App Store Connect rejects a re-used
-  number, same as Android.
+- **TestFlight:** internal testers get every uploaded build automatically.
+  **External** testers (the public-link `Family And Friends` group) need **Beta App
+  Review**, so `submit_to_testflight: true` + `beta_groups` auto-submits each build.
+  Two gotchas: external review needs **Test Information + a demo login account** (the
+  app is login-gated) or it bounces; and the submit step can red-flag on slow Apple
+  processing even though the upload succeeded - just submit the build to the group in
+  the UI. **Bump the build number** (`pubspec.yaml` `+N`) every release - App Store
+  Connect rejects a re-used number, same as Android.
 
 ---
 
