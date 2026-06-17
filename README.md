@@ -75,7 +75,8 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   households). Redeemed via `packs.pb.js`, never by direct client writes.
 
 All API rules are membership-scoped (you only see rows for households you're
-in). Rule recipes and pitfalls: `server/.deploy/apply-schema.md`.
+in). Schema and API-rule edits are a by-hand process (see "Deploying to the
+server" below) - ask Claude for step-by-step instructions.
 
 ### Hooks (`server/pb_hooks/`)
 
@@ -321,7 +322,8 @@ means adding it to the `tar` line in the script.
 Schema changes are **manual and admin-UI-first** (live data is sacred, PB's
 import diff is fiddly): make the change in the live admin UI, then Settings →
 Export collections, replace `server/pb_schema.json` with the export, commit.
-Full walkthrough + rule recipes: `server/.deploy/apply-schema.md`.
+There's no separate walkthrough doc - ask Claude for step-by-step
+instructions when making a schema change.
 
 ---
 
@@ -377,7 +379,8 @@ Full walkthrough + rule recipes: `server/.deploy/apply-schema.md`.
   enabled + redeemable), then set `pack` on the art rows that belong to it -
   those rows are only served to households that have redeemed the code
   (Household details → Image packs). Untagged rows stay visible to
-  everyone. Full workflow + schema: `server/.deploy/apply-packs.md`.
+  everyone. Full pack workflow: see "Publishing a pack" below (a by-hand
+  process - ask Claude for step-by-step instructions).
 - **Staging / retiring an item:** assign its `pack` to a disabled pack
   nobody redeems (keep a permanent "Vault" pack for this); clear the field
   to (re)publish. Never delete a row someone may have picked - slugs are

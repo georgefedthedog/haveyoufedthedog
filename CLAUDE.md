@@ -72,8 +72,10 @@ file list** - new hook files must be added to its `tar` line.
   `ref.watch(catalogProvider).lookupX(id)` - never the static registries -
   and render through the models' `imageProvider` getters
   (cached_network_image disk cache); the three pickers read
-  `selectableCatalogProvider` instead. Publishing workflow:
-  `server/.deploy/apply-catalog.md`. **Pack characters can carry their own
+  `selectableCatalogProvider` instead. Publishing new catalog rows is a
+  by-hand process in the PB admin UI (no committed doc/script) - provide the
+  user step-by-step instructions when they want to publish. **Pack characters
+  can carry their own
   personality copy:** the optional `messages` JSON field on `catalog_characters`
   (parsed into `Character.messages`) overrides the mood status lines and the
   weekly award title/thanks - per slot, falling back to the bundled `generic`
@@ -132,8 +134,9 @@ file list** - new hook files must be added to its `tar` line.
   `require()` _inside_ the callback; file-level declarations are invisible
   to handlers. Helper files must not end in `.pb.js` or PB auto-loads them.
 - Schema changes are admin-UI-first: change live, re-export to
-  `server/pb_schema.json`, commit. Never hand-edit the live DB schema via
-  import unless following `server/.deploy/apply-schema.md`.
+  `server/pb_schema.json`, commit. This is a by-hand process with no
+  committed walkthrough - provide the user step-by-step instructions when a
+  schema change is needed.
 - Secrets (Resend API key, Firebase service account) live only on the
   server / in PB settings. Never in the repo.
 
