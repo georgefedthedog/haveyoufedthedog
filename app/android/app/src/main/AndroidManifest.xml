@@ -17,6 +17,14 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_notification" />
+        <!-- Digital Asset Links: associates the app with
+             api.haveyoufedthedog.com so credentials saved on the PocketBase
+             password-reset web page autofill in the app. Pairs with the
+             assetlinks.json served at that domain (see
+             server/pb_public/.well-known/assetlinks.json). -->
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

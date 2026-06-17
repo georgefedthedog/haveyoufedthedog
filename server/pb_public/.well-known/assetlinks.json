@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.get_login_creds"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.haveyoufedthedog",
+      "sha256_cert_fingerprints": [
+        "16:49:14:F4:75:98:EE:FB:D4:A2:CC:D0:F0:46:FB:A2:70:6E:57:1D:DE:06:8D:8F:F9:30:D5:E8:E2:5D:F5:54"
+      ]
+    }
+  }
+]

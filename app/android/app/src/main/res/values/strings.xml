@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Digital Asset Links: vouches that this app shares login credentials
+         with api.haveyoufedthedog.com, so a password saved on the PocketBase
+         password-reset web page autofills back in the app (and vice versa).
+         Pairs with the statement served at
+         https://api.haveyoufedthedog.com/.well-known/assetlinks.json
+         from the server\pb_public folder in the repository -->
+    <string name="asset_statements" translatable="false">
+        [{
+          \"include\": \"https://api.haveyoufedthedog.com/.well-known/assetlinks.json\"
+        }]
+    </string>
+</resources>
