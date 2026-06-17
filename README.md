@@ -326,6 +326,56 @@ Launcher icons are generated, not hand-made: source art in
 
 ---
 
+## Building an iOS release (Codemagic)
+
+iOS builds run in the cloud on **Codemagic** (dev is on Windows - no local
+Mac/Xcode). Config is `codemagic.yaml` at the repo root: workflow `ios-release`,
+`working_directory: app`, instance `mac_mini_m2`. Codemagic reads the yaml from
+the **pushed** repo, so the flow is: push to `main`, then **Start build** in the
+Codemagic UI (branch `main`, workflow `iOS Release`). The pipeline is
+`flutter pub get` → fetch/create signing files → `xcode-project use-profiles` →
+`flutter build ipa` (generates the Podfile + runs `pod install` on the fly) →
+upload to TestFlight. Generated `*.g.dart` are committed, so CI doesn't run
+build_runner.
+
+- **Bundle id** is `com.haveyoufedthedog.app` (iOS) - deliberately *different*
+  from the Android `applicationId` `com.haveyoufedthedog`; App Store and Play are
+  independent registries. It's permanent once the App Store record exists.
+- **No Xcode locally:** edit everything under `ios/` (Info.plist, entitlements,
+  `Runner.xcodeproj/project.pbxproj`) as plain text. Adding a bundled resource
+  means four coordinated `project.pbxproj` entries (file reference, build file,
+  group child, Copy Bundle Resources phase) - that's how
+  `GoogleService-Info.plist` was added.
+- **Firebase on iOS** is native-config, mirroring Android: `GoogleService-Info.plist`
+  is committed at `app/ios/Runner/` and wired into the build, so
+  `Firebase.initializeApp()` finds it. No `firebase_options.dart`. It's not a
+  secret (it ships in every IPA; the backend is PocketBase, and FCM is the only
+  Firebase use).
+- **Signing** is Codemagic's **App Store Connect API key** integration (named
+  `haveyoufedthedog_asc` - the name must match the yaml), which drives both code
+  signing and the TestFlight upload. The distribution certificate is
+  **self-managed**: an RSA private key (`openssl genrsa 2048`, generated once) is
+  fed in via `--certificate-key=@env:CERTIFICATE_PRIVATE_KEY` from the secure
+  Codemagic variable group `ios_signing`, so `app-store-connect
+  fetch-signing-files ... --create` builds the cert *from that key* on the first
+  run and reuses the same cert on every build after - no certificate sprawl. That
+  private key is the one irreplaceable artifact (Apple never stores it;
+  provisioning profiles and the App ID regenerate freely), so it's backed up in
+  Google Drive alongside the Android keystore. To move to a Mac/other CI later,
+  re-pair the key with the public cert (downloadable from the portal) into a
+  `.p12`.
+- **App ID capabilities must mirror the app's entitlements** (Apple Developer →
+  Identifiers). The app declares none today, so the App ID has none. **Push
+  notifications** (APNs key + `aps-environment` entitlement +
+  `remote-notification` background mode) and **iOS IAP verification** (StoreKit 2
+  + JWS in the worker) are deliberately **deferred** - not in the first build.
+- **First TestFlight upload** shows "Missing Compliance" until you answer the
+  export-compliance (encryption) question; the app uses only standard HTTPS, so
+  the answer is "No" (equivalently, set `ITSAppUsesNonExemptEncryption` = false in
+  Info.plist to skip the prompt permanently).
+
+---
+
 ## Deploying to the server
 
 Hooks and/or worker (the common case):
@@ -527,4 +577,8 @@ Caveats:
   Firebase service account JSON → on the server only. Cron superuser creds
   → `/opt/haveyoufedthedog/worker/.env` on the server only. SSH key
   → `~/.ssh/dogbox`. Release keystore → `app/android/` (gitignored) +
-  Google Drive. Nothing secret is in this repo.
+  Google Drive. App Store Connect API key (`.p8`) → Codemagic integration
+  `haveyoufedthedog_asc` (downloadable only once at creation - keep a backup);
+  the iOS distribution cert private key (`.pem`) → secure Codemagic group
+  `ios_signing` (var `CERTIFICATE_PRIVATE_KEY`) + Google Drive backup. Nothing
+  secret is in this repo.
