@@ -253,6 +253,66 @@ class HouseholdActions {
     _ref.invalidate(householdMembersControllerProvider(householdId));
   }
 
+  /// Creates a "managed" (phone-less) member in [householdId] - a loginless
+  /// `users` row that earns credit and awards, logged for via "Act as". The
+  /// owner-only `/api/custom/managed-member` hook mints the user + joins it
+  /// to the household (an owner can't do either directly under the collection
+  /// rules). Refetches the members list so the new chip appears.
+  Future<void> createManagedMember({
+    required String householdId,
+    required String name,
+    String? avatar,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+    await pb.send<Map<String, dynamic>>(
+      '/api/custom/managed-member',
+      method: 'POST',
+      body: {'householdId': householdId, 'name': name.trim(), 'avatar': avatar ?? ''},
+    );
+    _ref.invalidate(householdMembersControllerProvider(householdId));
+  }
+
+  /// Edits a managed member's name and/or avatar via the hook (owners can't
+  /// update a `users` row they can't log in as). [userId] is the managed
+  /// user's id (`HouseholdMember.userId`). Pass `null` to leave a field
+  /// untouched; an empty avatar string clears it.
+  Future<void> updateManagedMember({
+    required String householdId,
+    required String userId,
+    String? name,
+    String? avatar,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name.trim();
+    if (avatar != null) body['avatar'] = avatar;
+    if (body.isEmpty) return;
+    await pb.send<Map<String, dynamic>>(
+      '/api/custom/managed-member/$userId',
+      method: 'PATCH',
+      body: body,
+    );
+    _ref.invalidate(householdMembersControllerProvider(householdId));
+  }
+
+  /// Deletes a managed member entirely (the loginless `users` row). Their
+  /// membership cascades; past completions keep counting but render as
+  /// "Someone" (the `completed_by` relation is cascadeDelete:false).
+  Future<void> deleteManagedMember({
+    required String householdId,
+    required String userId,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+    await pb.send<Map<String, dynamic>>(
+      '/api/custom/managed-member/$userId',
+      method: 'DELETE',
+    );
+    _ref.invalidate(householdMembersControllerProvider(householdId));
+  }
+
   /// Opens or closes the invite door on a household.
   ///
   /// When opening: generates a fresh code and stores it.

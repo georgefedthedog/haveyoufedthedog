@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/streak_controller.dart';
+import '../../core/household/acting_user_controller.dart';
+import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
@@ -59,7 +60,9 @@ class ChoreChipWithTap extends ConsumerWidget {
         }
       }
       final character = ref.read(catalogProvider).lookupCharacter(iconToken);
-      final auth = ref.read(authControllerProvider).valueOrNull;
+      // The celebration names whoever the completion was logged *as* (the
+      // "Act as" identity), not necessarily the signed-in user.
+      final actingMember = await ref.read(actingMemberProvider.future);
 
       if (!context.mounted) return;
       context.push(
@@ -67,8 +70,8 @@ class ChoreChipWithTap extends ConsumerWidget {
         extra: CelebrationArgs(
           character: character,
           choreName: chore.name,
-          whoName: auth?.displayName,
-          whoAvatar: auth?.avatar,
+          whoName: actingMember?.displayName,
+          whoAvatar: actingMember?.avatar,
           streak: streak,
         ),
       );
@@ -84,14 +87,21 @@ class ChoreChipWithTap extends ConsumerWidget {
   Future<void> _undo(
       BuildContext context, WidgetRef ref, Completion completion) async {
     final messenger = ScaffoldMessenger.of(context);
-    // PB's delete rule only allows the original logger (or household
-    // owners) to remove a completion. Catch the "not yours" case
-    // client-side so it doesn't round-trip into a confusing 404.
-    final myUserId = ref.read(authControllerProvider).valueOrNull?.userId;
-    if (completion.completedById != myUserId) {
+    // You can undo a completion you logged - including one logged while
+    // acting as the member who did it (completed_by == the acting id) - or
+    // any of them if you're the household owner. Mirrors the server delete
+    // rule; caught client-side so a disallowed undo doesn't round-trip into
+    // a confusing 404.
+    final actingUserId = ref.read(actingUserControllerProvider).valueOrNull;
+    final isOwner =
+        ref.read(currentHouseholdControllerProvider).valueOrNull?.isOwner ??
+        false;
+    if (completion.completedById != actingUserId && !isOwner) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(const SnackBar(
-        content: Text("Only the person who logged it can undo."),
+        content: Text(
+          "Switch to whoever logged this (or ask an owner) to undo it.",
+        ),
       ));
       return;
     }

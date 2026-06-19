@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../api/pocketbase_client.dart';
-import '../auth/auth_controller.dart';
 import '../chores/chore.dart';
+import '../household/acting_user_controller.dart';
 import 'completion.dart';
 import 'household_history_controller.dart';
 import 'recent_completions_controller.dart';
@@ -21,13 +21,16 @@ class CompletionActions {
   final Ref _ref;
   CompletionActions(this._ref);
 
-  Future<String> _currentUserId() async {
-    final auth = await _ref.read(authControllerProvider.future);
-    final userId = auth.userId;
-    if (userId == null) {
+  /// The id to stamp on `completed_by` - the "Act as" identity, which
+  /// defaults to the signed-in user. Logging as another member only succeeds
+  /// once the server's completions rule is relaxed (it still accepts a
+  /// self-attributed write either way).
+  Future<String> _actingUserId() async {
+    final id = await _ref.read(actingUserControllerProvider.future);
+    if (id == null) {
       throw StateError('Cannot log a completion when signed out.');
     }
-    return userId;
+    return id;
   }
 
   /// Log a completion of [choreId] for [subjectId], attributed to [source].
@@ -38,7 +41,7 @@ class CompletionActions {
     required CompletionSource source,
   }) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
-    final userId = await _currentUserId();
+    final actingUserId = await _actingUserId();
     final now = DateTime.now().toUtc();
     final rec = await pb
         .collection('completions')
@@ -47,7 +50,7 @@ class CompletionActions {
             'subject': subjectId,
             'chore': choreId,
             'completed_at': now.toIso8601String(),
-            'completed_by': userId,
+            'completed_by': actingUserId,
             'source': source.wire,
           },
         );

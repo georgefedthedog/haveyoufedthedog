@@ -7,7 +7,7 @@ part of 'purchase_controller.dart';
 // **************************************************************************
 
 String _$purchaseControllerHash() =>
-    r'bd1a5905918f1e026f42cd4e13d1ccd401d9f70c';
+    r'0446f04810c8f71e0bb3836393ab002551ac1fda';
 
 /// Owns the single app-wide subscription to the in-app-purchase stream and
 /// drives buy / restore. **Mounted for the app's lifetime** (watched at the

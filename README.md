@@ -28,6 +28,17 @@ Stack: **Flutter** (Riverpod codegen, GoRouter, google_fonts) ·
 Live at `https://api.haveyoufedthedog.com` - PocketBase behind **nginx +
 Cloudflare** on a Hetzner box (`dogbox-1`).
 
+> ⚠️ **There is exactly one server instance, and it is production.** No
+> staging, no dev box - `api.haveyoufedthedog.com` is what every released app
+> talks to. Every schema edit, hook deploy, and collection-rule change goes
+> **live the moment you make it**, and a hooks deploy restarts PocketBase
+> (brief blip). So **all server changes must be backward-compatible with the
+> currently-released app**: never tighten a rule the live app still relies on,
+> never remove/rename a field or view column it reads, and only relax rules in
+> ways that still accept the old client's requests. When relaxing a
+> collection rule, verify a real request from the live app still succeeds
+> immediately after, and keep the previous rule handy to restore if not.
+
 | What         | Where                                                                                 |
 | ------------ | ------------------------------------------------------------------------------------- |
 | SSH          | `ssh -i ~/.ssh/dogbox -p 2222 george@65.108.215.132`                                  |
@@ -42,7 +53,9 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 
 - **users** - PB auth collection. Extra fields: `name`, `avatar` (text id -
   a bundled-registry id or a `catalog_avatars` slug), `fcm_token` (this
-  device's push token).
+  device's push token), `managed` (bool - a phone-less "managed" member: a
+  loginless account an owner creates so someone without their own phone still
+  earns credit; minted by the `members.pb.js` hook, see below).
 - **households** - `name`, `picture` (text id into the house-picture registry),
   `invite_code` + `invites_open` (single shareable code, toggleable),
   `timezone` (IANA name, captured from the creator's phone; empty =
@@ -52,7 +65,8 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   bare string, so keep it multi).
 - **household_members** - user ↔ household join with `role` (`owner`/`member`).
 - **household_member_details** - read-only SQL **view** joining members to
-  `users` so the app gets `user_name` + `user_avatar` in one fetch.
+  `users` so the app gets `user_name` + `user_avatar` + `user_managed` in one
+  fetch.
 - **subjects** - the characters. `name`, `household`, `icon` (character id:
   dog/cat/plant/bin/fish/generic, or a `catalog_characters` slug),
   `nfc_tag_id`.
@@ -61,9 +75,13 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   `active`. **Times are family wall-clock with no timezone** - see the
   timezone contract below.
 - **completions** - `subject`, `chore`, `completed_by`, `completed_at` (UTC),
-  `source` (`button`/`nfc`). `completed_by` is **optional and non-cascading**
-  on purpose: deleting a user account blanks it (PB clears optional
-  references), so household history survives anonymised.
+  `source` (`button`/`nfc`). `completed_by` is the **acting identity** ("Act
+  as" lets a phone-owner log for a phone-less managed member), not necessarily
+  the caller - so the create/update/delete rules allow any member of the
+  subject's household (relaxed from self-only) and act-as logging + undo work.
+  `completed_by` is **optional and non-cascading** on purpose: deleting a user
+  (incl. a managed member) blanks it (PB clears optional references), so the
+  chore still counts in history but shows as "Someone".
 - **catalog_avatars / catalog_pictures / catalog_characters** - the remote
   art catalog (ship new art without an app release). Per row: `slug` (the
   forever-id stored on user/household/subject records), `display_name`,
@@ -94,6 +112,13 @@ server" below) - ask Claude for step-by-step instructions.
   asks the worker (`/verify-purchase`) to validate the receipt with the store,
   records the transaction in `purchases`, then appends the product's `grants`
   packs to `households.packs`. Idempotent on `store_transaction_id`.
+- **members.pb.js** + **\_members_helper.js** - owner-only phone-less member
+  CRUD. `POST /api/custom/managed-member` `{householdId, name, avatar?}` mints
+  a loginless `users` row (`managed:true`, synthetic
+  `{id}@haveyoufedthedogyet.com` email) + joins it to the household;
+  `PATCH`/`DELETE /api/custom/managed-member/{userId}` edit / remove it. Runs
+  privileged because an owner can't create a membership for another user, nor
+  edit a `users` row they can't authenticate as.
 - **notify.pb.js** + **\_notify_helper.js** - on completion create/delete,
   pushes "Brekkie done by George" to every _other_ member via the worker.
   (There is no overdue hook - that cron lives in the worker service, below.)

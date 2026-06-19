@@ -4,6 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
+import '../../core/household/acting_user_controller.dart';
+import '../../core/household/current_household_controller.dart';
+import '../../core/household/household_member.dart';
+import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
 import '../../router/routes.dart';
 import '../../widgets/drop_target_circle.dart';
@@ -90,6 +94,7 @@ class YouTabScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+          const _ActAsCard(),
           Text(
             'Moving day?',
             textAlign: TextAlign.center,
@@ -212,6 +217,203 @@ class _AccountActionsCardState extends State<_AccountActionsCard> {
                   onTap: _wiggle.poke,
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Act as" picker: lets you log chores as a phone-less (managed) member of
+/// the current household, on this phone. Only managed members can be acted as
+/// - real members keep self-only attribution - so the card hides entirely
+/// when the household has none. A banner + the You tab's red ring are the cue
+/// that you're still acting as someone else.
+class _ActAsCard extends ConsumerWidget {
+  const _ActAsCard();
+
+  Future<void> _run(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await action();
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('$e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    final hh = ref.watch(currentHouseholdControllerProvider).valueOrNull;
+    if (hh == null) return const SizedBox.shrink();
+    final members =
+        ref.watch(householdMembersControllerProvider(hh.id)).valueOrNull ??
+        const <HouseholdMember>[];
+    final managed = members.where((m) => m.isManaged).toList();
+    if (managed.isEmpty) return const SizedBox.shrink();
+
+    final catalog = ref.watch(catalogProvider);
+    final auth = ref.watch(authControllerProvider).valueOrNull;
+    final myUserId = auth?.userId;
+    final actingUserId = ref.watch(actingUserControllerProvider).valueOrNull;
+    final actingIsOther = actingUserId != null && actingUserId != myUserId;
+
+    String? actingName;
+    if (actingIsOther) {
+      for (final m in managed) {
+        if (m.userId == actingUserId) {
+          actingName = m.displayName;
+          break;
+        }
+      }
+    }
+
+    final notifier = ref.read(actingUserControllerProvider.notifier);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Whose turn?',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Log chores for someone without their own phone',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                if (actingIsOther)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
+                    decoration: BoxDecoration(
+                      color: scheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.theater_comedy,
+                          size: 18,
+                          color: scheme.onSecondaryContainer,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "${actingName ?? 'Someone'}'s turn",
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSecondaryContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              _run(context, () => notifier.revertToSelf()),
+                          child: const Text('My turn again'),
+                        ),
+                      ],
+                    ),
+                  ),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    _ActAsChip(
+                      avatar: catalog.lookupAvatar(auth?.avatar),
+                      label: 'You',
+                      selected: !actingIsOther,
+                      onTap: () =>
+                          _run(context, () => notifier.revertToSelf()),
+                    ),
+                    for (final m in managed)
+                      _ActAsChip(
+                        avatar: catalog.lookupAvatar(m.avatar),
+                        label: m.displayName,
+                        selected: actingUserId == m.userId,
+                        onTap: () =>
+                            _run(context, () => notifier.setActing(m.userId)),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+/// One avatar in the Act-as picker: tap to switch to that identity. The
+/// current one gets a primary selection ring.
+class _ActAsChip extends StatelessWidget {
+  final Avatar? avatar;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ActAsChip({
+    required this.avatar,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 80,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? scheme.primary : Colors.transparent,
+                  width: 3,
+                ),
+              ),
+              padding: const EdgeInsets.all(2),
+              child: AvatarArtwork(avatar: avatar, size: 56),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: selected ? scheme.primary : null,
+              ),
             ),
           ],
         ),

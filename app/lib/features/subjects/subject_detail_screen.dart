@@ -596,7 +596,7 @@ class _RemoveChoreChip extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Remove chore',
+                'Delete',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: red,
@@ -640,7 +640,7 @@ class _AddChoreChip extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Add chore',
+              'Add',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: accent,

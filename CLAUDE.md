@@ -112,6 +112,25 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   `BrowsePacksButton` under each picker (labelled per type - "Get more
   images / characters / avatars") → `features/store/` (the "Image packs"
   screen, which also hosts gift-code redemption).
+- **Phone-less members + "Act as":** a household member without a phone is a
+  *managed* user - a real but loginless `users` row (`managed: true`, synthetic
+  `{id}@haveyoufedthedogyet.com` email, random password) the owner creates,
+  edits and deletes via the elevated `members.pb.js` hook (an owner can't
+  create a membership for another user, nor edit a user they can't log in as).
+  Because it's a real user row it flows through the leaderboard / awards /
+  avatar pipeline with no special-casing. Anyone with a phone can **Act as**
+  one - the "Whose turn?" picker on the You tab - to log chores for them:
+  `actingUserController` (`core/household/acting_user_controller.dart`) holds
+  the identity completions are stamped with, defaulting to self, **sticky for
+  the session**, auto-reverting on household-switch / logout / relaunch
+  (it watches those, so no manual reset needed). Restricted to managed members
+  (app-level; `setActing` rejects real members) - real members keep self-only
+  attribution. `actingMemberProvider` resolves it to a `HouseholdMember` for
+  the celebration name/avatar and the You-tab icon (the acting identity's
+  avatar, red-ringed when it isn't you). Owner CRUD lives in
+  `household_actions.dart` + `household_details_screen.dart`; managed members
+  carry a no-phone badge and are removed by the chore-style drag-to-bin or the
+  Edit-member screen's trash can.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).
@@ -120,9 +139,18 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
 
 - Chore times are **wall-clock integers** (`hour`, `minute`) with no timezone;
   `weekday_mask` is Mon=1 … Sun=64 (`1 << (weekday-1)`). `completed_at` is UTC.
-- The overdue cron (`server/pb_hooks/overdue.pb.js`) assumes the **server
-  timezone == family timezone** (Europe/London). Multi-TZ households would
-  need `households.timezone` + moving the cron to the Node worker service.
+- `completions.completed_by` is the **acting identity**, not necessarily the
+  signed-in user - "Act as" lets a phone-owner log for a phone-less managed
+  member (see Architecture). Every stat keys off `completed_by`, so a managed
+  member earns credit/awards like anyone. The `completions` create/update/
+  delete rules were relaxed from self-only to **"any member of the subject's
+  household"** so act-as logging and undo work; it stays backward-compatible
+  because a self-attributed write is still a member write.
+- The overdue + award crons live in the **Node worker service**
+  (`server/services/worker/`: `overdue-cron.js` / `award-cron.js`, sharing
+  `pb-cron.js`), not in PB hooks. They convert per household via
+  `households.timezone` (IANA; empty = Europe/London), so the server's own
+  clock setting doesn't matter.
 - Weekly windows everywhere are Mon→Sun local. Award ties go to nobody.
 - **Character "Best Human" awards are settled, not live.** The personality
   badges + Team Effort + leaderboard track the in-progress Mon→Sun week, but
@@ -148,6 +176,15 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
 
 ## PocketBase hooks (Goja)
 
+- **ONE live server, no staging.** `api.haveyoufedthedog.com` is the only
+  instance and it's production - every released app talks to it. Schema edits,
+  hook deploys (which restart PB), and collection-rule changes take effect
+  **immediately and for everyone**. So **no breaking changes**: keep server
+  changes backward-compatible with the currently-released app. Add fields,
+  don't remove/rename ones it reads; only relax rules in ways that still accept
+  the old client's requests (e.g. relaxing `completed_by = @request.auth.id`
+  must still accept a self-attributed write). After relaxing a rule, confirm a
+  real live-app request still works and keep the old rule ready to restore.
 - **Each handler runs in its own fresh JS runtime.** Share helpers via
   `require()` _inside_ the callback; file-level declarations are invisible
   to handlers. Helper files must not end in `.pb.js` or PB auto-loads them.

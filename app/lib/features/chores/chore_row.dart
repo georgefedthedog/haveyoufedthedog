@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/auth/auth_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/schedule_rule.dart';
 import '../../core/completions/completion.dart';
@@ -10,6 +9,7 @@ import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/completions/streak_controller.dart';
+import '../../core/household/acting_user_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_member.dart';
@@ -77,7 +77,8 @@ class ChoreRow extends ConsumerWidget {
         }
       }
       final character = ref.read(catalogProvider).lookupCharacter(iconToken);
-      final auth = ref.read(authControllerProvider).valueOrNull;
+      // Names whoever the completion was logged *as* (the "Act as" identity).
+      final actingMember = await ref.read(actingMemberProvider.future);
 
       if (!context.mounted) return;
       context.push(
@@ -85,8 +86,8 @@ class ChoreRow extends ConsumerWidget {
         extra: CelebrationArgs(
           character: character,
           choreName: chore.name,
-          whoName: auth?.displayName,
-          whoAvatar: auth?.avatar,
+          whoName: actingMember?.displayName,
+          whoAvatar: actingMember?.avatar,
           streak: streak,
         ),
       );
@@ -104,12 +105,19 @@ class ChoreRow extends ConsumerWidget {
     Completion completion,
   ) async {
     final messenger = ScaffoldMessenger.of(context);
-    final myUserId = ref.read(authControllerProvider).valueOrNull?.userId;
-    if (completion.completedById != myUserId) {
+    // Undo allowed for whoever logged it (including while acting as that
+    // member) or the household owner - mirrors the server delete rule.
+    final actingUserId = ref.read(actingUserControllerProvider).valueOrNull;
+    final isOwner =
+        ref.read(currentHouseholdControllerProvider).valueOrNull?.isOwner ??
+        false;
+    if (completion.completedById != actingUserId && !isOwner) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
         const SnackBar(
-          content: Text('Only the person who logged it can undo.'),
+          content: Text(
+            'Switch to whoever logged this (or ask an owner) to undo it.',
+          ),
         ),
       );
       return;

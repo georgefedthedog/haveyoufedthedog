@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/auth/auth_controller.dart';
+import '../core/catalog/catalog_controller.dart';
+import '../core/household/acting_user_controller.dart';
+import '../features/profile/avatar_artwork.dart';
 import '../router/routes.dart';
 
 /// Hosts the four bottom-nav tabs (Home / Friends / Awards / You) in a
@@ -150,26 +155,85 @@ class _BottomBar extends StatelessWidget {
   Widget _tab(int i, ColorScheme scheme) {
     final isSelected = currentIndex == i;
     final color = isSelected ? scheme.primary : scheme.onSurfaceVariant;
+    final item = items[i];
     return Expanded(
       child: InkResponse(
         onTap: () => onTap(i),
         radius: 32,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(items[i].icon, color: color, size: 22),
-            const SizedBox(height: 2),
-            Text(
-              items[i].label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        // The You tab shows the acting identity's avatar + name instead of a
+        // static glyph (red-ringed, and named, when acting as someone else).
+        child: item.path == Routes.youTab
+            ? _YouTab(isSelected: isSelected, baseColor: color)
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(item.icon, color: color, size: 22),
+                  const SizedBox(height: 2),
+                  Text(
+                    item.label,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 11,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
+    );
+  }
+}
+
+/// The You tab: the currently-acting identity's avatar with its name below.
+/// A red ring + the member's name (instead of "You") mark that you're acting
+/// as someone else; otherwise it's your own avatar and the primary selection
+/// ring. The avatar is deliberately larger than the sibling glyphs.
+class _YouTab extends ConsumerWidget {
+  final bool isSelected;
+  final Color baseColor;
+  const _YouTab({required this.isSelected, required this.baseColor});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final auth = ref.watch(authControllerProvider).valueOrNull;
+    final actingMember = ref.watch(actingMemberProvider).valueOrNull;
+    final myUserId = auth?.userId;
+    final isOther = actingMember != null && actingMember.userId != myUserId;
+
+    // Fall back to the signed-in user's own avatar when acting as self (or
+    // before the acting member resolves).
+    final avatarId = isOther ? actingMember.avatar : auth?.avatar;
+    final avatar = ref.watch(catalogProvider).lookupAvatar(avatarId);
+    final ringColor = isOther
+        ? Colors.red
+        : (isSelected ? scheme.primary : Colors.transparent);
+    final label = isOther ? actingMember.displayName : 'You';
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: ringColor, width: 2),
+          ),
+          child: AvatarArtwork(avatar: avatar, size: 33),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: isOther ? Colors.red : baseColor,
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

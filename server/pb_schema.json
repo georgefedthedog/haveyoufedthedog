@@ -131,6 +131,16 @@
         "type": "text"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "bool250646760",
+        "name": "managed",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created",
@@ -1346,9 +1356,9 @@
     "id": "pbc_completions",
     "listRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
     "viewRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
-    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household && @request.body.completed_by = @request.auth.id",
-    "updateRule": "completed_by = @request.auth.id",
-    "deleteRule": "completed_by = @request.auth.id || (@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household && @collection.household_members.role ?= \"owner\")",
+    "createRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "updateRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
+    "deleteRule": "@collection.household_members.user ?= @request.auth.id && @collection.household_members.household ?= subject.household",
     "name": "completions",
     "type": "base",
     "fields": [
@@ -2450,7 +2460,7 @@
         "collectionId": "pbc_households",
         "help": "",
         "hidden": false,
-        "id": "_clone_z4mm",
+        "id": "_clone_nDny",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "household",
@@ -2464,7 +2474,7 @@
         "collectionId": "_pb_users_auth_",
         "help": "",
         "hidden": false,
-        "id": "_clone_wc6r",
+        "id": "_clone_CFLk",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "user",
@@ -2476,7 +2486,7 @@
       {
         "help": "",
         "hidden": false,
-        "id": "_clone_26F8",
+        "id": "_clone_lsbL",
         "maxSelect": 1,
         "name": "role",
         "presentable": false,
@@ -2487,7 +2497,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_K8VZ",
+        "id": "_clone_pvRY",
         "name": "created",
         "onCreate": true,
         "onUpdate": false,
@@ -2497,7 +2507,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_9l0z",
+        "id": "_clone_leVL",
         "name": "updated",
         "onCreate": true,
         "onUpdate": true,
@@ -2509,7 +2519,7 @@
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "_clone_5Cm5",
+        "id": "_clone_vKme",
         "max": 255,
         "min": 0,
         "name": "user_name",
@@ -2524,7 +2534,7 @@
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "_clone_lfib",
+        "id": "_clone_ZcHK",
         "max": 40,
         "min": 0,
         "name": "user_avatar",
@@ -2534,10 +2544,20 @@
         "required": false,
         "system": false,
         "type": "text"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "_clone_ZQBV",
+        "name": "user_managed",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
       }
     ],
     "indexes": [],
     "system": false,
-    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name,\n  u.avatar\t   AS user_avatar\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
+    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name,\n  u.avatar\t   AS user_avatar,\n  u.managed\t   AS user_managed\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
   }
 ]

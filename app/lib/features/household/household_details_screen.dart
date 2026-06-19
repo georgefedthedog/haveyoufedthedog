@@ -13,10 +13,11 @@ import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
 import '../../router/routes.dart';
+import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
-import '../../widgets/wiggle.dart';
 import '../profile/avatar_artwork.dart';
+import '../profile/avatar_picker.dart';
 import '../store/browse_packs_button.dart';
 import 'picture_picker.dart';
 
@@ -614,14 +615,71 @@ class _MembersList extends ConsumerStatefulWidget {
 }
 
 class _MembersListState extends ConsumerState<_MembersList> {
-  // Tapping the bin pokes this; the draggable member chips wiggle to reveal
-  // they can be carried in (owners remove others, members drag themselves out).
-  final _wiggle = WiggleController();
+  /// The member currently being long-press dragged, or null. While non-null
+  /// the Add slot morphs into the Remove bin (same as the manage-chores
+  /// cloud), labelled for the dragged member; no bin is shown otherwise.
+  HouseholdMember? _draggingMember;
 
-  @override
-  void dispose() {
-    _wiggle.dispose();
-    super.dispose();
+  /// Create (existing == null) or edit a phone-less managed member. A pushed
+  /// screen (not a GoRoute) mirroring Edit Profile's layout.
+  Future<void> _openMemberEditor({HouseholdMember? existing}) {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => _ManagedMemberScreen(
+          householdId: widget.household.id,
+          existing: existing,
+        ),
+      ),
+    );
+  }
+
+  /// Managed members are deleted outright (the loginless user), not just
+  /// unlinked - so the bin routes them here instead of [_kick].
+  Future<void> _deleteManaged(
+    BuildContext context,
+    WidgetRef ref,
+    HouseholdMember m,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete ${m.displayName}?'),
+        content: Text(
+          '${m.displayName} has no phone of their own, so this removes them '
+          'completely. Their past completions still count but will show as '
+          '"Someone".',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref
+          .read(householdActionsProvider)
+          .deleteManagedMember(
+            householdId: widget.household.id,
+            userId: m.userId,
+          );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
+      }
+    }
   }
 
   Future<void> _kick(
@@ -692,10 +750,7 @@ class _MembersListState extends ConsumerState<_MembersList> {
         // One mechanism for everyone: owners drag *others* into the bin
         // to remove them; non-owners drag *themselves* in to leave. An
         // owner can't drag their own chip - to step away they delete the
-        // household.
-        final otherCount = members.where((m) => m.userId != myUserId).length;
-        final showBin = widget.viewerIsOwner ? otherCount > 0 : true;
-
+        // household. The bin only appears while a chip is being dragged.
         return Wrap(
           spacing: 16,
           runSpacing: 16,
@@ -708,20 +763,42 @@ class _MembersListState extends ConsumerState<_MembersList> {
                 canDrag: widget.viewerIsOwner
                     ? m.userId != myUserId
                     : m.userId == myUserId,
-                wiggle: _wiggle,
+                // Owners tap a managed member to edit their name/avatar.
+                onTap: (widget.viewerIsOwner && m.isManaged)
+                    ? () => _openMemberEditor(existing: m)
+                    : null,
+                onDragChanged: (member) =>
+                    setState(() => _draggingMember = member),
               ),
-            if (showBin)
+            // While dragging, the Add slot becomes the Remove bin, labelled
+            // for what's being dragged; otherwise owners see Add and
+            // non-owners see nothing.
+            if (_draggingMember != null)
               Builder(
                 builder: (binContext) {
+                  final dragged = _draggingMember!;
+                  final label = dragged.userId == myUserId
+                      ? 'Leave'
+                      : dragged.isManaged
+                      ? 'Delete'
+                      : 'Remove';
                   return _RemoveBinChip(
-                    label: widget.viewerIsOwner ? 'Remove' : 'Leave',
-                    onDrop: (m) => m.userId == myUserId
-                        ? _confirmAndLeave(binContext, ref, widget.household)
-                        : _kick(binContext, ref, m),
-                    onTap: _wiggle.poke,
+                    label: label,
+                    onDrop: (m) {
+                      if (m.userId == myUserId) {
+                        _confirmAndLeave(binContext, ref, widget.household);
+                      } else if (m.isManaged) {
+                        // Phone-less members are deleted outright, not unlinked.
+                        _deleteManaged(binContext, ref, m);
+                      } else {
+                        _kick(binContext, ref, m);
+                      }
+                    },
                   );
                 },
-              ),
+              )
+            else if (widget.viewerIsOwner)
+              _AddMemberChip(onTap: () => _openMemberEditor()),
           ],
         );
       },
@@ -739,14 +816,7 @@ class _RemoveBinChip extends StatelessWidget {
   /// "Leave" for a member dragging themselves out.
   final String label;
 
-  /// Tapped (not dropped) - wiggles the draggable member chips.
-  final VoidCallback? onTap;
-
-  const _RemoveBinChip({
-    required this.onDrop,
-    this.label = 'Remove',
-    this.onTap,
-  });
+  const _RemoveBinChip({required this.onDrop, this.label = 'Remove'});
 
   @override
   Widget build(BuildContext context) {
@@ -757,9 +827,22 @@ class _RemoveBinChip extends StatelessWidget {
       hoverColor: Colors.red,
       labelWidth: 80,
       onDrop: onDrop,
-      onTap: onTap,
     );
   }
+}
+
+/// A small circular corner badge (owner star, no-phone marker, or red remove
+/// cross) overlaid on a member avatar.
+Widget _cornerBadge(IconData icon, Color bg, Color fg) {
+  return Container(
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: bg,
+      border: Border.all(color: Colors.white, width: 2),
+    ),
+    padding: const EdgeInsets.all(4),
+    child: Icon(icon, size: 12, color: fg),
+  );
 }
 
 /// One avatar in the members cloud: avatar circle, name underneath,
@@ -770,14 +853,20 @@ class _MemberChip extends ConsumerWidget {
   final bool isMe;
   final bool canDrag;
 
-  /// Shared poke signal - a draggable chip wiggles when the bin is tapped.
-  final WiggleController wiggle;
+  /// Tapping the chip (owners, on a managed member) - opens the edit screen.
+  final VoidCallback? onTap;
+
+  /// Fired with this member when a long-press drag lifts the chip, null when
+  /// it ends. The parent swaps the Add slot for a Remove bin (labelled for the
+  /// dragged member) while a drag is live.
+  final ValueChanged<HouseholdMember?>? onDragChanged;
 
   const _MemberChip({
     required this.member,
     required this.isMe,
     required this.canDrag,
-    required this.wiggle,
+    this.onTap,
+    this.onDragChanged,
   });
 
   @override
@@ -787,26 +876,32 @@ class _MemberChip extends ConsumerWidget {
     final avatar = ref.watch(catalogProvider).lookupAvatar(member.avatar);
     final label = isMe ? '${member.displayName} (you)' : member.displayName;
 
-    Widget chip({required double avatarSize}) {
-      Widget avatarWidget = AvatarArtwork(avatar: avatar, size: avatarSize);
+    // Corner badge: a red cross while being dragged to the bin (matches the
+    // manage-chores chip), else an owner star or a phone-less marker.
+    Widget? badgeFor(bool removing) {
+      if (removing) return _cornerBadge(Icons.close, Colors.red, Colors.white);
       if (member.isOwner) {
+        return _cornerBadge(Icons.star, scheme.primary, scheme.onPrimary);
+      }
+      if (member.isManaged) {
+        return _cornerBadge(
+          Icons.mobile_off,
+          scheme.secondary,
+          scheme.onSecondary,
+        );
+      }
+      return null;
+    }
+
+    Widget chip({required double avatarSize, bool removing = false}) {
+      Widget avatarWidget = AvatarArtwork(avatar: avatar, size: avatarSize);
+      final badge = badgeFor(removing);
+      if (badge != null) {
         avatarWidget = Stack(
           clipBehavior: Clip.none,
           children: [
             avatarWidget,
-            Positioned(
-              right: -6,
-              bottom: -2,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.primary,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                padding: const EdgeInsets.all(4),
-                child: Icon(Icons.star, size: 12, color: scheme.onPrimary),
-              ),
-            ),
+            Positioned(right: -6, bottom: -2, child: badge),
           ],
         );
       }
@@ -841,21 +936,289 @@ class _MemberChip extends ConsumerWidget {
     }
 
     final restingChip = chip(avatarSize: 56);
-    if (!canDrag) return restingChip;
 
-    // Long-press to lift - a plain Draggable claims the gesture arena
-    // immediately, which makes the page hard to scroll when a thumb
-    // lands on an avatar.
-    return Wiggle(
-      controller: wiggle,
-      child: LongPressDraggable<HouseholdMember>(
+    Widget result;
+    if (!canDrag) {
+      result = restingChip;
+    } else {
+      // Long-press to lift - a plain Draggable claims the gesture arena
+      // immediately, which makes the page hard to scroll when a thumb
+      // lands on an avatar.
+      result = LongPressDraggable<HouseholdMember>(
         data: member,
+        onDragStarted: () => onDragChanged?.call(member),
+        onDragEnd: (_) => onDragChanged?.call(null),
+        // The lifted copy swaps its badge for a red cross - you're carrying it
+        // toward the bin, not editing it.
         feedback: Material(
           color: Colors.transparent,
-          child: chip(avatarSize: 72),
+          child: chip(avatarSize: 72, removing: true),
         ),
         childWhenDragging: Opacity(opacity: 0.3, child: restingChip),
         child: restingChip,
+      );
+    }
+
+    // Tap (distinct from the long-press drag) opens the edit sheet.
+    if (onTap != null) {
+      result = GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: result,
+      );
+    }
+    return result;
+  }
+}
+
+/// "Add a phone-less member" affordance in the members cloud (owners only):
+/// a dashed circle with a +, sized and captioned like a member chip.
+class _AddMemberChip extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AddMemberChip({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 56,
+            height: 56,
+            child: CustomPaint(
+              painter: DashedCirclePainter(color: scheme.primary, filled: false),
+              child: Icon(Icons.add, color: scheme.primary),
+            ),
+          ),
+          const SizedBox(height: 6),
+          SizedBox(
+            width: 80,
+            child: Text(
+              'Add',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: scheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Create or edit a phone-less managed member. Mirrors the Edit Profile
+/// screen's layout: avatar picker on top, then a card with a "Display name"
+/// field and the Save button. Create when [existing] is null, otherwise edit
+/// that member. Deletion is via dragging the chip to the bin, not here.
+class _ManagedMemberScreen extends ConsumerStatefulWidget {
+  final String householdId;
+  final HouseholdMember? existing;
+  const _ManagedMemberScreen({required this.householdId, this.existing});
+
+  @override
+  ConsumerState<_ManagedMemberScreen> createState() =>
+      _ManagedMemberScreenState();
+}
+
+class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
+  final _form = GlobalKey<FormState>();
+  final _nameCtrl = TextEditingController();
+  String? _avatar;
+  String _baselineName = '';
+  String? _baselineAvatar;
+  bool _seeded = false;
+  bool _busy = false;
+
+  bool get _isEdit => widget.existing != null;
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
+
+  /// Anything changed vs the seeded baseline? Opening the screen shouldn't
+  /// count as a change (same contract as Edit Profile).
+  bool get _isDirty =>
+      _nameCtrl.text.trim() != _baselineName || _avatar != _baselineAvatar;
+
+  Future<void> _save() async {
+    if (!(_form.currentState?.validate() ?? false)) return;
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    final actions = ref.read(householdActionsProvider);
+    final name = _nameCtrl.text.trim();
+    try {
+      if (_isEdit) {
+        await actions.updateManagedMember(
+          householdId: widget.householdId,
+          userId: widget.existing!.userId,
+          name: name,
+          avatar: _avatar ?? '',
+        );
+      } else {
+        await actions.createManagedMember(
+          householdId: widget.householdId,
+          name: name,
+          avatar: _avatar,
+        );
+      }
+      if (mounted) nav.pop();
+    } on ClientException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(e.response['message'] as String? ?? 'Save failed'),
+        ),
+      );
+      if (mounted) setState(() => _busy = false);
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+      );
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Delete this managed member (edit mode only), with a confirm. On success
+  /// pops back to the household. Mirrors the bin-drop deletion.
+  Future<void> _delete() async {
+    final m = widget.existing!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete ${m.displayName}?'),
+        content: Text(
+          '${m.displayName} has no phone of their own, so this removes them '
+          'completely. Their past completions still count but will show as '
+          '"Someone".',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    try {
+      await ref
+          .read(householdActionsProvider)
+          .deleteManagedMember(householdId: widget.householdId, userId: m.userId);
+      if (mounted) nav.pop();
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+      );
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Seed once. Avatar baseline falls back to the first selectable avatar
+    // (the picker opens with it on the stage) so a no-touch save stores
+    // what's visibly selected - mirrors Edit Profile.
+    if (!_seeded) {
+      final avatars = ref.read(selectableCatalogProvider).avatars;
+      final fallback = avatars.isNotEmpty ? avatars.first.id : null;
+      _baselineName = widget.existing?.displayName ?? '';
+      _baselineAvatar = widget.existing?.avatar ?? fallback;
+      _nameCtrl.text = _baselineName;
+      _avatar = _baselineAvatar;
+      _seeded = true;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_isEdit ? 'Edit member' : 'Add member'),
+        actions: [
+          if (_isEdit)
+            IconButton(
+              tooltip: 'Delete member',
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _busy ? null : _delete,
+            ),
+        ],
+      ),
+      body: SafeArea(
+        child: Form(
+          key: _form,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              AbsorbPointer(
+                absorbing: _busy,
+                child: AvatarPicker(
+                  selected: _avatar,
+                  onChanged: (id) => setState(() => _avatar = id),
+                ),
+              ),
+              const BrowsePacksButton(label: 'Get more avatars'),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LabeledField(
+                        label: 'Display name',
+                        child: TextFormField(
+                          controller: _nameCtrl,
+                          decoration: const InputDecoration(
+                            hintText: 'How this member appears to everyone',
+                          ),
+                          textCapitalization: TextCapitalization.words,
+                          textInputAction: TextInputAction.done,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Required'
+                              : null,
+                          onChanged: (_) => setState(() {}),
+                          onFieldSubmitted: (_) => _save(),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        icon: _busy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.check),
+                        label: const Text('Save changes'),
+                        onPressed: (_isDirty && !_busy) ? _save : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

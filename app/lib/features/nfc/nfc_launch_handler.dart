@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/streak_controller.dart';
+import '../../core/household/acting_user_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/nfc/nfc_service.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
@@ -139,7 +139,8 @@ class NfcLaunchHandler {
       // instance is the entry point. Re-tap on the chore row/chip undoes if
       // the user wants out; no snackbar Undo button needed.
       final character = _ref.read(catalogProvider).lookupCharacter(subject.icon);
-      final auth = _ref.read(authControllerProvider).valueOrNull;
+      // An NFC tap credits whoever you're acting as (same as a chip tap).
+      final actingMember = await _ref.read(actingMemberProvider.future);
       _ref
           .read(appRouterProvider)
           .push(
@@ -147,8 +148,8 @@ class NfcLaunchHandler {
             extra: CelebrationArgs(
               character: character,
               choreName: result.chore.name,
-              whoName: auth?.displayName,
-              whoAvatar: auth?.avatar,
+              whoName: actingMember?.displayName,
+              whoAvatar: actingMember?.avatar,
               streak: streak,
             ),
           );

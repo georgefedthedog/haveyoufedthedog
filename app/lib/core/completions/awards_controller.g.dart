@@ -6,7 +6,7 @@ part of 'awards_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$weeklyAwardsHash() => r'5eaad23e05344978e81fa8c63788d63786afd1df';
+String _$weeklyAwardsHash() => r'd2ae9586c5ffffede1f3e0ac97a5815337c0190f';
 
 /// See also [weeklyAwards].
 @ProviderFor(weeklyAwards)

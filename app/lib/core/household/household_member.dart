@@ -3,7 +3,7 @@ import 'package:pocketbase/pocketbase.dart';
 /// One member of a household, as seen from the inside. Wraps a row from the
 /// `household_member_details` PB View - a server-side JOIN of
 /// `household_members` and `users` that exposes only the safe fields
-/// (id, household, user, role, user_name, user_avatar).
+/// (id, household, user, role, user_name, user_avatar, user_managed).
 class HouseholdMember {
   final RecordModel record;
   const HouseholdMember(this.record);
@@ -31,4 +31,12 @@ class HouseholdMember {
   }
 
   bool get isOwner => role == 'owner';
+
+  /// A "managed" (phone-less) member: a loginless `users` row the owner
+  /// created, logged for via "Act as". The View surfaces `users.managed`;
+  /// SQLite bools can come back as bool/int/string, so accept all forms.
+  bool get isManaged {
+    final v = record.data['user_managed'];
+    return v == true || v == 1 || v == '1';
+  }
 }
