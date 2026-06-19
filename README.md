@@ -1,6 +1,6 @@
 # Have You Fed The Dog?
 
-A cosy family chore tracker. Everything the household looks after - the dog,
+A fun family chore tracker. Everything the household looks after - the dog,
 the cat, the plants, the wheelie bin - becomes a friendly cartoon **character**.
 Chores recur on a schedule ("Brekkie, every day at 6:50 am"), anyone in the
 household can tick them off (tap a row, or tap an **NFC tag** stuck near the
@@ -28,15 +28,15 @@ Stack: **Flutter** (Riverpod codegen, GoRouter, google_fonts) ·
 Live at `https://api.haveyoufedthedog.com` - PocketBase behind **nginx +
 Cloudflare** on a Hetzner box (`dogbox-1`).
 
-| What          | Where                                                                                        |
-| ------------- | -------------------------------------------------------------------------------------------- |
-| SSH           | `ssh -i ~/.ssh/dogbox -p 2222 george@65.108.215.132`                                         |
-| PocketBase    | systemd `pocketbase@8090`, data in `/var/lib/pocketbase/8090/`                               |
-| Hooks         | `/var/lib/pocketbase/8090/pb_hooks/`                                                         |
-| Static files  | `/var/lib/pocketbase/8090/pb_public/` - served at the API domain root (`--publicDir`)         |
-| Worker        | systemd `worker`, `/opt/haveyoufedthedog/worker/`, listens on `127.0.0.1:3055`               |
-| Admin UI      | `https://api.haveyoufedthedog.com/_/`                                                        |
-| Logs          | `bash server/.deploy/view-logs.sh` or `journalctl -u pocketbase@8090 -f`                     |
+| What         | Where                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------- |
+| SSH          | `ssh -i ~/.ssh/dogbox -p 2222 george@65.108.215.132`                                  |
+| PocketBase   | systemd `pocketbase@8090`, data in `/var/lib/pocketbase/8090/`                        |
+| Hooks        | `/var/lib/pocketbase/8090/pb_hooks/`                                                  |
+| Static files | `/var/lib/pocketbase/8090/pb_public/` - served at the API domain root (`--publicDir`) |
+| Worker       | systemd `worker`, `/opt/haveyoufedthedog/worker/`, listens on `127.0.0.1:3055`        |
+| Admin UI     | `https://api.haveyoufedthedog.com/_/`                                                 |
+| Logs         | `bash server/.deploy/view-logs.sh` or `journalctl -u pocketbase@8090 -f`              |
 
 ### Collections (`server/pb_schema.json` is the canonical export)
 
@@ -148,6 +148,7 @@ non-overlapping scheduler, and the household-by-timezone cache:
    cron, and a leaked `.env` is revoked by deleting one service account.
    Without the `.env` the service still relays hook pushes - it just logs
    "[overdue] cron disabled" and sends no nudges.
+
 3. **Award cron** (`award-cron.js`) - once a minute, per distinct household
    timezone, checks whether that zone just crossed the Sunday award cutoff
    (18:00 local). When it has, it settles that zone's just-finished award
@@ -199,7 +200,7 @@ domain `haveyoufedthedog.com` is verified in Resend via Cloudflare DNS.
 
 PocketBase serves anything under `/var/lib/pocketbase/8090/pb_public/` at the
 API domain root. **Gotcha:** unlike `--hooksDir` (which defaults relative to
-`--dir`), PB's `--publicDir` defaults to the *binary* dir
+`--dir`), PB's `--publicDir` defaults to the _binary_ dir
 (`/opt/pocketbase/pb_public`), so the systemd unit passes
 `--publicDir=/var/lib/pocketbase/%i/pb_public` to keep data + hooks + public
 together. Files live in the repo at `server/pb_public/` and ship with
@@ -321,7 +322,7 @@ out. Every new bundle is reviewed (testing tracks clear faster than
 production; **Internal testing is review-free**). Google **re-signs** the
 bundle with the Play app signing key before delivery, so installed apps carry
 Google's cert, not your upload key - which is why `assetlinks.json` lists the
-*Play app signing key* SHA-256 and the credential association only verifies on
+_Play app signing key_ SHA-256 and the credential association only verifies on
 Play-distributed builds (see "Static files & the Android app association").
 
 ### Sideload (`.apk`) - quick hand-off
@@ -343,7 +344,7 @@ Play-installed copy and the assetlinks association won't match them.
 Google Drive). Gradle falls back to debug signing if `key.properties` is
 missing, so a keystore-less clone still builds - but Play rejects debug-signed
 bundles and those artifacts can't upgrade a properly-signed install. **Play App
-Signing is on**, so this keystore is your *upload* key (Google holds the real
+Signing is on**, so this keystore is your _upload_ key (Google holds the real
 app signing key): losing it is recoverable via an upload-key reset in Play
 Console - but it still signs your sideload APKs and is your identity to Google,
 so keep the Google Drive backup.
@@ -369,7 +370,7 @@ Codemagic UI (branch `main`, workflow `iOS Release`). The pipeline is
 upload to TestFlight. Generated `*.g.dart` are committed, so CI doesn't run
 build_runner.
 
-- **Bundle id** `com.haveyoufedthedog.app` (iOS) is deliberately *different* from
+- **Bundle id** `com.haveyoufedthedog.app` (iOS) is deliberately _different_ from
   the Android `applicationId` `com.haveyoufedthedog` (App Store and Play are
   independent registries); permanent now the App Store record exists.
 - **No Xcode locally:** edit everything under `ios/` (Info.plist, entitlements,
@@ -387,7 +388,7 @@ build_runner.
   **self-managed**: an RSA private key (`openssl genrsa 2048`, generated once) is
   fed in via `--certificate-key=@env:CERTIFICATE_PRIVATE_KEY` from the secure
   Codemagic variable group `ios_signing`, so `app-store-connect
-  fetch-signing-files ... --create` builds the cert *from that key* on the first
+fetch-signing-files ... --create` builds the cert _from that key_ on the first
   run and reuses the same cert on every build after - no certificate sprawl. That
   private key is the one irreplaceable artifact (Apple never stores it;
   provisioning profiles and the App ID regenerate freely), so it's backed up in
@@ -458,13 +459,13 @@ instructions when making a schema change.
     ```json
     {
       "lines": {
-        "allDone":     [{ "title": "Full and snoozing.", "body": "{name} had a great day 🦊" }],
-        "overdue":     [{ "title": "Still waiting…",     "body": "{name} keeps checking the bowl." }],
-        "upcoming":    [{ "title": "Ears up!",           "body": "{name} heard the cupboard." }],
-        "happyForNow": [{ "title": "All chill.",         "body": "{name} is having a relaxed one." }],
-        "none":        [{ "title": "Day off!",           "body": "{name} approves." }]
+        "allDone": [{ "title": "Full and snoozing.", "body": "{name} had a great day 🦊" }],
+        "overdue": [{ "title": "Still waiting…", "body": "{name} keeps checking the bowl." }],
+        "upcoming": [{ "title": "Ears up!", "body": "{name} heard the cupboard." }],
+        "happyForNow": [{ "title": "All chill.", "body": "{name} is having a relaxed one." }],
+        "none": [{ "title": "Day off!", "body": "{name} approves." }]
       },
-      "awardTitle":  "Best Floof 🦊",
+      "awardTitle": "Best Floof 🦊",
       "awardThanks": "Thanks for the snuggles last week!"
     }
     ```
@@ -472,16 +473,17 @@ instructions when making a schema change.
     - `lines` drives the subject-hero status line. The five mood keys are
       fixed: `allDone` (all today's chores logged), `overdue` (one is past
       its time), `upcoming` (due within 60 min), `happyForNow` (pending but
-      >60 min off), `none` (nothing due today). Each is a **list** of
-      `{title, body}` variants - one is picked at random per view, so add a
-      few to keep it fresh. `{name}` is replaced with the subject's name in
-      both fields.
+      > 60 min off), `none` (nothing due today). Each is a **list** of
+      > `{title, body}` variants - one is picked at random per view, so add a
+      > few to keep it fresh. `{name}` is replaced with the subject's name in
+      > both fields.
     - `awardTitle` / `awardThanks` are single strings shown on the weekly
       featured-award card. The Sunday award push names only the subject
       ("You've received an award from {subject}"), so the title never has to
       match anything server-side.
     - Bundled characters (dog/cat/etc.) ignore this field - their copy is
       hardcoded in the app.
+
 - `sort_order` orders rows within the remote block (bundled art always
   comes first in pickers). Slugs are forever - they're stored on user /
   household / subject records; never rename or reuse one.
@@ -526,7 +528,7 @@ Caveats:
   households that already applied it - members who picked that art fall
   back to defaults until re-enabled.
 - To revoke a single household, remove the pack from its `packs` field in
-  the admin UI. Note this only re-gates *selection* (the pickers): art a
+  the admin UI. Note this only re-gates _selection_ (the pickers): art a
   member already chose still resolves while the pack stays `enabled`, and a
   packed avatar a member can pick from another of their households remains
   selectable there. Unticking `enabled` is the only switch that hides art
@@ -555,8 +557,8 @@ Caveats:
   only one that redeemed the pack (disabling a pack still drops its rows
   from the fetch, so that art falls back). **Selection is gated** by
   `selectableCatalogProvider`: the pickers offer general art plus entitled
-  packs - pictures/characters by the *current* household's packs, avatars by
-  the *union* across all the user's households (avatars are personal, so
+  packs - pictures/characters by the _current_ household's packs, avatars by
+  the _union_ across all the user's households (avatars are personal, so
   they travel with the user).
   **Widgets must read art via `ref.watch(catalogProvider).lookupX(id)` and
   the models' `imageProvider` getters** - never the static registries or
@@ -577,7 +579,7 @@ Caveats:
 - **Awards & stats are pure derivations** of the last ~100 cached completions
   (`weeklyAwardsProvider`, `choreMeanTimesProvider`, leaderboard). No server
   aggregation. Weeks are Mon→Sun local; ties award nobody. **Exception:** the
-  per-subject character "Best Human" awards lock to the last *settled* week
+  per-subject character "Best Human" awards lock to the last _settled_ week
   (Sunday 18:00 → next Sunday 18:00, `WeekWindow.settledAward`) so they don't
   change hands mid-week, and that same window/winner logic is mirrored in the
   worker's `award-cron.js` for the weekly push - the two must stay in sync
@@ -590,7 +592,7 @@ Caveats:
 - **Theme conventions.** Knewave on `headline*` + AppBar titles, Plus Jakarta
   Sans everywhere else (keep `display*` on the body font or the time picker
   goes funky). Inputs are theme-level filled boxes - never style per-field;
-  labels via `LabeledField` (the label sits *outside* the field, so credential
+  labels via `LabeledField` (the label sits _outside_ the field, so credential
   autofill on login/signup rides on `autofillHints` + an `AutofillGroup` +
   `TextInput.finishAutofillContext()` on submit - see `login_form.dart`).
   Page background is a BL→TR gradient from
