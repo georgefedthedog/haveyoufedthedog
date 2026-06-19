@@ -32,11 +32,23 @@ class HouseholdMember {
 
   bool get isOwner => role == 'owner';
 
-  /// A "managed" (phone-less) member: a loginless `users` row the owner
+  /// A "managed" member: a loginless `users` row the owner
   /// created, logged for via "Act as". The View surfaces `users.managed`;
   /// SQLite bools can come back as bool/int/string, so accept all forms.
   bool get isManaged {
     final v = record.data['user_managed'];
     return v == true || v == 1 || v == '1';
   }
+
+  /// The current claim code (from `users.claim_code` via the view) - the person
+  /// enters this on Sign Up to take over the managed account. Empty when
+  /// claiming is closed. Members-scoped on the view, like the household invite
+  /// code.
+  String get claimCode {
+    final v = record.data['user_claim_code'];
+    return (v is String) ? v : '';
+  }
+
+  /// Claiming is currently open for this managed member.
+  bool get canBeClaimed => isManaged && claimCode.isNotEmpty;
 }

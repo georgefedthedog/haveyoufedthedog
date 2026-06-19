@@ -11,8 +11,8 @@ part 'acting_user_controller.g.dart';
 /// Who the device is currently logging chores *as* - the "Act as" identity.
 ///
 /// Holds a `users` id. Defaults to the signed-in user (you log as yourself),
-/// but an owner/helper can switch to any member of the current household so a
-/// phone-less member can mark their own chores on a borrowed phone. Whatever
+/// but an owner/helper can switch to a managed (loginless) member of the
+/// current household to log chores on their behalf. Whatever
 /// id this holds is what [completionActions] stamps onto `completed_by`.
 ///
 /// **Sticky for the session, never persisted.** `build` watches the active
@@ -37,8 +37,8 @@ class ActingUserController extends _$ActingUserController {
     return myUserId; // default: act as yourself
   }
 
-  /// Switch to acting as [userId]. Restricted to **managed (phone-less)**
-  /// members of the current household: a real member has their own phone, so
+  /// Switch to acting as [userId]. Restricted to **managed (loginless)**
+  /// members of the current household: a real member has their own login, so
   /// logging as them would only let someone game their standing. Real members
   /// keep self-only attribution.
   Future<void> setActing(String userId) async {
@@ -57,7 +57,7 @@ class ActingUserController extends _$ActingUserController {
       }
     }
     if (target == null || !target.isManaged) {
-      throw StateError('You can only act as a phone-less member.');
+      throw StateError('You can only act as a managed member.');
     }
     state = AsyncData(userId);
   }

@@ -53,9 +53,9 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 
 - **users** - PB auth collection. Extra fields: `name`, `avatar` (text id -
   a bundled-registry id or a `catalog_avatars` slug), `fcm_token` (this
-  device's push token), `managed` (bool - a phone-less "managed" member: a
-  loginless account an owner creates so someone without their own phone still
-  earns credit; minted by the `members.pb.js` hook, see below).
+  device's push token), `managed` (bool - a "managed" member: a loginless
+  account an owner creates so a member without their own login still earns
+  credit; minted by the `members.pb.js` hook, see below).
 - **households** - `name`, `picture` (text id into the house-picture registry),
   `invite_code` + `invites_open` (single shareable code, toggleable),
   `timezone` (IANA name, captured from the creator's phone; empty =
@@ -76,7 +76,7 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   timezone contract below.
 - **completions** - `subject`, `chore`, `completed_by`, `completed_at` (UTC),
   `source` (`button`/`nfc`). `completed_by` is the **acting identity** ("Act
-  as" lets a phone-owner log for a phone-less managed member), not necessarily
+  as" lets a signed-in member log for a managed member), not necessarily
   the caller - so the create/update/delete rules allow any member of the
   subject's household (relaxed from self-only) and act-as logging + undo work.
   `completed_by` is **optional and non-cascading** on purpose: deleting a user
@@ -112,7 +112,7 @@ server" below) - ask Claude for step-by-step instructions.
   asks the worker (`/verify-purchase`) to validate the receipt with the store,
   records the transaction in `purchases`, then appends the product's `grants`
   packs to `households.packs`. Idempotent on `store_transaction_id`.
-- **members.pb.js** + **\_members_helper.js** - owner-only phone-less member
+- **members.pb.js** + **\_members_helper.js** - owner-only managed member
   CRUD. `POST /api/custom/managed-member` `{householdId, name, avatar?}` mints
   a loginless `users` row (`managed:true`, synthetic
   `{id}@haveyoufedthedogyet.com` email) + joins it to the household;

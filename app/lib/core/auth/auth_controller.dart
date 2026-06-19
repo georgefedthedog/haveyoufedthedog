@@ -72,6 +72,30 @@ class AuthController extends _$AuthController {
     await pb.collection('users').authWithPassword(email, password);
   }
 
+  /// Converts a managed (loginless) member into a real login: posts the claim
+  /// code + chosen email/password to the public claim endpoint, then signs in.
+  /// The account keeps its user id, so the member's history / awards carry over.
+  /// Throws `ClientException` (404 bad/used code, 409 email already in use)
+  /// which the Sign-Up form surfaces inline.
+  Future<void> claimAccount({
+    required String code,
+    required String email,
+    required String password,
+    String? name,
+  }) async {
+    final pb = await ref.read(pocketbaseClientProvider.future);
+    final body = <String, dynamic>{
+      'code': code.trim().toUpperCase(),
+      'email': email.trim(),
+      'password': password,
+    };
+    if (name != null && name.trim().isNotEmpty) body['name'] = name.trim();
+    await pb.send('/api/custom/claim-account', method: 'POST', body: body);
+    // Not signed in during the claim - authenticate now (same id, history
+    // intact). The authStore.onChange listener in build() updates state.
+    await pb.collection('users').authWithPassword(email.trim(), password);
+  }
+
   Future<void> logout() async {
     final pb = await ref.read(pocketbaseClientProvider.future);
     pb.authStore.clear();

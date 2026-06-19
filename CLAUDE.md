@@ -112,13 +112,13 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   `BrowsePacksButton` under each picker (labelled per type - "Get more
   images / characters / avatars") → `features/store/` (the "Image packs"
   screen, which also hosts gift-code redemption).
-- **Phone-less members + "Act as":** a household member without a phone is a
-  *managed* user - a real but loginless `users` row (`managed: true`, synthetic
+- **Managed members + "Act as":** a household member without their own login is
+  a *managed* user - a real but loginless `users` row (`managed: true`, synthetic
   `{id}@haveyoufedthedogyet.com` email, random password) the owner creates,
   edits and deletes via the elevated `members.pb.js` hook (an owner can't
   create a membership for another user, nor edit a user they can't log in as).
   Because it's a real user row it flows through the leaderboard / awards /
-  avatar pipeline with no special-casing. Anyone with a phone can **Act as**
+  avatar pipeline with no special-casing. Any signed-in member can **Act as**
   one - the "Whose turn?" picker on the You tab - to log chores for them:
   `actingUserController` (`core/household/acting_user_controller.dart`) holds
   the identity completions are stamped with, defaulting to self, **sticky for
@@ -129,7 +129,7 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   the celebration name/avatar and the You-tab icon (the acting identity's
   avatar, red-ringed when it isn't you). Owner CRUD lives in
   `household_actions.dart` + `household_details_screen.dart`; managed members
-  carry a no-phone badge and are removed by the chore-style drag-to-bin or the
+  carry a managed-member badge and are removed by the chore-style drag-to-bin or the
   Edit-member screen's trash can.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
@@ -140,7 +140,7 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
 - Chore times are **wall-clock integers** (`hour`, `minute`) with no timezone;
   `weekday_mask` is Mon=1 … Sun=64 (`1 << (weekday-1)`). `completed_at` is UTC.
 - `completions.completed_by` is the **acting identity**, not necessarily the
-  signed-in user - "Act as" lets a phone-owner log for a phone-less managed
+  signed-in user - "Act as" lets a signed-in member log for a managed
   member (see Architecture). Every stat keys off `completed_by`, so a managed
   member earns credit/awards like anyone. The `completions` create/update/
   delete rules were relaxed from self-only to **"any member of the subject's

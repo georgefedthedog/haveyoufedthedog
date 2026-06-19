@@ -253,7 +253,7 @@ class HouseholdActions {
     _ref.invalidate(householdMembersControllerProvider(householdId));
   }
 
-  /// Creates a "managed" (phone-less) member in [householdId] - a loginless
+  /// Creates a "managed" member in [householdId] - a loginless
   /// `users` row that earns credit and awards, logged for via "Act as". The
   /// owner-only `/api/custom/managed-member` hook mints the user + joins it
   /// to the household (an owner can't do either directly under the collection
@@ -311,6 +311,29 @@ class HouseholdActions {
       method: 'DELETE',
     );
     _ref.invalidate(householdMembersControllerProvider(householdId));
+  }
+
+  /// Opens or closes "claiming" on a managed member - the way the person takes
+  /// over the loginless account on Sign Up. Mirrors [setInvitesOpen]: opening
+  /// generates a fresh code (same `XXXX-YYYY` format as a household invite) and
+  /// stores it via the owner-only hook; closing clears it. The current code is
+  /// read off the members view (`HouseholdMember.claimCode`), so we invalidate
+  /// the list to refresh it. Returns the new code when opening, null on close.
+  Future<String?> setClaimOpen({
+    required String userId,
+    required String householdId,
+    required bool open,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+    final code = open ? _generateInviteCode() : '';
+    await pb.send<Map<String, dynamic>>(
+      '/api/custom/managed-member/$userId/claim-code',
+      method: 'POST',
+      body: {'code': code},
+    );
+    _ref.invalidate(householdMembersControllerProvider(householdId));
+    return open ? code : null;
   }
 
   /// Opens or closes the invite door on a household.

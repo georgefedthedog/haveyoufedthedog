@@ -14,9 +14,18 @@
 ///     (`users.updateRule` is `id = @request.auth.id`, and nobody can log in as
 ///     a managed user).
 ///
-/// POST   /api/custom/managed-member            { householdId, name, avatar? }
-/// PATCH  /api/custom/managed-member/{userId}    { name?, avatar? }
+/// A managed member can later be **claimed** - converted into a real login on
+/// the same user id, so all their history/awards carry over. The owner sets a
+/// one-time claim code; the person enters it on Sign Up with their own email +
+/// password (see claim-account below).
+///
+/// POST   /api/custom/managed-member                       { householdId, name, avatar? }
+/// PATCH  /api/custom/managed-member/{userId}              { name?, avatar? }
 /// DELETE /api/custom/managed-member/{userId}
+/// POST   /api/custom/managed-member/{userId}/claim-code   { code }   (owner) open / close
+///        (empty code closes; the current code is read off the members view)
+/// POST   /api/custom/claim-account   { code, email, password, name? }   (public -
+///        the claimer isn't signed in yet, so the one-time code is the credential)
 
 // --- create -----------------------------------------------------------------
 routerAdd("POST", "/api/custom/managed-member", e => {
@@ -124,4 +133,76 @@ routerAdd("DELETE", "/api/custom/managed-member/{userId}", e => {
 
   $app.delete(target);
   return e.json(200, { userId: target.id, deleted: true });
+});
+
+// --- open / close claiming (owner) -------------------------------------------
+// Sets the claim code on a managed member: the app sends a fresh code (same
+// XXXX-YYYY format as a household invite) to open claiming, or "" to close it
+// (the old code then stops working). One write, mirroring setInvitesOpen; the
+// current code is read off the household_member_details view, not here.
+routerAdd("POST", "/api/custom/managed-member/{userId}/claim-code", e => {
+  const { ownedManagedTarget } = require(`${__hooks}/_members_helper.js`);
+  const target = ownedManagedTarget(e);
+  if (!target) return; // guard already wrote the response
+
+  const info = e.requestInfo();
+  const body = (info && info.body) || {};
+  const code = String(body.code || "").trim().toUpperCase();
+
+  target.set("claim_code", code);
+  $app.save(target);
+
+  return e.json(200, { userId: target.id, code: code });
+});
+
+// --- claim account -----------------------------------------------------------
+// PUBLIC (the claimer isn't signed in yet - the one-time code is the credential).
+// Converts the managed user the code belongs to into a real login: sets the
+// chosen email + password, clears `managed` and the code. The user id is
+// unchanged, so the member's history / awards / household membership carry over
+// with no migration. A failed save (almost always the unique-email index)
+// leaves the account untouched and still claimable.
+routerAdd("POST", "/api/custom/claim-account", e => {
+  const info = e.requestInfo();
+  const body = (info && info.body) || {};
+  const code = String(body.code || "").trim().toUpperCase();
+  const email = String(body.email || "").trim();
+  const password = String(body.password || "");
+  const name = String(body.name || "").trim();
+
+  if (!code) return e.json(400, { message: "A claim code is required." });
+  if (!email) return e.json(400, { message: "An email is required." });
+  if (password.length < 8) {
+    return e.json(400, { message: "Password must be at least 8 characters." });
+  }
+
+  // Resolve the managed account the code belongs to. A non-empty code never
+  // matches a regular user (managed = false, blank claim_code).
+  let user;
+  try {
+    user = $app.findFirstRecordByFilter(
+      "users",
+      "claim_code = {:code} && managed = true",
+      { code: code },
+    );
+  } catch (_) {
+    return e.json(404, { message: "That claim code isn't valid." });
+  }
+  if (!user) return e.json(404, { message: "That claim code isn't valid." });
+
+  user.set("email", email);
+  user.set("emailVisibility", false);
+  user.set("verified", true);
+  user.set("managed", false);
+  user.set("claim_code", "");
+  if (name) user.set("name", name);
+  user.setPassword(password);
+  try {
+    $app.save(user);
+  } catch (err) {
+    console.warn("[claim-account] save failed:", err);
+    return e.json(409, { message: "That email is already in use." });
+  }
+
+  return e.json(200, { userId: user.id });
 });

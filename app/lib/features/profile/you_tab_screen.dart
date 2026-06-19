@@ -225,8 +225,8 @@ class _AccountActionsCardState extends State<_AccountActionsCard> {
   }
 }
 
-/// "Act as" picker: lets you log chores as a phone-less (managed) member of
-/// the current household, on this phone. Only managed members can be acted as
+/// "Act as" picker: lets you log chores as a managed (loginless) member of
+/// the current household, on this device. Only managed members can be acted as
 /// - real members keep self-only attribution - so the card hides entirely
 /// when the household has none. A banner + the You tab's red ring are the cue
 /// that you're still acting as someone else.
@@ -290,7 +290,7 @@ class _ActAsCard extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Log chores for someone without their own phone',
+          'Log chores on behalf of another member',
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall?.copyWith(
             color: scheme.onSurfaceVariant,
@@ -343,8 +343,7 @@ class _ActAsCard extends ConsumerWidget {
                       avatar: catalog.lookupAvatar(auth?.avatar),
                       label: 'You',
                       selected: !actingIsOther,
-                      onTap: () =>
-                          _run(context, () => notifier.revertToSelf()),
+                      onTap: () => _run(context, () => notifier.revertToSelf()),
                     ),
                     for (final m in managed)
                       _ActAsChip(

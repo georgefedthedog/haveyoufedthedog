@@ -141,6 +141,21 @@
         "type": "bool"
       },
       {
+        "autogeneratePattern": "",
+        "help": "Single rotating claim code to allow managed members to claim a dummy user account. Cleared when managed is false.",
+        "hidden": false,
+        "id": "text958048188",
+        "max": 32,
+        "min": 0,
+        "name": "claim_code",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created",
@@ -2460,7 +2475,7 @@
         "collectionId": "pbc_households",
         "help": "",
         "hidden": false,
-        "id": "_clone_nDny",
+        "id": "_clone_VA4g",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "household",
@@ -2474,7 +2489,7 @@
         "collectionId": "_pb_users_auth_",
         "help": "",
         "hidden": false,
-        "id": "_clone_CFLk",
+        "id": "_clone_ZPwO",
         "maxSelect": 1,
         "minSelect": 1,
         "name": "user",
@@ -2486,7 +2501,7 @@
       {
         "help": "",
         "hidden": false,
-        "id": "_clone_lsbL",
+        "id": "_clone_YSls",
         "maxSelect": 1,
         "name": "role",
         "presentable": false,
@@ -2497,7 +2512,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_pvRY",
+        "id": "_clone_uVXY",
         "name": "created",
         "onCreate": true,
         "onUpdate": false,
@@ -2507,7 +2522,7 @@
       },
       {
         "hidden": false,
-        "id": "_clone_leVL",
+        "id": "_clone_0NXG",
         "name": "updated",
         "onCreate": true,
         "onUpdate": true,
@@ -2519,7 +2534,7 @@
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "_clone_vKme",
+        "id": "_clone_3U9h",
         "max": 255,
         "min": 0,
         "name": "user_name",
@@ -2534,7 +2549,7 @@
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "_clone_ZcHK",
+        "id": "_clone_TTQO",
         "max": 40,
         "min": 0,
         "name": "user_avatar",
@@ -2548,16 +2563,31 @@
       {
         "help": "",
         "hidden": false,
-        "id": "_clone_ZQBV",
+        "id": "_clone_KgQ4",
         "name": "user_managed",
         "presentable": false,
         "required": false,
         "system": false,
         "type": "bool"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "Single rotating claim code to allow managed members to claim a dummy user account. Cleared when managed is false.",
+        "hidden": false,
+        "id": "_clone_1Ftr",
+        "max": 32,
+        "min": 0,
+        "name": "user_claim_code",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
       }
     ],
     "indexes": [],
     "system": false,
-    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name,\n  u.avatar\t   AS user_avatar,\n  u.managed\t   AS user_managed\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
+    "viewQuery": "SELECT\n  hm.id        AS id,\n  hm.household AS household,\n  hm.user      AS user,\n  hm.role      AS role,\n  hm.created   AS created,\n  hm.updated   AS updated,\n  u.name       AS user_name,\n  u.avatar\t   AS user_avatar,\n  u.managed\t   AS user_managed,\n  u.claim_code AS user_claim_code\nFROM household_members hm\nLEFT JOIN users u ON u.id = hm.user"
   }
 ]

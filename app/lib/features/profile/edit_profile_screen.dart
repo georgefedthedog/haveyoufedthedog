@@ -8,6 +8,7 @@ import '../../core/profile/avatars.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
+import '../../widgets/confirm_by_typing.dart';
 import '../../widgets/labeled_field.dart';
 import '../store/browse_packs_button.dart';
 import 'avatar_picker.dart';
@@ -68,7 +69,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   /// Type-to-confirm, then delete. On success the authStore clears and the
   /// router's signedOut redirect takes over - no manual navigation.
   Future<void> _deleteAccount() async {
-    final confirmed = await _confirmAccountDeletion(context);
+    final confirmed = await confirmByTyping(
+      context,
+      title: 'Delete your account?',
+      body:
+          'This permanently deletes your account and signs you out. '
+          'Chores you completed stay with your household, without '
+          'your name on them. Households left with nobody in them '
+          'are deleted entirely.\n\nThis cannot be undone.',
+      actionLabel: 'Delete forever',
+    );
     if (!confirmed || !mounted) return;
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
@@ -234,84 +244,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ),
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
-    );
-  }
-}
-
-/// Account deletion is the gravest action in the app, so it gets a stronger
-/// confirm than the usual destructive dialog: the delete button stays
-/// disabled until the user types DELETE.
-Future<bool> _confirmAccountDeletion(BuildContext context) async {
-  final result = await showDialog<bool>(
-    context: context,
-    builder: (_) => const _DeleteAccountDialog(),
-  );
-  return result ?? false;
-}
-
-/// Stateful so the text controller's dispose follows the widget lifecycle -
-/// the dialog rebuilds during its exit animation, after showDialog's future
-/// has already resolved, so disposing at the call site blows up.
-class _DeleteAccountDialog extends StatefulWidget {
-  const _DeleteAccountDialog();
-
-  @override
-  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
-}
-
-class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
-  final _typed = TextEditingController();
-
-  @override
-  void dispose() {
-    _typed.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return AlertDialog(
-      title: const Text('Delete your account?'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'This permanently deletes your account and signs you out. '
-            'Chores you completed stay with your household, without '
-            'your name on them. Households left with nobody in them '
-            'are deleted entirely.\n\n'
-            'This cannot be undone.',
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _typed,
-            autofocus: true,
-            textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              hintText: 'Type DELETE to confirm',
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: scheme.error,
-            foregroundColor: scheme.onError,
-          ),
-          onPressed: _typed.text.trim().toUpperCase() == 'DELETE'
-              ? () => Navigator.pop(context, true)
-              : null,
-          child: const Text('Delete forever'),
-        ),
-      ],
     );
   }
 }
