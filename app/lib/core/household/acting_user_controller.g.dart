@@ -31,13 +31,13 @@ final actingMemberProvider =
 // ignore: unused_element
 typedef ActingMemberRef = AutoDisposeFutureProviderRef<HouseholdMember?>;
 String _$actingUserControllerHash() =>
-    r'463b46a6f153f2e4171ebe3a971602ca0469683f';
+    r'51d8dac9d60a49d3201b5d412bbb9f83422a1f6d';
 
 /// Who the device is currently logging chores *as* - the "Act as" identity.
 ///
 /// Holds a `users` id. Defaults to the signed-in user (you log as yourself),
-/// but an owner/helper can switch to any member of the current household so a
-/// phone-less member can mark their own chores on a borrowed phone. Whatever
+/// but an owner/helper can switch to a managed (loginless) member of the
+/// current household to log chores on their behalf. Whatever
 /// id this holds is what [completionActions] stamps onto `completed_by`.
 ///
 /// **Sticky for the session, never persisted.** `build` watches the active
