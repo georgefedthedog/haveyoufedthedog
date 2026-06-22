@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lost the scent - Have You Fed The Dog?</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="/img/app_icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Knewave&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --cream-dark: #f0e2ca;
+        --cream-light: #fffbf4;
+        --card: #ffffff;
+        --violet: #6b4fe0;
+        --violet-soft: #e8e4ff;
+        --ink: #2a2530;
+        --ink-soft: #6a6373;
+        --outline: #e0d8cb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        color: var(--ink);
+        background: linear-gradient(to top right, var(--cream-dark), var(--cream-light));
+      }
+      .card {
+        width: 100%;
+        max-width: 440px;
+        background: var(--card);
+        border: 1px solid var(--outline);
+        border-radius: 24px;
+        padding: 40px 32px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(42, 37, 48, 0.12);
+      }
+      .dog { width: 168px; height: auto; margin-bottom: 4px; filter: drop-shadow(0 8px 12px rgba(42, 37, 48, 0.18)); }
+      .err {
+        font-family: "Knewave", cursive;
+        font-weight: 400;
+        font-size: 64px;
+        line-height: 1;
+        color: var(--violet);
+        margin: 8px 0 0;
+        letter-spacing: 2px;
+      }
+      h1 {
+        font-family: "Knewave", cursive;
+        font-weight: 400;
+        font-size: 28px;
+        margin: 12px 0 4px;
+        line-height: 1.1;
+      }
+      p { color: var(--ink-soft); font-size: 15px; line-height: 1.5; margin: 12px 0 0; }
+      a.home {
+        display: inline-block;
+        margin-top: 28px;
+        background: var(--violet);
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 999px;
+        box-shadow: 0 8px 20px rgba(107, 79, 224, 0.35);
+      }
+      a.home:hover { filter: brightness(1.05); }
+      @media (prefers-color-scheme: dark) {
+        body { background: #1a1620; color: #ece6f0; }
+        .card { background: #262031; border-color: #3b3447; box-shadow: none; }
+        p { color: #aaa1b5; }
+        .err { color: #c9bcff; }
+        a.home { box-shadow: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <img class="dog" src="/img/dog_sad.png" alt="A sad dog" />
+      <p class="err">404</p>
+      <h1>This page wasn't fed</h1>
+      <p>
+        We sniffed around but couldn't find what you were looking for. The page
+        may have moved, or the link might be off the scent.
+      </p>
+      <a class="home" href="/">Back to safety</a>
+    </main>
+  </body>
+</html>
