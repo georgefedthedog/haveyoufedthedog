@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claim your account - Have You Fed The Dog?</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="img/app_icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Knewave&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --cream-dark: #f0e2ca;
+        --cream-light: #fffbf4;
+        --card: #ffffff;
+        --violet: #6b4fe0;
+        --violet-soft: #e8e4ff;
+        --ink: #2a2530;
+        --ink-soft: #6a6373;
+        --outline: #e0d8cb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+        color: var(--ink);
+        background: linear-gradient(to top right, var(--cream-dark), var(--cream-light));
+      }
+      .card {
+        width: 100%;
+        max-width: 440px;
+        background: var(--card);
+        border: 1px solid var(--outline);
+        border-radius: 24px;
+        padding: 40px 32px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(42, 37, 48, 0.12);
+      }
+      img.logo { width: 132px; height: auto; transform: rotate(-2deg); }
+      h1 {
+        font-family: "Knewave", cursive;
+        font-weight: 400;
+        font-size: 32px;
+        margin: 16px 0 4px;
+        line-height: 1.1;
+      }
+      p { color: var(--ink-soft); font-size: 15px; line-height: 1.5; margin: 12px 0; }
+      .code {
+        font-family: "Knewave", cursive;
+        letter-spacing: 4px;
+        font-size: 30px;
+        color: var(--violet);
+        background: var(--violet-soft);
+        border-radius: 16px;
+        padding: 16px;
+        margin: 20px 0 8px;
+        word-break: break-all;
+      }
+      button.copy {
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--violet);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px 8px;
+      }
+      .steps { text-align: left; margin: 24px auto 0; max-width: 340px; }
+      .steps li { color: var(--ink-soft); font-size: 14px; margin: 8px 0; }
+      a.home { display: inline-block; margin-top: 24px; color: var(--violet); font-weight: 700; font-size: 14px; text-decoration: none; }
+      a.home:hover { text-decoration: underline; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #1a1620; color: #ece6f0; }
+        .card { background: #262031; border-color: #3b3447; box-shadow: none; }
+        p, .steps li { color: #aaa1b5; }
+        .code { color: #c9bcff; background: #1a1620; }
+        button.copy, a.home { color: #c9bcff; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <img class="logo" src="img/logo.png" alt="Have You Fed The Dog?" />
+      <h1>Claim your account</h1>
+      <p>
+        If you have the app installed, this link should have opened it to the
+        sign-up screen with your claim code filled in. If not, open
+        <strong>Have You Fed The Dog?</strong> and sign up with this claim code:
+      </p>
+      <div class="code" id="code">—</div>
+      <button class="copy" id="copy" hidden>Copy code</button>
+      <ol class="steps">
+        <li>Open the Have You Fed The Dog? app.</li>
+        <li>Tap <strong>Sign up</strong>, then <strong>“I have a claim code”</strong>.</li>
+        <li>Enter the code above and tap <strong>Claim account</strong>.</li>
+      </ol>
+      <a class="home" href="/">← Back to haveyoufedthedog.com</a>
+    </main>
+    <script>
+      (function () {
+        var code = new URLSearchParams(location.search).get("code");
+        var el = document.getElementById("code");
+        var btn = document.getElementById("copy");
+        if (code) {
+          code = code.trim().toUpperCase();
+          el.textContent = code;
+          document.title = "Claim with code " + code + " - Have You Fed The Dog?";
+          if (navigator.clipboard) {
+            btn.hidden = false;
+            btn.addEventListener("click", function () {
+              navigator.clipboard.writeText(code).then(function () {
+                btn.textContent = "Copied!";
+                setTimeout(function () { btn.textContent = "Copy code"; }, 1500);
+              });
+            });
+          }
+        } else {
+          el.textContent = "(no code in link)";
+        }
+      })();
+    </script>
+  </body>
+</html>

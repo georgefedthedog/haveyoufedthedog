@@ -46,6 +46,21 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- App Links: tapping a https://haveyoufedthedog.com/join or
+                 /claim link opens the app straight to the right screen. The
+                 app_links plugin delivers the intent to Dart (DeepLinkHandler);
+                 no Kotlin change needed. autoVerify pairs with the
+                 handle_all_urls statement in the website's assetlinks.json -
+                 which must be served from the haveyoufedthedog.com host and
+                 list the Play app-signing key (a sideload won't verify). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="haveyoufedthedog.com"/>
+                <data android:pathPrefix="/join"/>
+                <data android:pathPrefix="/claim"/>
+            </intent-filter>
             <!-- Launch the app when a tag we filter for is tapped, even if
                  the app is closed. MainActivity.kt picks up the intent and
                  hands the tag id off to Dart via MethodChannel. -->

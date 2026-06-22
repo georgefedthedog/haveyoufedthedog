@@ -495,12 +495,15 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     }
   }
 
-  /// Opens the system share sheet with the invite code. The sheet's own
-  /// "Copy" action covers the old copy-to-clipboard behaviour.
+  /// Opens the system share sheet with a tappable join link (the app opens
+  /// straight to the Join form with the code pre-filled). The literal code is
+  /// kept in the text as a fallback for manual entry. The sheet's own "Copy"
+  /// action covers the old copy-to-clipboard behaviour.
   Future<void> _share(String code) async {
     await Share.share(
-      'Join our household on Have You Fed The Dog? '
-      'Open the app and enter invite code $code',
+      'Join our household on Have You Fed The Dog?\n'
+      'https://haveyoufedthedog.com/join?code=$code\n\n'
+      "If the link doesn't open the app, open it and enter invite code $code",
       subject: 'Have You Fed The Dog? - household invite',
     );
   }
@@ -1164,10 +1167,14 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
     }
   }
 
+  /// Shares a tappable claim link (opens the app to a pre-filled Sign-up in
+  /// claim mode), with the literal code kept as a manual fallback.
   Future<void> _shareClaim(String code) async {
     await Share.share(
-      'Claim your account on Have You Fed The Dog? Open the app, tap Sign up, '
-      'and enter claim code $code',
+      'Claim your account on Have You Fed The Dog?\n'
+      'https://haveyoufedthedog.com/claim?code=$code\n\n'
+      "If the link doesn't open the app, open it, tap Sign up, and enter "
+      'claim code $code',
       subject: 'Have You Fed The Dog? - claim your account',
     );
   }

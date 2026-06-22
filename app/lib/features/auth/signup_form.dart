@@ -10,7 +10,12 @@ import '../../widgets/password_field.dart';
 /// Display name + email + password + submit. On success, PB signs the new
 /// user in immediately; the router redirect handles the navigation.
 class SignupForm extends ConsumerStatefulWidget {
-  const SignupForm({super.key});
+  const SignupForm({super.key, this.initialClaimCode});
+
+  /// Claim code carried in from a `…/claim?code=` deep link. When present the
+  /// form opens with the claim section expanded and the code filled, switching
+  /// it into "take over a managed member" mode.
+  final String? initialClaimCode;
 
   @override
   ConsumerState<SignupForm> createState() => _SignupFormState();
@@ -28,6 +33,31 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   /// A non-empty claim code switches this form from "create a new account" to
   /// "take over an existing managed member".
   bool get _isClaim => _claimCtrl.text.trim().isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    final code = widget.initialClaimCode?.trim() ?? '';
+    if (code.isNotEmpty) {
+      // Pre-fill from the deep link before the first build - no setState.
+      _claimCtrl.text = code;
+      _claimExpanded = true;
+    }
+  }
+
+  @override
+  void didUpdateWidget(SignupForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A claim link can arrive while this form is already mounted (the user was
+    // on the Sign-up tab). initState won't re-run, so apply it here.
+    final code = widget.initialClaimCode?.trim() ?? '';
+    if (code.isNotEmpty && code != (oldWidget.initialClaimCode?.trim() ?? '')) {
+      setState(() {
+        _claimCtrl.text = code;
+        _claimExpanded = true;
+      });
+    }
+  }
 
   @override
   void dispose() {

@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'join_household_form.dart';
 
-/// Standalone "Join by invite code" screen, reachable from the picker.
+/// Standalone "Join by invite code" screen, reachable from the picker or from
+/// a shared join deep link (which pre-fills [initialCode]).
 class JoinHouseholdScreen extends StatelessWidget {
-  const JoinHouseholdScreen({super.key});
+  const JoinHouseholdScreen({super.key, this.initialCode});
+
+  /// Invite code carried in from a `…/join?code=` deep link, pre-filled into
+  /// the form. Null when reached the normal way (from the picker).
+  final String? initialCode;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Join household')),
-      body: const SafeArea(child: JoinHouseholdForm()),
+      body: SafeArea(child: JoinHouseholdForm(initialCode: initialCode)),
     );
   }
 }

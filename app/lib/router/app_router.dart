@@ -64,7 +64,9 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.householdJoin,
-        builder: (context, state) => const JoinHouseholdScreen(),
+        builder: (context, state) => JoinHouseholdScreen(
+          initialCode: state.uri.queryParameters['code'],
+        ),
       ),
       GoRoute(
         path: Routes.householdDetailsPattern,

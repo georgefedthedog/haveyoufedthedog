@@ -7,7 +7,10 @@ import '../../widgets/labeled_field.dart';
 
 /// Invite code input + Join button. On success the router redirects.
 class JoinHouseholdForm extends ConsumerStatefulWidget {
-  const JoinHouseholdForm({super.key});
+  const JoinHouseholdForm({super.key, this.initialCode});
+
+  /// Pre-filled invite code from a shared join deep link, if any.
+  final String? initialCode;
 
   @override
   ConsumerState<JoinHouseholdForm> createState() =>
@@ -16,7 +19,9 @@ class JoinHouseholdForm extends ConsumerStatefulWidget {
 
 class _JoinHouseholdFormState extends ConsumerState<JoinHouseholdForm> {
   final _formKey = GlobalKey<FormState>();
-  final _codeCtrl = TextEditingController();
+  late final _codeCtrl = TextEditingController(
+    text: widget.initialCode?.trim() ?? '',
+  );
   bool _busy = false;
 
   @override

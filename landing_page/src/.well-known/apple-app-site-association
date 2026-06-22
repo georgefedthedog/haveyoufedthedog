@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["4QZTR7WA3L.com.haveyoufedthedog.app"],
+        "components": [
+          { "/": "/join", "comment": "Join a household" },
+          { "/": "/join/*", "comment": "Join a household (with params)" },
+          { "/": "/claim", "comment": "Claim a managed member" },
+          { "/": "/claim/*", "comment": "Claim a managed member (with params)" }
+        ]
+      }
+    ]
+  }
+}
