@@ -4,6 +4,12 @@
 	<dict>
 		<key>NFCReaderUsageDescription</key>
 		<string>Scan NFC tags placed near your tasks (for example by the dog food) to log a chore with a tap.</string>
+		<!-- Turn OFF Flutter's built-in deep linking so it doesn't feed the
+		     https://… Universal Link URL to GoRouter (no matching route ->
+		     "Page Not Found"). The app_links plugin handles these separately
+		     - see DeepLinkHandler. -->
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>

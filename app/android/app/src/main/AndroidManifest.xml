@@ -42,6 +42,14 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- Turn OFF Flutter's built-in deep linking so it doesn't feed the
+                 https://… App Link URL to GoRouter (which has no route for it,
+                 and would show "Page Not Found"). The app_links plugin handles
+                 these links separately - see DeepLinkHandler. -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false"
+              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

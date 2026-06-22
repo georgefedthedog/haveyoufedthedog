@@ -27,8 +27,14 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _nameFocus = FocusNode();
   bool _busy = false;
   bool _claimExpanded = false;
+
+  /// True when the claim code was pre-filled from a deep link. Drives focus
+  /// to the Name box (the code's already there, so the name is what's next)
+  /// and suppresses the claim field's own autofocus.
+  bool _claimFromLink = false;
 
   /// A non-empty claim code switches this form from "create a new account" to
   /// "take over an existing managed member".
@@ -42,6 +48,8 @@ class _SignupFormState extends ConsumerState<SignupForm> {
       // Pre-fill from the deep link before the first build - no setState.
       _claimCtrl.text = code;
       _claimExpanded = true;
+      _claimFromLink = true;
+      _focusNameSoon();
     }
   }
 
@@ -55,8 +63,17 @@ class _SignupFormState extends ConsumerState<SignupForm> {
       setState(() {
         _claimCtrl.text = code;
         _claimExpanded = true;
+        _claimFromLink = true;
       });
+      _focusNameSoon();
     }
+  }
+
+  /// Move focus to the Name box once the pre-filled fields have laid out.
+  void _focusNameSoon() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _nameFocus.requestFocus();
+    });
   }
 
   @override
@@ -65,6 +82,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _nameFocus.dispose();
     super.dispose();
   }
 
@@ -124,6 +142,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
               label: 'Your name',
               child: TextFormField(
                 controller: _nameCtrl,
+                focusNode: _nameFocus,
                 decoration: InputDecoration(
                   hintText: _isClaim
                       ? 'Leave blank to keep your current name'
@@ -197,7 +216,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                         label: 'Claim code',
                         child: TextFormField(
                           controller: _claimCtrl,
-                          autofocus: true,
+                          // Manual "I have a claim code" expansion focuses here
+                          // to type; a deep-link pre-fill focuses Name instead.
+                          autofocus: !_claimFromLink,
                           textCapitalization: TextCapitalization.characters,
                           textInputAction: TextInputAction.done,
                           decoration: const InputDecoration(

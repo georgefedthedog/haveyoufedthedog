@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/auth/auth_controller.dart';
 import '../core/deeplink/pending_deep_link.dart';
 import '../core/notifications/fcm_token_sync.dart';
 import '../core/store/purchase_controller.dart';
+import '../features/deeplink/claim_signed_in_dialog.dart';
 import '../features/deeplink/deep_link_handler.dart';
 import '../features/nfc/nfc_launch_handler.dart';
 import '../router/app_router.dart';
 import '../router/routes.dart';
 import '../router/routing_phase.dart';
 import '../widgets/app_backdrop.dart';
+import '../widgets/confirm_by_typing.dart';
 import 'theme.dart';
 
 /// Global key the [NfcLaunchHandler] uses to surface snackbars when the
@@ -27,6 +30,9 @@ class AppRoot extends ConsumerStatefulWidget {
 class _AppRootState extends ConsumerState<AppRoot> {
   NfcLaunchHandler? _nfcLaunch;
   DeepLinkHandler? _deepLink;
+
+  /// Guards against re-entering the signed-in claim dialog while it's open.
+  bool _handlingClaim = false;
 
   @override
   void initState() {
@@ -63,28 +69,66 @@ class _AppRootState extends ConsumerState<AppRoot> {
         return; // wait - consumed downstream or after authentication
       case RoutingPhase.needsToPick:
       case RoutingPhase.ready:
-        final notifier = ref.read(pendingDeepLinkControllerProvider.notifier);
         switch (pending.kind) {
           case DeepLinkKind.join:
             ref.read(appRouterProvider).push(_joinLocation(pending.code));
+            ref.read(pendingDeepLinkControllerProvider.notifier).clear();
           case DeepLinkKind.claim:
-            // TODO(deeplink-claim-ux): a long auto-dismissing snackbar is the
-            // wrong surface for this much text. Revisit - likely a persistent
-            // dialog with the delete-and-start-over vs. join-link options.
-            rootMessengerKey.currentState?.showSnackBar(
-              const SnackBar(
-                showCloseIcon: true,
-                duration: Duration(seconds: 6),
-                content: Text(
-                  "You're already signed in. To claim an account you must sign up with the claim code. If you have "
-                  "just created this account and have no other households it may be best to delete this account and "
-                  "start over with the claim code sign up link. If you need to keep this account, ask the household "
-                  "owner to send you the link to join the household instead.",
-                ),
-              ),
-            );
+            // Claiming is a fresh sign-up that takes over a managed member, so
+            // it can't apply to an account you're already in. The handler owns
+            // the pending link from here (kept across a delete-and-claim so the
+            // signed-out flow can finish the job).
+            _handleSignedInClaim();
         }
+    }
+  }
+
+  /// A signed-in user tapped a claim link. Explain that accounts can't be
+  /// merged, then either keep their account (drop the link) or delete-and-
+  /// claim: a type-to-confirm delete, after which the app drops to signed-out
+  /// and `AuthLandingScreen` opens the sign-up pre-filled with the still-
+  /// pending claim code.
+  Future<void> _handleSignedInClaim() async {
+    if (_handlingClaim) return;
+    _handlingClaim = true;
+    final notifier = ref.read(pendingDeepLinkControllerProvider.notifier);
+    try {
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx == null) {
         notifier.clear();
+        return;
+      }
+      final wantsDelete = await showClaimWhileSignedInDialog(ctx);
+      if (!wantsDelete || !ctx.mounted) {
+        notifier.clear(); // keep their account
+        return;
+      }
+      final confirmed = await confirmByTyping(
+        ctx,
+        title: 'Delete your account?',
+        body:
+            'This permanently deletes your account and signs you out, then '
+            'opens the claim sign-up. Chores you completed stay with your '
+            'household, without your name on them.\n\nThis cannot be undone.',
+        actionLabel: 'Delete forever',
+      );
+      if (!confirmed) {
+        notifier.clear(); // backed out - don't let it resurface
+        return;
+      }
+      // Keep the pending claim: deletion drops us to signedOut and
+      // AuthLandingScreen consumes it (sign-up, pre-filled).
+      await ref.read(authControllerProvider.notifier).deleteAccount();
+    } catch (e) {
+      notifier.clear();
+      rootMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          content: Text('Could not delete account: $e'),
+        ),
+      );
+    } finally {
+      _handlingClaim = false;
     }
   }
 

@@ -29,6 +29,11 @@ import 'routes.dart';
 
 part 'app_router.g.dart';
 
+/// Root navigator key. Lets code outside the widget tree (e.g. AppRoot's
+/// deep-link handling) show dialogs over whatever's currently on screen via
+/// `rootNavigatorKey.currentContext`.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 /// The app router. Built once; reacts to routing-phase changes only.
 @Riverpod(keepAlive: true)
 GoRouter appRouter(Ref ref) {
@@ -36,6 +41,7 @@ GoRouter appRouter(Ref ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: Routes.splash,
     refreshListenable: refresh,
     redirect: (context, state) => _redirect(ref, state.matchedLocation),
