@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Muddy paws, happy heart.", "body": "{name} had a proper adventure 🐶" },
+      { "title": "Worn out and well fed.", "body": "{name} ran itself ragged today." },
+      { "title": "Best day ever (again).", "body": "{name} thinks you're the best." }
+    ],
+    "overdue": [
+      { "title": "Back from the puddles.", "body": "{name} is hungry and a bit muddy." },
+      { "title": "Pacing by the door.", "body": "{name} wants feeding, then OUT 🐾" },
+      { "title": "Nudging the empty bowl.", "body": "{name} has noticed." }
+    ],
+    "upcoming": [
+      { "title": "Already at the door.", "body": "{name} senses something's happening." },
+      { "title": "Sniffing the air.", "body": "{name} caught a whiff of dinner 🐾" },
+      { "title": "Tail going like a propeller.", "body": "{name} can hardly wait." }
+    ],
+    "happyForNow": [
+      { "title": "Drying off by the radiator.", "body": "{name} is content after a run." },
+      { "title": "Twitching in a dream.", "body": "{name} is chasing rabbits, asleep." },
+      { "title": "Pleasantly worn out.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day for the fields.", "body": "{name} approves loudly 🐶" },
+      { "title": "Mud, glorious mud.", "body": "{name} is in its element." }
+    ]
+  },
+  "awardTitle": "Muddiest Adventurer 🐶",
+  "awardThanks": "Thanks for surviving the muddy paws last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Wholly satisfied.", "body": "{name} will remember this for decades 🐢" },
+      { "title": "A good day, slowly.", "body": "{name} is basking, content." },
+      { "title": "No notes.", "body": "{name} has seen a hundred years and approves." }
+    ],
+    "overdue": [
+      { "title": "Still waiting.", "body": "{name} has all the time in the world. You don't." },
+      { "title": "Plodding over.", "body": "{name} set off for the bowl an hour ago." },
+      { "title": "Patient, but pointed.", "body": "{name} has noticed." }
+    ],
+    "upcoming": [
+      { "title": "Already on the way.", "body": "{name} left early to be sure 🐢" },
+      { "title": "Stirring slowly.", "body": "{name} senses it's nearly time." },
+      { "title": "Stretching out.", "body": "{name} is unhurried, as ever." }
+    ],
+    "happyForNow": [
+      { "title": "Basking in peace.", "body": "{name} is in no rush whatsoever." },
+      { "title": "Slow and steady.", "body": "All is calm with {name}." },
+      { "title": "Tucked in the shell.", "body": "{name} is having a quiet think." }
+    ],
+    "none": [
+      { "title": "A day of stillness.", "body": "{name} is perfectly happy doing nothing 🐢" },
+      { "title": "Sunbathing only.", "body": "{name} has cleared the schedule." }
+    ]
+  },
+  "awardTitle": "Keeper of the Shell 🐢",
+  "awardThanks": "Thanks for your slow and steady care last week!"
+}

@@ -1,0 +1,31 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Tiny dog, big mood.", "body": "{name} is thrilled (won't show it) 🐶" },
+      { "title": "Fed and feisty.", "body": "{name} had a cracking day." },
+      { "title": "Approval granted.", "body": "Rare from {name}. Take the win." }
+    ],
+    "overdue": [
+      { "title": "Small dog, loud opinions.", "body": "{name} is yapping about it." },
+      { "title": "Shivering with outrage.", "body": "{name} demands service 👀" },
+      { "title": "Standing on the sofa.", "body": "{name} is making demands from up high." }
+    ],
+    "upcoming": [
+      { "title": "Vibrating with excitement.", "body": "{name} knows it's nearly time." },
+      { "title": "Yapping at the cupboard.", "body": "{name} heard it open 🐾" },
+      { "title": "First in the queue.", "body": "{name} got there before you did." }
+    ],
+    "happyForNow": [
+      { "title": "Burrowed in a blanket.", "body": "{name} is warm and content." },
+      { "title": "Briefly quiet.", "body": "{name} is having a rare calm moment." },
+      { "title": "Tiny and cosy.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day to rule the sofa.", "body": "{name} fully approves 🐶" },
+      { "title": "Blanket fort secured.", "body": "{name} has nowhere to be." },
+      { "title": "Off the clock.", "body": "{name} is yapping at nothing in particular." }
+    ]
+  },
+  "awardTitle": "Big Boss Energy 🐶",
+  "awardThanks": "Thanks for serving the smallest, loudest boss last week!"
+}

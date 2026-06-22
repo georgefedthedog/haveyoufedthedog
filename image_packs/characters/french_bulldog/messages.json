@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Snorting with delight.", "body": "{name} had a smashing day 🦇" },
+      { "title": "Bat-eared and beaming.", "body": "Good job looking after {name}." },
+      { "title": "A very pleased Frenchie.", "body": "{name} approves with a snuffle." }
+    ],
+    "overdue": [
+      { "title": "Dramatic flop.", "body": "{name} has collapsed by the empty bowl." },
+      { "title": "Grumbling at you.", "body": "{name} is muttering in Frenchie 👀" },
+      { "title": "Bat ears, sad face.", "body": "{name} is waiting, pointedly." }
+    ],
+    "upcoming": [
+      { "title": "Snuffling about.", "body": "{name} senses food approaching." },
+      { "title": "Ears up like radar.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Wiggling its bum.", "body": "{name} is far too excited." }
+    ],
+    "happyForNow": [
+      { "title": "Snoring on the sofa.", "body": "{name} is happily flat out." },
+      { "title": "A warm little potato.", "body": "{name} is content for now." },
+      { "title": "Snuffly and settled.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day of snoozing.", "body": "{name} fully approves 🦇" },
+      { "title": "Sofa, snacks, snores.", "body": "{name} has the day sorted." }
+    ]
+  },
+  "awardTitle": "King of the Sofa 🦇",
+  "awardThanks": "Thanks for putting up with the snorts and snores last week!"
+}

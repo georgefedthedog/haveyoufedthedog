@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Cheeks full, all is well.", "body": "{name} stashed dinner for later 🐹" },
+      { "title": "A contented little hoarder.", "body": "{name} had a fine day." },
+      { "title": "Fed and busy.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Rattling the bars.", "body": "{name} is staging a midnight protest 👀" },
+      { "title": "Empty pouches, big problem.", "body": "{name} demands a top-up." },
+      { "title": "Climbing the cage.", "body": "{name} is plotting again." }
+    ],
+    "upcoming": [
+      { "title": "Out of the bedding.", "body": "{name} sensed food (and woke up)." },
+      { "title": "Tiny nose twitching.", "body": "{name} heard the lid 🐾" },
+      { "title": "First to the bowl.", "body": "{name} is ready to stuff its cheeks." }
+    ],
+    "happyForNow": [
+      { "title": "Asleep in a hoard of seeds.", "body": "{name} is content for now." },
+      { "title": "Buried in bedding.", "body": "All is well with {name}." },
+      { "title": "A tiny, snoozing ball.", "body": "{name} is resting (it's daytime)." }
+    ],
+    "none": [
+      { "title": "A day to sleep and stash.", "body": "{name} approves 🐹" },
+      { "title": "On the wheel at 3am.", "body": "{name} keeps its own hours." }
+    ]
+  },
+  "awardTitle": "Chief Hoarder 🐹",
+  "awardThanks": "Thanks for keeping the secret stash topped up last week!"
+}

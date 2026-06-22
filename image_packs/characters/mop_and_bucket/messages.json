@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Floors gleaming.", "body": "{name} did a sparkling job 🪣" },
+      { "title": "Sudsy and satisfied.", "body": "{name} is proud of that shine." },
+      { "title": "Spotless, top to bottom.", "body": "Good job with {name}." }
+    ],
+    "overdue": [
+      { "title": "The floor is sticky.", "body": "{name} is itching to get to work." },
+      { "title": "Footprints everywhere.", "body": "{name} can't bear the mess 👀" },
+      { "title": "Waiting in the cupboard.", "body": "{name} is ready when you are." }
+    ],
+    "upcoming": [
+      { "title": "Bucket filling up.", "body": "{name} senses a mopping coming 🪣" },
+      { "title": "Suds at the ready.", "body": "{name} knows it's nearly time." },
+      { "title": "Wrung out and raring.", "body": "{name} is poised to go." }
+    ],
+    "happyForNow": [
+      { "title": "Drip-drying quietly.", "body": "All is well with {name}." },
+      { "title": "A clean floor, for now.", "body": "{name} is content." },
+      { "title": "Resting against the wall.", "body": "{name} waits patiently." }
+    ],
+    "none": [
+      { "title": "Floors are fine today.", "body": "{name} gets a day off 🪣" },
+      { "title": "No mopping needed.", "body": "{name} approves of the calm." }
+    ]
+  },
+  "awardTitle": "Master of the Shine 🪣",
+  "awardThanks": "Thanks for keeping the floors gleaming last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Empty at last!", "body": "{name} can finally see the bottom 🧺" },
+      { "title": "Washed, dried, away.", "body": "{name} is gloriously empty." },
+      { "title": "A rare, blissful emptiness.", "body": "Good job clearing {name}." }
+    ],
+    "overdue": [
+      { "title": "Overflowing again.", "body": "{name} has socks escaping the top." },
+      { "title": "A teetering pile.", "body": "{name} is one shirt from collapse 👀" },
+      { "title": "It's all gone a bit Everest.", "body": "{name} needs you, urgently." }
+    ],
+    "upcoming": [
+      { "title": "Filling up fast.", "body": "{name} senses a wash coming 🧺" },
+      { "title": "Nearly at capacity.", "body": "{name} knows it's almost time." },
+      { "title": "Ready for the machine.", "body": "{name} is waiting by the door." }
+    ],
+    "happyForNow": [
+      { "title": "Half full, no panic.", "body": "All is well with {name}." },
+      { "title": "A manageable pile.", "body": "{name} is content for now." },
+      { "title": "Quietly accumulating.", "body": "{name} bides its time." }
+    ],
+    "none": [
+      { "title": "Nothing to wash today.", "body": "{name} enjoys the peace 🧺" },
+      { "title": "An empty, restful day.", "body": "{name} approves." }
+    ]
+  },
+  "awardTitle": "Conqueror of the Pile 🧺",
+  "awardThanks": "Thanks for taming the laundry mountain last week!"
+}

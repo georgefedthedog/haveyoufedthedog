@@ -2,12 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
     <title>Claim your account - Have You Fed The Dog?</title>
-    <meta name="robots" content="noindex" />
-    <link rel="icon" type="image/png" href="img/app_icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta
+      name="robots"
+      content="noindex"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="img/app_icon.png"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Knewave&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
       rel="stylesheet"
@@ -23,7 +40,9 @@
         --ink-soft: #6a6373;
         --outline: #e0d8cb;
       }
-      * { box-sizing: border-box; }
+      * {
+        box-sizing: border-box;
+      }
       body {
         margin: 0;
         min-height: 100vh;
@@ -45,7 +64,11 @@
         text-align: center;
         box-shadow: 0 12px 40px rgba(42, 37, 48, 0.12);
       }
-      img.logo { width: 132px; height: auto; transform: rotate(-2deg); }
+      img.logo {
+        width: 132px;
+        height: auto;
+        transform: rotate(-2deg);
+      }
       h1 {
         font-family: "Knewave", cursive;
         font-weight: 400;
@@ -53,7 +76,12 @@
         margin: 16px 0 4px;
         line-height: 1.1;
       }
-      p { color: var(--ink-soft); font-size: 15px; line-height: 1.5; margin: 12px 0; }
+      p {
+        color: var(--ink-soft);
+        font-size: 15px;
+        line-height: 1.5;
+        margin: 12px 0;
+      }
       .code {
         font-family: "Knewave", cursive;
         letter-spacing: 4px;
@@ -75,36 +103,87 @@
         cursor: pointer;
         padding: 4px 8px;
       }
-      .steps { text-align: left; margin: 24px auto 0; max-width: 340px; }
-      .steps li { color: var(--ink-soft); font-size: 14px; margin: 8px 0; }
-      a.home { display: inline-block; margin-top: 24px; color: var(--violet); font-weight: 700; font-size: 14px; text-decoration: none; }
-      a.home:hover { text-decoration: underline; }
+      .steps {
+        text-align: left;
+        margin: 24px auto 0;
+        max-width: 340px;
+      }
+      .steps li {
+        color: var(--ink-soft);
+        font-size: 14px;
+        margin: 8px 0;
+      }
+      a.home {
+        display: inline-block;
+        margin-top: 24px;
+        color: var(--violet);
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+      }
+      a.home:hover {
+        text-decoration: underline;
+      }
       @media (prefers-color-scheme: dark) {
-        body { background: #1a1620; color: #ece6f0; }
-        .card { background: #262031; border-color: #3b3447; box-shadow: none; }
-        p, .steps li { color: #aaa1b5; }
-        .code { color: #c9bcff; background: #1a1620; }
-        button.copy, a.home { color: #c9bcff; }
+        body {
+          background: #1a1620;
+          color: #ece6f0;
+        }
+        .card {
+          background: #262031;
+          border-color: #3b3447;
+          box-shadow: none;
+        }
+        p,
+        .steps li {
+          color: #aaa1b5;
+        }
+        .code {
+          color: #c9bcff;
+          background: #1a1620;
+        }
+        button.copy,
+        a.home {
+          color: #c9bcff;
+        }
       }
     </style>
   </head>
   <body>
     <main class="card">
-      <img class="logo" src="img/logo.png" alt="Have You Fed The Dog?" />
+      <img
+        class="logo"
+        src="img/logo.png"
+        alt="Have You Fed The Dog?"
+      />
       <h1>Claim your account</h1>
       <p>
-        If you have the app installed, this link should have opened it to the
-        sign-up screen with your claim code filled in. If not, open
+        If you have the app installed, this link should have opened it to the sign-up screen with your claim code filled in. If not, open
         <strong>Have You Fed The Dog?</strong> and sign up with this claim code:
       </p>
-      <div class="code" id="code">—</div>
-      <button class="copy" id="copy" hidden>Copy code</button>
+      <div
+        class="code"
+        id="code"
+      >
+        -
+      </div>
+      <button
+        class="copy"
+        id="copy"
+        hidden
+      >
+        Copy code
+      </button>
       <ol class="steps">
         <li>Open the Have You Fed The Dog? app.</li>
         <li>Tap <strong>Sign up</strong>, then <strong>“I have a claim code”</strong>.</li>
         <li>Enter the code above and tap <strong>Claim account</strong>.</li>
       </ol>
-      <a class="home" href="/">← Back to haveyoufedthedog.com</a>
+      <a
+        class="home"
+        href="/"
+        >← Back to haveyoufedthedog.com</a
+      >
     </main>
     <script>
       (function () {
@@ -120,7 +199,9 @@
             btn.addEventListener("click", function () {
               navigator.clipboard.writeText(code).then(function () {
                 btn.textContent = "Copied!";
-                setTimeout(function () { btn.textContent = "Copy code"; }, 1500);
+                setTimeout(function () {
+                  btn.textContent = "Copy code";
+                }, 1500);
               });
             });
           }

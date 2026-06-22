@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Fed and overjoyed.", "body": "{name} had a magnificent day 🦴" },
+      { "title": "A very good boy/girl.", "body": "{name} thinks you're wonderful." },
+      { "title": "Belly full, heart fuller.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Staring at the bowl.", "body": "Then at you. Then the bowl 👀" },
+      { "title": "Starving (allegedly).", "body": "{name} insists it hasn't eaten in days." },
+      { "title": "Sat by the cupboard.", "body": "{name} is not moving until fed." }
+    ],
+    "upcoming": [
+      { "title": "Drooling already.", "body": "{name} can smell dinner coming." },
+      { "title": "Tail thumping the floor.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Waiting, very politely.", "body": "{name} is being SO good." }
+    ],
+    "happyForNow": [
+      { "title": "Snoozing off lunch.", "body": "{name} is content and full." },
+      { "title": "Dreaming of seconds.", "body": "All is well with {name}." },
+      { "title": "Relaxed and waggy.", "body": "{name} is resting for now." }
+    ],
+    "none": [
+      { "title": "A day of snacks and naps.", "body": "{name} approves 🦴" },
+      { "title": "Hopeful by the fridge.", "body": "{name} is ever optimistic." }
+    ]
+  },
+  "awardTitle": "Keeper of the Bowl 🦴",
+  "awardThanks": "Thanks for filling the never-empty stomach last week!"
+}

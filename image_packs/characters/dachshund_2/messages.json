@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Fierce little badger-hunter.", "body": "{name} conquered the day 🌭" },
+      { "title": "Brave heart, short legs.", "body": "{name} had a triumphant day." },
+      { "title": "Mighty in miniature.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Standing its ground.", "body": "{name} is barking up at the worktop." },
+      { "title": "Tiny dog, big grievance.", "body": "{name} has filed a complaint 👀" },
+      { "title": "Digging at your ankles.", "body": "{name} wants feeding now." }
+    ],
+    "upcoming": [
+      { "title": "On high alert.", "body": "{name} heard something promising." },
+      { "title": "Marching to the kitchen.", "body": "{name} means business 🐾" },
+      { "title": "Guarding the bowl.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "Standing guard, half asleep.", "body": "{name} is content for now." },
+      { "title": "Curled like a comma.", "body": "{name} is snoozing nearby." },
+      { "title": "Briefly off duty.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day to patrol the garden.", "body": "{name} approves 🌭" },
+      { "title": "Sniffing out trouble.", "body": "{name} is happily on the hunt." }
+    ]
+  },
+  "awardTitle": "Bravest Sausage 🌭",
+  "awardThanks": "Thanks for backing up your fearless little hunter last week!"
+}

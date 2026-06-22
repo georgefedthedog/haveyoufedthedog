@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A very fluffy victory.", "body": "{name} is one happy pom 🦊" },
+      { "title": "Floofed and content.", "body": "Good job looking after {name}." },
+      { "title": "Tiny ball of joy.", "body": "{name} thinks you're marvellous." }
+    ],
+    "overdue": [
+      { "title": "Big bark, small dog.", "body": "{name} is making a racket about dinner." },
+      { "title": "Outraged fluffball.", "body": "{name} demands attention 👀" },
+      { "title": "Spinning in circles.", "body": "{name} is protesting the wait." }
+    ],
+    "upcoming": [
+      { "title": "Yipping with joy.", "body": "{name} can feel dinner coming." },
+      { "title": "Bouncing like a pom-pom.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "All fluff, all excitement.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "A fluffy little loaf.", "body": "{name} is content for now." },
+      { "title": "Preening its coat.", "body": "All is well with {name}." },
+      { "title": "Curled like a fox.", "body": "{name} is dozing nearby." }
+    ],
+    "none": [
+      { "title": "A fluffy day off.", "body": "{name} approves 🦊" },
+      { "title": "Strutting about.", "body": "{name} is showing off the floof." }
+    ]
+  },
+  "awardTitle": "Floofiest of All 🦊",
+  "awardThanks": "Thanks for keeping the floofball happy last week!"
+}

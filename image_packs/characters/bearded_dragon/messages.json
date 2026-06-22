@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Basking, fully content.", "body": "{name} bobs its head in thanks 🦎" },
+      { "title": "Warm, fed, happy.", "body": "{name} had a cracking day." },
+      { "title": "A very chilled lizard.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "A slow, pointed stare.", "body": "{name} is glass-surfing for attention 👀" },
+      { "title": "Waiting on its basking rock.", "body": "{name} would like its dinner." },
+      { "title": "An impatient head-bob.", "body": "{name} has noticed the delay." }
+    ],
+    "upcoming": [
+      { "title": "Perking up on the rock.", "body": "{name} senses crickets incoming 🦗" },
+      { "title": "Eyeing the viv door.", "body": "{name} knows it's nearly time." },
+      { "title": "Head up, alert.", "body": "{name} is ready to hunt." }
+    ],
+    "happyForNow": [
+      { "title": "Basking under the lamp.", "body": "All is well with {name}." },
+      { "title": "Flat out, soaking up heat.", "body": "{name} is content for now." },
+      { "title": "A lazy lizard sprawl.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A day of basking.", "body": "{name} approves 🦎" },
+      { "title": "Soaking up the heat lamp.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "King of the Basking Rock 🦎",
+  "awardThanks": "Thanks for keeping the heat lamp warm last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Empty and proud.", "body": "{name} salutes you 🗑️" },
+      { "title": "Out on time.", "body": "World saved, bin emptied." },
+      { "title": "Kerb duty: complete.", "body": "{name} stands tall and empty." }
+    ],
+    "overdue": [
+      { "title": "Overflowing, frankly.", "body": "{name} cannot hold much more…" },
+      { "title": "Collection day looms.", "body": "{name} is getting nervous 👀" },
+      { "title": "Lid won't shut.", "body": "{name} needs to go out." }
+    ],
+    "upcoming": [
+      { "title": "Truck inbound.", "body": "{name} is ready to roll to the kerb 🚛" },
+      { "title": "Mentally preparing.", "body": "{name} knows what's coming." },
+      { "title": "Wheels primed.", "body": "{name} is poised by the gate." }
+    ],
+    "happyForNow": [
+      { "title": "Lid closed, vibes calm.", "body": "{name} waits patiently." },
+      { "title": "A quiet sit-down.", "body": "No rush for {name} today." },
+      { "title": "Half full, fully relaxed.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "No collection today.", "body": "{name} naps by the gate 🗑️" },
+      { "title": "A day off the kerb.", "body": "{name} approves." }
+    ]
+  },
+  "awardTitle": "Lord of the Kerb 🗑️",
+  "awardThanks": "Thanks for keeping things rolling last week!"
+}

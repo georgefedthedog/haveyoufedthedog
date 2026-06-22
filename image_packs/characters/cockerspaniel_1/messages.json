@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Waggiest tail in town.", "body": "{name} had a wonderful day 🐶" },
+      { "title": "Soft ears, soft heart.", "body": "{name} adores you for this." },
+      { "title": "Pure spaniel happiness.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Hopeful by the bowl.", "body": "{name} is gazing up at you." },
+      { "title": "Tail still wagging.", "body": "Patient, but {name} is waiting 🐾" },
+      { "title": "Ears drooping a little.", "body": "{name} could use a hand." }
+    ],
+    "upcoming": [
+      { "title": "Whole body wagging.", "body": "{name} knows it's nearly time." },
+      { "title": "Nose to the cupboard.", "body": "{name} caught the scent 🐾" },
+      { "title": "Bringing the lead, hopefully.", "body": "{name} is ready for anything." }
+    ],
+    "happyForNow": [
+      { "title": "Ears in a sunbeam.", "body": "{name} is dozing happily." },
+      { "title": "Content and waggy.", "body": "All is well with {name}." },
+      { "title": "A gentle snooze.", "body": "{name} is resting for now." }
+    ],
+    "none": [
+      { "title": "A waggy day off.", "body": "{name} approves 🐶" },
+      { "title": "Sniffing the garden.", "body": "{name} is happily exploring." }
+    ]
+  },
+  "awardTitle": "Waggiest Tail 🐶",
+  "awardThanks": "Thanks for all the love and care last week!"
+}

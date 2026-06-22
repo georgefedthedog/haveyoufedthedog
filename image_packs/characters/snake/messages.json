@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Sssatisfied.", "body": "{name} retreats to digest, content 🐍" },
+      { "title": "Fed. Acceptable.", "body": "{name} acknowledges you, coldly." },
+      { "title": "A well-fed serpent.", "body": "{name} approves, in its own way." }
+    ],
+    "overdue": [
+      { "title": "Watching. Unblinking.", "body": "{name} has been waiting a while 👀" },
+      { "title": "A patient predator.", "body": "{name} can wait far longer than you." },
+      { "title": "Tongue flicking.", "body": "{name} is tasting the air for dinner." }
+    ],
+    "upcoming": [
+      { "title": "Coiling, alert.", "body": "{name} senses feeding time 🐍" },
+      { "title": "Slow and ready.", "body": "{name} has noticed movement." },
+      { "title": "Tasting the air.", "body": "{name} knows it's nearly time." }
+    ],
+    "happyForNow": [
+      { "title": "Coiled and calm.", "body": "All is well with {name}." },
+      { "title": "Basking in the warm spot.", "body": "{name} is content for now." },
+      { "title": "Hidden, but content.", "body": "{name} is resting somewhere." }
+    ],
+    "none": [
+      { "title": "A day of stillness.", "body": "{name} requires nothing today 🐍" },
+      { "title": "Digesting in peace.", "body": "{name} approves of the quiet." }
+    ]
+  },
+  "awardTitle": "Cold-Blooded Champion 🐍",
+  "awardThanks": "Thanks for the warmth and care last week, sssincerely."
+}

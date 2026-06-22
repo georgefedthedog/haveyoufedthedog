@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A pleased little lion.", "body": "{name} had a regal day 👑" },
+      { "title": "Pampered and content.", "body": "{name} approves of your service." },
+      { "title": "Fit for a palace.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "A royal sulk.", "body": "{name} is most unimpressed." },
+      { "title": "Sat regally. Waiting.", "body": "{name} expects to be served 👑" },
+      { "title": "An imperious stare.", "body": "{name} has noticed the delay." }
+    ],
+    "upcoming": [
+      { "title": "Sensing its meal.", "body": "{name} has graciously appeared." },
+      { "title": "Ears lifted.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Awaiting service.", "body": "{name} is poised by the bowl." }
+    ],
+    "happyForNow": [
+      { "title": "Lounging like royalty.", "body": "{name} is content on its throne." },
+      { "title": "A serene little lion.", "body": "All is well with {name}." },
+      { "title": "Resting, regally.", "body": "{name} is at ease for now." }
+    ],
+    "none": [
+      { "title": "A day of royal leisure.", "body": "{name} approves 👑" },
+      { "title": "Cushion duty only.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Little Emperor 👑",
+  "awardThanks": "Thanks for serving the palace lion last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Pampered to perfection.", "body": "{name} is delighted with the service ✨" },
+      { "title": "A pristine little cloud.", "body": "{name} had a lovely day." },
+      { "title": "Most pleased.", "body": "{name} grants you a gracious wag." }
+    ],
+    "overdue": [
+      { "title": "Most displeased.", "body": "{name} expected dinner promptly." },
+      { "title": "A delicate sulk.", "body": "{name} has turned away from you ✨" },
+      { "title": "Waiting on the cushion.", "body": "{name} will not come to you." }
+    ],
+    "upcoming": [
+      { "title": "Sensing service.", "body": "{name} has appeared, expectant." },
+      { "title": "Ears lifted daintily.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Poised and ready.", "body": "{name} awaits its meal." }
+    ],
+    "happyForNow": [
+      { "title": "Reclining elegantly.", "body": "{name} is content on the velvet." },
+      { "title": "A serene little floof.", "body": "All is well with {name}." },
+      { "title": "Resting, regally.", "body": "{name} is at ease for now." }
+    ],
+    "none": [
+      { "title": "A day of leisure.", "body": "{name} approves graciously ✨" },
+      { "title": "Cushion duty only.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Most Pampered ✨",
+  "awardThanks": "Thanks for the five-star service last week!"
+}

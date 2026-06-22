@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A contented giant.", "body": "{name} had a lovely day 🐻" },
+      { "title": "Drooling with joy.", "body": "Good job looking after {name}." },
+      { "title": "Best human on the mountain.", "body": "That's what {name} thinks." }
+    ],
+    "overdue": [
+      { "title": "Leaning on you.", "body": "All of {name} wants feeding." },
+      { "title": "Sad eyes deployed.", "body": "{name} is gazing up at you 🐾" },
+      { "title": "A patient mountain of fluff.", "body": "{name} waits by the bowl." }
+    ],
+    "upcoming": [
+      { "title": "Ears perked.", "body": "{name} heard the cupboard 🐻" },
+      { "title": "Lumbering over.", "body": "{name} is ambling to the kitchen." },
+      { "title": "Tail sweeping the floor.", "body": "{name} senses dinner." }
+    ],
+    "happyForNow": [
+      { "title": "Sprawled across the floor.", "body": "{name} is happily in the way." },
+      { "title": "Cool and content.", "body": "{name} is resting on the tiles." },
+      { "title": "Big calm energy.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day to lounge.", "body": "{name} approves, gently 🐻" },
+      { "title": "Sprawled in the shade.", "body": "{name} has nowhere to be." }
+    ]
+  },
+  "awardTitle": "Gentle Giant 🐻",
+  "awardThanks": "Thanks for caring for your mountain of fluff last week!"
+}

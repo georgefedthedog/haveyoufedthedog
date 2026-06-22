@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Quietly content.", "body": "{name} retreats to its burrow, pleased 🕷️" },
+      { "title": "Fed and misunderstood.", "body": "{name} is happier than it looks." },
+      { "title": "All eight legs satisfied.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Lurking at the burrow mouth.", "body": "{name} is waiting, patiently." },
+      { "title": "Eight legs, no dinner.", "body": "{name} has noticed 👀" },
+      { "title": "A still, watchful wait.", "body": "{name} can outwait anyone." }
+    ],
+    "upcoming": [
+      { "title": "Emerging slowly.", "body": "{name} senses feeding time 🕷️" },
+      { "title": "Legs at the ready.", "body": "{name} has felt the vibrations." },
+      { "title": "Poised at the entrance.", "body": "{name} knows it's nearly time." }
+    ],
+    "happyForNow": [
+      { "title": "Tucked in its burrow.", "body": "All is well with {name}." },
+      { "title": "Still and content.", "body": "{name} is resting for now." },
+      { "title": "Quietly minding its web.", "body": "{name} is at ease." }
+    ],
+    "none": [
+      { "title": "A day of stillness.", "body": "{name} requires nothing today 🕷️" },
+      { "title": "Hiding away, content.", "body": "{name} approves of the quiet." }
+    ]
+  },
+  "awardTitle": "Most Misunderstood 🕷️",
+  "awardThanks": "Thanks for looking past the eight legs last week!"
+}

@@ -1,0 +1,31 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Howled in triumph.", "body": "{name} told the whole street 🐺" },
+      { "title": "Zoomies complete.", "body": "{name} has run a victory lap." },
+      { "title": "Even the husky is content.", "body": "Rare. Savour it." }
+    ],
+    "overdue": [
+      { "title": "The howling has begun.", "body": "{name} wants the neighbours to know." },
+      { "title": "Plotting an escape.", "body": "{name} eyes the back fence…" },
+      { "title": "Full dramatics engaged.", "body": "{name} is flopped by the bowl, wronged." }
+    ],
+    "upcoming": [
+      { "title": "Ears swivelling.", "body": "{name} heard that from three rooms away." },
+      { "title": "Pacing the kitchen.", "body": "{name} knows it's nearly time 🐾" },
+      { "title": "Talking already.", "body": "{name} is woo-wooing at you." }
+    ],
+    "happyForNow": [
+      { "title": "Sprawled dramatically.", "body": "{name} is resting between zoomies." },
+      { "title": "Briefly calm.", "body": "Don't trust it. {name} is plotting." },
+      { "title": "One eye open.", "body": "{name} is watching the fence, just in case." }
+    ],
+    "none": [
+      { "title": "Off-duty howling.", "body": "{name} is serenading the garden 🐺" },
+      { "title": "A day to roam.", "body": "{name} approves wholeheartedly." },
+      { "title": "Saving energy.", "body": "{name} is charging up for tomorrow's zoomies." }
+    ]
+  },
+  "awardTitle": "Pack Leader 🐺",
+  "awardThanks": "Thanks for keeping the pack running last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Snorty and satisfied.", "body": "{name} had a wonderful day 🐽" },
+      { "title": "Full belly, happy wrinkles.", "body": "{name} adores you for this." },
+      { "title": "A contented little potato.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Dramatic sighing.", "body": "{name} has flopped by the empty bowl." },
+      { "title": "Wrinkly and reproachful.", "body": "{name} is giving you the eyes 👀" },
+      { "title": "Snorting in protest.", "body": "{name} demands its dinner." }
+    ],
+    "upcoming": [
+      { "title": "Waddling to the kitchen.", "body": "{name} senses food." },
+      { "title": "Ears up, eyes huge.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Wiggling with hope.", "body": "{name} is ready to eat." }
+    ],
+    "happyForNow": [
+      { "title": "Snoring like a tractor.", "body": "{name} is flat out and happy." },
+      { "title": "A warm, wrinkly loaf.", "body": "All is well with {name}." },
+      { "title": "Dozing in the sun.", "body": "{name} is content for now." }
+    ],
+    "none": [
+      { "title": "A day of glorious naps.", "body": "{name} fully approves 🐽" },
+      { "title": "Sofa and snacks.", "body": "{name} has zero plans." }
+    ]
+  },
+  "awardTitle": "Champion Napper 🐽",
+  "awardThanks": "Thanks for keeping the little potato content last week!"
+}

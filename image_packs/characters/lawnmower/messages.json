@@ -1,0 +1,31 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Lawn looking sharp.", "body": "{name} did its grumbling duty 🌱" },
+      { "title": "Fuelled and rested.", "body": "{name} earned a sit-down in the shed." },
+      { "title": "Job done, finally.", "body": "{name} won't admit it enjoyed that." }
+    ],
+    "overdue": [
+      { "title": "The grass is winning.", "body": "{name} is itching to get out there." },
+      { "title": "Rusting with impatience.", "body": "{name} has been ready since dawn." },
+      { "title": "Where's the weekend warrior?", "body": "{name} is waiting in the shed…" }
+    ],
+    "upcoming": [
+      { "title": "Pull-cord at the ready.", "body": "{name} can smell cut grass coming 🌱" },
+      { "title": "Warming up.", "body": "{name} is primed for one rumbling lap." },
+      { "title": "Tank topped up.", "body": "{name} is raring to go." }
+    ],
+    "happyForNow": [
+      { "title": "Idling quietly.", "body": "{name} is parked and content for now." },
+      { "title": "Off duty, grumbling.", "body": "{name} is resting in the shade." },
+      { "title": "No grass emergency.", "body": "{name} keeps one eye on the lawn." }
+    ],
+    "none": [
+      { "title": "A day in the shed.", "body": "{name} is putting its feet up 🌱" },
+      { "title": "Grass can wait.", "body": "{name} approves of a quiet one." },
+      { "title": "Cooling down.", "body": "{name} has nothing to mow today." }
+    ]
+  },
+  "awardTitle": "Lord of the Lawn 🌱",
+  "awardThanks": "Thanks for keeping things trimmed last week!"
+}

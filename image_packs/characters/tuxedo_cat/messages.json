@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Dressed up, well fed.", "body": "{name} is dapperly satisfied 🎩" },
+      { "title": "Service: acceptable.", "body": "{name} adjusts its bow tie, pleased." },
+      { "title": "Formally content.", "body": "{name} grants its approval." }
+    ],
+    "overdue": [
+      { "title": "Most unprofessional.", "body": "{name} expected dinner on schedule." },
+      { "title": "A formal complaint.", "body": "{name} is filing it now 👀" },
+      { "title": "Tapping a tuxedo paw.", "body": "{name} awaits, unimpressed." }
+    ],
+    "upcoming": [
+      { "title": "Reporting for dinner.", "body": "{name} has arrived, suited and ready." },
+      { "title": "Ears at attention.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Punctual as ever.", "body": "{name} is right on time." }
+    ],
+    "happyForNow": [
+      { "title": "A smartly dressed loaf.", "body": "All is well with {name}." },
+      { "title": "Off the clock, just.", "body": "{name} is content for now." },
+      { "title": "Lounging in black tie.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A formal day of rest.", "body": "{name} approves 🎩" },
+      { "title": "Dressed up, nowhere to be.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Best Dressed 🎩",
+  "awardThanks": "Thanks for the prompt, professional service last week!"
+}

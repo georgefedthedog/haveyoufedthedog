@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A punctual, happy bunny.", "body": "{name} did a delighted binky 🐰" },
+      { "title": "Right on time, well fed.", "body": "{name} had a lovely day." },
+      { "title": "Nose twitching with joy.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Late! Very late!", "body": "{name} is checking an invisible pocket watch 👀" },
+      { "title": "Thumping with impatience.", "body": "{name} expected hay by now." },
+      { "title": "An anxious nose.", "body": "{name} does not like to be kept waiting." }
+    ],
+    "upcoming": [
+      { "title": "Ears bolt upright.", "body": "{name} heard the food coming 🐾" },
+      { "title": "Hopping to the front.", "body": "{name} senses fresh greens." },
+      { "title": "Right on schedule.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "A snowy loaf in the hay.", "body": "{name} is content for now." },
+      { "title": "Flopped and relaxed.", "body": "All is well with {name}." },
+      { "title": "Quietly nibbling.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A day off the clock.", "body": "{name} approves 🐰" },
+      { "title": "Exploring at leisure.", "body": "{name} is hopping about happily." }
+    ]
+  },
+  "awardTitle": "Never Late 🐰",
+  "awardThanks": "Thanks for keeping the timekeeping bunny on schedule last week!"
+}

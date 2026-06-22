@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Floofed and satisfied.", "body": "{name} will permit a stroke 🐱" },
+      { "title": "A magnificent coat, fed.", "body": "{name} is quietly pleased." },
+      { "title": "Purring. Don't mention it.", "body": "{name} approves of you today." }
+    ],
+    "overdue": [
+      { "title": "Glaring through the floof.", "body": "{name} is most disappointed." },
+      { "title": "Shedding in protest.", "body": "{name} wants feeding 👀" },
+      { "title": "An empty bowl. Unacceptable.", "body": "{name} has noted it." }
+    ],
+    "upcoming": [
+      { "title": "Emerging from the cushions.", "body": "{name} sensed dinner." },
+      { "title": "Whiskers twitching.", "body": "{name} knows it's nearly time." },
+      { "title": "A hopeful floofball.", "body": "{name} has drifted to the kitchen." }
+    ],
+    "happyForNow": [
+      { "title": "A purring cloud.", "body": "All is well with {name}." },
+      { "title": "Grooming the magnificent coat.", "body": "{name} is content for now." },
+      { "title": "Curled into a ball of fluff.", "body": "{name} is dozing nearby." }
+    ],
+    "none": [
+      { "title": "A day of luxurious napping.", "body": "{name} approves 🐱" },
+      { "title": "Floof maintenance only.", "body": "{name} is busy being beautiful." }
+    ]
+  },
+  "awardTitle": "Floofiest Feline 🐱",
+  "awardThanks": "Thanks for grooming and feeding the floof last week!"
+}

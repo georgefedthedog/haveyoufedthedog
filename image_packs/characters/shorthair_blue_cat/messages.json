@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Dignified and content.", "body": "{name} gives a slow blink of thanks 🐱" },
+      { "title": "A plush, pleased teddy.", "body": "{name} is quietly satisfied." },
+      { "title": "Approval, reservedly granted.", "body": "{name} thinks you did well." }
+    ],
+    "overdue": [
+      { "title": "A reproachful silence.", "body": "{name} sits, unblinking, judging." },
+      { "title": "Politely affronted.", "body": "{name} expected dinner by now 👀" },
+      { "title": "The bowl is empty.", "body": "{name} regards it, then you." }
+    ],
+    "upcoming": [
+      { "title": "Quietly appearing.", "body": "{name} knows it is nearly time." },
+      { "title": "Ears turning.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Composed and waiting.", "body": "{name} sits with great dignity." }
+    ],
+    "happyForNow": [
+      { "title": "A plush grey loaf.", "body": "All is well with {name}." },
+      { "title": "Reserved but relaxed.", "body": "{name} is content for now." },
+      { "title": "Tucked up, teddy-like.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A day of quiet dignity.", "body": "{name} approves 🐱" },
+      { "title": "Composed napping only.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Most Distinguished 🐱",
+  "awardThanks": "Thanks for earning the slow blink last week!"
+}

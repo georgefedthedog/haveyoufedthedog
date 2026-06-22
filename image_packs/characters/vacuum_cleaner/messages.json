@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Not a crumb in sight.", "body": "{name} hoovered up triumphantly 🌀" },
+      { "title": "Carpets immaculate.", "body": "{name} is humming with pride." },
+      { "title": "Dust: defeated.", "body": "Good job with {name}." }
+    ],
+    "overdue": [
+      { "title": "Crumbs everywhere.", "body": "{name} can see every single one 👀" },
+      { "title": "Itching to roar.", "body": "{name} has been ready for ages." },
+      { "title": "Coiled in the cupboard.", "body": "{name} is waiting, impatiently." }
+    ],
+    "upcoming": [
+      { "title": "Powering up.", "body": "{name} senses a clean coming 🌀" },
+      { "title": "Cord unravelling.", "body": "{name} knows it's nearly time." },
+      { "title": "Ready to roar.", "body": "{name} is poised to go." }
+    ],
+    "happyForNow": [
+      { "title": "Switched off, content.", "body": "All is well with {name}." },
+      { "title": "A clean carpet, for now.", "body": "{name} is at rest." },
+      { "title": "Parked in the corner.", "body": "{name} waits quietly." }
+    ],
+    "none": [
+      { "title": "No hoovering today.", "body": "{name} enjoys the quiet 🌀" },
+      { "title": "A day unplugged.", "body": "{name} approves." }
+    ]
+  },
+  "awardTitle": "Dust Destroyer 🌀",
+  "awardThanks": "Thanks for keeping the crumbs at bay last week!"
+}

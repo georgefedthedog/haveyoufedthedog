@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Scruffy and chuffed.", "body": "{name} had a cracking day 🐶" },
+      { "title": "One of a kind, well fed.", "body": "{name} thinks you're the best." },
+      { "title": "Happiest mongrel about.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Giving you the eyes.", "body": "{name} has perfected the guilt trip 👀" },
+      { "title": "Streetwise and starving.", "body": "{name} knows the bowl is empty." },
+      { "title": "Loitering by the kitchen.", "body": "{name} is waiting you out." }
+    ],
+    "upcoming": [
+      { "title": "Ears pricked.", "body": "{name} caught the sound of dinner." },
+      { "title": "Trotting over.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Wagging hopefully.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "Curled up anywhere comfy.", "body": "{name} is content for now." },
+      { "title": "A scruffy little snooze.", "body": "All is well with {name}." },
+      { "title": "Relaxed and easy-going.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A day to roam.", "body": "{name} approves 🐶" },
+      { "title": "Sniffing every lamppost.", "body": "{name} is happily exploring." }
+    ]
+  },
+  "awardTitle": "One in a Million Mongrel 🐶",
+  "awardThanks": "Thanks for loving your one-of-a-kind last week!"
+}

@@ -1,0 +1,851 @@
+{
+  "characters": [
+    {
+      "slug": "bernese_mountain_dog",
+      "display_name": "Bernese Mountain Dog",
+      "base_color": "DCD1C6",
+      "sort_order": 10,
+      "paid": true,
+      "pack": {
+        "code": "BERNESEM-HMR4",
+        "name": "Bernese Mountain Dog",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_001_bernese_mountain_dog",
+        "name": "Bernese Mountain Dog",
+        "enabled": true,
+        "sort_order": 10,
+        "description": "A gentle giant of a mountain dog - all fluff, drool and big calm cuddles."
+      }
+    },
+    {
+      "slug": "cavapoo",
+      "display_name": "Cavapoo",
+      "base_color": "E8D1BA",
+      "sort_order": 20,
+      "paid": true,
+      "pack": {
+        "code": "CAVAPOO-47TP",
+        "name": "Cavapoo",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_002_cavapoo",
+        "name": "Cavapoo",
+        "enabled": true,
+        "sort_order": 20,
+        "description": "A soft, affectionate lapful of curls who lives for a good cuddle."
+      }
+    },
+    {
+      "slug": "chihuahua",
+      "display_name": "Chihuahua",
+      "base_color": "E8D3BA",
+      "sort_order": 30,
+      "paid": true,
+      "pack": {
+        "code": "CHIHUAHU-P7V5",
+        "name": "Chihuahua",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_003_chihuahua",
+        "name": "Chihuahua",
+        "enabled": true,
+        "sort_order": 30,
+        "description": "Tiny in size, enormous in attitude - the smallest, loudest boss around."
+      }
+    },
+    {
+      "slug": "cockapoo",
+      "display_name": "Cockapoo",
+      "base_color": "E8D2BA",
+      "sort_order": 40,
+      "paid": true,
+      "pack": {
+        "code": "COCKAPOO-KZED",
+        "name": "Cockapoo",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_004_cockapoo",
+        "name": "Cockapoo",
+        "enabled": true,
+        "sort_order": 40,
+        "description": "A bouncy, beaming bundle of curls and pure good cheer."
+      }
+    },
+    {
+      "slug": "cockerspaniel_1",
+      "display_name": "Cocker Spaniel",
+      "base_color": "DBC7C9",
+      "sort_order": 50,
+      "paid": true,
+      "pack": {
+        "code": "COCKERSP-MV2M",
+        "name": "Cocker Spaniel",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_005_cockerspaniel_1",
+        "name": "Cocker Spaniel",
+        "enabled": true,
+        "sort_order": 50,
+        "description": "Soft ears, softer heart and the waggiest tail in town."
+      }
+    },
+    {
+      "slug": "cockerspaniel_2",
+      "display_name": "Cocker Spaniel 2",
+      "base_color": "E8CFBA",
+      "sort_order": 60,
+      "paid": true,
+      "pack": {
+        "code": "COCKERSP-TK4J",
+        "name": "Cocker Spaniel 2",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_006_cockerspaniel_2",
+        "name": "Cocker Spaniel 2",
+        "enabled": true,
+        "sort_order": 60,
+        "description": "An adventurous cocker who never met a puddle it didn't love."
+      }
+    },
+    {
+      "slug": "dachshund",
+      "display_name": "Dachshund",
+      "base_color": "E8CFBA",
+      "sort_order": 70,
+      "paid": true,
+      "pack": {
+        "code": "DACHSHUN-JSUS",
+        "name": "Dachshund",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_007_dachshund",
+        "name": "Dachshund",
+        "enabled": true,
+        "sort_order": 70,
+        "description": "Long, low and gloriously stubborn - a burrower with a big bark."
+      }
+    },
+    {
+      "slug": "dachshund_2",
+      "display_name": "Dachshund 2",
+      "base_color": "E8CFBA",
+      "sort_order": 80,
+      "paid": true,
+      "pack": {
+        "code": "DACHSHUN-DWEV",
+        "name": "Dachshund 2",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_008_dachshund_2",
+        "name": "Dachshund 2",
+        "enabled": true,
+        "sort_order": 80,
+        "description": "A fearless little sausage with the heart of a badger-hunter."
+      }
+    },
+    {
+      "slug": "french_bulldog",
+      "display_name": "French Bulldog",
+      "base_color": "DCD0C6",
+      "sort_order": 90,
+      "paid": true,
+      "pack": {
+        "code": "FRENCHBU-WNL3",
+        "name": "French Bulldog",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_009_french_bulldog",
+        "name": "French Bulldog",
+        "enabled": true,
+        "sort_order": 90,
+        "description": "Bat ears, big snorts and a serious commitment to the sofa."
+      }
+    },
+    {
+      "slug": "german_shepherd",
+      "display_name": "German Shepherd",
+      "base_color": "E8D3BA",
+      "sort_order": 100,
+      "paid": true,
+      "pack": {
+        "code": "GERMANSH-WL2Z",
+        "name": "German Shepherd",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_010_german_shepherd",
+        "name": "German Shepherd",
+        "enabled": true,
+        "sort_order": 100,
+        "description": "Loyal, alert and ever on duty - your steadfast four-legged guardian."
+      }
+    },
+    {
+      "slug": "golden_retriever",
+      "display_name": "Golden Retriever",
+      "base_color": "E8D5BA",
+      "sort_order": 110,
+      "paid": true,
+      "pack": {
+        "code": "GOLDENRE-UCEF",
+        "name": "Golden Retriever",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_011_golden_retriever",
+        "name": "Golden Retriever",
+        "enabled": true,
+        "sort_order": 110,
+        "description": "Sunshine in dog form - everyone's best friend, especially yours."
+      }
+    },
+    {
+      "slug": "husky",
+      "display_name": "Husky",
+      "base_color": "DBD1C7",
+      "sort_order": 120,
+      "paid": true,
+      "pack": {
+        "code": "HUSKY-WC4C",
+        "name": "Husky",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_012_husky",
+        "name": "Husky",
+        "enabled": true,
+        "sort_order": 120,
+        "description": "A dramatic, vocal escape-artist with endless zoomies and opinions."
+      }
+    },
+    {
+      "slug": "jack_russell",
+      "display_name": "Jack Russell",
+      "base_color": "E4D2BE",
+      "sort_order": 130,
+      "paid": true,
+      "pack": {
+        "code": "JACKRUSS-A72C",
+        "name": "Jack Russell",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_013_jack_russell",
+        "name": "Jack Russell",
+        "enabled": true,
+        "sort_order": 130,
+        "description": "A whirlwind of terrier energy that runs the day into the ground."
+      }
+    },
+    {
+      "slug": "labrador_retriever",
+      "display_name": "Labrador Retriever",
+      "base_color": "E8D5BA",
+      "sort_order": 140,
+      "paid": true,
+      "pack": {
+        "code": "LABRADOR-YMLA",
+        "name": "Labrador Retriever",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_014_labrador_retriever",
+        "name": "Labrador Retriever",
+        "enabled": true,
+        "sort_order": 140,
+        "description": "A food-obsessed, fun-loving classic who's permanently 'starving'."
+      }
+    },
+    {
+      "slug": "maltese",
+      "display_name": "Maltese",
+      "base_color": "E2CFC0",
+      "sort_order": 150,
+      "paid": true,
+      "pack": {
+        "code": "MALTESE-K7K4",
+        "name": "Maltese",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_015_maltese",
+        "name": "Maltese",
+        "enabled": true,
+        "sort_order": 150,
+        "description": "A pristine little cloud who expects - and deserves - five-star service."
+      }
+    },
+    {
+      "slug": "pomeranian",
+      "display_name": "Pomeranian",
+      "base_color": "E8D3BA",
+      "sort_order": 160,
+      "paid": true,
+      "pack": {
+        "code": "POMERANI-9QWE",
+        "name": "Pomeranian",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_016_pomeranian",
+        "name": "Pomeranian",
+        "enabled": true,
+        "sort_order": 160,
+        "description": "A pocket-sized fluffball with a big bark and an even bigger floof."
+      }
+    },
+    {
+      "slug": "pug",
+      "display_name": "Pug",
+      "base_color": "E3D4BF",
+      "sort_order": 170,
+      "paid": true,
+      "pack": {
+        "code": "PUG-U7TG",
+        "name": "Pug",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_017_pug",
+        "name": "Pug",
+        "enabled": true,
+        "sort_order": 170,
+        "description": "A snorty, wrinkly champion napper devoted to snacks and snoozes."
+      }
+    },
+    {
+      "slug": "red_labrador",
+      "display_name": "Red Labrador",
+      "base_color": "E8CFBA",
+      "sort_order": 180,
+      "paid": true,
+      "pack": {
+        "code": "REDLABRA-RW4M",
+        "name": "Red Labrador",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_018_red_labrador",
+        "name": "Red Labrador",
+        "enabled": true,
+        "sort_order": 180,
+        "description": "A fox-red bundle of energy with a truly bottomless appetite."
+      }
+    },
+    {
+      "slug": "scruffy_mixed_breed",
+      "display_name": "Scruffy Mixed Breed",
+      "base_color": "DCD0C6",
+      "sort_order": 190,
+      "paid": true,
+      "pack": {
+        "code": "SCRUFFYM-N555",
+        "name": "Scruffy Mixed Breed",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_019_scruffy_mixed_breed",
+        "name": "Scruffy Mixed Breed",
+        "enabled": true,
+        "sort_order": 190,
+        "description": "A streetwise, one-of-a-kind mongrel with charm to spare."
+      }
+    },
+    {
+      "slug": "shih_tzu",
+      "display_name": "Shih Tzu",
+      "base_color": "E8D3BB",
+      "sort_order": 200,
+      "paid": true,
+      "pack": {
+        "code": "SHIHTZU-4K4E",
+        "name": "Shih Tzu",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_020_shih_tzu",
+        "name": "Shih Tzu",
+        "enabled": true,
+        "sort_order": 200,
+        "description": "A pampered little lion-dog, regal from nose to fluffy tail."
+      }
+    },
+    {
+      "slug": "staffy",
+      "display_name": "Staffy",
+      "base_color": "DCD2C6",
+      "sort_order": 210,
+      "paid": true,
+      "pack": {
+        "code": "STAFFY-SLGR",
+        "name": "Staffy",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_021_staffy",
+        "name": "Staffy",
+        "enabled": true,
+        "sort_order": 210,
+        "description": "All muscle, all heart - the biggest softie you'll ever meet."
+      }
+    },
+    {
+      "slug": "toy_poodle",
+      "display_name": "Toy Poodle",
+      "base_color": "E8D2BA",
+      "sort_order": 220,
+      "paid": true,
+      "pack": {
+        "code": "TOYPOODL-MFDG",
+        "name": "Toy Poodle",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_022_toy_poodle",
+        "name": "Toy Poodle",
+        "enabled": true,
+        "sort_order": 220,
+        "description": "Prim, clever and impeccably poised - and rather pleased about it."
+      }
+    },
+    {
+      "slug": "yorkshire_terrier",
+      "display_name": "Yorkshire Terrier",
+      "base_color": "E8D1BA",
+      "sort_order": 230,
+      "paid": true,
+      "pack": {
+        "code": "YORKSHIR-XD7Z",
+        "name": "Yorkshire Terrier",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_023_yorkshire_terrier",
+        "name": "Yorkshire Terrier",
+        "enabled": true,
+        "sort_order": 230,
+        "description": "Tiny, glamorous and bossy - a pint-sized boss who runs the house."
+      }
+    },
+    {
+      "slug": "calico_cat",
+      "display_name": "Calico Cat",
+      "base_color": "E1D1C1",
+      "sort_order": 240,
+      "paid": true,
+      "pack": {
+        "code": "CALICOCA-U5Z9",
+        "name": "Calico Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_024_calico_cat",
+        "name": "Calico Cat",
+        "enabled": true,
+        "sort_order": 240,
+        "description": "Sassy, opinionated and faintly smug - she'll tolerate you, just."
+      }
+    },
+    {
+      "slug": "fluffy_cat",
+      "display_name": "Fluffy Cat",
+      "base_color": "E3CFBF",
+      "sort_order": 250,
+      "paid": true,
+      "pack": {
+        "code": "FLUFFYCA-B7DR",
+        "name": "Fluffy Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_025_fluffy_cat",
+        "name": "Fluffy Cat",
+        "enabled": true,
+        "sort_order": 250,
+        "description": "A magnificent floofball who knows exactly how good she looks."
+      }
+    },
+    {
+      "slug": "ginger_cat",
+      "display_name": "Ginger Cat",
+      "base_color": "E8D2BA",
+      "sort_order": 260,
+      "paid": true,
+      "pack": {
+        "code": "GINGERCA-KKDP",
+        "name": "Ginger Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_026_ginger_cat",
+        "name": "Ginger Cat",
+        "enabled": true,
+        "sort_order": 260,
+        "description": "Chaotic, goofy and gloriously loud - one braincell, all heart."
+      }
+    },
+    {
+      "slug": "maine_coon_cat",
+      "display_name": "Maine Coon Cat",
+      "base_color": "E7D1BB",
+      "sort_order": 270,
+      "paid": true,
+      "pack": {
+        "code": "MAINECOO-KEV7",
+        "name": "Maine Coon Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_027_maine_coon_cat",
+        "name": "Maine Coon Cat",
+        "enabled": true,
+        "sort_order": 270,
+        "description": "A magnificent gentle giant with a deep purr and a regal air."
+      }
+    },
+    {
+      "slug": "shorthair_blue_cat",
+      "display_name": "Shorthair Blue Cat",
+      "base_color": "DAC7DB",
+      "sort_order": 280,
+      "paid": true,
+      "pack": {
+        "code": "SHORTHAI-AS9N",
+        "name": "Shorthair Blue Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_028_shorthair_blue_cat",
+        "name": "Shorthair Blue Cat",
+        "enabled": true,
+        "sort_order": 280,
+        "description": "Plush, dignified and reserved - approval comes in slow blinks."
+      }
+    },
+    {
+      "slug": "siamese_cat",
+      "display_name": "Siamese Cat",
+      "base_color": "DED1C5",
+      "sort_order": 290,
+      "paid": true,
+      "pack": {
+        "code": "SIAMESEC-VVSH",
+        "name": "Siamese Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_029_siamese_cat",
+        "name": "Siamese Cat",
+        "enabled": true,
+        "sort_order": 290,
+        "description": "Vocal, demanding and endlessly chatty - she has a LOT to say."
+      }
+    },
+    {
+      "slug": "tuxedo_cat",
+      "display_name": "Tuxedo Cat",
+      "base_color": "DBD0C7",
+      "sort_order": 300,
+      "paid": true,
+      "pack": {
+        "code": "TUXEDOCA-URM3",
+        "name": "Tuxedo Cat",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_030_tuxedo_cat",
+        "name": "Tuxedo Cat",
+        "enabled": true,
+        "sort_order": 300,
+        "description": "Dapper and businesslike, forever dressed for a formal dinner."
+      }
+    },
+    {
+      "slug": "bearded_dragon",
+      "display_name": "Bearded Dragon",
+      "base_color": "E8D4BA",
+      "sort_order": 310,
+      "paid": true,
+      "pack": {
+        "code": "BEARDEDD-WA9Y",
+        "name": "Bearded Dragon",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_031_bearded_dragon",
+        "name": "Bearded Dragon",
+        "enabled": true,
+        "sort_order": 310,
+        "description": "A chilled-out little lizard who lives for basking and head-bobs."
+      }
+    },
+    {
+      "slug": "gerbil",
+      "display_name": "Gerbil",
+      "base_color": "E8D2BA",
+      "sort_order": 320,
+      "paid": true,
+      "pack": {
+        "code": "GERBIL-JLEB",
+        "name": "Gerbil",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_032_gerbil",
+        "name": "Gerbil",
+        "enabled": true,
+        "sort_order": 320,
+        "description": "A busy, burrowing hoarder with cheek pouches always at the ready."
+      }
+    },
+    {
+      "slug": "grey_rabbit",
+      "display_name": "Grey Rabbit",
+      "base_color": "DBCFC7",
+      "sort_order": 330,
+      "paid": true,
+      "pack": {
+        "code": "GREYRABB-ZYFC",
+        "name": "Grey Rabbit",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_033_grey_rabbit",
+        "name": "Grey Rabbit",
+        "enabled": true,
+        "sort_order": 330,
+        "description": "A twitchy-nosed hopper who celebrates dinner with happy binkies."
+      }
+    },
+    {
+      "slug": "guinea_pig",
+      "display_name": "Guinea Pig",
+      "base_color": "E4D1BF",
+      "sort_order": 340,
+      "paid": true,
+      "pack": {
+        "code": "GUINEAPI-ZDPD",
+        "name": "Guinea Pig",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_034_guinea_pig",
+        "name": "Guinea Pig",
+        "enabled": true,
+        "sort_order": 340,
+        "description": "A squeaky, popcorning piggy who wheeks with joy at veg o'clock."
+      }
+    },
+    {
+      "slug": "hamster",
+      "display_name": "Hamster",
+      "base_color": "E8D2BA",
+      "sort_order": 350,
+      "paid": true,
+      "pack": {
+        "code": "HAMSTER-MGBS",
+        "name": "Hamster",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_035_hamster",
+        "name": "Hamster",
+        "enabled": true,
+        "sort_order": 350,
+        "description": "A nocturnal cheek-stuffer and tireless wheel-running escape artist."
+      }
+    },
+    {
+      "slug": "snake",
+      "display_name": "Snake",
+      "base_color": "E8E6BA",
+      "sort_order": 360,
+      "paid": true,
+      "pack": {
+        "code": "SNAKE-JCNM",
+        "name": "Snake",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_036_snake",
+        "name": "Snake",
+        "enabled": true,
+        "sort_order": 360,
+        "description": "A cool, cold-blooded charmer with a deadpan stare and slow grace."
+      }
+    },
+    {
+      "slug": "tarantula",
+      "display_name": "Tarantula",
+      "base_color": "E6CDBC",
+      "sort_order": 370,
+      "paid": true,
+      "pack": {
+        "code": "TARANTUL-HAWP",
+        "name": "Tarantula",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_037_tarantula",
+        "name": "Tarantula",
+        "enabled": true,
+        "sort_order": 370,
+        "description": "Eight legs, zero menace - a patient, much-misunderstood softie."
+      }
+    },
+    {
+      "slug": "tortoise",
+      "display_name": "Tortoise",
+      "base_color": "E8DBBA",
+      "sort_order": 380,
+      "paid": true,
+      "pack": {
+        "code": "TORTOISE-LQ8B",
+        "name": "Tortoise",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_038_tortoise",
+        "name": "Tortoise",
+        "enabled": true,
+        "sort_order": 380,
+        "description": "Ancient, unhurried and wise - slow and steady wins every day."
+      }
+    },
+    {
+      "slug": "tropical_fish",
+      "display_name": "Tropical Fish",
+      "base_color": "E8D6BA",
+      "sort_order": 390,
+      "paid": true,
+      "pack": {
+        "code": "TROPICAL-2BZF",
+        "name": "Tropical Fish",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_039_tropical_fish",
+        "name": "Tropical Fish",
+        "enabled": true,
+        "sort_order": 390,
+        "description": "A serene, colourful glider bringing calm to the daily routine."
+      }
+    },
+    {
+      "slug": "white_rabbit",
+      "display_name": "White Rabbit",
+      "base_color": "E8D3BA",
+      "sort_order": 400,
+      "paid": true,
+      "pack": {
+        "code": "WHITERAB-DSM2",
+        "name": "White Rabbit",
+        "enabled": true,
+        "redeemable": true
+      },
+      "product": {
+        "sku": "sku_20260622_040_white_rabbit",
+        "name": "White Rabbit",
+        "enabled": true,
+        "sort_order": 400,
+        "description": "A prim, punctual bunny forever convinced it's running late."
+      }
+    },
+    {
+      "slug": "black_bin",
+      "display_name": "Black Bin",
+      "base_color": "DBCDC7",
+      "sort_order": 410,
+      "paid": false
+    },
+    {
+      "slug": "laundry_basket",
+      "display_name": "Laundry Basket",
+      "base_color": "E8CFBA",
+      "sort_order": 420,
+      "paid": false
+    },
+    {
+      "slug": "lawnmower",
+      "display_name": "Lawnmower",
+      "base_color": "CFE3BF",
+      "sort_order": 430,
+      "paid": false
+    },
+    {
+      "slug": "meds",
+      "display_name": "Meds",
+      "base_color": "C7DBD0",
+      "sort_order": 440,
+      "paid": false
+    },
+    {
+      "slug": "mop_and_bucket",
+      "display_name": "Mop & Bucket",
+      "base_color": "E8BDBA",
+      "sort_order": 450,
+      "paid": false
+    },
+    {
+      "slug": "vacuum_cleaner",
+      "display_name": "Vacuum Cleaner",
+      "base_color": "C7DBD6",
+      "sort_order": 460,
+      "paid": false
+    }
+  ],
+  "defaults": {
+    "price_gbp": "0.79",
+    "sku_date": "20260622",
+    "note": "Price is set per product in Play Console + App Store Connect, not here."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Tiny, glam, delighted.", "body": "{name} had a fabulous day ✨" },
+      { "title": "Small dog, big satisfaction.", "body": "{name} thinks you did well." },
+      { "title": "Bossy and beaming.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Yapping the house down.", "body": "{name} wants its dinner immediately." },
+      { "title": "Bossing you about.", "body": "{name} is issuing orders 👀" },
+      { "title": "Tiny terror, empty bowl.", "body": "{name} will not let this slide." }
+    ],
+    "upcoming": [
+      { "title": "Bouncing and bossy.", "body": "{name} knows it's nearly time." },
+      { "title": "Yipping at the cupboard.", "body": "{name} heard it open 🐾" },
+      { "title": "Front of the queue.", "body": "{name} got there first, of course." }
+    ],
+    "happyForNow": [
+      { "title": "A glamorous little snooze.", "body": "{name} is content for now." },
+      { "title": "Curled on the best cushion.", "body": "All is well with {name}." },
+      { "title": "Briefly off duty.", "body": "{name} is resting (and ruling)." }
+    ],
+    "none": [
+      { "title": "A day to rule the house.", "body": "{name} approves ✨" },
+      { "title": "Strutting about, bossing.", "body": "{name} runs a tight ship." }
+    ]
+  },
+  "awardTitle": "Pint-Sized Boss ✨",
+  "awardThanks": "Thanks for following the tiny boss's orders last week!"
+}

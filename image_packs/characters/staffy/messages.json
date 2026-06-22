@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Smiling ear to ear.", "body": "{name} had the loveliest day 🩵" },
+      { "title": "A big soppy softie.", "body": "{name} loves you enormously." },
+      { "title": "All muscle, all heart.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Leaning in for a cuddle.", "body": "{name} would also like dinner." },
+      { "title": "Hopeful, wiggly, waiting.", "body": "{name} is by the empty bowl 🐾" },
+      { "title": "The softest sad face.", "body": "{name} is gazing up at you." }
+    ],
+    "upcoming": [
+      { "title": "Wiggling all over.", "body": "{name} can feel dinner coming." },
+      { "title": "Big grin, big wags.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Bouncing with love.", "body": "{name} is ready and delighted." }
+    ],
+    "happyForNow": [
+      { "title": "Sprawled for a belly rub.", "body": "{name} is content for now." },
+      { "title": "A happy, snoring lump.", "body": "All is well with {name}." },
+      { "title": "Soaking up the sofa.", "body": "{name} is resting happily." }
+    ],
+    "none": [
+      { "title": "A day of cuddles.", "body": "{name} approves wholeheartedly 🩵" },
+      { "title": "Belly up, no plans.", "body": "{name} is in heaven." }
+    ]
+  },
+  "awardTitle": "Biggest Softie 🩵",
+  "awardThanks": "Thanks for all the cuddles for your gentle softie last week!"
+}

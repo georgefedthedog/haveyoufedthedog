@@ -1,4 +1,4 @@
-# Codemagic CI/CD — iOS release pipeline for "Have You Fed the Dog?"
+# Codemagic CI/CD - iOS release pipeline for "Have You Fed the Dog?"
 #
 # Monorepo: the Flutter app lives in app/, so `working_directory: app` makes
 # every script + the build run from there. Generated *.g.dart files are
@@ -13,25 +13,25 @@
 #   2. In App Store Connect: create the app record with bundle id
 #      com.haveyoufedthedog.app  (TestFlight upload needs the record to exist).
 #
-# Push notifications (APNs) are intentionally NOT wired up here yet — that's a
+# Push notifications (APNs) are intentionally NOT wired up here yet - that's a
 # separate step once enrollment clears. The app builds and runs without it.
 
 workflows:
   ios-release:
     name: iOS Release
-    instance_type: mac_mini_m2          # matches the instance shown in Codemagic
+    instance_type: mac_mini_m2 # matches the instance shown in Codemagic
     max_build_duration: 60
-    working_directory: app              # Flutter project root within the monorepo
+    working_directory: app # Flutter project root within the monorepo
 
     integrations:
-      app_store_connect: haveyoufedthedog_asc   # <-- must match the integration name in Codemagic
+      app_store_connect: haveyoufedthedog_asc # <-- must match the integration name in Codemagic
 
     environment:
-      flutter: stable                   # pin to a specific version if a stable bump ever breaks the build
+      flutter: stable # pin to a specific version if a stable bump ever breaks the build
       xcode: latest
       cocoapods: default
       groups:
-        - ios_signing                   # Codemagic variable group holding CERTIFICATE_PRIVATE_KEY (secure)
+        - ios_signing # Codemagic variable group holding CERTIFICATE_PRIVATE_KEY (secure)
 
     scripts:
       - name: Get Flutter packages
@@ -72,9 +72,9 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true      # external testers need Beta App Review
+        submit_to_testflight: true # external testers need Beta App Review
         beta_groups:
-          - "Family And Friends"        # must match the EXTERNAL group name in App Store Connect
+          - "Family And Friends" # must match the EXTERNAL group name in App Store Connect
         # This step waits for Apple's processing then submits for beta review. If
         # processing is slow it can still red-flag ("unable to find build") even
         # though the upload succeeded - just submit the build to the group in the

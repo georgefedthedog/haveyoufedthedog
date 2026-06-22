@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Tolerating you nicely.", "body": "{name} will allow it today 🐱" },
+      { "title": "A flicker of approval.", "body": "High praise, from {name}." },
+      { "title": "Fed and faintly smug.", "body": "{name} accepts your offering." }
+    ],
+    "overdue": [
+      { "title": "Sass levels rising.", "body": "{name} has opinions about this." },
+      { "title": "Knocking things off shelves.", "body": "{name} is staging a protest 👀" },
+      { "title": "The bowl is empty.", "body": "{name} is making it your problem." }
+    ],
+    "upcoming": [
+      { "title": "Appeared from nowhere.", "body": "{name} always knows when it's dinner." },
+      { "title": "Tail flicking.", "body": "{name} senses food approaching." },
+      { "title": "Weaving round your ankles.", "body": "{name} is being suspiciously nice." }
+    ],
+    "happyForNow": [
+      { "title": "Loafing with attitude.", "body": "All is well with {name}." },
+      { "title": "A sun patch, claimed.", "body": "{name} is asleep in it." },
+      { "title": "Briefly agreeable.", "body": "{name} is content for now." }
+    ],
+    "none": [
+      { "title": "A day of doing as it pleases.", "body": "{name} dismisses you 🐱" },
+      { "title": "Lounging, judging.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Tolerated You Most ✨",
+  "awardThanks": "Gracious enough to accept your service last week."
+}

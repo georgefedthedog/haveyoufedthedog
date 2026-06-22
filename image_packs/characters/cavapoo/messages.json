@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A happy little cuddle.", "body": "{name} loves you to bits 🩵" },
+      { "title": "Fluffed and content.", "body": "{name} had a lovely day." },
+      { "title": "Lap secured.", "body": "{name} is curling up to say thanks." }
+    ],
+    "overdue": [
+      { "title": "Big eyes, small dog.", "body": "{name} is giving you The Look." },
+      { "title": "A gentle nudge.", "body": "{name} would like a word about dinner." },
+      { "title": "Following you about.", "body": "{name} won't let you forget 🐾" }
+    ],
+    "upcoming": [
+      { "title": "Bouncing on the spot.", "body": "{name} can feel it coming." },
+      { "title": "Curly ears up.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Spinning in circles.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "Snuggled on the sofa.", "body": "{name} is perfectly happy." },
+      { "title": "A soft little loaf.", "body": "{name} is dozing nearby." },
+      { "title": "All cuddles, no fuss.", "body": "{name} is content for now." }
+    ],
+    "none": [
+      { "title": "A cuddly day off.", "body": "{name} approves wholeheartedly 🩵" },
+      { "title": "Sofa, all day.", "body": "{name} couldn't be happier." }
+    ]
+  },
+  "awardTitle": "Top Cuddler 🩵",
+  "awardThanks": "Thanks for all the cuddles and care last week!"
+}

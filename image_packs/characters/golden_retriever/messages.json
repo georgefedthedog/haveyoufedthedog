@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Sunshine in dog form.", "body": "{name} had the best day ever 🌟" },
+      { "title": "Golden-hearted and full.", "body": "{name} loves you so much." },
+      { "title": "Everyone's best friend.", "body": "Especially yours, {name} reckons." }
+    ],
+    "overdue": [
+      { "title": "Bringing you a slipper.", "body": "{name} hopes it earns dinner." },
+      { "title": "Patient and hopeful.", "body": "{name} is waiting with a wag 🐾" },
+      { "title": "Gentle nose to your hand.", "body": "{name} is reminding you, kindly." }
+    ],
+    "upcoming": [
+      { "title": "Tail going wild.", "body": "{name} can feel dinner coming." },
+      { "title": "Fetching the bowl.", "body": "{name} is trying to help 🐾" },
+      { "title": "Beaming by the cupboard.", "body": "{name} heard it open." }
+    ],
+    "happyForNow": [
+      { "title": "Sunbathing happily.", "body": "{name} is content as can be." },
+      { "title": "Toy in mouth, relaxed.", "body": "All is well with {name}." },
+      { "title": "Gently dozing.", "body": "{name} is resting for now." }
+    ],
+    "none": [
+      { "title": "A golden day off.", "body": "{name} approves 🌟" },
+      { "title": "Fetch, all day.", "body": "{name} couldn't be happier." }
+    ]
+  },
+  "awardTitle": "Golden Heart 🌟",
+  "awardThanks": "Thanks for matching your golden's boundless love last week!"
+}

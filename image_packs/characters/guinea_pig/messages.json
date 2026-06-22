@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Wheeking with joy!", "body": "{name} is one happy piggy 🐹" },
+      { "title": "Popcorning about.", "body": "{name} had a brilliant day." },
+      { "title": "Fed and squeaking thanks.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Wheeking for dinner.", "body": "{name} can hear the fridge from here 👀" },
+      { "title": "A loud, hungry piggy.", "body": "{name} is squeaking the place down." },
+      { "title": "Standing by the bowl.", "body": "{name} is making demands." }
+    ],
+    "upcoming": [
+      { "title": "Squeaking in anticipation.", "body": "{name} heard a rustle 🐾" },
+      { "title": "Running to the front.", "body": "{name} senses veg incoming." },
+      { "title": "Full wheek mode.", "body": "{name} knows it's nearly time." }
+    ],
+    "happyForNow": [
+      { "title": "Snuggled in the hay.", "body": "{name} is content for now." },
+      { "title": "A quiet little purr.", "body": "All is well with {name}." },
+      { "title": "Dozing in a pigloo.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A day of munching.", "body": "{name} approves 🐹" },
+      { "title": "Pottering about the hutch.", "body": "{name} is happily busy." }
+    ]
+  },
+  "awardTitle": "Top Piggy 🐹",
+  "awardThanks": "Thanks for all the veg and wheeks last week!"
+}

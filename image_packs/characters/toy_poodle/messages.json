@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Prim, proper, pleased.", "body": "{name} had a splendid day ✨" },
+      { "title": "Clever and content.", "body": "{name} approves of your efforts." },
+      { "title": "A polished little poodle.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Tapping a dainty paw.", "body": "{name} is waiting, and not amused." },
+      { "title": "A refined sulk.", "body": "{name} expected better timing ✨" },
+      { "title": "Sat by the empty bowl.", "body": "{name} has made its point." }
+    ],
+    "upcoming": [
+      { "title": "Far too clever to miss it.", "body": "{name} already knows it's dinner." },
+      { "title": "Ears lifted neatly.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Poised and primed.", "body": "{name} is ready to dine." }
+    ],
+    "happyForNow": [
+      { "title": "Reclining gracefully.", "body": "{name} is content for now." },
+      { "title": "A picture of poise.", "body": "All is well with {name}." },
+      { "title": "Resting elegantly.", "body": "{name} is at ease." }
+    ],
+    "none": [
+      { "title": "A day of elegant idleness.", "body": "{name} approves ✨" },
+      { "title": "Showing off, naturally.", "body": "{name} is admiring itself." }
+    ]
+  },
+  "awardTitle": "Cleverest Clogs ✨",
+  "awardThanks": "Thanks for keeping the clever clogs content last week!"
+}

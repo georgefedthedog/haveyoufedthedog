@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Finally, satisfactory.", "body": "{name} will stop complaining now 🐱" },
+      { "title": "Vocally content.", "body": "{name} is telling everyone you did well." },
+      { "title": "A rare, pleased silence.", "body": "{name} approves. Briefly." }
+    ],
+    "overdue": [
+      { "title": "Yowling the house down.", "body": "{name} demands dinner, loudly 👀" },
+      { "title": "A lengthy complaint.", "body": "{name} has a LOT to say about this." },
+      { "title": "Following you, narrating.", "body": "{name} won't stop until fed." }
+    ],
+    "upcoming": [
+      { "title": "Announcing dinner.", "body": "{name} is telling you it's time." },
+      { "title": "Loud and expectant.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Front and centre, talking.", "body": "{name} will not be missed." }
+    ],
+    "happyForNow": [
+      { "title": "A brief, blessed quiet.", "body": "All is well with {name}." },
+      { "title": "Draped over you, purring.", "body": "{name} is content for now." },
+      { "title": "Sleek and settled.", "body": "{name} is resting (for once)." }
+    ],
+    "none": [
+      { "title": "A day to be heard.", "body": "{name} approves, at length 🐱" },
+      { "title": "Talking to itself.", "body": "{name} always has something to say." }
+    ]
+  },
+  "awardTitle": "Loudest Opinion 🐱",
+  "awardThanks": "Thanks for listening to the running commentary last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Busy little body, fed.", "body": "{name} is happily stuffing its cheeks 🐹" },
+      { "title": "Burrows full, belly full.", "body": "{name} had a productive day." },
+      { "title": "A very content digger.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Frantic digging.", "body": "{name} is searching for the missing dinner." },
+      { "title": "Standing on hind legs.", "body": "{name} is begging at the bars 👀" },
+      { "title": "Cheek pouches empty.", "body": "{name} finds this unacceptable." }
+    ],
+    "upcoming": [
+      { "title": "Scurrying to the front.", "body": "{name} sensed food coming." },
+      { "title": "Whiskers a-twitch.", "body": "{name} heard the lid 🐾" },
+      { "title": "First at the food bowl.", "body": "{name} is ready to hoard." }
+    ],
+    "happyForNow": [
+      { "title": "Napping in the tunnels.", "body": "{name} is content for now." },
+      { "title": "A busy little snooze.", "body": "All is well with {name}." },
+      { "title": "Buried in bedding.", "body": "{name} is resting nearby." }
+    ],
+    "none": [
+      { "title": "A day of digging.", "body": "{name} approves 🐹" },
+      { "title": "Rearranging the burrow.", "body": "{name} is happily busy." }
+    ]
+  },
+  "awardTitle": "Master Burrower 🐹",
+  "awardThanks": "Thanks for keeping the cheek pouches full last week!"
+}

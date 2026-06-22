@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Duty fulfilled.", "body": "{name} salutes a job well done 🐕‍🦺" },
+      { "title": "Loyal and looked after.", "body": "{name} thinks the world of you." },
+      { "title": "All present and correct.", "body": "{name} had a fine day." }
+    ],
+    "overdue": [
+      { "title": "Standing at attention.", "body": "{name} is waiting for orders (and dinner)." },
+      { "title": "Watching the door.", "body": "{name} has noted the delay 👀" },
+      { "title": "A pointed glance.", "body": "{name} expects better timekeeping." }
+    ],
+    "upcoming": [
+      { "title": "Ears at full alert.", "body": "{name} detected movement in the kitchen." },
+      { "title": "On patrol by the bowl.", "body": "{name} is ready 🐾" },
+      { "title": "Standing by.", "body": "{name} knows it's nearly time." }
+    ],
+    "happyForNow": [
+      { "title": "At ease.", "body": "{name} is resting, but alert." },
+      { "title": "Guarding the hallway.", "body": "All is calm with {name}." },
+      { "title": "Off duty, just.", "body": "{name} is content for now." }
+    ],
+    "none": [
+      { "title": "Stand down for the day.", "body": "{name} approves 🐕‍🦺" },
+      { "title": "Patrolling the garden.", "body": "{name} keeps a watchful eye." }
+    ]
+  },
+  "awardTitle": "Most Loyal 🐕‍🦺",
+  "awardThanks": "Thanks for earning your loyal guardian's trust last week!"
+}

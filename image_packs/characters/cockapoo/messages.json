@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Bouncy and beaming.", "body": "{name} had the best day 🐶" },
+      { "title": "Curls of pure joy.", "body": "Good job looking after {name}." },
+      { "title": "Happiest dog alive.", "body": "{name} thinks you're brilliant." }
+    ],
+    "overdue": [
+      { "title": "Bringing you a toy.", "body": "{name} thinks it might help." },
+      { "title": "Bouncing at your feet.", "body": "{name} is reminding you, sweetly 🐾" },
+      { "title": "Hopeful little face.", "body": "{name} is waiting by the bowl." }
+    ],
+    "upcoming": [
+      { "title": "Spinning with glee.", "body": "{name} can feel dinner coming." },
+      { "title": "Ears bouncing.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Ready to go!", "body": "{name} is bouncing on the spot." }
+    ],
+    "happyForNow": [
+      { "title": "Flopped after zoomies.", "body": "{name} is having a breather." },
+      { "title": "Soft and settled.", "body": "{name} is content for now." },
+      { "title": "Curly and calm.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A bouncy day off.", "body": "{name} approves 🐶" },
+      { "title": "Toys everywhere.", "body": "{name} is entertaining itself." }
+    ]
+  },
+  "awardTitle": "Bundle of Joy 🐶",
+  "awardThanks": "Thanks for keeping the bounce going last week!"
+}

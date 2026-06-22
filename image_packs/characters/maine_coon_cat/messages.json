@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A magnificent beast, fed.", "body": "{name} is graciously pleased 🦁" },
+      { "title": "Gentle giant, content.", "body": "{name} rumbles a deep purr." },
+      { "title": "Majestic and satisfied.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "A very large stare.", "body": "{name} looms by the empty bowl 👀" },
+      { "title": "Gently insistent.", "body": "{name} has placed a giant paw on you." },
+      { "title": "Patient, but enormous.", "body": "{name} expects to be fed soon." }
+    ],
+    "upcoming": [
+      { "title": "Strolling in, regally.", "body": "{name} sensed dinner approaching." },
+      { "title": "Magnificent ears, swivelling.", "body": "{name} heard the kitchen 🐾" },
+      { "title": "Sitting tall and ready.", "body": "{name} awaits its feast." }
+    ],
+    "happyForNow": [
+      { "title": "A vast, purring loaf.", "body": "All is well with {name}." },
+      { "title": "Sprawled majestically.", "body": "{name} is content for now." },
+      { "title": "Resting like a small lion.", "body": "{name} is at ease." }
+    ],
+    "none": [
+      { "title": "A day of regal lounging.", "body": "{name} approves 🦁" },
+      { "title": "Surveying its kingdom.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Lord of the Manor 🦁",
+  "awardThanks": "Thanks for serving the gentle giant last week!"
+}

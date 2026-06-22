@@ -1,0 +1,31 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Finally tired out.", "body": "{name} ran the day into the ground 🐶" },
+      { "title": "Mischief, then satisfied.", "body": "{name} had a brilliant day." },
+      { "title": "Small dog, huge day.", "body": "Good job keeping up with {name}." }
+    ],
+    "overdue": [
+      { "title": "Digging up the garden.", "body": "{name} is taking matters into its paws." },
+      { "title": "Bouncing off the walls.", "body": "{name} wants feeding, NOW 👀" },
+      { "title": "Yapping at the bowl.", "body": "{name} is most insistent." }
+    ],
+    "upcoming": [
+      { "title": "A blur of energy.", "body": "{name} can sense dinner." },
+      { "title": "Already at full speed.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Spinning like a top.", "body": "{name} cannot contain itself." }
+    ],
+    "happyForNow": [
+      { "title": "Briefly out of fuel.", "body": "{name} is recharging (won't last)." },
+      { "title": "Plotting the next zoomie.", "body": "{name} is content for now." },
+      { "title": "One ear listening.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day to cause chaos.", "body": "{name} approves enthusiastically 🐶" },
+      { "title": "Digging, barking, living.", "body": "{name} is in its element." },
+      { "title": "No off switch found.", "body": "{name} is entertaining itself." }
+    ]
+  },
+  "awardTitle": "Whirlwind Wrangler 🐶",
+  "awardThanks": "Thanks for keeping up with the whirlwind last week!"
+}

@@ -1,0 +1,31 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Chaos, but happy chaos.", "body": "{name} had a great day 🧡" },
+      { "title": "Fed the orange menace.", "body": "{name} is thrilled (and loud about it)." },
+      { "title": "One braincell, fully content.", "body": "{name} thinks you're great." }
+    ],
+    "overdue": [
+      { "title": "Screaming for dinner.", "body": "{name} acts like it's never been fed 👀" },
+      { "title": "Causing a scene.", "body": "{name} has knocked a cup off the table." },
+      { "title": "DRAMA at the bowl.", "body": "{name} is wailing pitifully." }
+    ],
+    "upcoming": [
+      { "title": "Materialised in the kitchen.", "body": "{name} smelled dinner a mile off." },
+      { "title": "Galloping down the hall.", "body": "{name} heard the tin 🐾" },
+      { "title": "Already yelling.", "body": "{name} cannot wait one second more." }
+    ],
+    "happyForNow": [
+      { "title": "Flopped mid-zoomie.", "body": "{name} is recharging the chaos." },
+      { "title": "A warm orange loaf.", "body": "All is well with {name}." },
+      { "title": "Briefly, blessedly quiet.", "body": "{name} is content for now." }
+    ],
+    "none": [
+      { "title": "A day of glorious nonsense.", "body": "{name} approves loudly 🧡" },
+      { "title": "Knocking things over for fun.", "body": "{name} is entertaining itself." },
+      { "title": "Living its best chaotic life.", "body": "{name} has no plans, only vibes." }
+    ]
+  },
+  "awardTitle": "Keeper of the Chaos 🧡",
+  "awardThanks": "Thanks for feeding the orange menace last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Gliding around, well fed.", "body": "{name} blubs in approval 🐠" },
+      { "title": "Bright, happy, fed.", "body": "{name} is doing joyful laps." },
+      { "title": "Tank life is good.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "At the surface, expectant.", "body": "{name} is watching you 👀" },
+      { "title": "Hovering by the glass.", "body": "{name} has noticed the delay." },
+      { "title": "Feeding time, surely?", "body": "{name} keeps checking the top." }
+    ],
+    "upcoming": [
+      { "title": "Drifting to the top.", "body": "{name} senses food 🐠" },
+      { "title": "Fins flicking.", "body": "{name} knows it's nearly time." },
+      { "title": "Gathering near the surface.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "Slow, happy laps.", "body": "All is well with {name}." },
+      { "title": "Drifting among the plants.", "body": "{name} is content for now." },
+      { "title": "Bubbles rising gently.", "body": "{name} is doing fine." }
+    ],
+    "none": [
+      { "title": "A quiet day in the tank.", "body": "Nothing on for {name} 🐠" },
+      { "title": "Gliding about at leisure.", "body": "{name} hasn't a care." }
+    ]
+  },
+  "awardTitle": "Keeper of the Reef 🐠",
+  "awardThanks": "Thanks for keeping the water just right last week!"
+}

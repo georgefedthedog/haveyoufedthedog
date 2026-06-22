@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "All doses taken.", "body": "{name} is sorted for the day 💊" },
+      { "title": "On schedule, well done.", "body": "Everything ticked off for {name}." },
+      { "title": "Health: maintained.", "body": "Good job staying on top of {name}." }
+    ],
+    "overdue": [
+      { "title": "A dose is due.", "body": "{name} is still waiting on you ⏰" },
+      { "title": "Past the scheduled time.", "body": "{name} needs attention now." },
+      { "title": "Don't skip this one.", "body": "{name} is outstanding." }
+    ],
+    "upcoming": [
+      { "title": "Dose due shortly.", "body": "{name} is coming up on the schedule." },
+      { "title": "Nearly time.", "body": "{name} is due in the next little while ⏰" },
+      { "title": "Get ready.", "body": "{name} is almost due." }
+    ],
+    "happyForNow": [
+      { "title": "Nothing due just yet.", "body": "{name} has a dose later today." },
+      { "title": "All on track.", "body": "Nothing urgent for {name} right now." },
+      { "title": "Steady as you go.", "body": "{name} is up to date for now." }
+    ],
+    "none": [
+      { "title": "Nothing scheduled today.", "body": "A clear day for {name} 💊" },
+      { "title": "No doses due.", "body": "{name} is all caught up." }
+    ]
+  },
+  "awardTitle": "Health Hero 💊",
+  "awardThanks": "Thanks for never missing a dose last week!"
+}

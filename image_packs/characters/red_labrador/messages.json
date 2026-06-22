@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Fox-red and chuffed.", "body": "{name} had a brilliant day 🦊" },
+      { "title": "Run ragged, well fed.", "body": "{name} loves you to bits." },
+      { "title": "A glowing, happy lab.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Bottomless appetite.", "body": "{name} is certain it's starving 👀" },
+      { "title": "Nose under the bowl.", "body": "{name} is flipping it hopefully." },
+      { "title": "Waiting by the cupboard.", "body": "{name} won't budge until fed." }
+    ],
+    "upcoming": [
+      { "title": "Drooling already.", "body": "{name} can smell dinner." },
+      { "title": "Whole rear end wagging.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Bringing you a ball.", "body": "{name} is multitasking: food AND fetch." }
+    ],
+    "happyForNow": [
+      { "title": "Sun-warmed and snoozing.", "body": "{name} is content for now." },
+      { "title": "Ball nearby, just in case.", "body": "All is well with {name}." },
+      { "title": "Dreaming of dinner.", "body": "{name} is resting happily." }
+    ],
+    "none": [
+      { "title": "A day of fetch and food.", "body": "{name} approves 🦊" },
+      { "title": "Out chasing the ball.", "body": "{name} is having a blast." }
+    ]
+  },
+  "awardTitle": "Ever-Hungry Hero 🦊",
+  "awardThanks": "Thanks for keeping the fox-red furnace fuelled last week!"
+}

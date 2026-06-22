@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Long, low and delighted.", "body": "{name} had a grand day 🌭" },
+      { "title": "Sausage dog, satisfied.", "body": "Good job looking after {name}." },
+      { "title": "Tail wagging end to end.", "body": "{name} thinks you're top notch." }
+    ],
+    "overdue": [
+      { "title": "Stubbornly staring.", "body": "{name} will not be ignored." },
+      { "title": "Burrowing in protest.", "body": "{name} has vanished under a blanket." },
+      { "title": "The bowl is empty.", "body": "{name} keeps checking it 🐾" }
+    ],
+    "upcoming": [
+      { "title": "Little legs, big hurry.", "body": "{name} is scurrying to the kitchen." },
+      { "title": "Ears flapping.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "First to the bowl.", "body": "{name} beat you there again." }
+    ],
+    "happyForNow": [
+      { "title": "Burrowed in the cushions.", "body": "{name} is cosy and content." },
+      { "title": "A long, low snooze.", "body": "{name} is resting for now." },
+      { "title": "Tucked up tight.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day under the duvet.", "body": "{name} fully approves 🌭" },
+      { "title": "Digging into the cushions.", "body": "{name} has nowhere to be." }
+    ]
+  },
+  "awardTitle": "Top Dog (Lengthwise) 🌭",
+  "awardThanks": "Thanks for looking after every inch of your sausage last week!"
+}

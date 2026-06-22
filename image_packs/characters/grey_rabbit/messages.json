@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "A happy binky!", "body": "{name} did a joyful little leap 🐰" },
+      { "title": "Munched and content.", "body": "{name} had a lovely day." },
+      { "title": "Nose twitching happily.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Thumping a back foot.", "body": "{name} is registering displeasure 👀" },
+      { "title": "Nudging the empty bowl.", "body": "{name} would like more hay." },
+      { "title": "An impatient nose.", "body": "{name} is twitching pointedly." }
+    ],
+    "upcoming": [
+      { "title": "Ears straight up.", "body": "{name} heard the food coming 🐾" },
+      { "title": "Hopping to the front.", "body": "{name} senses fresh hay." },
+      { "title": "Nose going overtime.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "A loaf in the hay.", "body": "{name} is content for now." },
+      { "title": "Flopped on its side.", "body": "{name} is blissfully relaxed." },
+      { "title": "Quietly nibbling.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "A day for binkies.", "body": "{name} approves 🐰" },
+      { "title": "Exploring the run.", "body": "{name} is happily hopping about." }
+    ]
+  },
+  "awardTitle": "Happiest Hopper 🐰",
+  "awardThanks": "Thanks for all the hay and binkies last week!"
+}
