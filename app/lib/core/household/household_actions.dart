@@ -125,18 +125,23 @@ class HouseholdActions {
     }
     final alreadyApplied = response['alreadyApplied'] == true;
 
+    // A bundle pack grants several leaf packs; the server returns the full set
+    // in `packIds`. Older servers send only `packId`, so fall back to that.
+    final packIdsRaw = response['packIds'] as List?;
+    final appliedPackIds = packIdsRaw != null
+        ? [for (final p in packIdsRaw) p.toString()]
+        : [packId];
+
     if (!alreadyApplied) {
       final current = _ref
           .read(householdsControllerProvider)
           .valueOrNull
           ?.where((h) => h.id == householdId)
           .firstOrNull;
+      final merged = <String>{...?current?.packIds, ...appliedPackIds}.toList();
       _ref
           .read(householdsControllerProvider.notifier)
-          .updateOneInPlace(
-            householdId: householdId,
-            packs: [...?current?.packIds, packId],
-          );
+          .updateOneInPlace(householdId: householdId, packs: merged);
     }
     return (name: name, alreadyApplied: alreadyApplied);
   }

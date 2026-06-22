@@ -840,6 +840,20 @@
         "type": "bool"
       },
       {
+        "cascadeDelete": false,
+        "collectionId": "pbc_3923328239",
+        "help": "",
+        "hidden": false,
+        "id": "relation1689110486",
+        "maxSelect": 500,
+        "minSelect": 0,
+        "name": "grants",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created",
