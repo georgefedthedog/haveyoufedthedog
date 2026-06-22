@@ -847,5 +847,76 @@
     "price_gbp": "0.79",
     "sku_date": "20260622",
     "note": "Price is set per product in Play Console + App Store Connect, not here."
-  }
+  },
+  "bundles": [
+    {
+      "stem": "all_dogs",
+      "code": "ALLDOGS-GFMM",
+      "name": "All Dogs",
+      "enabled": true,
+      "redeemable": true,
+      "members": [
+        "bernese_mountain_dog",
+        "cavapoo",
+        "chihuahua",
+        "cockapoo",
+        "cockerspaniel_1",
+        "cockerspaniel_2",
+        "dachshund",
+        "dachshund_2",
+        "french_bulldog",
+        "german_shepherd",
+        "golden_retriever",
+        "husky",
+        "jack_russell",
+        "labrador_retriever",
+        "maltese",
+        "pomeranian",
+        "pug",
+        "red_labrador",
+        "scruffy_mixed_breed",
+        "shih_tzu",
+        "staffy",
+        "toy_poodle",
+        "yorkshire_terrier"
+      ],
+      "product": {
+        "sku": "sku_20260622_B01_all_dogs",
+        "name": "All Dogs",
+        "description": "Every dog in one go - all 23 breeds, from the tiniest Chihuahua to the gentlest Bernese.",
+        "enabled": true,
+        "sort_order": 5
+      }
+    },
+    {
+      "stem": "all_cats",
+      "code": "ALLCATS-EM8A",
+      "name": "All Cats",
+      "enabled": true,
+      "redeemable": true,
+      "members": ["calico_cat", "fluffy_cat", "ginger_cat", "maine_coon_cat", "shorthair_blue_cat", "siamese_cat", "tuxedo_cat"],
+      "product": {
+        "sku": "sku_20260622_B02_all_cats",
+        "name": "All Cats",
+        "description": "The whole cattery - all 7 cats, from dignified to delightfully chaotic.",
+        "enabled": true,
+        "sort_order": 6
+      }
+    },
+    {
+      "stem": "all_other_pets",
+      "code": "ALLOTHER-PTQ9",
+      "name": "All Other Pets",
+      "enabled": true,
+      "redeemable": true,
+      "members": ["bearded_dragon", "gerbil", "grey_rabbit", "guinea_pig", "hamster", "snake", "tarantula", "tortoise", "tropical_fish", "white_rabbit"],
+      "product": {
+        "sku": "sku_20260622_B03_all_other_pets",
+        "name": "All Other Pets",
+        "description": "Everything else - rabbits, rodents, reptiles, fish and a friendly tarantula (10 in all).",
+        "enabled": true,
+        "sort_order": 7
+      }
+    }
+  ]
 }

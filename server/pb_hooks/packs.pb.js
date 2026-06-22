@@ -57,32 +57,53 @@ routerAdd("POST", "/api/custom/redeem-pack-code", e => {
     return e.json(403, { message: "You are not a member of that household." });
   }
 
+  // Packs this code grants: the matched pack PLUS any packs it grants (a
+  // "bundle" pack = pack-of-packs). One level only - a bundle's grants must be
+  // leaf packs, not other bundles. Self-reference is skipped defensively.
+  const grantIds = [pack.id];
+  const grants = pack.getStringSlice("grants");
+  for (let i = 0; i < grants.length; i++) {
+    if (grants[i] && grants[i] !== pack.id && grantIds.indexOf(grants[i]) === -1) {
+      grantIds.push(grants[i]);
+    }
+  }
+
   const household = $app.findRecordById("households", householdId);
 
   // Defensive copy of the relation - Goja-wrapped Go slices don't carry
   // the full JS Array API, so rebuild as a plain array.
   const current = household.getStringSlice("packs");
   const next = [];
-  let alreadyApplied = false;
+  const seen = {};
   for (let i = 0; i < current.length; i++) {
-    if (current[i] === pack.id) alreadyApplied = true;
     next.push(current[i]);
+    seen[current[i]] = true;
   }
 
-  if (alreadyApplied) {
+  // Idempotency keys off the matched (code's) pack, preserving the original
+  // single-pack behaviour. packId stays for already-released clients; packIds
+  // is the full expanded set for clients that understand bundles.
+  if (seen[pack.id]) {
     return e.json(200, {
       packId: pack.id,
+      packIds: grantIds,
       name: pack.getString("name"),
       alreadyApplied: true,
     });
   }
 
-  next.push(pack.id);
+  for (let i = 0; i < grantIds.length; i++) {
+    if (!seen[grantIds[i]]) {
+      next.push(grantIds[i]);
+      seen[grantIds[i]] = true;
+    }
+  }
   household.set("packs", next);
   $app.save(household);
 
   return e.json(200, {
     packId: pack.id,
+    packIds: grantIds,
     name: pack.getString("name"),
   });
 });

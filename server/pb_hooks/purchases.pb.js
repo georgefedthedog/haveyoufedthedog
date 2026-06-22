@@ -89,11 +89,31 @@ routerAdd("POST", "/api/custom/verify-purchase", e => {
     return e.json(502, { message: "We couldn't verify that purchase." });
   }
 
-  // Packs this product grants. Goja-wrapped Go slices lack the full JS Array
-  // API, so rebuild as a plain array (same pattern as redeem-pack-code).
-  const grants = product.getStringSlice("grants");
+  // Packs this product grants, expanded one level: each granted pack contributes
+  // itself plus any packs IT grants (a "bundle" pack = pack-of-packs), so a
+  // product can grant a single bundle pack and have its leaf packs cascade.
+  // Mirrors the redeem-pack-code expansion so buying and gifting are identical.
+  const directGrants = product.getStringSlice("grants");
   const packIds = [];
-  for (let i = 0; i < grants.length; i++) packIds.push(grants[i]);
+  const pushUnique = id => {
+    if (id && packIds.indexOf(id) === -1) packIds.push(id);
+  };
+  for (let i = 0; i < directGrants.length; i++) {
+    const gid = directGrants[i];
+    pushUnique(gid);
+    let granted = null;
+    try {
+      granted = $app.findRecordById("catalog_packs", gid);
+    } catch (_) {
+      granted = null;
+    }
+    if (granted) {
+      const sub = granted.getStringSlice("grants");
+      for (let j = 0; j < sub.length; j++) {
+        if (sub[j] !== gid) pushUnique(sub[j]);
+      }
+    }
+  }
 
   const result = {
     productId: product.id,

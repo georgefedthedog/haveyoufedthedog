@@ -141,21 +141,57 @@ def ensure_pack(s, base, packdef, dry):
     return r.json()["id"], "create"
 
 
+def leaf_code_for(manifest, slug):
+    """The gift code of a paid character's individual (leaf) pack, or None."""
+    for c in manifest["characters"]:
+        if c["slug"] == slug and c.get("paid"):
+            return c["pack"]["code"]
+    return None
+
+
+def ensure_bundle_pack(s, base, bundle, member_ids, dry):
+    """Find-or-create a 'bundle' catalog_packs row (a pack-of-packs). Its
+    `grants` are the member leaf-pack ids; redeeming/buying it cascades them to
+    the household (the redeem-pack-code / verify-purchase hooks expand grants).
+    Existing rows are PATCHed so re-running keeps grants/name/enabled in sync."""
+    code = bundle["code"]
+    body = {"code": code, "name": bundle["name"],
+            "enabled": bundle.get("enabled", True),
+            "redeemable": bundle.get("redeemable", True),
+            "grants": member_ids}
+    existing = find_one(s, base, "catalog_packs", f"code='{code}'")
+    if dry:
+        return "<bundle-id>", ("update" if existing else "create")
+    if existing:
+        r = s.patch(f"{base}/api/collections/catalog_packs/records/{existing['id']}",
+                    json=body, timeout=30)
+        if r.status_code != 200:
+            die(f"bundle '{code}' update failed ({r.status_code}): {r.text[:300]}")
+        return existing["id"], "update"
+    r = s.post(f"{base}/api/collections/catalog_packs/records", json=body, timeout=30)
+    if r.status_code not in (200, 201):
+        die(f"bundle '{code}' create failed ({r.status_code}): {r.text[:300]}")
+    return r.json()["id"], "create"
+
+
 def set_packs_enabled(s, base, manifest, enabled, only, dry):
-    """Bulk-flip enabled on the paid packs. Disabling drops their characters
-    from the catalog fetch entirely (so even an old, un-gated client stops
-    showing them) - the hold while a client-side picker fix rolls out."""
-    want = [c for c in manifest["characters"] if c.get("paid")]
+    """Bulk-flip enabled on the paid packs (and, on a full run, bundle packs).
+    Disabling drops their characters from the catalog fetch entirely (so even an
+    old, un-gated client stops showing them) - the hold while a client-side
+    picker fix rolls out."""
+    targets = [(c["slug"], c["pack"]["code"])
+               for c in manifest["characters"] if c.get("paid")]
     if only:
         sel = {x.strip() for x in only.split(",") if x.strip()}
-        want = [c for c in want if c["slug"] in sel]
+        targets = [t for t in targets if t[0] in sel]
+    else:
+        targets += [(b["name"], b["code"]) for b in manifest.get("bundles", [])]
     changed = unchanged = 0
     missing = []
-    for c in want:
-        code = c["pack"]["code"]
+    for label, code in targets:
         row = find_one(s, base, "catalog_packs", f"code='{code}'")
         if not row:
-            missing.append(c["slug"])
+            missing.append(label)
             continue
         if bool(row.get("enabled")) == enabled:
             unchanged += 1
@@ -165,7 +201,7 @@ def set_packs_enabled(s, base, manifest, enabled, only, dry):
                         json={"enabled": enabled}, timeout=30)
             if r.status_code != 200:
                 die(f"pack '{code}' toggle failed ({r.status_code}): {r.text[:200]}")
-        print(f"  {'would set' if dry else 'set'} {code:16} enabled={enabled}  ({c['slug']})")
+        print(f"  {'would set' if dry else 'set'} {code:16} enabled={enabled}  ({label})")
         changed += 1
     print(f"\n{'Would change' if dry else 'Changed'} {changed}, already {('enabled' if enabled else 'disabled')} {unchanged}"
           + (f", MISSING {', '.join(missing)}" if missing else ""))
@@ -355,7 +391,9 @@ def main():
         print("(dry run, no creds: planning offline; pack/product/char lookups skipped)\n")
 
     tally = {"char_create": 0, "char_update": 0, "char_skip": 0,
-             "pack_create": 0, "prod_create": 0, "prod_update": 0}
+             "pack_create": 0, "prod_create": 0, "prod_update": 0,
+             "bundle_create": 0, "bundle_update": 0, "bundle_prod": 0}
+    leaf_ids = {}  # slug -> leaf pack id, used to resolve bundle grants
     for c in chars:
         slug = c["slug"]
         if c.get("paid"):
@@ -373,21 +411,57 @@ def main():
             pack_id, pst = ensure_pack(s, base, c["pack"], args.dry_run)
             if pst == "create":
                 tally["pack_create"] += 1
+            leaf_ids[slug] = pack_id
             hero_path, _ = hero_source(slug)
             prst = ensure_product(s, base, c["product"], pack_id, hero_path, args.dry_run)
             tally["prod_create" if prst == "create" else "prod_update"] += 1
         cst = upsert_character(s, base, c, pack_id, args.dry_run, args.reupload)
         tally[f"char_{cst}"] += 1
 
+    # Bundle packs (packs-of-packs). Skipped under --only, since a bundle needs
+    # all its members. Each grants its members' leaf packs; an optional bundle
+    # product grants the bundle pack itself.
+    bundles = manifest.get("bundles", [])
+    if bundles and args.only:
+        print("\n(skipping bundles - --only targets specific characters)")
+    elif bundles:
+        print()
+        for b in bundles:
+            members = b.get("members", [])
+            if offline:
+                print(f"  BUNDLE {b['name']:16} code={b['code']:14} "
+                      f"sku={b['product']['sku']:32} grants={len(members)} packs")
+                tally["bundle_create"] += 1
+                continue
+            member_ids, missing = [], []
+            for slug in members:
+                pid = leaf_ids.get(slug)
+                if not pid:
+                    code = leaf_code_for(manifest, slug)
+                    row = find_one(s, base, "catalog_packs", f"code='{code}'") if code else None
+                    pid = row["id"] if row else None
+                member_ids.append(pid) if pid else missing.append(slug)
+            if missing:
+                die(f"bundle '{b['name']}' missing leaf packs for: {', '.join(missing)} "
+                    f"(run the full character upload first)")
+            bid, bst = ensure_bundle_pack(s, base, b, member_ids, args.dry_run)
+            tally["bundle_create" if bst == "create" else "bundle_update"] += 1
+            print(f"  BUNDLE {b['name']:16} code={b['code']:14} grants={len(member_ids)} packs ({bst})")
+            if b.get("product"):
+                ensure_product(s, base, b["product"], bid, None, args.dry_run)
+                tally["bundle_prod"] += 1
+
     print(f"\nDone{' (dry run)' if args.dry_run else ''}.")
     print(f"  characters: {tally['char_create']} created, {tally['char_update']} updated, "
           f"{tally['char_skip']} skipped")
     print(f"  packs:      {tally['pack_create']} created")
     print(f"  products:   {tally['prod_create']} created, {tally['prod_update']} updated")
+    print(f"  bundles:    {tally['bundle_create']} created, {tally['bundle_update']} updated"
+          f" ({tally['bundle_prod']} bundle products)")
     if not args.dry_run:
-        print("\nNext: create + price (£0.79) + activate each sku in Play Console & "
-              "App Store Connect (see store_products.csv). Products appear in-app once "
-              "the store knows the sku. Gift a pack free via its code on the Image packs screen.")
+        print("\nNext: create + price + activate each sku in Play Console & App Store "
+              "Connect (see store_products.csv). Products appear in-app once the store "
+              "knows the sku. Gift a pack/bundle free via its code on the Image packs screen.")
 
 
 if __name__ == "__main__":
