@@ -35,7 +35,7 @@ class _CharacterCarouselState extends ConsumerState<CharacterCarousel> {
   @override
   void initState() {
     super.initState();
-    _characters = ref.read(catalogProvider).characters;
+    _characters = ref.read(selectableCatalogProvider).characters;
     _currentIndex = _initialIndex();
     _controller = PageController(
       initialPage: _currentIndex,
@@ -77,10 +77,11 @@ class _CharacterCarouselState extends ConsumerState<CharacterCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    // Remote catalog entries can land after first build (the merged list
-    // only ever grows). Re-resolve the selected id's index when it does -
+    // The selectable set can change after first build - remote catalog
+    // entries land late, and the entitled list shifts when household packs
+    // change. Re-resolve the selected id's index when the list changes -
     // same deferred-jump dance as didUpdateWidget.
-    final characters = ref.watch(catalogProvider).characters;
+    final characters = ref.watch(selectableCatalogProvider).characters;
     if (characters.length != _characters.length) {
       _characters = characters;
       final target = _initialIndex();
