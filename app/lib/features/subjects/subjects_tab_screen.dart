@@ -25,7 +25,7 @@ class SubjectsTabScreen extends ConsumerWidget {
     const title = PageTitle(
       text: 'Things',
       subtitle:
-          "Sometimes friends, often just stuff. These are the things you don't want to forget.",
+          "Sometimes friends, often just stuff. These are the things you don't want to forget and look after.",
     );
 
     // Status-bar inset as scroll padding, not SafeArea: content starts

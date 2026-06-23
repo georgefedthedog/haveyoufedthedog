@@ -13,6 +13,7 @@ import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../router/routes.dart';
+import '../../widgets/wiggle.dart';
 import '../profile/avatar_artwork.dart';
 
 /// Full-screen "every chore done today!" celebration - the household-wide
@@ -33,6 +34,10 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
   late final AnimationController _pop;
   Timer? _autoDismiss;
 
+  /// Periodic nudge so the trophy keeps shaking under the confetti.
+  final _wiggle = WiggleController();
+  Timer? _wiggleTimer;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +51,11 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
       _pop.forward();
     });
     _autoDismiss = Timer(const Duration(milliseconds: 5000), _toAwards);
+    // Start shaking once the elastic pop has settled, then keep it up.
+    _wiggleTimer = Timer.periodic(
+      const Duration(milliseconds: 1200),
+      (_) => _wiggle.poke(),
+    );
   }
 
   void _toAwards() {
@@ -59,6 +69,8 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
   @override
   void dispose() {
     _autoDismiss?.cancel();
+    _wiggleTimer?.cancel();
+    _wiggle.dispose();
     _confetti.dispose();
     _pop.dispose();
     super.dispose();
@@ -118,11 +130,14 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                       parent: _pop,
                       curve: Curves.elasticOut,
                     ),
-                    child: SizedBox(
-                      height: 200,
-                      child: Image.asset(
-                        'assets/awards/all_done_cup.png',
-                        fit: BoxFit.contain,
+                    child: Wiggle(
+                      controller: _wiggle,
+                      child: SizedBox(
+                        height: 200,
+                        child: Image.asset(
+                          'assets/awards/all_done_cup.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
+import '../../core/household/act_as_highlight_controller.dart';
+import '../../core/household/acting_user_controller.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../router/routes.dart';
 import '../profile/avatar_artwork.dart';
@@ -31,6 +33,14 @@ class HouseholdMembersRow extends ConsumerWidget {
       authControllerProvider.select((a) => a.valueOrNull?.userId),
     );
 
+    // When acting as a managed member (not yourself), ring that member's
+    // avatar in red - the same cue as the You tab's bottom-bar icon.
+    final actingMember = ref.watch(actingMemberProvider).valueOrNull;
+    final actingAsUserId =
+        (actingMember != null && actingMember.userId != currentUserId)
+        ? actingMember.userId
+        : null;
+
     return SizedBox(
       height: 56,
       child: Center(
@@ -56,6 +66,8 @@ class HouseholdMembersRow extends ConsumerWidget {
                       name: name,
                       isOwner: m.isOwner,
                       isCurrentUser: m.userId == currentUserId,
+                      isManaged: m.isManaged,
+                      isActingAs: m.userId == actingAsUserId,
                     );
                   },
                 ),
@@ -80,8 +92,17 @@ class _Avatar extends ConsumerWidget {
   final bool isOwner;
 
   /// True for the signed-in user's own chip - taps deep-link to the You tab
-  /// (their profile). Everyone else's avatar is display-only.
+  /// (their profile).
   final bool isCurrentUser;
+
+  /// True for a managed (loginless) member. Any signed-in member can act as
+  /// one, so their chip is tappable too and routes to the You tab (where the
+  /// "Whose turn?" picker lives). Real members other than you are display-only.
+  final bool isManaged;
+
+  /// True when the device is currently acting as this member (and it isn't
+  /// you) - draws a red ring to match the You tab's bottom-bar icon.
+  final bool isActingAs;
 
   const _Avatar({
     required this.avatarId,
@@ -90,6 +111,8 @@ class _Avatar extends ConsumerWidget {
     required this.name,
     required this.isOwner,
     required this.isCurrentUser,
+    required this.isManaged,
+    required this.isActingAs,
   });
 
   @override
@@ -117,6 +140,17 @@ class _Avatar extends ConsumerWidget {
       );
     }
 
+    if (isActingAs) {
+      // Purple ring hugging the avatar to mark who you're acting as.
+      circle = Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.purple, width: 2),
+        ),
+        child: circle,
+      );
+    }
+
     if (isOwner) {
       // Same star badge as the members cloud on household details.
       circle = Stack(
@@ -141,10 +175,19 @@ class _Avatar extends ConsumerWidget {
     }
 
     final chip = Tooltip(message: name, child: circle);
-    if (!isCurrentUser) return chip;
+    // Your own chip routes to your profile; a managed member's routes to the
+    // You tab so you can act as them. Other real members are display-only.
+    if (!isCurrentUser && !isManaged) return chip;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => context.go(Routes.youTab),
+      onTap: () {
+        // For a managed member, ask the You tab's "Whose turn?" card to flash
+        // so it's obvious where to act as them.
+        if (isManaged) {
+          ref.read(actAsHighlightProvider.notifier).request();
+        }
+        context.go(Routes.youTab);
+      },
       child: chip,
     );
   }

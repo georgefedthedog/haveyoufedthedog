@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ import '../../core/subjects/subject.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/wiggle.dart';
 import '../chores/chore_row.dart';
 import '../history/all_activity_section.dart';
 import '../history/leaderboard.dart';
@@ -78,8 +80,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _scrollToActivity() async {
     if (!_pendingActivityScroll) return;
-    if (!_scrollController.hasClients)
+    if (!_scrollController.hasClients) {
       return; // Not attached - retry next build.
+    }
     _pendingActivityScroll = false;
 
     // The All activity section is the last child of a lazy ListView, so
@@ -583,14 +586,7 @@ class _TodaySummaryCard extends StatelessWidget {
               // The day's journey in one glyph: flag at the start line,
               // a growing shoot once underway, the trophy when done.
               if (allDone)
-                SizedBox(
-                  width: 64,
-                  height: 64,
-                  child: Image.asset(
-                    'assets/awards/all_done_cup.png',
-                    fit: BoxFit.contain,
-                  ),
-                )
+                const _WigglingCup()
               else
                 Container(
                   width: 64,
@@ -646,6 +642,51 @@ class _TodaySummaryCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The "all done" trophy on the summary card, nudged every few seconds so it
+/// invites a tap (which opens the day celebration). Reuses the shared
+/// [Wiggle] / [WiggleController] shake by self-poking on a timer.
+class _WigglingCup extends StatefulWidget {
+  const _WigglingCup();
+
+  @override
+  State<_WigglingCup> createState() => _WigglingCupState();
+}
+
+class _WigglingCupState extends State<_WigglingCup> {
+  final _wiggle = WiggleController();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // A short shake straight away, then a recurring nudge.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _wiggle.poke());
+    _timer = Timer.periodic(const Duration(seconds: 3), (_) => _wiggle.poke());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _wiggle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wiggle(
+      controller: _wiggle,
+      child: SizedBox(
+        width: 64,
+        height: 64,
+        child: Image.asset(
+          'assets/awards/all_done_cup.png',
+          fit: BoxFit.contain,
         ),
       ),
     );

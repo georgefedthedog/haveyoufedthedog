@@ -189,6 +189,10 @@ class _Body extends ConsumerStatefulWidget {
 class _BodyState extends ConsumerState<_Body> {
   final _nameCtrl = TextEditingController();
   final _residentsCtrl = TextEditingController();
+  final _scrollController = ScrollController();
+  // Keys the invite card so the "Invite someone" chooser path can scroll to
+  // it and trigger its flash highlight (both via this one GlobalKey).
+  final GlobalKey<_InviteSettingsState> _inviteKey = GlobalKey();
   String _seededName = '';
   String _seededResidents = '';
   String? _stagedPicture;
@@ -261,6 +265,7 @@ class _BodyState extends ConsumerState<_Body> {
   void dispose() {
     _nameCtrl.dispose();
     _residentsCtrl.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -312,6 +317,62 @@ class _BodyState extends ConsumerState<_Body> {
     }
   }
 
+  /// Owner tapped the "+" in the members cloud. Rather than committing them
+  /// straight to the managed-member screen, offer the choice between inviting
+  /// a real member (own login) and adding a managed one (loginless).
+  void _chooseAddPath() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => _AddSomeoneSheet(
+        onInvite: _revealInvites,
+        onManaged: _addManagedMember,
+      ),
+    );
+  }
+
+  /// "Invite someone with a login" path: make sure invites are on, then scroll
+  /// to the (now code-bearing) invite card and flash it. Turning invites on
+  /// patches the household in place, so the card re-renders with the code.
+  Future<void> _revealInvites() async {
+    if (!widget.household.invitesOpen) {
+      try {
+        await ref
+            .read(householdActionsProvider)
+            .setInvitesOpen(householdId: widget.household.id, open: true);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(showCloseIcon: true, content: Text('$e')));
+        }
+        return;
+      }
+    }
+    if (!mounted) return;
+    // Defer a frame so the code row is laid out before we scroll to it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _inviteKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 400),
+          alignment: 0.1,
+        );
+      }
+      _inviteKey.currentState?.flash();
+    });
+  }
+
+  /// "Add someone without a login" path: the original managed-member screen.
+  void _addManagedMember() {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => _ManagedMemberScreen(householdId: widget.household.id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final h = widget.household;
@@ -323,6 +384,7 @@ class _BodyState extends ConsumerState<_Body> {
         await ref.read(householdMembersControllerProvider(h.id).future);
       },
       child: ListView(
+        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
         children: [
           // Picture carousel - staged selection only; written to PB by
@@ -436,14 +498,133 @@ class _BodyState extends ConsumerState<_Body> {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
-                  _MembersList(household: h, viewerIsOwner: isOwner),
+                  _MembersList(
+                    household: h,
+                    viewerIsOwner: isOwner,
+                    onAddMember: _chooseAddPath,
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 24),
-          _InviteSettings(household: h),
+          _InviteSettings(key: _inviteKey, household: h),
         ],
+      ),
+    );
+  }
+}
+
+/// The chooser shown when the owner taps "+" in the members cloud. Two clearly
+/// distinguished paths: invite a real member (their own login) versus add a
+/// managed member (loginless, you log chores for them).
+class _AddSomeoneSheet extends StatelessWidget {
+  final VoidCallback onInvite;
+  final VoidCallback onManaged;
+  const _AddSomeoneSheet({required this.onInvite, required this.onManaged});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Add someone',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _AddOptionCard(
+              icon: Icons.group_add_outlined,
+              title: 'Invite someone with a login',
+              subtitle:
+                  'Family or flatmates who sign in on their own phone. They '
+                  'join with a code and log their own chores.',
+              onTap: () {
+                Navigator.of(context).pop();
+                onInvite();
+              },
+            ),
+            const SizedBox(height: 12),
+            _AddOptionCard(
+              icon: Icons.manage_accounts_outlined,
+              title: 'Add someone without a login',
+              subtitle:
+                  'For anyone without their own login. You manage their '
+                  "profile, and log their chores by switching to them with "
+                  "'Whose turn?' on the You tab.",
+              onTap: () {
+                Navigator.of(context).pop();
+                onManaged();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One tappable path in [_AddSomeoneSheet]: icon, title, explanatory subtitle,
+/// trailing chevron.
+class _AddOptionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _AddOptionCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(icon, color: scheme.primary),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -451,7 +632,7 @@ class _BodyState extends ConsumerState<_Body> {
 
 class _InviteSettings extends ConsumerStatefulWidget {
   final Household household;
-  const _InviteSettings({required this.household});
+  const _InviteSettings({super.key, required this.household});
 
   @override
   ConsumerState<_InviteSettings> createState() => _InviteSettingsState();
@@ -459,6 +640,19 @@ class _InviteSettings extends ConsumerStatefulWidget {
 
 class _InviteSettingsState extends ConsumerState<_InviteSettings> {
   bool _busy = false;
+
+  /// Briefly true after the "Invite someone" chooser path lands here, drawing
+  /// a primary-coloured border so the freshly-revealed code card stands out.
+  bool _flash = false;
+
+  /// Pulse the highlight border. Called via the GlobalKey from `_BodyState`
+  /// once it has scrolled this card into view.
+  void flash() {
+    setState(() => _flash = true);
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (mounted) setState(() => _flash = false);
+    });
+  }
 
   Future<void> _toggle(bool open) async {
     setState(() => _busy = true);
@@ -515,106 +709,116 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     final isOpen = widget.household.invitesOpen;
     final code = widget.household.inviteCode;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.group_add_outlined),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Invite someone',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        'Invite family or flatmates',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 6, 4),
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        isOpen ? 'Invites are on' : 'Invites are off',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Switch(
-                        value: isOpen,
-                        onChanged: (isOwner && !_busy) ? _toggle : null,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (isOpen && code != null) ...[
-              const SizedBox(height: 20),
-              Text(
-                code,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 4,
-                ),
-              ),
-              const SizedBox(height: 10),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _flash ? scheme.primary : Colors.transparent,
+          width: 2,
+        ),
+      ),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 14,
-                    color: scheme.onSurfaceVariant,
+                  const Icon(Icons.group_add_outlined),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Invite someone',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          'Invite family or flatmates',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Live until you turn invites off',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 6, 4),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          isOpen ? 'Invites are on' : 'Invites are off',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Switch(
+                          value: isOpen,
+                          onChanged: (isOwner && !_busy) ? _toggle : null,
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Center(
-                child: FilledButton.icon(
-                  icon: const Icon(Icons.share),
-                  label: const Text('Share code'),
-                  onPressed: _busy ? null : () => _share(code),
+              if (isOpen && code != null) ...[
+                const SizedBox(height: 20),
+                Text(
+                  code,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 4,
+                  ),
                 ),
-              ),
-              if (isOwner)
-                TextButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Generate new code'),
-                  onPressed: _busy ? null : _rotate,
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 14,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Live until you turn invites off',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 16),
+                Center(
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.share),
+                    label: const Text('Share code'),
+                    onPressed: _busy ? null : () => _share(code),
+                  ),
+                ),
+                if (isOwner)
+                  TextButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Generate new code'),
+                    onPressed: _busy ? null : _rotate,
+                  ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -624,7 +828,15 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
 class _MembersList extends ConsumerStatefulWidget {
   final Household household;
   final bool viewerIsOwner;
-  const _MembersList({required this.household, required this.viewerIsOwner});
+
+  /// Owner tapped the "+" chip. Opens the add-someone chooser (lives in
+  /// `_BodyState` so it can coordinate with the invite card).
+  final VoidCallback onAddMember;
+  const _MembersList({
+    required this.household,
+    required this.viewerIsOwner,
+    required this.onAddMember,
+  });
 
   @override
   ConsumerState<_MembersList> createState() => _MembersListState();
@@ -802,7 +1014,7 @@ class _MembersListState extends ConsumerState<_MembersList> {
                 },
               )
             else
-              _AddMemberChip(onTap: () => _openMemberEditor()),
+              _AddMemberChip(onTap: widget.onAddMember),
           ],
         );
       },

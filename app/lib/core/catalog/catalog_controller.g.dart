@@ -33,7 +33,7 @@ final remoteCatalogProvider = FutureProvider<RemoteCatalog>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef RemoteCatalogRef = FutureProviderRef<RemoteCatalog>;
-String _$catalogHash() => r'c2c244d3a5793b3e33c7dffd447ce4bfe9b25409';
+String _$catalogHash() => r'4dc75e61683439f69b1da291aee38ff18e0bd809';
 
 /// Merged bundled + remote catalog. Synchronous and always usable: starts
 /// as bundled-only, re-emits once (if) the remote fetch lands.
@@ -53,7 +53,7 @@ final catalogProvider = Provider<Catalog>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CatalogRef = ProviderRef<Catalog>;
-String _$selectableCatalogHash() => r'e8f37910d05228f7699720cc6c9cb658bccaae8d';
+String _$selectableCatalogHash() => r'5008bcf569a3f48253c2f564af517053101b833e';
 
 /// The art a user may select in the pickers - bundled and general-catalog
 /// art (always), plus packed art they're entitled to. Entitlement differs
