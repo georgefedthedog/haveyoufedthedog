@@ -1,7 +1,7 @@
 /// Managed ("phone-less") household member endpoints.
 ///
 /// A managed member is a real-but-loginless `users` record: a synthetic
-/// `{id}@haveyoufedthedogyet.com` email, a random password nobody knows, and
+/// `{id}@haveyoufedthedog.com` email, a random password nobody knows, and
 /// `managed = true`. It exists so a person without a phone can earn credit,
 /// awards and leaderboard standing - everything keys off `completed_by` (a user
 /// id), so a managed user flows through the whole pipeline with no extra
@@ -46,11 +46,7 @@ routerAdd("POST", "/api/custom/managed-member", e => {
   // Caller must be the OWNER of the target household.
   let ownerMembership;
   try {
-    ownerMembership = $app.findFirstRecordByFilter(
-      "household_members",
-      "user = {:user} && household = {:hh} && role = 'owner'",
-      { user: auth.id, hh: householdId },
-    );
+    ownerMembership = $app.findFirstRecordByFilter("household_members", "user = {:user} && household = {:hh} && role = 'owner'", { user: auth.id, hh: householdId });
   } catch (_) {
     return e.json(403, { message: "Only the household owner can add members." });
   }
@@ -63,7 +59,7 @@ routerAdd("POST", "/api/custom/managed-member", e => {
   // `{id}@...` once PocketBase has assigned the id.
   const users = $app.findCollectionByNameOrId("users");
   const user = new Record(users);
-  user.set("email", $security.randomString(20).toLowerCase() + "@haveyoufedthedogyet.com");
+  user.set("email", $security.randomString(20).toLowerCase() + "@haveyoufedthedog.com");
   user.set("emailVisibility", false);
   user.set("verified", true);
   user.set("managed", true);
@@ -74,7 +70,7 @@ routerAdd("POST", "/api/custom/managed-member", e => {
 
   // Canonicalise the email to {id}@... (cosmetic; best-effort).
   try {
-    user.set("email", user.id + "@haveyoufedthedogyet.com");
+    user.set("email", user.id + "@haveyoufedthedog.com");
     $app.save(user);
   } catch (err) {
     console.warn("[managed-member] email canonicalise failed:", err);
@@ -147,7 +143,9 @@ routerAdd("POST", "/api/custom/managed-member/{userId}/claim-code", e => {
 
   const info = e.requestInfo();
   const body = (info && info.body) || {};
-  const code = String(body.code || "").trim().toUpperCase();
+  const code = String(body.code || "")
+    .trim()
+    .toUpperCase();
 
   target.set("claim_code", code);
   $app.save(target);
@@ -165,7 +163,9 @@ routerAdd("POST", "/api/custom/managed-member/{userId}/claim-code", e => {
 routerAdd("POST", "/api/custom/claim-account", e => {
   const info = e.requestInfo();
   const body = (info && info.body) || {};
-  const code = String(body.code || "").trim().toUpperCase();
+  const code = String(body.code || "")
+    .trim()
+    .toUpperCase();
   const email = String(body.email || "").trim();
   const password = String(body.password || "");
   const name = String(body.name || "").trim();
@@ -180,11 +180,7 @@ routerAdd("POST", "/api/custom/claim-account", e => {
   // matches a regular user (managed = false, blank claim_code).
   let user;
   try {
-    user = $app.findFirstRecordByFilter(
-      "users",
-      "claim_code = {:code} && managed = true",
-      { code: code },
-    );
+    user = $app.findFirstRecordByFilter("users", "claim_code = {:code} && managed = true", { code: code });
   } catch (_) {
     return e.json(404, { message: "That claim code isn't valid." });
   }

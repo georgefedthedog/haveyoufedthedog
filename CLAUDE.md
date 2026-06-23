@@ -35,7 +35,7 @@ dart run flutter_launcher_icons                   # after changing app icon art
 **iOS release** runs on Codemagic (cloud macOS - no local Xcode): `codemagic.yaml`
 at the repo root (workflow `ios-release`, `working_directory: app`); push to `main`
 then Start build in the Codemagic UI. iOS bundle id `com.haveyoufedthedog.app` is
-deliberately *not* the Android `com.haveyoufedthedog`. Edit `ios/` config
+deliberately _not_ the Android `com.haveyoufedthedog`. Edit `ios/` config
 (Info.plist, entitlements, `project.pbxproj`) as plain text. The App ID's
 capabilities must mirror the app's entitlements (NFC Tag Reading + Push are wired; iOS IAP still deferred). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
 `project.pbxproj` (native Firebase config, no `firebase_options.dart`). Signing is a
@@ -49,7 +49,7 @@ has a hardcoded file list** - new hook files must be added to its `tar` line.
 `deploy-public.sh` syncs `server/pb_public/` (static files served at the API
 domain root, e.g. `.well-known/assetlinks.json`); PB only serves that dir
 because the systemd unit sets `--publicDir` to the per-instance path - its
-default is the *binary* dir, a documented gotcha (README → "Static files").
+default is the _binary_ dir, a documented gotcha (README → "Static files").
 
 ## Architecture
 
@@ -60,7 +60,7 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   times) are pure functions over the cached last-100 completions
   (`householdHistoryControllerProvider`) - no extra fetches. (The character
   awards within `weeklyAwardsProvider` are the one twist: they read a
-  *settled* past week, not the live one, and are mirrored server-side - see
+  _settled_ past week, not the live one, and are mirrored server-side - see
   Data conventions.)
 - `app/lib/features/<area>/` - screens + feature widgets. One class per file
   (small private helper widgets in the same file are fine).
@@ -79,11 +79,11 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   remote rows (bundled first, bundled wins slug collisions; fail-soft to
   bundled-only offline). **Resolution and selection are split.**
   `catalogProvider` is ungated: the fetch pulls every row with no pack or
-  *any* enabled pack, so chosen art resolves in *any* household the viewer is
+  _any_ enabled pack, so chosen art resolves in _any_ household the viewer is
   in - a packed avatar/picture renders even where the pack isn't owned.
-  `selectableCatalogProvider` is the entitlement gate for the *pickers*:
-  pictures + characters when the current household owns *any* of the row's
-  packs, avatars when *any* of the user's households does (avatars are
+  `selectableCatalogProvider` is the entitlement gate for the _pickers_:
+  pictures + characters when the current household owns _any_ of the row's
+  packs, avatars when _any_ of the user's households does (avatars are
   personal, so they travel). Art rows carry a `packs` **multi**-relation - a
   row can sit in several packs (its category group plus an "everything" pack);
   empty `packs` = general catalog, everyone sees it. Widgets read lookups via
@@ -115,8 +115,8 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   images / characters / avatars") → `features/store/` (the "Image packs"
   screen, which also hosts gift-code redemption).
 - **Managed members + "Act as":** a household member without their own login is
-  a *managed* user - a real but loginless `users` row (`managed: true`, synthetic
-  `{id}@haveyoufedthedogyet.com` email, random password) the owner creates,
+  a _managed_ user - a real but loginless `users` row (`managed: true`, synthetic
+  `{id}@haveyoufedthedog.com` email, random password) the owner creates,
   edits and deletes via the elevated `members.pb.js` hook (an owner can't
   create a membership for another user, nor edit a user they can't log in as).
   Because it's a real user row it flows through the leaderboard / awards /
@@ -156,12 +156,12 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
 - Weekly windows everywhere are Mon→Sun local. Award ties go to nobody.
 - **Character "Best Human" awards are settled, not live.** The personality
   badges + Team Effort + leaderboard track the in-progress Mon→Sun week, but
-  the per-subject character awards lock to the last *finished* week so they
+  the per-subject character awards lock to the last _finished_ week so they
   can't change hands mid-week. Award weeks run Sunday 18:00 → next Sunday
   18:00 (`WeekWindow.settledAward`, `awardPresentationHour` in
   `stats_controller.dart`); the winner shown is the most recently closed
   window. At each Sunday-18:00 boundary the worker's `award-cron.js` settles
-  the *same* window and pushes one notification per winning user (deduped
+  the _same_ window and pushes one notification per winning user (deduped
   across subjects). **The app and the cron compute winners independently and
   must stay in sync** - if you touch any of these, change both sides:
   the presentation hour (`awardPresentationHour` ⇔ `AWARD_HOUR`), the Sun→Sun
@@ -205,7 +205,7 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
 - **Inputs:** theme-level filled rounded boxes (`inputDecorationTheme`,
   radius 16, borderless). Never style a field inline. Labels above fields
   via the shared `LabeledField(label:, child:)` - primary colour, w600.
-  Because the label sits *outside* the field (no `InputDecoration.labelText`),
+  Because the label sits _outside_ the field (no `InputDecoration.labelText`),
   credential autofill rides entirely on `autofillHints`: wrap login/signup
   fields in an `AutofillGroup`, hint each field, and call
   `TextInput.finishAutofillContext()` on a successful submit so the OS offers

@@ -117,7 +117,7 @@ server" below) - ask Claude for step-by-step instructions.
 - **members.pb.js** + **\_members_helper.js** - owner-only managed member
   CRUD. `POST /api/custom/managed-member` `{householdId, name, avatar?}` mints
   a loginless `users` row (`managed:true`, synthetic
-  `{id}@haveyoufedthedogyet.com` email) + joins it to the household;
+  `{id}@haveyoufedthedog.com` email) + joins it to the household;
   `PATCH`/`DELETE /api/custom/managed-member/{userId}` edit / remove it. Runs
   privileged because an owner can't create a membership for another user, nor
   edit a `users` row they can't authenticate as.
@@ -516,7 +516,7 @@ instructions when making a schema change.
   household / subject records; never rename or reuse one.
 - **Image pack:** a `catalog_packs` row (code + name + enabled + redeemable),
   then add it to the `packs` of the art rows that belong to it - those rows
-  are only *selectable* by households that own the pack (bought via a product
+  are only _selectable_ by households that own the pack (bought via a product
   or redeemed by code; Household details → Image packs). Rows with no pack
   stay visible to everyone. Full pack workflow: see "Publishing a pack" below
   (a by-hand process - ask Claude for step-by-step instructions).
