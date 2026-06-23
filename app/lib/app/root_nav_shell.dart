@@ -8,9 +8,9 @@ import '../core/household/acting_user_controller.dart';
 import '../features/profile/avatar_artwork.dart';
 import '../router/routes.dart';
 
-/// Hosts the four bottom-nav tabs (Home / Friends / Awards / You) in a
+/// Hosts the four bottom-nav tabs (Home / Things / Awards / You) in a
 /// swipeable PageView - swipe left/right between tabs, or tap the bar.
-/// Adding a friend lives in the Friends tab's AppBar (+), not a FAB.
+/// Adding a thing lives in the Things tab's AppBar (+), not a FAB.
 ///
 /// Wired by `app_router.dart` via a custom [StatefulShellRoute] whose
 /// `navigatorContainerBuilder` passes every branch Navigator in
@@ -33,7 +33,7 @@ class _RootNavShellState extends State<RootNavShell> {
   // other three match it rather than the paw sticking out.
   static const _items = <_NavItem>[
     _NavItem(label: 'Home', icon: Icons.home, path: Routes.home),
-    _NavItem(label: 'Friends', icon: Icons.pets, path: Routes.subjectsTab),
+    _NavItem(label: 'Things', icon: Icons.pets, path: Routes.subjectsTab),
     _NavItem(
       label: 'Awards',
       icon: Icons.emoji_events,

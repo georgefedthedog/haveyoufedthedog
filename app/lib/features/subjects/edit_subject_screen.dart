@@ -97,7 +97,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
         title: const Text('Remove tag?'),
         content: Text(
           'Tapping it will no longer reach '
-          '${name.isEmpty ? "this friend" : name}. You can bind it again '
+          '${name.isEmpty ? "this thing" : name}. You can bind it again '
           'any time by re-scanning.',
         ),
         actions: [
@@ -181,7 +181,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       builder: (ctx) => AlertDialog(
         title: Text('Delete ${_nameCtrl.text}?'),
         content: const Text(
-          'All chores and history for this friend will be permanently '
+          'All chores and history for this thing will be permanently '
           'removed. This cannot be undone.',
         ),
         actions: [
@@ -260,12 +260,12 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit friend' : 'New friend'),
+        title: Text(_isEdit ? 'Edit thing' : 'New thing'),
         actions: [
           if (_isEdit)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete friend',
+              tooltip: 'Delete thing',
               onPressed: _busy ? null : _delete,
             ),
         ],
@@ -316,7 +316,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                 ),
                               )
                             : Icon(_isEdit ? Icons.check : Icons.pets),
-                        label: Text(_isEdit ? 'Save changes' : 'Add friend'),
+                        label: Text(_isEdit ? 'Save changes' : 'Add thing'),
                         onPressed: (_busy || !_isDirty(existing))
                             ? null
                             : _save,
@@ -379,11 +379,11 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                 ? 'On this phone, a tap ticks off the '
                                       'current chore. Change this setting in '
                                       'Edit Profile.'
-                                : "On this phone, a tap opens this friend's "
+                                : "On this phone, a tap opens this thing's "
                                       'page. Change this setting in '
                                       'Edit Profile.')
                           : 'Drag the tag to bind one to '
-                                '${_nameCtrl.text.trim().isEmpty ? "this friend" : _nameCtrl.text.trim()}.';
+                                '${_nameCtrl.text.trim().isEmpty ? "this thing" : _nameCtrl.text.trim()}.';
                       final targetBase = bound
                           ? Colors.red.shade300
                           : scheme.primary;

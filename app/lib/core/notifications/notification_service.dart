@@ -83,7 +83,7 @@ class NotificationService with WidgetsBindingObserver {
 
   /// Routes a tapped notification to where it's about: award pushes land on
   /// the Awards tab, completion/overdue pushes (which carry a `subjectId`)
-  /// open that friend's page.
+  /// open that thing's page.
   ///
   /// Awaits the auth → household chain first so a cold launch from a tap
   /// doesn't push a route the redirect immediately bounces. A null

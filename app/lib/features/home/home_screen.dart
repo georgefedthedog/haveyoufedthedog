@@ -78,7 +78,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _scrollToActivity() async {
     if (!_pendingActivityScroll) return;
-    if (!_scrollController.hasClients) return; // Not attached - retry next build.
+    if (!_scrollController.hasClients)
+      return; // Not attached - retry next build.
     _pendingActivityScroll = false;
 
     // The All activity section is the last child of a lazy ListView, so
@@ -201,7 +202,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: EmptyState(
                         character: CharacterRegistry.generic,
                         title: 'Hmm, something went sideways',
-                        message: 'Could not load your friends. $e',
+                        message: 'Could not load your things. $e',
                         actionLabel: 'Try again',
                         onAction: () => ref
                             .read(subjectsControllerProvider.notifier)
@@ -211,7 +212,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ],
                   data: (subjects) {
                     if (subjects.isEmpty) {
-                      // A different friend fronts the empty state on each
+                      // A different thing fronts the empty state on each
                       // load/refresh. Seeding from the list instance keeps
                       // the pick stable across unrelated rebuilds (theme
                       // flips, other providers) - it only reshuffles when
@@ -229,11 +230,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: EmptyState(
                             character: greeter,
-                            title: 'No friends yet',
+                            title: 'No things yet',
                             message:
                                 'Add a dog, cat, plant, or whatever else needs '
                                 'looking after.',
-                            actionLabel: 'Add a friend',
+                            actionLabel: 'Add a thing',
                             actionIcon: Icons.pets,
                             onAction: () => context.push(Routes.subjectNew),
                           ),
@@ -282,7 +283,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                                 child: Builder(
                                   builder: (context) {
-                                    // One of the household's own friends
+                                    // One of the household's own things
                                     // snoozes through the day off. Seeded
                                     // from the list instance so it doesn't
                                     // reshuffle on unrelated rebuilds.

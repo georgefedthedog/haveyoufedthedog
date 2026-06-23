@@ -22,7 +22,11 @@ class SubjectsTabScreen extends ConsumerWidget {
 
     // Title lives inside the scroll views (PageTitle) so it scrolls out
     // of the way instead of content sliding under a fixed bar.
-    const title = PageTitle(text: 'Friends');
+    const title = PageTitle(
+      text: 'Things',
+      subtitle:
+          "Sometimes friends, often just stuff. These are the things you don't want to forget.",
+    );
 
     // Status-bar inset as scroll padding, not SafeArea: content starts
     // below the status bar but scrolls clean to the physical top edge
@@ -46,7 +50,7 @@ class SubjectsTabScreen extends ConsumerWidget {
               title,
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Could not load friends: $e'),
+                child: Text('Could not load things: $e'),
               ),
             ],
           ),
@@ -60,11 +64,11 @@ class SubjectsTabScreen extends ConsumerWidget {
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: EmptyState(
                       character: CharacterRegistry.cat,
-                      title: 'No friends yet',
+                      title: 'No things yet',
                       message:
                           'Add a dog, cat, plant, or whatever else needs '
                           'looking after.',
-                      actionLabel: 'Add a friend',
+                      actionLabel: 'Add a thing',
                       actionIcon: Icons.pets,
                       onAction: () => context.push(Routes.subjectNew),
                     ),
@@ -87,7 +91,7 @@ class SubjectsTabScreen extends ConsumerWidget {
                       child: FilledButton.icon(
                         onPressed: () => context.push(Routes.subjectNew),
                         icon: const Icon(Icons.pets),
-                        label: const Text('Add a friend'),
+                        label: const Text('Add a thing'),
                       ),
                     ),
                   );

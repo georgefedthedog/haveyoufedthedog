@@ -15,7 +15,7 @@ class EmptyState extends StatelessWidget {
   final String? message;
   final String? actionLabel;
 
-  /// Optional glyph on the action button (e.g. the paw on "Add a friend").
+  /// Optional glyph on the action button (e.g. the paw on "Add a thing").
   final IconData? actionIcon;
   final VoidCallback? onAction;
 

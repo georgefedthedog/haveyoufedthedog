@@ -102,13 +102,13 @@ class NfcLaunchHandler {
           SnackBar(
             showCloseIcon: true,
             duration: const Duration(seconds: 5),
-            content: Text('Unknown tag $tagId - register it from a friend.'),
+            content: Text('Unknown tag $tagId - register it from a thing.'),
           ),
         );
         return;
       }
       // Per-device preference: a tap either completes the closest chore
-      // (default) or just opens the friend's page.
+      // (default) or just opens the thing's page.
       final completesChore = await _ref.read(
         nfcTapActionControllerProvider.future,
       );
@@ -138,7 +138,9 @@ class NfcLaunchHandler {
       // lives outside the widget tree so it has no BuildContext - the router
       // instance is the entry point. Re-tap on the chore row/chip undoes if
       // the user wants out; no snackbar Undo button needed.
-      final character = _ref.read(catalogProvider).lookupCharacter(subject.icon);
+      final character = _ref
+          .read(catalogProvider)
+          .lookupCharacter(subject.icon);
       // An NFC tap credits whoever you're acting as (same as a chip tap).
       final actingMember = await _ref.read(actingMemberProvider.future);
       _ref
