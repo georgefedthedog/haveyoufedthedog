@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
+import '../catalog/catalog_controller.dart';
 import 'current_household_controller.dart';
 import 'household_members_controller.dart';
 import 'households_controller.dart';
@@ -99,9 +100,11 @@ class HouseholdActions {
   /// Redeems an image-pack code for [householdId] via the custom server
   /// endpoint (the pack code field is hidden from clients, so only the
   /// hook can resolve it). Idempotent server-side. On success, patches
-  /// the cached household's pack list in place - the catalog provider
-  /// watches it and refetches with the new pack included, so the art
-  /// appears in pickers without any navigation or refetch bounce.
+  /// the cached household's pack list in place (so the picker gate updates)
+  /// and invalidates the remote catalog so it refetches the now-relevant
+  /// pack's art - otherwise the in-memory catalog still predates it and the
+  /// art wouldn't appear until the next sign-in (which is the only other
+  /// thing that refetches the catalog).
   ///
   /// Returns the pack's display name for the confirmation snackbar.
   Future<({String name, bool alreadyApplied})> redeemPackCode({
@@ -137,6 +140,7 @@ class HouseholdActions {
             householdId: householdId,
             packs: [...?current?.packIds, packId],
           );
+      _ref.invalidate(remoteCatalogProvider);
     }
     return (name: name, alreadyApplied: alreadyApplied);
   }
@@ -148,9 +152,10 @@ class HouseholdActions {
   /// `packs` relation. Idempotent server-side: a Restore re-verifies the same
   /// transaction and returns `alreadyApplied`.
   ///
-  /// On a fresh grant, patches the cached household's pack list in place - the
-  /// catalog watches it and refetches with the new packs, so the art appears
-  /// in the pickers without any navigation bounce (same as [redeemPackCode]).
+  /// On a fresh grant, patches the cached household's pack list in place (so
+  /// the picker gate updates) and invalidates the remote catalog so it
+  /// refetches the granted packs' art, so it appears in the pickers without a
+  /// sign-out/in (same as [redeemPackCode]).
   ///
   /// Returns the product name + the granted pack ids for the confirmation.
   Future<({String name, List<String> packIds, bool alreadyApplied})>
@@ -192,6 +197,7 @@ class HouseholdActions {
       _ref
           .read(householdsControllerProvider.notifier)
           .updateOneInPlace(householdId: householdId, packs: merged);
+      _ref.invalidate(remoteCatalogProvider);
     }
     return (name: name, packIds: packIds, alreadyApplied: alreadyApplied);
   }
