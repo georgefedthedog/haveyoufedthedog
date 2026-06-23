@@ -5,410 +5,287 @@
       "display_name": "Bernese Mountain Dog",
       "base_color": "DCD1C6",
       "sort_order": 1010,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cavapoo",
       "display_name": "Cavapoo",
       "base_color": "E8D1BA",
       "sort_order": 1020,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "chihuahua",
       "display_name": "Chihuahua",
       "base_color": "E8D3BA",
       "sort_order": 1030,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cockapoo",
       "display_name": "Cockapoo",
       "base_color": "E8D2BA",
       "sort_order": 1040,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cockerspaniel_1",
       "display_name": "Cocker Spaniel",
       "base_color": "DBC7C9",
       "sort_order": 1050,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cockerspaniel_2",
       "display_name": "Cocker Spaniel 2",
       "base_color": "E8CFBA",
       "sort_order": 1060,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "dachshund",
       "display_name": "Dachshund",
       "base_color": "E8CFBA",
       "sort_order": 1070,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "dachshund_2",
       "display_name": "Dachshund 2",
       "base_color": "E8CFBA",
       "sort_order": 1080,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "french_bulldog",
       "display_name": "French Bulldog",
       "base_color": "DCD0C6",
       "sort_order": 1090,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "german_shepherd",
       "display_name": "German Shepherd",
       "base_color": "E8D3BA",
       "sort_order": 1100,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "golden_retriever",
       "display_name": "Golden Retriever",
       "base_color": "E8D5BA",
       "sort_order": 1110,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "husky",
       "display_name": "Husky",
       "base_color": "DBD1C7",
       "sort_order": 1120,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "jack_russell",
       "display_name": "Jack Russell",
       "base_color": "E4D2BE",
       "sort_order": 1130,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "labrador_retriever",
       "display_name": "Labrador Retriever",
       "base_color": "E8D5BA",
       "sort_order": 1140,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "maltese",
       "display_name": "Maltese",
       "base_color": "E2CFC0",
       "sort_order": 1150,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "pomeranian",
       "display_name": "Pomeranian",
       "base_color": "E8D3BA",
       "sort_order": 1160,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "pug",
       "display_name": "Pug",
       "base_color": "E3D4BF",
       "sort_order": 1170,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "red_labrador",
       "display_name": "Red Labrador",
       "base_color": "E8CFBA",
       "sort_order": 1180,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "scruffy_mixed_breed",
       "display_name": "Scruffy Mixed Breed",
       "base_color": "DCD0C6",
       "sort_order": 1190,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "shih_tzu",
       "display_name": "Shih Tzu",
       "base_color": "E8D3BB",
       "sort_order": 1200,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "staffy",
       "display_name": "Staffy",
       "base_color": "DCD2C6",
       "sort_order": 1210,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "toy_poodle",
       "display_name": "Toy Poodle",
       "base_color": "E8D2BA",
       "sort_order": 1220,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "yorkshire_terrier",
       "display_name": "Yorkshire Terrier",
       "base_color": "E8D1BA",
       "sort_order": 1230,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "black_cat",
       "display_name": "Black Cat",
       "base_color": "DBD0C7",
       "sort_order": 2010,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "calico_cat",
       "display_name": "Calico Cat",
       "base_color": "E1D1C1",
       "sort_order": 2020,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "fluffy_cat",
       "display_name": "Fluffy Cat",
       "base_color": "E3CFBF",
       "sort_order": 2030,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "ginger_cat",
       "display_name": "Ginger Cat",
       "base_color": "E8D2BA",
       "sort_order": 2040,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "maine_coon_cat",
       "display_name": "Maine Coon Cat",
       "base_color": "E7D1BB",
       "sort_order": 2050,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "shorthair_blue_cat",
       "display_name": "Shorthair Blue Cat",
       "base_color": "DAC7DB",
       "sort_order": 2060,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "siamese_cat",
       "display_name": "Siamese Cat",
       "base_color": "DED1C5",
       "sort_order": 2070,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "tuxedo_cat",
       "display_name": "Tuxedo Cat",
       "base_color": "DBD0C7",
       "sort_order": 2080,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "white_rabbit",
       "display_name": "White Rabbit",
       "base_color": "E8D3BA",
       "sort_order": 3000,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "grey_rabbit",
       "display_name": "Grey Rabbit",
       "base_color": "DBCFC7",
       "sort_order": 3010,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "gerbil",
       "display_name": "Gerbil",
       "base_color": "E8D2BA",
       "sort_order": 3020,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "guinea_pig",
       "display_name": "Guinea Pig",
       "base_color": "E4D1BF",
       "sort_order": 3030,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "hamster",
       "display_name": "Hamster",
       "base_color": "E8D2BA",
       "sort_order": 3040,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "bearded_dragon",
       "display_name": "Bearded Dragon",
       "base_color": "E8D4BA",
       "sort_order": 3045,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "snake",
       "display_name": "Snake",
       "base_color": "E8E6BA",
       "sort_order": 3050,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "tarantula",
       "display_name": "Tarantula",
       "base_color": "E6CDBC",
       "sort_order": 3060,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "tortoise",
       "display_name": "Tortoise",
       "base_color": "E8DBBA",
       "sort_order": 3070,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "tropical_fish",
       "display_name": "Tropical Fish",
       "base_color": "E8D6BA",
       "sort_order": 3090,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "black_bin",
@@ -451,81 +328,63 @@
       "display_name": "Robot Dog 1",
       "base_color": "C7D4DB",
       "sort_order": 250,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_dog_2",
       "display_name": "Robot Dog 2",
       "base_color": "E2D3C0",
       "sort_order": 251,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_dog_3",
       "display_name": "Robot Dog 3",
       "base_color": "DBDBC7",
       "sort_order": 252,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_cat",
       "display_name": "Robot Cat",
       "base_color": "C7D5DB",
       "sort_order": 253,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_rabbit",
       "display_name": "Robot Rabbit",
       "base_color": "DBC7C7",
       "sort_order": 254,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_hamster",
       "display_name": "Robot Hamster",
       "base_color": "E6D1BC",
       "sort_order": 255,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_fish",
       "display_name": "Robot Fish",
       "base_color": "E3CFBF",
       "sort_order": 256,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_plant",
       "display_name": "Robot Plant",
       "base_color": "E7DEBB",
       "sort_order": 257,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_bin",
       "display_name": "Robot Bin",
       "base_color": "C7D1DB",
       "sort_order": 258,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     }
   ],
   "packs": [
@@ -594,7 +453,7 @@
       "product": {
         "sku": "sku_20260616_001_robots_pack_1",
         "name": "Robots Pack",
-        "description": "A crew of sleek, blue-eyed robot companions: robot dogs, a cat, a fish and more, ready for the daily round.",
+        "description": "Who doesn't want a pet robot and to live in a futuristic house? A pack of houses, characters, and avatars for the robot enthusiast.",
         "enabled": true,
         "sort_order": 5
       }
@@ -619,465 +478,349 @@
       "slug": "paihia_house_avatar_01",
       "display_name": "Paihia House Avatar 1",
       "sort_order": 1,
-      "packs": [
-        "paihia_house"
-      ]
+      "packs": ["paihia_house"]
     },
     {
       "slug": "paihia_house_avatar_02",
       "display_name": "Paihia House Avatar 2",
       "sort_order": 2,
-      "packs": [
-        "paihia_house"
-      ]
+      "packs": ["paihia_house"]
     },
     {
       "slug": "paihia_house_avatar_03",
       "display_name": "Paihia House Avatar 3",
       "sort_order": 3,
-      "packs": [
-        "paihia_house"
-      ]
+      "packs": ["paihia_house"]
     },
     {
       "slug": "paihia_house_avatar_04",
       "display_name": "Paihia House Avatar 4",
       "sort_order": 4,
-      "packs": [
-        "paihia_house"
-      ]
+      "packs": ["paihia_house"]
     },
     {
       "slug": "dell_cottage_avatar_01",
       "display_name": "Dell Cottage Avatar 1",
       "sort_order": 5,
-      "packs": [
-        "dell_cottage"
-      ]
+      "packs": ["dell_cottage"]
     },
     {
       "slug": "dell_cottage_avatar_02",
       "display_name": "Dell Cottage Avatar 2",
       "sort_order": 6,
-      "packs": [
-        "dell_cottage"
-      ]
+      "packs": ["dell_cottage"]
     },
     {
       "slug": "dell_cottage_avatar_03",
       "display_name": "Dell Cottage Avatar 3",
       "sort_order": 7,
-      "packs": [
-        "dell_cottage"
-      ]
+      "packs": ["dell_cottage"]
     },
     {
       "slug": "dell_cottage_avatar_04",
       "display_name": "Dell Cottage Avatar 4",
       "sort_order": 8,
-      "packs": [
-        "dell_cottage"
-      ]
+      "packs": ["dell_cottage"]
     },
     {
       "slug": "robots_pack_avatar_01",
       "display_name": "Robot Avatar 1",
       "sort_order": 250,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_02",
       "display_name": "Robot Avatar 2",
       "sort_order": 251,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_03",
       "display_name": "Robot Avatar 3",
       "sort_order": 252,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_04",
       "display_name": "Robot Avatar 4",
       "sort_order": 253,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_05",
       "display_name": "Robot Avatar 5",
       "sort_order": 254,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_06",
       "display_name": "Robot Avatar 6",
       "sort_order": 255,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_07",
       "display_name": "Robot Avatar 7",
       "sort_order": 256,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_08",
       "display_name": "Robot Avatar 8",
       "sort_order": 257,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_09",
       "display_name": "Robot Avatar 9",
       "sort_order": 258,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_10",
       "display_name": "Robot Avatar 10",
       "sort_order": 259,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_11",
       "display_name": "Robot Avatar 11",
       "sort_order": 260,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_12",
       "display_name": "Robot Avatar 12",
       "sort_order": 261,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_13",
       "display_name": "Robot Avatar 13",
       "sort_order": 262,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_14",
       "display_name": "Robot Avatar 14",
       "sort_order": 263,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_15",
       "display_name": "Robot Avatar 15",
       "sort_order": 264,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_16",
       "display_name": "Robot Avatar 16",
       "sort_order": 265,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_17",
       "display_name": "Robot Avatar 17",
       "sort_order": 266,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_18",
       "display_name": "Robot Avatar 18",
       "sort_order": 267,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_19",
       "display_name": "Robot Avatar 19",
       "sort_order": 268,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_20",
       "display_name": "Robot Avatar 20",
       "sort_order": 269,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_21",
       "display_name": "Robot Avatar 21",
       "sort_order": 270,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_22",
       "display_name": "Robot Avatar 22",
       "sort_order": 271,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_23",
       "display_name": "Robot Avatar 23",
       "sort_order": 272,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_24",
       "display_name": "Robot Avatar 24",
       "sort_order": 273,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_25",
       "display_name": "Robot Avatar 25",
       "sort_order": 274,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_26",
       "display_name": "Robot Avatar 26",
       "sort_order": 275,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_27",
       "display_name": "Robot Avatar 27",
       "sort_order": 276,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_28",
       "display_name": "Robot Avatar 28",
       "sort_order": 277,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_29",
       "display_name": "Robot Avatar 29",
       "sort_order": 278,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_30",
       "display_name": "Robot Avatar 30",
       "sort_order": 279,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_31",
       "display_name": "Robot Avatar 31",
       "sort_order": 280,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_32",
       "display_name": "Robot Avatar 32",
       "sort_order": 281,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_33",
       "display_name": "Robot Avatar 33",
       "sort_order": 282,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_34",
       "display_name": "Robot Avatar 34",
       "sort_order": 283,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_35",
       "display_name": "Robot Avatar 35",
       "sort_order": 284,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_36",
       "display_name": "Robot Avatar 36",
       "sort_order": 285,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_37",
       "display_name": "Robot Avatar 37",
       "sort_order": 286,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_38",
       "display_name": "Robot Avatar 38",
       "sort_order": 287,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_39",
       "display_name": "Robot Avatar 39",
       "sort_order": 288,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_40",
       "display_name": "Robot Avatar 40",
       "sort_order": 289,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_41",
       "display_name": "Robot Avatar 41",
       "sort_order": 290,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_42",
       "display_name": "Robot Avatar 42",
       "sort_order": 291,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_43",
       "display_name": "Robot Avatar 43",
       "sort_order": 292,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_44",
       "display_name": "Robot Avatar 44",
       "sort_order": 293,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_45",
       "display_name": "Robot Avatar 45",
       "sort_order": 294,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_46",
       "display_name": "Robot Avatar 46",
       "sort_order": 295,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_47",
       "display_name": "Robot Avatar 47",
       "sort_order": 296,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_48",
       "display_name": "Robot Avatar 48",
       "sort_order": 297,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_49",
       "display_name": "Robot Avatar 49",
       "sort_order": 298,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_avatar_50",
       "display_name": "Robot Avatar 50",
       "sort_order": 299,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     }
   ],
   "pictures": [
@@ -1085,41 +828,31 @@
       "slug": "paihia_house",
       "display_name": "Paihia House",
       "sort_order": 1,
-      "packs": [
-        "paihia_house"
-      ]
+      "packs": ["paihia_house"]
     },
     {
       "slug": "dell_cottage",
       "display_name": "Dell Cottage",
       "sort_order": 2,
-      "packs": [
-        "dell_cottage"
-      ]
+      "packs": ["dell_cottage"]
     },
     {
       "slug": "robots_pack_house_1",
       "display_name": "Robot House 1",
       "sort_order": 250,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_house_2",
       "display_name": "Robot House 2",
       "sort_order": 251,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "robots_pack_house_3",
       "display_name": "Robot House 3",
       "sort_order": 252,
-      "packs": [
-        "robots_pack"
-      ]
+      "packs": ["robots_pack"]
     },
     {
       "slug": "semi",
