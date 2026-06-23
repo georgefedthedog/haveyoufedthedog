@@ -605,6 +605,13 @@
       "name": "Paihia House",
       "enabled": true,
       "redeemable": true
+    },
+    {
+      "key": "dell_cottage",
+      "code": "DELLCOTT-DFLZ",
+      "name": "Dell Cottage",
+      "enabled": true,
+      "redeemable": true
     }
   ],
   "avatars": [
@@ -638,6 +645,38 @@
       "sort_order": 4,
       "packs": [
         "paihia_house"
+      ]
+    },
+    {
+      "slug": "dell_cottage_avatar_01",
+      "display_name": "Dell Cottage Avatar 1",
+      "sort_order": 5,
+      "packs": [
+        "dell_cottage"
+      ]
+    },
+    {
+      "slug": "dell_cottage_avatar_02",
+      "display_name": "Dell Cottage Avatar 2",
+      "sort_order": 6,
+      "packs": [
+        "dell_cottage"
+      ]
+    },
+    {
+      "slug": "dell_cottage_avatar_03",
+      "display_name": "Dell Cottage Avatar 3",
+      "sort_order": 7,
+      "packs": [
+        "dell_cottage"
+      ]
+    },
+    {
+      "slug": "dell_cottage_avatar_04",
+      "display_name": "Dell Cottage Avatar 4",
+      "sort_order": 8,
+      "packs": [
+        "dell_cottage"
       ]
     },
     {
@@ -1048,6 +1087,14 @@
       "sort_order": 1,
       "packs": [
         "paihia_house"
+      ]
+    },
+    {
+      "slug": "dell_cottage",
+      "display_name": "Dell Cottage",
+      "sort_order": 2,
+      "packs": [
+        "dell_cottage"
       ]
     },
     {
