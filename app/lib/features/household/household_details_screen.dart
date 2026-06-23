@@ -86,13 +86,12 @@ Future<void> _confirmAndDelete(
   WidgetRef ref,
   Household household,
 ) async {
-  final confirmed = await _confirm(
+  final confirmed = await confirmByTyping(
     context,
     title: 'Delete ${household.name}?',
     body:
         'All subjects, chores and history for this household will be '
         'permanently removed for everyone in it. This cannot be undone.',
-    action: 'Delete',
   );
   if (!confirmed) return;
   try {

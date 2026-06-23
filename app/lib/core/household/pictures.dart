@@ -12,7 +12,7 @@ class PictureRegistry {
   /// Ordered list - picker renders them in this order.
   static const all = <Picture>[terrace];
 
-  static const terrace = Picture(id: 'terrace', displayName: 'Terrace');
+  static const terrace = Picture(id: 'terrace', displayName: 'Terrace', sortOrder: 1000);
 
   /// Shown for households that haven't picked a picture yet (or whose
   /// stored id no longer matches a registry entry).
