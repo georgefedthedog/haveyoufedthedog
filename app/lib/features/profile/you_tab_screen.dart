@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
+import '../../core/household/act_as_highlight_controller.dart';
 import '../../core/household/acting_user_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_member.dart';
@@ -230,13 +231,22 @@ class _AccountActionsCardState extends State<_AccountActionsCard> {
 /// - real members keep self-only attribution - so the card hides entirely
 /// when the household has none. A banner + the You tab's red ring are the cue
 /// that you're still acting as someone else.
-class _ActAsCard extends ConsumerWidget {
+class _ActAsCard extends ConsumerStatefulWidget {
   const _ActAsCard();
 
-  Future<void> _run(
-    BuildContext context,
-    Future<void> Function() action,
-  ) async {
+  @override
+  ConsumerState<_ActAsCard> createState() => _ActAsCardState();
+}
+
+class _ActAsCardState extends ConsumerState<_ActAsCard> {
+  /// Briefly true after the home members row asked us to highlight, drawing a
+  /// primary-coloured border around the card (same cue as the invite card).
+  bool _flash = false;
+
+  /// Guards against re-handling the same highlight request across rebuilds.
+  bool _handled = false;
+
+  Future<void> _run(Future<void> Function() action) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await action();
@@ -247,8 +257,26 @@ class _ActAsCard extends ConsumerWidget {
     }
   }
 
+  /// Scroll this card into view and pulse its border. Triggered once when a
+  /// pending highlight request lands (after navigating here from the home row).
+  void _handleHighlight() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(actAsHighlightProvider.notifier).consume();
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 400),
+        alignment: 0.1,
+      );
+      setState(() => _flash = true);
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted) setState(() => _flash = false);
+      });
+    });
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
@@ -259,6 +287,17 @@ class _ActAsCard extends ConsumerWidget {
         const <HouseholdMember>[];
     final managed = members.where((m) => m.isManaged).toList();
     if (managed.isEmpty) return const SizedBox.shrink();
+
+    // Only act on a pending highlight once the card is actually showing (past
+    // the early returns). Consuming the flag flips it false, which resets the
+    // guard on the next build so a later tap highlights again.
+    final wantHighlight = ref.watch(actAsHighlightProvider);
+    if (wantHighlight && !_handled) {
+      _handled = true;
+      _handleHighlight();
+    } else if (!wantHighlight) {
+      _handled = false;
+    }
 
     final catalog = ref.watch(catalogProvider);
     final auth = ref.watch(authControllerProvider).valueOrNull;
@@ -297,65 +336,74 @@ class _ActAsCard extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                if (actingIsOther)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
-                    decoration: BoxDecoration(
-                      color: scheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.theater_comedy,
-                          size: 18,
-                          color: scheme.onSecondaryContainer,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            "${actingName ?? 'Someone'}'s turn",
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: scheme.onSecondaryContainer,
-                              fontWeight: FontWeight.w600,
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _flash ? scheme.primary : Colors.transparent,
+              width: 2,
+            ),
+          ),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  if (actingIsOther)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
+                      decoration: BoxDecoration(
+                        color: scheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.theater_comedy,
+                            size: 18,
+                            color: scheme.onSecondaryContainer,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "${actingName ?? 'Someone'}'s turn",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: scheme.onSecondaryContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: () =>
-                              _run(context, () => notifier.revertToSelf()),
-                          child: const Text('My turn again'),
-                        ),
-                      ],
-                    ),
-                  ),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: [
-                    _ActAsChip(
-                      avatar: catalog.lookupAvatar(auth?.avatar),
-                      label: 'You',
-                      selected: !actingIsOther,
-                      onTap: () => _run(context, () => notifier.revertToSelf()),
-                    ),
-                    for (final m in managed)
-                      _ActAsChip(
-                        avatar: catalog.lookupAvatar(m.avatar),
-                        label: m.displayName,
-                        selected: actingUserId == m.userId,
-                        onTap: () =>
-                            _run(context, () => notifier.setActing(m.userId)),
+                          TextButton(
+                            onPressed: () =>
+                                _run(() => notifier.revertToSelf()),
+                            child: const Text('My turn again'),
+                          ),
+                        ],
                       ),
-                  ],
-                ),
-              ],
+                    ),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: [
+                      _ActAsChip(
+                        avatar: catalog.lookupAvatar(auth?.avatar),
+                        label: 'You',
+                        selected: !actingIsOther,
+                        onTap: () => _run(() => notifier.revertToSelf()),
+                      ),
+                      for (final m in managed)
+                        _ActAsChip(
+                          avatar: catalog.lookupAvatar(m.avatar),
+                          label: m.displayName,
+                          selected: actingUserId == m.userId,
+                          onTap: () => _run(() => notifier.setActing(m.userId)),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
