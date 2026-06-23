@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "BORK protocol complete.", "body": "{name} boops you with gratitude 🤖" },
+      { "title": "Tasks: 100%. Beep.", "body": "{name} did a happy little spin." },
+      { "title": "Reward acknowledged.", "body": "{name}'s tail clanks with joy." }
+    ],
+    "overdue": [
+      { "title": "WARNING: empty bowl.", "body": "{name} is beeping insistently 🐾" },
+      { "title": "whine.wav playing.", "body": "{name} stares with big LED eyes 👀" },
+      { "title": "Patience buffer low.", "body": "{name} nudges the bowl with its snout." }
+    ],
+    "upcoming": [
+      { "title": "Snack sensors tingling.", "body": "{name} heard the treat tin 🤖" },
+      { "title": "Spinning up to greet you.", "body": "{name} is nearly ready." },
+      { "title": "Beep. Boop. Soon.", "body": "{name} waits by the bowl 🐾" }
+    ],
+    "happyForNow": [
+      { "title": "Powered down, tail twitching.", "body": "{name} is recharging on the rug." },
+      { "title": "Low-power wag.", "body": "{name} is content for now." },
+      { "title": "Humming softly.", "body": "{name} idles happily." }
+    ],
+    "none": [
+      { "title": "No jobs today. Boop.", "body": "{name} powers down for a rest 🤖" },
+      { "title": "Rest cycle engaged.", "body": "{name} curls up in standby." }
+    ]
+  },
+  "awardTitle": "Favourite Human v2.0 🤖",
+  "awardThanks": "Thanks for the firmware of friendship last week!"
+}

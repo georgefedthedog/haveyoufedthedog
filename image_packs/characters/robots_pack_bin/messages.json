@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Disposal cycle: complete.", "body": "{name} salutes you, servos gleaming 🤖" },
+      { "title": "Emptied on schedule.", "body": "World optimised, bin cleared 🗑️" },
+      { "title": "Kerb mission: success.", "body": "{name} stands tall and empty." }
+    ],
+    "overdue": [
+      { "title": "Capacity: 110%. Alert.", "body": "{name} cannot compact any further…" },
+      { "title": "Collection countdown running.", "body": "{name}'s warning light is blinking 👀" },
+      { "title": "Lid actuator jammed open.", "body": "{name} needs to roll out." }
+    ],
+    "upcoming": [
+      { "title": "Truck detected on sonar.", "body": "{name} powers up its wheels 🚛" },
+      { "title": "Pre-rolling to the kerb.", "body": "{name} knows the schedule 🤖" },
+      { "title": "Wheels engaged.", "body": "{name} is poised by the gate." }
+    ],
+    "happyForNow": [
+      { "title": "Lid sealed, idling.", "body": "{name} waits patiently." },
+      { "title": "Half capacity, fully calm.", "body": "All systems green for {name}." },
+      { "title": "Standby by the wall.", "body": "No rush for {name} today." }
+    ],
+    "none": [
+      { "title": "No collection queued.", "body": "{name} powers down by the gate 🤖" },
+      { "title": "Rest cycle on the kerb.", "body": "{name} docks for the day." }
+    ]
+  },
+  "awardTitle": "Waste Disposal Commander 🗑️",
+  "awardThanks": "Thanks for keeping the cycle running last week!"
+}

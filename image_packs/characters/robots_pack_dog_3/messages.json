@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Patrol complete.", "body": "{name} powers down, satisfied 🤖" },
+      { "title": "Perimeter secure, belly full.", "body": "{name} logs a flawless shift." },
+      { "title": "Mission: accomplished.", "body": "{name}'s tail-beacon flashes green." }
+    ],
+    "overdue": [
+      { "title": "Sentry mode: hungry.", "body": "{name} is scanning for you 👀" },
+      { "title": "Alert beacon: red.", "body": "{name}'s bowl reads empty." },
+      { "title": "On guard, stomach rumbling.", "body": "{name} awaits resupply 🐾" }
+    ],
+    "upcoming": [
+      { "title": "Footsteps detected.", "body": "{name} snaps to attention 🐾" },
+      { "title": "Dinner on radar.", "body": "{name} locks onto the cupboard 🤖" },
+      { "title": "Powering up to greet you.", "body": "{name} is ready." }
+    ],
+    "happyForNow": [
+      { "title": "Patrol paused.", "body": "{name} rests in standby." },
+      { "title": "Systems green, all calm.", "body": "{name} is content." },
+      { "title": "Quiet watch.", "body": "{name} hums on the rug." }
+    ],
+    "none": [
+      { "title": "Off duty today.", "body": "{name} enters sleep mode 🤖" },
+      { "title": "No patrol scheduled.", "body": "{name} docks for a recharge." }
+    ]
+  },
+  "awardTitle": "Commanding Officer 🤖",
+  "awardThanks": "Thanks for keeping the watch well-fuelled last week!"
+}

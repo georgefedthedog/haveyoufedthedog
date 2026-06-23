@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Tank systems: optimal.", "body": "{name} glides a happy lap 🤖" },
+      { "title": "Buoyancy nominal, belly full.", "body": "{name} blubs in approval 🐟" },
+      { "title": "All currents calm.", "body": "{name} hums beneath the surface." }
+    ],
+    "overdue": [
+      { "title": "Surface. Awaiting input.", "body": "{name} hovers at the top, watching 👀" },
+      { "title": "Feeding subroutine overdue.", "body": "{name} pings the glass." },
+      { "title": "Fuel cells low.", "body": "{name} has noticed the delay." }
+    ],
+    "upcoming": [
+      { "title": "Sonar: food detected.", "body": "{name} rises toward the surface 🐟" },
+      { "title": "Fins primed.", "body": "{name} senses rations approaching 🤖" },
+      { "title": "Hovering, just in case.", "body": "{name} is ready." }
+    ],
+    "happyForNow": [
+      { "title": "Cruise mode engaged.", "body": "{name} drifts in standby." },
+      { "title": "Bubble diagnostics: green.", "body": "{name} is all calm." },
+      { "title": "Slow laps, low power.", "body": "{name} is doing fine." }
+    ],
+    "none": [
+      { "title": "No feeds scheduled.", "body": "{name} powers down in the reeds 🤖" },
+      { "title": "Quiet day in the tank.", "body": "{name} idles by the filter." }
+    ]
+  },
+  "awardTitle": "Tank Systems Admin 🐟",
+  "awardThanks": "Thanks for keeping the waters running last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Hop protocol: nominal.", "body": "{name} springs with joy 🤖" },
+      { "title": "bounce.exe satisfied.", "body": "{name} did a happy little leap." },
+      { "title": "All carrots accounted for.", "body": "{name}'s ears perk up at you 🥕" }
+    ],
+    "overdue": [
+      { "title": "Spring tension: low.", "body": "{name} thumps a foot-servo at you." },
+      { "title": "Hunger subroutine active.", "body": "{name} noses the empty dish 👀" },
+      { "title": "Awaiting greens.", "body": "{name}'s sensors detect zero snacks." }
+    ],
+    "upcoming": [
+      { "title": "Ears: fully deployed.", "body": "{name} heard the veg drawer 🥕" },
+      { "title": "Coiling the springs.", "body": "{name} is poised to hop over 🤖" },
+      { "title": "Snack radar pinging.", "body": "{name} is ready and twitchy." }
+    ],
+    "happyForNow": [
+      { "title": "Resting the springs.", "body": "{name} loafs in standby." },
+      { "title": "Low-power nibble mode.", "body": "{name} is content for now." },
+      { "title": "Ears down, vibes good.", "body": "{name} hums softly." }
+    ],
+    "none": [
+      { "title": "No hops scheduled.", "body": "{name} powers down in the hutch 🤖" },
+      { "title": "Rest cycle engaged.", "body": "{name} tucks in for a recharge." }
+    ]
+  },
+  "awardTitle": "Warren Systems Admin 🐰",
+  "awardThanks": "Thanks for keeping the springs wound last week!"
+}

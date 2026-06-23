@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Service: adequate.", "body": "{name} permits your existence 🤖" },
+      { "title": "Acknowledged. Grudgingly.", "body": "{name} logs minimal approval." },
+      { "title": "Purr-module: 12% engaged.", "body": "High praise from {name}." }
+    ],
+    "overdue": [
+      { "title": "disappointment.exe running.", "body": "{name} judges you from the shelf 👀" },
+      { "title": "Error: where is the food.", "body": "{name} is certain you have failed." },
+      { "title": "Bowl: empty. Patience: zero.", "body": "{name} blinks at you slowly." }
+    ],
+    "upcoming": [
+      { "title": "On the counter. Calculating.", "body": "Coincidence? {name} computes 'no'." },
+      { "title": "Kitchen activity detected.", "body": "{name} materialised instantly 🤖" },
+      { "title": "Tail-servo flicking.", "body": "{name} senses incoming rations." }
+    ],
+    "happyForNow": [
+      { "title": "Loafing in standby.", "body": "All is well with {name}." },
+      { "title": "No threats detected.", "body": "{name} hums on the windowsill." },
+      { "title": "Solar-charging.", "body": "{name} is asleep in the warm patch." }
+    ],
+    "none": [
+      { "title": "You are dismissed.", "body": "{name} powers down. Carry on 🤖" },
+      { "title": "Rest cycle. Do not reboot.", "body": "{name} approves silently." }
+    ]
+  },
+  "awardTitle": "Adequate Operator 🤖",
+  "awardThanks": "Gracious enough to accept your service last week."
+}

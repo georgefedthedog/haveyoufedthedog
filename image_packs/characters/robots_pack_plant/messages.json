@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Photosynthesis: complete.", "body": "{name} extends a happy leaf-servo 🤖" },
+      { "title": "Hydration tank: full.", "body": "{name} is watered and whirring 🌿" },
+      { "title": "Growth subroutine running.", "body": "{name} feels an upgrade coming." }
+    ],
+    "overdue": [
+      { "title": "Moisture levels: critical.", "body": "{name}'s leaves droop, sensors blinking." },
+      { "title": "Hydro-warning active.", "body": "{name} requests water input 💧" },
+      { "title": "Solar fine, water low.", "body": "{name} could use a refill." }
+    ],
+    "upcoming": [
+      { "title": "Watering can detected.", "body": "{name} leans toward the tap 🌱" },
+      { "title": "Roots: anticipating.", "body": "{name} is ready when you are 🤖" },
+      { "title": "Hydration imminent.", "body": "{name}'s sensors perk up." }
+    ],
+    "happyForNow": [
+      { "title": "Soaking up the sun.", "body": "No fuss from {name}." },
+      { "title": "Levels nominal.", "body": "{name} photosynthesises in peace." },
+      { "title": "Leaves up, power good.", "body": "{name} is doing fine." }
+    ],
+    "none": [
+      { "title": "No watering scheduled.", "body": "{name} idles in the sun 🌿" },
+      { "title": "Rest cycle: basking.", "body": "{name} is content." }
+    ]
+  },
+  "awardTitle": "Head Gardener-Bot 🌿",
+  "awardThanks": "Thanks for keeping the tanks topped up last week!"
+}

@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "BARK.EXE: satisfied.", "body": "{name} wags its tail-servo at you 🤖" },
+      { "title": "Loyalty protocol: maxed.", "body": "{name} has logged a flawless day." },
+      { "title": "Good human detected.", "body": "{name}'s sensors approve 🩵" }
+    ],
+    "overdue": [
+      { "title": "Alert: bowl empty.", "body": "{name} is pinging you repeatedly 🐾" },
+      { "title": "Sad-puppy subroutine running.", "body": "{name} tilts its head at you 👀" },
+      { "title": "Awaiting input…", "body": "{name} has sat by the bowl for 3,000 cycles." }
+    ],
+    "upcoming": [
+      { "title": "Ears: deployed.", "body": "{name} detected the cupboard opening 🤖" },
+      { "title": "Tail-servo spinning up.", "body": "{name} knows it's almost time." },
+      { "title": "Boot sequence: dinner.", "body": "{name} is ready and waiting 🐾" }
+    ],
+    "happyForNow": [
+      { "title": "Idle mode engaged.", "body": "{name} is powered down on the rug." },
+      { "title": "All systems nominal.", "body": "{name} is content for now." },
+      { "title": "Standby hum-m-m.", "body": "{name} whirrs quietly to itself." }
+    ],
+    "none": [
+      { "title": "Day off: scheduled.", "body": "{name} enters low-power mode 🤖" },
+      { "title": "No tasks queued.", "body": "{name} naps in its charging dock." }
+    ]
+  },
+  "awardTitle": "Top-Rated Operator 🤖",
+  "awardThanks": "Thanks for keeping the loyalty circuits charged last week!"
+}

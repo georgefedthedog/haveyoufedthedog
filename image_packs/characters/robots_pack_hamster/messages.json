@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Wheel rotations: complete.", "body": "{name} spins a victory lap 🤖" },
+      { "title": "Battery: full. Cheeks: fuller.", "body": "{name} stuffed a happy day away." },
+      { "title": "Energy core topped up.", "body": "{name} whirrs contentedly 🐹" }
+    ],
+    "overdue": [
+      { "title": "Power reserves low.", "body": "{name} eyes the empty food dish 👀" },
+      { "title": "Wheel grinding to a halt.", "body": "{name} needs a refuel." },
+      { "title": "Cheek-pouch: empty.", "body": "{name} pings you for snacks." }
+    ],
+    "upcoming": [
+      { "title": "Seed sensors active.", "body": "{name} heard the food tub 🐹" },
+      { "title": "Revving the wheel.", "body": "{name} is ready to refuel 🤖" },
+      { "title": "Snack incoming, accelerating.", "body": "{name} zooms to the dish." }
+    ],
+    "happyForNow": [
+      { "title": "Idling on the wheel.", "body": "{name} is content for now." },
+      { "title": "Low-power scurry.", "body": "{name} pootles about happily." },
+      { "title": "Recharging in the bedding.", "body": "All good with {name}." }
+    ],
+    "none": [
+      { "title": "No spins scheduled.", "body": "{name} powers down in the nest 🤖" },
+      { "title": "Rest cycle: burrowed.", "body": "{name} naps in its charging tunnel." }
+    ]
+  },
+  "awardTitle": "Chief Power Supply 🐹",
+  "awardThanks": "Thanks for keeping the wheel turning last week!"
+}
