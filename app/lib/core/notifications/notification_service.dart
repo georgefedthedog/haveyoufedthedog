@@ -72,13 +72,22 @@ class NotificationService with WidgetsBindingObserver {
     // Tapping a notification: from background (onMessageOpenedApp) or from a
     // cold launch where the tap started the app (getInitialMessage).
     FirebaseMessaging.onMessageOpenedApp.listen(_handleTap);
-    final initial = await FirebaseMessaging.instance.getInitialMessage();
-    if (initial != null) unawaited(_handleTap(initial));
 
     WidgetsBinding.instance.addObserver(this);
     _ref.onDispose(() => WidgetsBinding.instance.removeObserver(this));
 
+    // Ask for permission first so the prompt always appears - on iOS this
+    // must not sit behind getInitialMessage, which can stall on APNs.
     await FirebaseMessaging.instance.requestPermission();
+
+    // getInitialMessage waits on APNs registration on iOS and can hang
+    // indefinitely. Cap it - a missed cold-launch tap route is far better
+    // than a wedged init. (init() is off the first-frame path now, but the
+    // timeout keeps a stall from silently swallowing the rest of setup.)
+    final initial = await FirebaseMessaging.instance
+        .getInitialMessage()
+        .timeout(const Duration(seconds: 5), onTimeout: () => null);
+    if (initial != null) unawaited(_handleTap(initial));
   }
 
   /// Routes a tapped notification to where it's about: award pushes land on
