@@ -29,11 +29,16 @@ class Avatar {
   /// household the user is in.
   final List<String> packIds;
 
+  /// Picker sort position (bundled assigned in [AvatarRegistry], remote from
+  /// the catalog row's `sort_order`). The merged picker list is sorted by this.
+  final int sortOrder;
+
   const Avatar({
     required this.id,
     required this.displayName,
     this.remoteImage,
     this.packIds = const [],
+    this.sortOrder = 0,
   });
 
   /// Asset path for a bundled avatar's PNG.

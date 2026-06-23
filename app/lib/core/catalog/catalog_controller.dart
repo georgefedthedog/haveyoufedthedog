@@ -129,9 +129,24 @@ Catalog catalog(Ref ref) {
   final remote =
       ref.watch(remoteCatalogProvider).valueOrNull ?? RemoteCatalog.empty;
   return Catalog(
-    avatars: _merge(AvatarRegistry.all, remote.avatars, (a) => a.id),
-    pictures: _merge(PictureRegistry.all, remote.pictures, (p) => p.id),
-    characters: _merge(CharacterRegistry.all, remote.characters, (c) => c.id),
+    avatars: _merge(
+      AvatarRegistry.all,
+      remote.avatars,
+      (a) => a.id,
+      (a) => a.sortOrder,
+    ),
+    pictures: _merge(
+      PictureRegistry.all,
+      remote.pictures,
+      (p) => p.id,
+      (p) => p.sortOrder,
+    ),
+    characters: _merge(
+      CharacterRegistry.all,
+      remote.characters,
+      (c) => c.id,
+      (c) => c.sortOrder,
+    ),
     packNames: remote.packNames,
   );
 }
@@ -219,13 +234,29 @@ Future<List<RecordModel>> _rows(PocketBase pb, String collection) {
   );
 }
 
-List<T> _merge<T>(List<T> bundled, List<T> remote, String Function(T) idOf) {
+/// Merges bundled + remote, dropping remote rows whose id collides with a
+/// bundled one (bundled always wins the slug), then orders the result by
+/// [sortOf]. The sort is **stable on ties** (bundled listed first), so a
+/// bundled entry sharing a sort position with a remote one lands ahead of it -
+/// which is how bundled art ends up first within its group.
+List<T> _merge<T>(
+  List<T> bundled,
+  List<T> remote,
+  String Function(T) idOf,
+  int Function(T) sortOf,
+) {
   final seen = bundled.map(idOf).toSet();
-  return [
+  final merged = [
     ...bundled,
     for (final r in remote)
       if (seen.add(idOf(r))) r,
   ];
+  final indexed = [for (var i = 0; i < merged.length; i++) (i, merged[i])];
+  indexed.sort((a, b) {
+    final c = sortOf(a.$2).compareTo(sortOf(b.$2));
+    return c != 0 ? c : a.$1.compareTo(b.$1); // tie -> keep input order
+  });
+  return [for (final e in indexed) e.$2];
 }
 
 Avatar? _avatarFrom(PocketBase pb, RecordModel r) {
@@ -237,6 +268,7 @@ Avatar? _avatarFrom(PocketBase pb, RecordModel r) {
     displayName: r.getStringValue('display_name'),
     remoteImage: pb.files.getUrl(r, image),
     packIds: r.getListValue<String>('packs'),
+    sortOrder: r.getIntValue('sort_order'),
   );
 }
 
@@ -254,6 +286,7 @@ Picture? _pictureFrom(PocketBase pb, RecordModel r) {
     displayName: r.getStringValue('display_name'),
     remoteVariants: variants,
     packIds: r.getListValue<String>('packs'),
+    sortOrder: r.getIntValue('sort_order'),
   );
 }
 
@@ -276,6 +309,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
     remoteExpressions: expressions,
     remoteAward: award.isEmpty ? null : pb.files.getUrl(r, award),
     packIds: r.getListValue<String>('packs'),
+    sortOrder: r.getIntValue('sort_order'),
     messages: CharacterMessages.fromJson(r.data['messages']),
   );
 }

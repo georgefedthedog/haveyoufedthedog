@@ -511,8 +511,10 @@ instructions when making a schema change.
     - Bundled characters (dog/cat/etc.) ignore this field - their copy is
       hardcoded in the app.
 
-- `sort_order` orders rows within the remote block (bundled art always
-  comes first in pickers). Slugs are forever - they're stored on user /
+- `sort_order` orders the whole picker: bundled + remote art are merged and
+  sorted by it together (bundled entries carry their own `sortOrder` in the
+  registries, so they interleave into the right group; a bundled entry wins a
+  tie with a remote one). Slugs are forever - they're stored on user /
   household / subject records; never rename or reuse one.
 - **Image pack:** a `catalog_packs` row (code + name + enabled + redeemable),
   then add it to the `packs` of the art rows that belong to it - those rows
@@ -576,8 +578,9 @@ Caveats:
   idle/happy/sad/sleeping/celebrate + `award.png`), `PictureRegistry`
   (houses, five time-of-day variants), `AvatarRegistry` (user avatars) -
   PNGs in `app/assets/...`. Remote: the `catalog_*` PB collections, merged
-  after the bundled entries by `catalogProvider` (`app/lib/core/catalog/`);
-  bundled wins slug collisions. **Resolution is ungated:** the fetch pulls
+  with the bundled entries and sorted together by `sortOrder` by
+  `catalogProvider` (`app/lib/core/catalog/`); bundled wins slug collisions
+  and ties (so a bundled entry leads its group). **Resolution is ungated:** the fetch pulls
   every row with no pack or _any_ enabled pack, so a chosen
   avatar/picture/character renders in any household the viewer is in - not
   only one that owns the pack (a row drops from the fetch only when _none_ of

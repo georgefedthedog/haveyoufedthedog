@@ -31,11 +31,16 @@ class Picture {
   /// the switcher even from another household that lacks the pack.
   final List<String> packIds;
 
+  /// Picker sort position (bundled assigned in [PictureRegistry], remote from
+  /// the catalog row's `sort_order`). The merged picker list is sorted by this.
+  final int sortOrder;
+
   const Picture({
     required this.id,
     required this.displayName,
     this.remoteVariants,
     this.packIds = const [],
+    this.sortOrder = 0,
   });
 
   /// Asset path for a bundled picture's variant matching [bucket].
