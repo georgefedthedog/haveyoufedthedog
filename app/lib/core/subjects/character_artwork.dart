@@ -58,7 +58,7 @@ class CharacterArtwork extends StatelessWidget {
     // Gentle diagonal shading - darker toward the bottom-left, lighter
     // toward the top-right - derived from the stage colour so every
     // character gets a matching lift. Same recipe as the subject hero
-    // egg and the Friends cards.
+    // egg and the Things cards.
     final stageHsl = HSLColor.fromColor(character.stageColor);
     final stageLight = stageHsl
         .withLightness((stageHsl.lightness + 0.05).clamp(0.0, 1.0))

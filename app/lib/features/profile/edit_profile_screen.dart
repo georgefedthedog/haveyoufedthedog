@@ -213,7 +213,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 Text(
                                   completesChore
                                       ? 'Tapping a tag completes the current chore.'
-                                      : "Tapping a tag opens the friend's page.",
+                                      : "Tapping a tag opens the thing's page.",
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: scheme.onSurfaceVariant,
                                   ),
