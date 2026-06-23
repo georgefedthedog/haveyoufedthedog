@@ -14,10 +14,11 @@ The image contains six landscape cells.
 
 The default scene order is:
 
-| Row        | Cell 1  | Cell 2 | Cell 3    |
-| ---------- | ------- | ------ | --------- |
-| Top row    | Morning | Midday | Afternoon |
-| Bottom row | Evening | Night  | Rainy Day |
+| Row        | Cell 1    | Cell 2    |
+| ---------- | --------- | --------- |
+| Top row    | Morning   | Midday    |
+| Middle row | Afternoon | Evening   |
+| Bottom row | Night     | Rainy Day |
 
 The final image must not contain visible grid lines, dividers, borders, labels, or captions.
 

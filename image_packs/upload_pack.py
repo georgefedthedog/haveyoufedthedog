@@ -196,19 +196,23 @@ def open_images(slug):
 
 
 def text_fields(c):
-    """Scalar fields for a catalog_characters row (packs handled separately)."""
-    with open(os.path.join(char_dir(c["slug"]), "messages.json"), encoding="utf-8") as f:
-        messages = f.read()  # already valid JSON; PB parses the json field from string
+    """Scalar fields for a catalog_characters row (packs handled separately).
+    messages.json is optional - a character without one uses the generic voice,
+    so the field is simply omitted (a PATCH that omits it leaves it unchanged)."""
     base_color = c["base_color"]
     if not base_color.startswith("#"):
         base_color = "#" + base_color  # PB validates as #RRGGBB (min 7 chars)
-    return {
+    fields = {
         "slug": c["slug"],
         "display_name": c["display_name"],
         "base_color": base_color,
         "sort_order": str(c.get("sort_order", 0)),
-        "messages": messages,
     }
+    mpath = os.path.join(char_dir(c["slug"]), "messages.json")
+    if os.path.exists(mpath):
+        with open(mpath, encoding="utf-8") as f:
+            fields["messages"] = f.read()  # valid JSON; PB parses the json field
+    return fields
 
 
 def upsert_character(s, base, c, pack_ids, dry, reupload):
@@ -245,6 +249,104 @@ def upsert_character(s, base, c, pack_ids, dry, reupload):
         r = multipart(url, s.patch)
     else:
         r = s.patch(url, json={**scalars, "packs": pack_ids}, timeout=30)
+    if r.status_code != 200:
+        die(f"{slug} update failed ({r.status_code}): {r.text[:400]}")
+    return "update"
+
+
+BUCKETS = ["morning", "midday", "afternoon", "evening", "night"]
+
+
+def avatar_path(slug):
+    """The single image for a catalog_avatars row: avatars/<slug>.png."""
+    p = os.path.join(HERE, "avatars", f"{slug}.png")
+    return p if os.path.exists(p) else None
+
+
+def picture_buckets(slug):
+    """The 5 time-of-day files for a catalog_pictures row, from
+    households/<slug>/. Accepts either <bucket>.png or <slug>_<bucket>.png.
+    Returns {bucket: path}, or None if any of the five is missing."""
+    d = os.path.join(HERE, "households", slug)
+    out = {}
+    for b in BUCKETS:
+        cand = os.path.join(d, f"{b}.png")
+        if not os.path.exists(cand):
+            cand = os.path.join(d, f"{slug}_{b}.png")
+        if not os.path.exists(cand):
+            return None
+        out[b] = cand
+    return out
+
+
+def upsert_avatar(s, base, a, pack_ids, dry, reupload):
+    """Create/update a catalog_avatars row. One `image` file; multi-relation
+    packs. Image uploads on create or --reupload; a plain update PATCHes JSON."""
+    slug = a["slug"]
+    img = avatar_path(slug)
+    if not img:
+        print(f"    ! {slug}: no avatars/{slug}.png, skipping")
+        return "skip"
+    existing = find_one(s, base, "catalog_avatars", f"slug='{slug}'")
+    scalars = {"slug": slug, "display_name": a["display_name"],
+               "sort_order": str(a.get("sort_order", 0))}
+    if dry:
+        return "update" if existing else "create"
+
+    def multipart(url, method):
+        files = {"image": (os.path.basename(img), open(img, "rb"), "image/png")}
+        data = list(scalars.items()) + [("packs", pid) for pid in pack_ids]
+        try:
+            return method(url, data=data, files=files, timeout=60)
+        finally:
+            for _, fh, _m in files.values():
+                fh.close()
+
+    if existing is None:
+        r = multipart(f"{base}/api/collections/catalog_avatars/records", s.post)
+        if r.status_code not in (200, 201):
+            die(f"{slug} create failed ({r.status_code}): {r.text[:400]}")
+        return "create"
+    url = f"{base}/api/collections/catalog_avatars/records/{existing['id']}"
+    r = (multipart(url, s.patch) if reupload
+         else s.patch(url, json={**scalars, "packs": pack_ids}, timeout=30))
+    if r.status_code != 200:
+        die(f"{slug} update failed ({r.status_code}): {r.text[:400]}")
+    return "update"
+
+
+def upsert_picture(s, base, p, pack_ids, dry, reupload):
+    """Create/update a catalog_pictures row. Five bucket files
+    (morning/midday/afternoon/evening/night); multi-relation packs."""
+    slug = p["slug"]
+    buckets = picture_buckets(slug)
+    if not buckets:
+        print(f"    ! {slug}: missing one of {BUCKETS} in households/{slug}/, skipping")
+        return "skip"
+    existing = find_one(s, base, "catalog_pictures", f"slug='{slug}'")
+    scalars = {"slug": slug, "display_name": p["display_name"],
+               "sort_order": str(p.get("sort_order", 0))}
+    if dry:
+        return "update" if existing else "create"
+
+    def multipart(url, method):
+        files = {b: (os.path.basename(path), open(path, "rb"), "image/png")
+                 for b, path in buckets.items()}
+        data = list(scalars.items()) + [("packs", pid) for pid in pack_ids]
+        try:
+            return method(url, data=data, files=files, timeout=120)
+        finally:
+            for _, fh, _m in files.values():
+                fh.close()
+
+    if existing is None:
+        r = multipart(f"{base}/api/collections/catalog_pictures/records", s.post)
+        if r.status_code not in (200, 201):
+            die(f"{slug} create failed ({r.status_code}): {r.text[:400]}")
+        return "create"
+    url = f"{base}/api/collections/catalog_pictures/records/{existing['id']}"
+    r = (multipart(url, s.patch) if reupload
+         else s.patch(url, json={**scalars, "packs": pack_ids}, timeout=30))
     if r.status_code != 200:
         die(f"{slug} update failed ({r.status_code}): {r.text[:400]}")
     return "update"
@@ -326,10 +428,14 @@ def main():
         return
 
     chars = manifest["characters"]
+    avatars = manifest.get("avatars", [])
+    pictures = manifest.get("pictures", [])
     if args.only:
         sel = {x.strip() for x in args.only.split(",") if x.strip()}
         chars = [c for c in chars if c["slug"] in sel]
-        if not chars:
+        avatars = [a for a in avatars if a["slug"] in sel]
+        pictures = [p for p in pictures if p["slug"] in sel]
+        if not (chars or avatars or pictures):
             die("--only matched no slugs in the manifest")
 
     paid = sum(1 for c in chars if c.get("packs"))  # "paid" = belongs to any pack
@@ -337,7 +443,8 @@ def main():
     print(f"Mode:   {'DRY RUN (no writes)' if args.dry_run else 'LIVE'}"
           f"{'  + image reupload' if args.reupload else ''}")
     print(f"Packs:  {len(manifest.get('packs', []))}   "
-          f"Chars: {len(chars)} ({paid} paid, {len(chars) - paid} free)\n")
+          f"Chars: {len(chars)} ({paid} paid, {len(chars) - paid} free)   "
+          f"Avatars: {len(avatars)}   Pictures: {len(pictures)}\n")
 
     email = os.environ.get("PB_ADMIN_EMAIL")
     password = os.environ.get("PB_ADMIN_PASSWORD")
@@ -349,26 +456,33 @@ def main():
         print("(dry run, no creds: planning offline; server lookups skipped)\n")
 
     tally = {"char_create": 0, "char_update": 0, "char_skip": 0,
-             "pack_create": 0, "prod_create": 0, "prod_update": 0}
+             "pack_create": 0, "prod_create": 0, "prod_update": 0,
+             "avatar_create": 0, "avatar_update": 0, "avatar_skip": 0,
+             "picture_create": 0, "picture_update": 0, "picture_skip": 0}
 
-    # 1) Group packs + their products (always ensured, even under --only).
+    # 1) Packs + their products (always ensured, even under --only). A pack with
+    #    no `product` is giftable-only (code redemption, no IAP/store listing).
     print("Packs:")
     pack_id_by_key = {}
     for p in manifest.get("packs", []):
-        hero = pack_hero(p["key"])
-        hero_tag = " +hero" if hero else " (no hero yet)"
+        prod = p.get("product")
+        hero = pack_hero(p["key"]) if prod else None
         if offline:
-            print(f"  {p['key']:16} code={p['code']:14} sku={p['product']['sku']:32} "
-                  f"enabled={p['enabled']}{hero_tag}")
+            tail = f"sku={prod['sku']}" if prod else "(giftable only, no product)"
+            print(f"  {p['key']:16} code={p['code']:14} {tail}  enabled={p['enabled']}")
             pack_id_by_key[p["key"]] = f"<{p['key']}>"
             continue
         pid, pst = ensure_pack(s, base, p, args.dry_run)
         pack_id_by_key[p["key"]] = pid
         if pst == "create":
             tally["pack_create"] += 1
-        prst = ensure_product(s, base, p["product"], pid, hero, args.dry_run)
-        tally["prod_create" if prst == "create" else "prod_update"] += 1
-        print(f"  {p['key']:16} code={p['code']:14} ({pst}; product {prst}{hero_tag})")
+        if prod:
+            hero_tag = " +hero" if hero else " (no hero yet)"
+            prst = ensure_product(s, base, prod, pid, hero, args.dry_run)
+            tally["prod_create" if prst == "create" else "prod_update"] += 1
+            print(f"  {p['key']:16} code={p['code']:14} ({pst}; product {prst}{hero_tag})")
+        else:
+            print(f"  {p['key']:16} code={p['code']:14} ({pst}; giftable only, no product)")
 
     # 2) Characters -> their pack memberships.
     print("\nCharacters:")
@@ -388,11 +502,38 @@ def main():
         cst = upsert_character(s, base, c, pack_ids, args.dry_run, args.reupload)
         tally[f"char_{cst}"] += 1
 
+    # 3) Avatars (one image each) + 4) Pictures (5 time-of-day buckets).
+    def resolve_packs(item):
+        keys = item.get("packs", [])
+        bad = [k for k in keys if k not in pack_id_by_key]
+        if bad:
+            die(f"{item['slug']}: unknown pack keys {bad}")
+        return keys, (None if offline else [pack_id_by_key[k] for k in keys])
+
+    for label, items, fn in (("Avatars", avatars, upsert_avatar),
+                             ("Pictures", pictures, upsert_picture)):
+        if not items:
+            continue
+        kind = label[:-1].lower()  # "avatar" / "picture"
+        print(f"\n{label}:")
+        for it in items:
+            keys, ids = resolve_packs(it)
+            print(f"  {it['slug']:24} packs={','.join(keys) or '(free)'}")
+            if offline:
+                tally[f"{kind}_create"] += 1
+                continue
+            st = fn(s, base, it, ids, args.dry_run, args.reupload)
+            tally[f"{kind}_{st}"] += 1
+
     print(f"\nDone{' (dry run)' if args.dry_run else ''}.")
     print(f"  packs:      {tally['pack_create']} created")
     print(f"  products:   {tally['prod_create']} created, {tally['prod_update']} updated")
     print(f"  characters: {tally['char_create']} created, {tally['char_update']} updated, "
           f"{tally['char_skip']} skipped")
+    print(f"  avatars:    {tally['avatar_create']} created, {tally['avatar_update']} updated, "
+          f"{tally['avatar_skip']} skipped")
+    print(f"  pictures:   {tally['picture_create']} created, {tally['picture_update']} updated, "
+          f"{tally['picture_skip']} skipped")
     if not args.dry_run:
         print("\nGroup packs are created DISABLED. Enable when the new build is the floor:\n"
               "  python upload_pack.py --set-packs on\n"

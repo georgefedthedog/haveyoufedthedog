@@ -31,17 +31,9 @@ The six scenes are always:
 
 The default layout is:
 
-Top row:
-
-* morning
-* midday
-* afternoon
-
-Bottom row:
-
-* evening
-* night
-* rainy day
+Row 1: morning | midday
+Row 2: afternoon | evening
+Row 3: night | rainy
 
 Each cell must be landscape.
 
