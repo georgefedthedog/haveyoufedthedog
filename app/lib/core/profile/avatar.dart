@@ -22,17 +22,18 @@ class Avatar {
   /// Download URL for catalog avatars; null for bundled ones.
   final Uri? remoteImage;
 
-  /// Id of the `catalog_packs` row this avatar belongs to, or null for
-  /// bundled art and general-catalog rows (`pack = ''`). Used only to gate
-  /// the *picker* to a household's entitled packs - resolution is ungated,
-  /// so any chosen avatar renders in any household the user is in.
-  final String? packId;
+  /// Ids of the `catalog_packs` rows this avatar belongs to; empty for
+  /// bundled art and general-catalog rows (no pack). An avatar can be in
+  /// several packs. Used only to gate the *picker* to a household's entitled
+  /// packs - resolution is ungated, so any chosen avatar renders in any
+  /// household the user is in.
+  final List<String> packIds;
 
   const Avatar({
     required this.id,
     required this.displayName,
     this.remoteImage,
-    this.packId,
+    this.packIds = const [],
   });
 
   /// Asset path for a bundled avatar's PNG.

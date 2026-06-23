@@ -61,8 +61,8 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   `timezone` (IANA name, captured from the creator's phone; empty =
   Europe/London), `residents` ("Who lives here?" label, e.g. "The
   Goodchilds"), `packs` (**multi**-relation to `catalog_packs` - the image
-  packs this household has redeemed; PB serializes single relations as a
-  bare string, so keep it multi).
+  packs this household owns, bought or redeemed; PB serializes single
+  relations as a bare string, so keep it multi).
 - **household_members** - user ↔ household join with `role` (`owner`/`member`).
 - **household_member_details** - read-only SQL **view** joining members to
   `users` so the app gets `user_name` + `user_avatar` + `user_managed` in one
@@ -85,13 +85,15 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 - **catalog_avatars / catalog_pictures / catalog_characters** - the remote
   art catalog (ship new art without an app release). Per row: `slug` (the
   forever-id stored on user/household/subject records), `display_name`,
-  `sort_order`, the art file field(s), and an optional `pack` relation
-  (empty = general catalog, everyone sees it). No per-row draft flag:
-  saved = live; stage/retire via the Vault pack trick (see "Publishing").
-- **catalog_packs** - gift-able art bundles. `code` (**hidden field** -
-  clients can't read or filter it; only the redeem hook resolves it),
-  `name`, `enabled` (pack live at all), `redeemable` (accepts new
-  households). Redeemed via `packs.pb.js`, never by direct client writes.
+  `sort_order`, the art file field(s), and a `packs` **multi**-relation (the
+  packs this row belongs to - empty = general catalog, everyone sees it; a row
+  can be in several packs). No per-row draft flag: saved = live; stage/retire
+  via the Vault pack trick (see "Publishing").
+- **catalog_packs** - the art packs (groups) a household can own. `code`
+  (**hidden field** - clients can't read or filter it; only the redeem hook
+  resolves it), `name`, `enabled` (pack live at all), `redeemable` (accepts
+  new gift-code redemptions). Owned by buying a `catalog_products` that grants
+  it or redeeming its code via `packs.pb.js`; never by direct client writes.
 
 All API rules are membership-scoped (you only see rows for households you're
 in). Schema and API-rule edits are a by-hand process (see "Deploying to the
@@ -512,14 +514,14 @@ instructions when making a schema change.
 - `sort_order` orders rows within the remote block (bundled art always
   comes first in pickers). Slugs are forever - they're stored on user /
   household / subject records; never rename or reuse one.
-- **Image pack (gift art to friends):** `catalog_packs` row (code + name +
-  enabled + redeemable), then set `pack` on the art rows that belong to it -
-  those rows are only served to households that have redeemed the code
-  (Household details → Image packs). Untagged rows stay visible to
-  everyone. Full pack workflow: see "Publishing a pack" below (a by-hand
-  process - ask Claude for step-by-step instructions).
-- **Staging / retiring an item:** assign its `pack` to a disabled pack
-  nobody redeems (keep a permanent "Vault" pack for this); clear the field
+- **Image pack:** a `catalog_packs` row (code + name + enabled + redeemable),
+  then add it to the `packs` of the art rows that belong to it - those rows
+  are only *selectable* by households that own the pack (bought via a product
+  or redeemed by code; Household details → Image packs). Rows with no pack
+  stay visible to everyone. Full pack workflow: see "Publishing a pack" below
+  (a by-hand process - ask Claude for step-by-step instructions).
+- **Staging / retiring an item:** set its `packs` to only a disabled pack
+  nobody owns (keep a permanent "Vault" pack for this); restore its real packs
   to (re)publish. Never delete a row someone may have picked - slugs are
   forever.
 - Files are public-read by URL (not `protected`) so Cloudflare edge-caches
@@ -533,16 +535,15 @@ instructions when making a schema change.
    it's normalised to upper-case on redeem), a name (what friends see in
    the snackbar / household details), enabled ✓ AND redeemable ✓.
 2. Create the art rows as usual (see README "Publishing new design
-   assets") and set each row's `pack` to the pack. A row belongs to at
-   most one pack; want the same art in two packs → two rows (distinct
-   slugs).
+   assets") and add the pack to each row's `packs`. A row can belong to
+   several packs (e.g. its category group + an "everything" pack).
    Tip: keep one permanent disabled pack named "Vault" (any code, never
-   share it) - parking a row's `pack` there hides it everywhere,
+   share it) - setting a row's `packs` to just Vault hides it everywhere,
    reversibly. That's the staging/retiring mechanism for general-catalog
    rows.
-3. Share the code. Any member applies it once per household (Household
-   details → Image packs); everyone in that household then sees the art
-   in their pickers.
+3. Share the code, or sell the pack via a `catalog_products` row. Any member
+   applies a code once per household (Household details → Image packs);
+   everyone in that household then sees the art in their pickers.
 
 Caveats:
 
@@ -577,14 +578,14 @@ Caveats:
   PNGs in `app/assets/...`. Remote: the `catalog_*` PB collections, merged
   after the bundled entries by `catalogProvider` (`app/lib/core/catalog/`);
   bundled wins slug collisions. **Resolution is ungated:** the fetch pulls
-  every row from an `enabled` pack (plus general-catalog rows), so a chosen
+  every row with no pack or _any_ enabled pack, so a chosen
   avatar/picture/character renders in any household the viewer is in - not
-  only one that redeemed the pack (disabling a pack still drops its rows
-  from the fetch, so that art falls back). **Selection is gated** by
+  only one that owns the pack (a row drops from the fetch only when _none_ of
+  its packs is enabled, so that art falls back). **Selection is gated** by
   `selectableCatalogProvider`: the pickers offer general art plus entitled
-  packs - pictures/characters by the _current_ household's packs, avatars by
-  the _union_ across all the user's households (avatars are personal, so
-  they travel with the user).
+  rows - pictures/characters when the _current_ household owns any of the
+  row's packs, avatars when any of the user's households does (avatars are
+  personal, so they travel with the user).
   **Widgets must read art via `ref.watch(catalogProvider).lookupX(id)` and
   the models' `imageProvider` getters** - never the static registries or
   `Image.asset` directly - or remote art won't resolve; the three pickers

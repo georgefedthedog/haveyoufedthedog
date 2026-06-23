@@ -180,20 +180,23 @@ SelectableCatalog selectableCatalog(Ref ref) {
   final householdPacks = packSet(householdPacksKey);
   final avatarPacks = packSet(avatarPacksKey);
 
-  bool selectable(String? packId, Set<String> entitled) =>
-      packId == null || entitled.contains(packId);
+  // Selectable if it belongs to no pack (general catalog) or to ANY pack the
+  // viewer is entitled to - an item can be in several packs (its group + an
+  // "everything" pack), and owning any one of them unlocks it.
+  bool selectable(List<String> packIds, Set<String> entitled) =>
+      packIds.isEmpty || packIds.any(entitled.contains);
   return SelectableCatalog(
     avatars: [
       for (final a in catalog.avatars)
-        if (selectable(a.packId, avatarPacks)) a,
+        if (selectable(a.packIds, avatarPacks)) a,
     ],
     pictures: [
       for (final p in catalog.pictures)
-        if (selectable(p.packId, householdPacks)) p,
+        if (selectable(p.packIds, householdPacks)) p,
     ],
     characters: [
       for (final c in catalog.characters)
-        if (selectable(c.packId, householdPacks)) c,
+        if (selectable(c.packIds, householdPacks)) c,
     ],
   );
 }
@@ -209,7 +212,9 @@ SelectableCatalog selectableCatalog(Ref ref) {
 /// art everywhere, including already-chosen art.
 Future<List<RecordModel>> _rows(PocketBase pb, String collection) {
   return pb.collection(collection).getFullList(
-    filter: "pack = '' || pack.enabled = true",
+    // `packs` is a multi-relation: fetch rows with no pack (general catalog) or
+    // any enabled pack. `?=` is "any of"; `:length` counts the relation.
+    filter: 'packs:length = 0 || packs.enabled ?= true',
     sort: 'sort_order,created',
   );
 }
@@ -227,12 +232,11 @@ Avatar? _avatarFrom(PocketBase pb, RecordModel r) {
   final slug = r.getStringValue('slug');
   final image = r.getStringValue('image');
   if (slug.isEmpty || image.isEmpty) return null;
-  final pack = r.getStringValue('pack');
   return Avatar(
     id: slug,
     displayName: r.getStringValue('display_name'),
     remoteImage: pb.files.getUrl(r, image),
-    packId: pack.isEmpty ? null : pack,
+    packIds: r.getListValue<String>('packs'),
   );
 }
 
@@ -245,12 +249,11 @@ Picture? _pictureFrom(PocketBase pb, RecordModel r) {
     if (file.isEmpty) return null; // All five are required; skip bad rows.
     variants[bucket] = pb.files.getUrl(r, file);
   }
-  final pack = r.getStringValue('pack');
   return Picture(
     id: slug,
     displayName: r.getStringValue('display_name'),
     remoteVariants: variants,
-    packId: pack.isEmpty ? null : pack,
+    packIds: r.getListValue<String>('packs'),
   );
 }
 
@@ -264,7 +267,6 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
   }
   if (!expressions.containsKey(CharacterExpression.idle)) return null;
   final award = r.getStringValue('award');
-  final pack = r.getStringValue('pack');
   return Character(
     id: slug,
     displayName: r.getStringValue('display_name'),
@@ -273,7 +275,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
     available: expressions.keys.toSet(),
     remoteExpressions: expressions,
     remoteAward: award.isEmpty ? null : pb.files.getUrl(r, award),
-    packId: pack.isEmpty ? null : pack,
+    packIds: r.getListValue<String>('packs'),
     messages: CharacterMessages.fromJson(r.data['messages']),
   );
 }

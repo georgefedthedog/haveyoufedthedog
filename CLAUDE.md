@@ -78,13 +78,15 @@ default is the *binary* dir, a documented gotcha (README → "Static files").
   release. `catalogProvider` (`core/catalog/`) merges bundled + enabled
   remote rows (bundled first, bundled wins slug collisions; fail-soft to
   bundled-only offline). **Resolution and selection are split.**
-  `catalogProvider` is ungated: the fetch pulls every row from an `enabled`
-  pack (plus general rows), so chosen art resolves in *any* household the
-  viewer is in - a packed avatar/picture renders even where the pack was
-  never redeemed. `selectableCatalogProvider` is the entitlement gate for
-  the *pickers*: pictures + characters by the current household's packs,
-  avatars by the union of packs across all the user's households (avatars
-  are personal, so they travel). Widgets read lookups via
+  `catalogProvider` is ungated: the fetch pulls every row with no pack or
+  *any* enabled pack, so chosen art resolves in *any* household the viewer is
+  in - a packed avatar/picture renders even where the pack isn't owned.
+  `selectableCatalogProvider` is the entitlement gate for the *pickers*:
+  pictures + characters when the current household owns *any* of the row's
+  packs, avatars when *any* of the user's households does (avatars are
+  personal, so they travel). Art rows carry a `packs` **multi**-relation - a
+  row can sit in several packs (its category group plus an "everything" pack);
+  empty `packs` = general catalog, everyone sees it. Widgets read lookups via
   `ref.watch(catalogProvider).lookupX(id)` - never the static registries -
   and render through the models' `imageProvider` getters
   (cached_network_image disk cache); the three pickers read

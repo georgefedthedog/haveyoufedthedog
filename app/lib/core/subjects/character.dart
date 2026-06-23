@@ -67,10 +67,11 @@ class Character {
   /// that haven't shipped it.
   final Uri? remoteAward;
 
-  /// Id of the `catalog_packs` row this character belongs to, or null for
-  /// bundled art and general-catalog rows (`pack = ''`). Used only to gate
+  /// Ids of the `catalog_packs` rows this character belongs to; empty for
+  /// bundled art and general-catalog rows (no pack). A character can be in
+  /// several packs (e.g. its group + an "everything" pack). Used only to gate
   /// the *picker* to a household's entitled packs - resolution is ungated.
-  final String? packId;
+  final List<String> packIds;
 
   /// Author-supplied copy overrides (mood lines, award title/thanks) for
   /// remote characters; null for bundled ones, which keep their hardcoded
@@ -85,7 +86,7 @@ class Character {
     this.available = const {CharacterExpression.idle},
     this.remoteExpressions,
     this.remoteAward,
-    this.packId,
+    this.packIds = const [],
     this.messages,
   });
 
