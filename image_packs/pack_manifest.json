@@ -4,483 +4,325 @@
       "slug": "bernese_mountain_dog",
       "display_name": "Bernese Mountain Dog",
       "base_color": "DCD1C6",
-      "sort_order": 10,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1010,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cavapoo",
       "display_name": "Cavapoo",
       "base_color": "E8D1BA",
-      "sort_order": 20,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1020,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "chihuahua",
       "display_name": "Chihuahua",
       "base_color": "E8D3BA",
-      "sort_order": 30,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1030,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cockapoo",
       "display_name": "Cockapoo",
       "base_color": "E8D2BA",
-      "sort_order": 40,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1040,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cockerspaniel_1",
       "display_name": "Cocker Spaniel",
       "base_color": "DBC7C9",
-      "sort_order": 50,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1050,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "cockerspaniel_2",
       "display_name": "Cocker Spaniel 2",
       "base_color": "E8CFBA",
-      "sort_order": 60,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1060,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "dachshund",
       "display_name": "Dachshund",
       "base_color": "E8CFBA",
-      "sort_order": 70,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1070,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "dachshund_2",
       "display_name": "Dachshund 2",
       "base_color": "E8CFBA",
-      "sort_order": 80,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1080,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "french_bulldog",
       "display_name": "French Bulldog",
       "base_color": "DCD0C6",
-      "sort_order": 90,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1090,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "german_shepherd",
       "display_name": "German Shepherd",
       "base_color": "E8D3BA",
-      "sort_order": 100,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1100,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "golden_retriever",
       "display_name": "Golden Retriever",
       "base_color": "E8D5BA",
-      "sort_order": 110,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1110,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "husky",
       "display_name": "Husky",
       "base_color": "DBD1C7",
-      "sort_order": 120,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1120,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "jack_russell",
       "display_name": "Jack Russell",
       "base_color": "E4D2BE",
-      "sort_order": 130,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1130,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "labrador_retriever",
       "display_name": "Labrador Retriever",
       "base_color": "E8D5BA",
-      "sort_order": 140,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1140,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "maltese",
       "display_name": "Maltese",
       "base_color": "E2CFC0",
-      "sort_order": 150,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1150,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "pomeranian",
       "display_name": "Pomeranian",
       "base_color": "E8D3BA",
-      "sort_order": 160,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1160,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "pug",
       "display_name": "Pug",
       "base_color": "E3D4BF",
-      "sort_order": 170,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1170,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "red_labrador",
       "display_name": "Red Labrador",
       "base_color": "E8CFBA",
-      "sort_order": 180,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1180,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "scruffy_mixed_breed",
       "display_name": "Scruffy Mixed Breed",
       "base_color": "DCD0C6",
-      "sort_order": 190,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1190,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "shih_tzu",
       "display_name": "Shih Tzu",
       "base_color": "E8D3BB",
-      "sort_order": 200,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1200,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "staffy",
       "display_name": "Staffy",
       "base_color": "DCD2C6",
-      "sort_order": 210,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1210,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "toy_poodle",
       "display_name": "Toy Poodle",
       "base_color": "E8D2BA",
-      "sort_order": 220,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1220,
+      "packs": ["all_dogs", "all_pets"]
     },
     {
       "slug": "yorkshire_terrier",
       "display_name": "Yorkshire Terrier",
       "base_color": "E8D1BA",
-      "sort_order": 230,
-      "paid": true,
-      "packs": [
-        "all_dogs",
-        "all_pets"
-      ]
+      "sort_order": 1230,
+      "packs": ["all_dogs", "all_pets"]
+    },
+    {
+      "slug": "black_cat",
+      "display_name": "Black Cat",
+      "base_color": "DBD0C7",
+      "sort_order": 2010,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "calico_cat",
       "display_name": "Calico Cat",
       "base_color": "E1D1C1",
-      "sort_order": 240,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "sort_order": 2020,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "fluffy_cat",
       "display_name": "Fluffy Cat",
       "base_color": "E3CFBF",
-      "sort_order": 250,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "sort_order": 2030,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "ginger_cat",
       "display_name": "Ginger Cat",
       "base_color": "E8D2BA",
-      "sort_order": 260,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "sort_order": 2040,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "maine_coon_cat",
       "display_name": "Maine Coon Cat",
       "base_color": "E7D1BB",
-      "sort_order": 270,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "sort_order": 2050,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "shorthair_blue_cat",
       "display_name": "Shorthair Blue Cat",
       "base_color": "DAC7DB",
-      "sort_order": 280,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "sort_order": 2060,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "siamese_cat",
       "display_name": "Siamese Cat",
       "base_color": "DED1C5",
-      "sort_order": 290,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
+      "sort_order": 2070,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "tuxedo_cat",
       "display_name": "Tuxedo Cat",
       "base_color": "DBD0C7",
-      "sort_order": 300,
-      "paid": true,
-      "packs": [
-        "all_cats",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "bearded_dragon",
-      "display_name": "Bearded Dragon",
-      "base_color": "E8D4BA",
-      "sort_order": 310,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "gerbil",
-      "display_name": "Gerbil",
-      "base_color": "E8D2BA",
-      "sort_order": 320,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "grey_rabbit",
-      "display_name": "Grey Rabbit",
-      "base_color": "DBCFC7",
-      "sort_order": 330,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "guinea_pig",
-      "display_name": "Guinea Pig",
-      "base_color": "E4D1BF",
-      "sort_order": 340,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "hamster",
-      "display_name": "Hamster",
-      "base_color": "E8D2BA",
-      "sort_order": 350,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "snake",
-      "display_name": "Snake",
-      "base_color": "E8E6BA",
-      "sort_order": 360,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "tarantula",
-      "display_name": "Tarantula",
-      "base_color": "E6CDBC",
-      "sort_order": 370,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "tortoise",
-      "display_name": "Tortoise",
-      "base_color": "E8DBBA",
-      "sort_order": 380,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
-    },
-    {
-      "slug": "tropical_fish",
-      "display_name": "Tropical Fish",
-      "base_color": "E8D6BA",
-      "sort_order": 390,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "sort_order": 2080,
+      "packs": ["all_cats", "all_pets"]
     },
     {
       "slug": "white_rabbit",
       "display_name": "White Rabbit",
       "base_color": "E8D3BA",
-      "sort_order": 400,
-      "paid": true,
-      "packs": [
-        "all_small_pets",
-        "all_pets"
-      ]
+      "sort_order": 3000,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "grey_rabbit",
+      "display_name": "Grey Rabbit",
+      "base_color": "DBCFC7",
+      "sort_order": 3010,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "gerbil",
+      "display_name": "Gerbil",
+      "base_color": "E8D2BA",
+      "sort_order": 3020,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+
+    {
+      "slug": "guinea_pig",
+      "display_name": "Guinea Pig",
+      "base_color": "E4D1BF",
+      "sort_order": 3030,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "hamster",
+      "display_name": "Hamster",
+      "base_color": "E8D2BA",
+      "sort_order": 3040,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "bearded_dragon",
+      "display_name": "Bearded Dragon",
+      "base_color": "E8D4BA",
+      "sort_order": 3045,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "snake",
+      "display_name": "Snake",
+      "base_color": "E8E6BA",
+      "sort_order": 3050,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "tarantula",
+      "display_name": "Tarantula",
+      "base_color": "E6CDBC",
+      "sort_order": 3060,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "tortoise",
+      "display_name": "Tortoise",
+      "base_color": "E8DBBA",
+      "sort_order": 3070,
+      "packs": ["all_small_pets", "all_pets"]
+    },
+    {
+      "slug": "tropical_fish",
+      "display_name": "Tropical Fish",
+      "base_color": "E8D6BA",
+      "sort_order": 3090,
+      "packs": ["all_small_pets", "all_pets"]
     },
     {
       "slug": "black_bin",
       "display_name": "Black Bin",
       "base_color": "DBCDC7",
-      "sort_order": 410,
-      "paid": false
+      "sort_order": 4030
     },
     {
       "slug": "laundry_basket",
       "display_name": "Laundry Basket",
       "base_color": "E8CFBA",
-      "sort_order": 420,
-      "paid": false
+      "sort_order": 4040
     },
     {
       "slug": "lawnmower",
       "display_name": "Lawnmower",
       "base_color": "CFE3BF",
-      "sort_order": 430,
-      "paid": false
+      "sort_order": 4050
     },
     {
       "slug": "meds",
       "display_name": "Meds",
       "base_color": "C7DBD0",
-      "sort_order": 440,
-      "paid": false
+      "sort_order": 4060
     },
     {
       "slug": "mop_and_bucket",
       "display_name": "Mop & Bucket",
       "base_color": "E8BDBA",
-      "sort_order": 450,
-      "paid": false
+      "sort_order": 4070
     },
     {
       "slug": "vacuum_cleaner",
       "display_name": "Vacuum Cleaner",
       "base_color": "C7DBD6",
-      "sort_order": 460,
-      "paid": false
+      "sort_order": 4080
     }
   ],
   "defaults": {
@@ -496,9 +338,9 @@
       "enabled": false,
       "redeemable": true,
       "product": {
-        "sku": "sku_20260622_P01_all_dogs",
+        "sku": "sku_20260622_001_all_dogs",
         "name": "All Dogs",
-        "description": "Every dog — all 23 breeds, from the tiniest Chihuahua to the gentlest Bernese.",
+        "description": "Every dog - all breeds, from the tiniest Chihuahua to the gentlest Bernese.",
         "enabled": true,
         "sort_order": 10
       }
@@ -510,9 +352,9 @@
       "enabled": false,
       "redeemable": true,
       "product": {
-        "sku": "sku_20260622_P02_all_cats",
+        "sku": "sku_20260622_002_all_cats",
         "name": "All Cats",
-        "description": "Every cat — all 7, from dignified to delightfully chaotic.",
+        "description": "Every cat - from dignified to delightfully chaotic.",
         "enabled": true,
         "sort_order": 20
       }
@@ -524,9 +366,9 @@
       "enabled": false,
       "redeemable": true,
       "product": {
-        "sku": "sku_20260622_P03_all_small_pets",
+        "sku": "sku_20260622_003_all_small_pets",
         "name": "All Small Pets",
-        "description": "Every small pet — rabbits, rodents, reptiles, fish and a friendly tarantula (10 in all).",
+        "description": "Every small pet - rabbits, rodents, reptiles, fish and a friendly tarantula.",
         "enabled": true,
         "sort_order": 30
       }
@@ -538,9 +380,9 @@
       "enabled": false,
       "redeemable": true,
       "product": {
-        "sku": "sku_20260622_P04_all_pets",
+        "sku": "sku_20260622_004_all_pets",
         "name": "All Pets",
-        "description": "The lot — every dog, cat and small pet in the collection (40 characters).",
+        "description": "The lot - every dog, cat and small pet in the collection.",
         "enabled": true,
         "sort_order": 40
       }

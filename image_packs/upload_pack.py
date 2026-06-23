@@ -107,22 +107,49 @@ def ensure_pack(s, base, packdef, dry):
     return r.json()["id"], "create"
 
 
-def ensure_product(s, base, proddef, pack_id, dry):
-    """Find-or-create a catalog_products row by sku, granting pack_id."""
+def pack_hero(key):
+    """Inferred hero image for a pack: `packs/<key>_hero.png` (e.g.
+    packs/all_cats_hero.png). Returns the path if it exists, else None - a
+    missing hero is simply skipped."""
+    path = os.path.join(HERE, "packs", f"{key}_hero.png")
+    return path if os.path.exists(path) else None
+
+
+def ensure_product(s, base, proddef, pack_id, hero, dry):
+    """Find-or-create a catalog_products row by sku, granting pack_id. Uploads
+    `hero` (a resolved file path, or None) to hero_image on both create and
+    update; when None, hero_image is left untouched (a PATCH that omits it never
+    clears an already-set image)."""
     sku = proddef["sku"]
-    body = {"sku": sku, "name": proddef["name"],
-            "description": proddef.get("description", ""),
-            "sort_order": proddef.get("sort_order", 0),
-            "enabled": proddef.get("enabled", True), "grants": [pack_id]}
+    name = proddef["name"]
+    description = proddef.get("description", "")
+    sort_order = proddef.get("sort_order", 0)
+    enabled = proddef.get("enabled", True)
     existing = find_one(s, base, "catalog_products", f"sku='{sku}'")
     action = "update" if existing else "create"
     if dry:
         return action
-    if existing:
-        r = s.patch(f"{base}/api/collections/catalog_products/records/{existing['id']}",
-                    json=body, timeout=30)
+
+    files = None
+    if hero:
+        # multipart: relation + bools/numbers as form strings, plus the file
+        data = [("sku", sku), ("name", name), ("description", description),
+                ("sort_order", str(sort_order)),
+                ("enabled", "true" if enabled else "false"), ("grants", pack_id)]
+        files = {"hero_image": (os.path.basename(hero), open(hero, "rb"), "image/png")}
     else:
-        r = s.post(f"{base}/api/collections/catalog_products/records", json=body, timeout=30)
+        data = {"sku": sku, "name": name, "description": description,
+                "sort_order": sort_order, "enabled": enabled, "grants": [pack_id]}
+    try:
+        url = (f"{base}/api/collections/catalog_products/records/{existing['id']}"
+               if existing else f"{base}/api/collections/catalog_products/records")
+        method = s.patch if existing else s.post
+        r = (method(url, data=data, files=files, timeout=60) if hero
+             else method(url, json=data, timeout=30))
+    finally:
+        if files:
+            for _, fh, _m in files.values():
+                fh.close()
     if r.status_code not in (200, 201):
         die(f"product '{sku}' {action} failed ({r.status_code}): {r.text[:300]}")
     return action
@@ -305,7 +332,7 @@ def main():
         if not chars:
             die("--only matched no slugs in the manifest")
 
-    paid = sum(1 for c in chars if c.get("paid"))
+    paid = sum(1 for c in chars if c.get("packs"))  # "paid" = belongs to any pack
     print(f"Target: {base}")
     print(f"Mode:   {'DRY RUN (no writes)' if args.dry_run else 'LIVE'}"
           f"{'  + image reupload' if args.reupload else ''}")
@@ -328,18 +355,20 @@ def main():
     print("Packs:")
     pack_id_by_key = {}
     for p in manifest.get("packs", []):
+        hero = pack_hero(p["key"])
+        hero_tag = " +hero" if hero else " (no hero yet)"
         if offline:
             print(f"  {p['key']:16} code={p['code']:14} sku={p['product']['sku']:32} "
-                  f"enabled={p['enabled']}")
+                  f"enabled={p['enabled']}{hero_tag}")
             pack_id_by_key[p["key"]] = f"<{p['key']}>"
             continue
         pid, pst = ensure_pack(s, base, p, args.dry_run)
         pack_id_by_key[p["key"]] = pid
         if pst == "create":
             tally["pack_create"] += 1
-        prst = ensure_product(s, base, p["product"], pid, args.dry_run)
+        prst = ensure_product(s, base, p["product"], pid, hero, args.dry_run)
         tally["prod_create" if prst == "create" else "prod_update"] += 1
-        print(f"  {p['key']:16} code={p['code']:14} ({pst}; product {prst})")
+        print(f"  {p['key']:16} code={p['code']:14} ({pst}; product {prst}{hero_tag})")
 
     # 2) Characters -> their pack memberships.
     print("\nCharacters:")
@@ -349,7 +378,7 @@ def main():
         bad = [k for k in keys if k not in pack_id_by_key]
         if bad:
             die(f"{slug}: unknown pack keys {bad}")
-        label = (f"PAID  {slug:22} packs={','.join(keys)}" if c.get("paid")
+        label = (f"PAID  {slug:22} packs={','.join(keys)}" if keys
                  else f"FREE  {slug:22} (general catalog)")
         print(f"  {label}")
         if offline:

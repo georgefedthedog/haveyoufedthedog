@@ -30,6 +30,7 @@ class CharacterRegistry {
     stageColor: CharacterStage.dog,
     fallbackIcon: Icons.pets,
     available: _fullSet,
+    sortOrder: 1000, // first in the dogs group (1000s)
   );
   static const cat = Character(
     id: 'cat',
@@ -37,6 +38,7 @@ class CharacterRegistry {
     stageColor: CharacterStage.cat,
     fallbackIcon: Icons.cruelty_free,
     available: _fullSet,
+    sortOrder: 2000, // first in the cats group (2000s)
   );
   static const plant = Character(
     id: 'plant',
@@ -44,6 +46,7 @@ class CharacterRegistry {
     stageColor: CharacterStage.plant,
     fallbackIcon: Icons.eco,
     available: _fullSet,
+    sortOrder: 4000, // chores group (4000s) - plant + generic + bin lead it
   );
   static const bin = Character(
     id: 'bin',
@@ -51,6 +54,7 @@ class CharacterRegistry {
     stageColor: CharacterStage.bin,
     fallbackIcon: Icons.delete_outline,
     available: _fullSet,
+    sortOrder: 4020, // just before the remote black_bin (4030)
   );
   static const fish = Character(
     id: 'fish',
@@ -58,6 +62,7 @@ class CharacterRegistry {
     stageColor: CharacterStage.fish,
     fallbackIcon: Icons.set_meal_outlined,
     available: _fullSet,
+    sortOrder: 3080, // small-pets group, just before the remote tropical_fish (3090)
   );
   static const generic = Character(
     id: 'generic',
@@ -65,6 +70,7 @@ class CharacterRegistry {
     stageColor: CharacterStage.generic,
     fallbackIcon: Icons.task_alt,
     available: _fullSet,
+    sortOrder: 4010, // chores group, between plant (4000) and bin (4020)
   );
 
   /// Look up a character by stored [id]. Falls back to [generic] if the

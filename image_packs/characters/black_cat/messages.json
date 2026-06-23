@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Pleased, in the shadows.", "body": "{name} blinks slowly in approval 🖤" },
+      { "title": "Good fortune today.", "body": "{name} deigns to purr." },
+      { "title": "Service accepted.", "body": "{name} melts back into the dark." }
+    ],
+    "overdue": [
+      { "title": "Watching from the dark.", "body": "Two eyes, no dinner. {name} waits 👀" },
+      { "title": "An ill omen.", "body": "{name} crosses your path, pointedly." },
+      { "title": "The bowl is empty.", "body": "{name} has noted your misfortune." }
+    ],
+    "upcoming": [
+      { "title": "Materialised from nowhere.", "body": "{name} always knows when it's dinner." },
+      { "title": "A shadow in the kitchen.", "body": "{name} senses food 🌙" },
+      { "title": "Tail curled, waiting.", "body": "{name} appeared the moment you did." }
+    ],
+    "happyForNow": [
+      { "title": "A pool of darkness on the sofa.", "body": "All is well with {name}." },
+      { "title": "Curled into a comma.", "body": "{name} is content for now." },
+      { "title": "Briefly visible in a sunbeam.", "body": "{name} is at ease." }
+    ],
+    "none": [
+      { "title": "A day to prowl unseen.", "body": "{name} approves 🖤" },
+      { "title": "Gone to the shadows.", "body": "{name} requires nothing today." }
+    ]
+  },
+  "awardTitle": "Bringer of Good Luck 🖤",
+  "awardThanks": "Thanks for keeping your lucky shadow content last week!"
+}

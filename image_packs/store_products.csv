@@ -1,5 +1,5 @@
 sku,name,type,price_gbp
-sku_20260622_P01_all_dogs,"All Dogs",non-consumable,4.99
-sku_20260622_P02_all_cats,"All Cats",non-consumable,2.99
-sku_20260622_P03_all_small_pets,"All Small Pets",non-consumable,3.99
-sku_20260622_P04_all_pets,"All Pets",non-consumable,9.99
+sku_20260622_001_all_dogs,"All Dogs",non-consumable,2.79
+sku_20260622_002_all_cats,"All Cats",non-consumable,1.99
+sku_20260622_003_all_small_pets,"All Small Pets",non-consumable,1.79
+sku_20260622_004_all_pets,"All Pets",non-consumable,4.99

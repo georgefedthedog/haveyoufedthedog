@@ -76,8 +76,9 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
 - **Remote content catalog:** the `catalog_avatars` / `catalog_pictures` /
   `catalog_characters` PB collections serve extra art without an app
   release. `catalogProvider` (`core/catalog/`) merges bundled + enabled
-  remote rows (bundled first, bundled wins slug collisions; fail-soft to
-  bundled-only offline). **Resolution and selection are split.**
+  remote rows and sorts them together by `sortOrder` (bundled entries carry
+  their own in the registries, so they interleave into the right group;
+  bundled wins slug collisions and ties; fail-soft to bundled-only offline). **Resolution and selection are split.**
   `catalogProvider` is ungated: the fetch pulls every row with no pack or
   _any_ enabled pack, so chosen art resolves in _any_ household the viewer is
   in - a packed avatar/picture renders even where the pack isn't owned.

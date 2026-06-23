@@ -73,6 +73,11 @@ class Character {
   /// the *picker* to a household's entitled packs - resolution is ungated.
   final List<String> packIds;
 
+  /// Picker sort position. Remote characters take it from the catalog row's
+  /// `sort_order`; bundled ones are assigned in [CharacterRegistry] so they
+  /// interleave into the right group. The merged picker list is sorted by this.
+  final int sortOrder;
+
   /// Author-supplied copy overrides (mood lines, award title/thanks) for
   /// remote characters; null for bundled ones, which keep their hardcoded
   /// copy in `character_message.dart` / `awards_controller.dart`.
@@ -87,6 +92,7 @@ class Character {
     this.remoteExpressions,
     this.remoteAward,
     this.packIds = const [],
+    this.sortOrder = 0,
     this.messages,
   });
 
