@@ -16,7 +16,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> Uploading worker + restarting worker..."
 tar -cz -C "$DIR/services/worker" \
-    index.js notify.js pb-cron.js overdue-cron.js award-cron.js verify.js package.json worker.service \
+    index.js notify.js pb-cron.js overdue-cron.js award-cron.js verify.js reward-streak.js package.json worker.service \
   | ssh "${SSH_OPTS[@]}" "$SERVER" "
       set -e
       mkdir -p $REMOTE

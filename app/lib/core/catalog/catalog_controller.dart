@@ -159,7 +159,9 @@ Catalog catalog(Ref ref) {
 ///   across all the user's households - a packed avatar can be chosen from
 ///   any household once any of the user's households has the pack.
 /// - **Pictures** and **characters** belong to a household, so they're gated
-///   by the *current* household's packs only.
+///   by the *current* household's packs only - *plus* any the household has
+///   streak-unlocked by slug (a pack-independent grant; see
+///   `unlockedCharacterIds` / `unlockedPictureIds`).
 ///
 /// This is the entitlement gate that used to live in the catalog fetch
 /// itself. Rendering (resolving any chosen id) goes through [catalogProvider]
@@ -189,15 +191,32 @@ SelectableCatalog selectableCatalog(Ref ref) {
       return sorted.join(',');
     }),
   );
+  // Characters + pictures the current household earned for free via a reward
+  // streak (claim-streak-reward hook). Slug lists, joined for the same
+  // rebuild-stability reason as the pack keys above.
+  final unlockedCharsKey = ref.watch(
+    currentHouseholdControllerProvider.select(
+      (h) => (h.valueOrNull?.unlockedCharacterIds ?? const <String>[]).join(','),
+    ),
+  );
+  final unlockedPicsKey = ref.watch(
+    currentHouseholdControllerProvider.select(
+      (h) => (h.valueOrNull?.unlockedPictureIds ?? const <String>[]).join(','),
+    ),
+  );
 
-  Set<String> packSet(String key) =>
+  Set<String> commaSet(String key) =>
       key.isEmpty ? const <String>{} : key.split(',').toSet();
-  final householdPacks = packSet(householdPacksKey);
-  final avatarPacks = packSet(avatarPacksKey);
+  final householdPacks = commaSet(householdPacksKey);
+  final avatarPacks = commaSet(avatarPacksKey);
+  final unlockedChars = commaSet(unlockedCharsKey);
+  final unlockedPics = commaSet(unlockedPicsKey);
 
   // Selectable if it belongs to no pack (general catalog) or to ANY pack the
   // viewer is entitled to - an item can be in several packs (its group + an
-  // "everything" pack), and owning any one of them unlocks it.
+  // "everything" pack), and owning any one of them unlocks it. Characters and
+  // pictures are additionally selectable if streak-unlocked by slug, which is
+  // pack-independent (so it can free even paid-pack art).
   bool selectable(List<String> packIds, Set<String> entitled) =>
       packIds.isEmpty || packIds.any(entitled.contains);
   return SelectableCatalog(
@@ -207,11 +226,14 @@ SelectableCatalog selectableCatalog(Ref ref) {
     ],
     pictures: [
       for (final p in catalog.pictures)
-        if (selectable(p.packIds, householdPacks)) p,
+        if (selectable(p.packIds, householdPacks) || unlockedPics.contains(p.id))
+          p,
     ],
     characters: [
       for (final c in catalog.characters)
-        if (selectable(c.packIds, householdPacks)) c,
+        if (selectable(c.packIds, householdPacks) ||
+            unlockedChars.contains(c.id))
+          c,
     ],
   );
 }
