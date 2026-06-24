@@ -113,13 +113,14 @@ class _AppliesToNote extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(
-                text: 'Packs you buy or redeem are unlocked for members of ',
+                text:
+                    'Packs you buy or redeem are unlocked for all members of ',
                 children: [
                   TextSpan(
                     text: householdName,
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                  const TextSpan(text: ' only.'),
+                  const TextSpan(text: '.'),
                 ],
               ),
               style: theme.textTheme.bodySmall?.copyWith(

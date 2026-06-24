@@ -12,6 +12,7 @@ import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
 import '../../router/routes.dart';
 import '../../widgets/drop_target_circle.dart';
+import '../../widgets/glow_highlight.dart';
 import '../../widgets/page_title.dart';
 import '../../widgets/wiggle.dart';
 import 'avatar_artwork.dart';
@@ -239,9 +240,9 @@ class _ActAsCard extends ConsumerStatefulWidget {
 }
 
 class _ActAsCardState extends ConsumerState<_ActAsCard> {
-  /// Briefly true after the home members row asked us to highlight, drawing a
-  /// primary-coloured border around the card (same cue as the invite card).
-  bool _flash = false;
+  /// Pulses a primary glow around the card when the home members row asks us
+  /// to highlight (same shared cue as the invite card + rewards collection).
+  final _actAsGlowKey = GlobalKey<GlowHighlightState>();
 
   /// Guards against re-handling the same highlight request across rebuilds.
   bool _handled = false;
@@ -268,10 +269,7 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
         duration: const Duration(milliseconds: 400),
         alignment: 0.1,
       );
-      setState(() => _flash = true);
-      Future.delayed(const Duration(milliseconds: 1200), () {
-        if (mounted) setState(() => _flash = false);
-      });
+      _actAsGlowKey.currentState?.flash();
     });
   }
 
@@ -336,15 +334,8 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
           ),
         ),
         const SizedBox(height: 12),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _flash ? scheme.primary : Colors.transparent,
-              width: 2,
-            ),
-          ),
+        GlowHighlight(
+          key: _actAsGlowKey,
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
