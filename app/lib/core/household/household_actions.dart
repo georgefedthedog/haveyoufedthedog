@@ -145,6 +145,59 @@ class HouseholdActions {
     return (name: name, alreadyApplied: alreadyApplied);
   }
 
+  /// Claims a free streak-unlock of a catalog [kind] (`character` or
+  /// `picture`) by [slug] for [householdId]. Calls
+  /// `/api/custom/claim-streak-reward`, which recomputes the household's
+  /// reward streak server-side and only grants when it clears the threshold -
+  /// so a client can't forge an unlock. On a fresh grant, patches the cached
+  /// household's unlocked-slug list in place so the picker gate lights up
+  /// immediately (the art already resolves via the live catalog, so unlike
+  /// pack redemption there's no catalog refetch to do).
+  ///
+  /// Throws [ClientException] (with the server message) when the streak is too
+  /// short or the item isn't available - the caller surfaces it.
+  Future<({String slug, bool alreadyUnlocked})> claimStreakReward({
+    required String householdId,
+    required String kind,
+    required String slug,
+  }) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await _currentUserId();
+
+    final response = await pb.send<Map<String, dynamic>>(
+      '/api/custom/claim-streak-reward',
+      method: 'POST',
+      body: {'householdId': householdId, 'kind': kind, 'slug': slug},
+    );
+
+    final grantedSlug = response['slug'] as String? ?? slug;
+    final alreadyUnlocked = response['alreadyUnlocked'] == true;
+
+    if (!alreadyUnlocked) {
+      final current = _ref
+          .read(householdsControllerProvider)
+          .valueOrNull
+          ?.where((h) => h.id == householdId)
+          .firstOrNull;
+      final isCharacter = kind == 'character';
+      final existing = isCharacter
+          ? current?.unlockedCharacterIds
+          : current?.unlockedPictureIds;
+      final next = [...?existing, grantedSlug];
+      _ref
+          .read(householdsControllerProvider.notifier)
+          .updateOneInPlace(
+            householdId: householdId,
+            unlockedCharacters: isCharacter ? next : null,
+            unlockedPictures: isCharacter ? null : next,
+            // The hook re-anchors server-side; mirror it so the local reward
+            // streak re-zeros immediately (counter restarts for the next one).
+            lastFreeRedemption: DateTime.now(),
+          );
+    }
+    return (slug: grantedSlug, alreadyUnlocked: alreadyUnlocked);
+  }
+
   /// Verifies a completed store purchase server-side and applies the packs it
   /// grants to [householdId]. Calls `/api/custom/verify-purchase`, which
   /// validates the receipt with the store (Play / App Store), records the

@@ -85,6 +85,9 @@ class HouseholdsController extends _$HouseholdsController {
     String? residents,
     String? timezone,
     List<String>? packs,
+    List<String>? unlockedCharacters,
+    List<String>? unlockedPictures,
+    DateTime? lastFreeRedemption,
   }) {
     final current = state.valueOrNull;
     if (current == null) return;
@@ -102,6 +105,17 @@ class HouseholdsController extends _$HouseholdsController {
       if (residents != null) h.record.data['residents'] = residents;
       if (timezone != null) h.record.data['timezone'] = timezone;
       if (packs != null) h.record.data['packs'] = packs;
+      if (unlockedCharacters != null) {
+        h.record.data['unlocked_characters'] = unlockedCharacters;
+      }
+      if (unlockedPictures != null) {
+        h.record.data['unlocked_pictures'] = unlockedPictures;
+      }
+      if (lastFreeRedemption != null) {
+        h.record.data['last_free_redemption'] = lastFreeRedemption
+            .toUtc()
+            .toIso8601String();
+      }
       break;
     }
     state = AsyncData([...current]);

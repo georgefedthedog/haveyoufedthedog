@@ -16,6 +16,8 @@ const { initFirebase, sendPush, notifyHandler } = require("./notify");
 const { initPlayVerifier, verifyPurchaseHandler } = require("./verify");
 const { startOverdueCron } = require("./overdue-cron");
 const { startAwardCron } = require("./award-cron");
+const { createPbClient } = require("./pb-cron");
+const { makeRewardStreakHandler } = require("./reward-streak");
 
 const app = express();
 app.use(express.json());
@@ -23,8 +25,27 @@ app.use(express.json());
 initFirebase();
 initPlayVerifier();
 
+// PB superuser client for endpoints that read across households (reward
+// streaks). Created only when the cron credentials are present; without them
+// the reward-streak endpoint replies 503, mirroring how the crons stay off.
+const pbUrl = process.env.PB_URL || "http://127.0.0.1:8090";
+const superuser =
+  process.env.PB_SUPERUSER_EMAIL && process.env.PB_SUPERUSER_PASSWORD
+    ? {
+        pbUrl,
+        identity: process.env.PB_SUPERUSER_EMAIL,
+        password: process.env.PB_SUPERUSER_PASSWORD,
+      }
+    : null;
+
 app.post("/notify", notifyHandler);
 app.post("/verify-purchase", verifyPurchaseHandler);
+app.post(
+  "/reward-streak",
+  superuser
+    ? makeRewardStreakHandler(createPbClient(superuser))
+    : (_, res) => res.status(503).json({ error: "reward streak unavailable (no PB superuser creds)" }),
+);
 app.get("/health", (_, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3055;
@@ -34,14 +55,8 @@ app.listen(PORT, "127.0.0.1", () => {
 
 // Crons - both need PB superuser credentials (see .env.example). Without
 // them the service still relays pushes; it just logs that the crons are off.
-const pbUrl = process.env.PB_URL || "http://127.0.0.1:8090";
-if (process.env.PB_SUPERUSER_EMAIL && process.env.PB_SUPERUSER_PASSWORD) {
-  const creds = {
-    pbUrl,
-    identity: process.env.PB_SUPERUSER_EMAIL,
-    password: process.env.PB_SUPERUSER_PASSWORD,
-    sendPush,
-  };
+if (superuser) {
+  const creds = { ...superuser, sendPush };
   startOverdueCron(creds);
   startAwardCron(creds);
 } else {

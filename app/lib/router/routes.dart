@@ -44,6 +44,10 @@ class Routes {
   /// household pack settings (and, later, locked art in the pickers).
   static const store = '/store';
 
+  /// Free streak-reward claim page (characters + house pictures). Pushed
+  /// from the reward-streak progress bar on the Awards tab.
+  static const rewards = '/rewards';
+
   /// Full-screen celebration overlay (confetti + character) shown after a
   /// completion is logged. Push with a `CelebrationArgs` instance in `extra`.
   static const celebration = '/celebration';

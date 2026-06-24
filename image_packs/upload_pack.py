@@ -411,7 +411,9 @@ def main():
     def need_creds():
         e, p = os.environ.get("PB_ADMIN_EMAIL"), os.environ.get("PB_ADMIN_PASSWORD")
         if not (e and p):
-            die("set PB_ADMIN_EMAIL and PB_ADMIN_PASSWORD in the environment")
+            die("run the following:\n"
+                "export PB_ADMIN_EMAIL=georgefedthedog@gmail.com\n"
+                "export PB_ADMIN_PASSWORD=[INSERT_PASSWORD]")
         return e, p
 
     if args.set_packs:

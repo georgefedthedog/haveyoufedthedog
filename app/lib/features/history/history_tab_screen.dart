@@ -6,6 +6,7 @@ import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../widgets/page_title.dart';
+import '../rewards/streak_reward_bar.dart';
 import 'awards_section.dart';
 import 'leaderboard.dart';
 
@@ -75,35 +76,41 @@ class _StatsStrip extends ConsumerWidget {
     final sweeps = ref.watch(weeklyAwardsProvider).cleanSweeps;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              _StatSegment(
-                glyph: const Text('🔥', style: TextStyle(fontSize: 20)),
-                value: '$streak',
-                label: streak == 1 ? 'Day streak' : 'Day streak',
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  _StatSegment(
+                    glyph: const Text('🔥', style: TextStyle(fontSize: 20)),
+                    value: '$streak',
+                    label: streak == 1 ? 'Day streak' : 'Day streak',
+                  ),
+                  const VerticalDivider(width: 1),
+                  _StatSegment(
+                    glyph: Icon(
+                      Icons.check_circle,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                    value: '${thisWeek.total}',
+                    label: 'This week',
+                  ),
+                  const VerticalDivider(width: 1),
+                  _StatSegment(
+                    glyph: const Text('✨', style: TextStyle(fontSize: 20)),
+                    value: '$sweeps',
+                    label: sweeps == 1 ? 'Clean sweep' : 'Clean sweeps',
+                  ),
+                ],
               ),
-              const VerticalDivider(width: 1),
-              _StatSegment(
-                glyph: Icon(
-                  Icons.check_circle,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-                value: '${thisWeek.total}',
-                label: 'This week',
-              ),
-              const VerticalDivider(width: 1),
-              _StatSegment(
-                glyph: const Text('✨', style: TextStyle(fontSize: 20)),
-                value: '$sweeps',
-                label: sweeps == 1 ? 'Clean sweep' : 'Clean sweeps',
-              ),
-            ],
+            ),
           ),
-        ),
+          const StreakRewardBar(),
+        ],
       ),
     );
   }

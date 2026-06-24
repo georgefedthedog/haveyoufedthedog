@@ -67,5 +67,41 @@ class Household {
     return const [];
   }
 
+  /// Slugs of catalog characters this household has unlocked for free via a
+  /// reward streak (the `claim-streak-reward` hook appends them). These are
+  /// OR'd into the character picker's selectable set alongside pack-granted
+  /// art. Tolerates list or bare-string serialization like [packIds].
+  List<String> get unlockedCharacterIds => _slugList('unlocked_characters');
+
+  /// Slugs of catalog pictures ("houses") unlocked the same way as
+  /// [unlockedCharacterIds].
+  List<String> get unlockedPictureIds => _slugList('unlocked_pictures');
+
+  List<String> _slugList(String key) {
+    final v = record.data[key];
+    if (v is List) return [for (final s in v) s.toString()];
+    if (v is String && v.isNotEmpty) return [v];
+    return const [];
+  }
+
+  /// When this household last spent a streak on a free unlock. The reward
+  /// counter only counts due-days *after* this anchor, so each claim costs a
+  /// fresh run. Null = never claimed.
+  DateTime? get lastFreeRedemption {
+    final v = record.data['last_free_redemption'];
+    if (v is String && v.isNotEmpty) return DateTime.tryParse(v);
+    return null;
+  }
+
+  /// Consecutive due-days needed to earn a free unlock. Admin-set per
+  /// household; empty/0 means use the default of [_defaultRewardThreshold].
+  int get rewardStreakThreshold {
+    final v = record.data['reward_streak_threshold'];
+    final n = (v is num) ? v.toInt() : 0;
+    return n > 0 ? n : _defaultRewardThreshold;
+  }
+
+  static const _defaultRewardThreshold = 28;
+
   bool get isOwner => role == 'owner';
 }
