@@ -16,6 +16,7 @@ import '../../router/routes.dart';
 import '../../widgets/confirm_by_typing.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/drop_target_circle.dart';
+import '../../widgets/glow_highlight.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/wiggle.dart';
 import '../profile/avatar_artwork.dart';
@@ -641,18 +642,12 @@ class _InviteSettings extends ConsumerStatefulWidget {
 class _InviteSettingsState extends ConsumerState<_InviteSettings> {
   bool _busy = false;
 
-  /// Briefly true after the "Invite someone" chooser path lands here, drawing
-  /// a primary-coloured border so the freshly-revealed code card stands out.
-  bool _flash = false;
+  /// Pulses a primary glow so the freshly-revealed code card stands out.
+  /// Called via the GlobalKey from `_BodyState` once it has scrolled this
+  /// card into view (shared cue with the act-as card + rewards collection).
+  final _glowKey = GlobalKey<GlowHighlightState>();
 
-  /// Pulse the highlight border. Called via the GlobalKey from `_BodyState`
-  /// once it has scrolled this card into view.
-  void flash() {
-    setState(() => _flash = true);
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) setState(() => _flash = false);
-    });
-  }
+  void flash() => _glowKey.currentState?.flash();
 
   Future<void> _toggle(bool open) async {
     setState(() => _busy = true);
@@ -709,15 +704,8 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
     final isOpen = widget.household.invitesOpen;
     final code = widget.household.inviteCode;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _flash ? scheme.primary : Colors.transparent,
-          width: 2,
-        ),
-      ),
+    return GlowHighlight(
+      key: _glowKey,
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16),

@@ -1,17 +1,23 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../../app/theme.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/reward_streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_actions.dart';
 import '../../core/household/picture.dart';
+import '../../router/routes.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../widgets/dashed_rrect_painter.dart';
+import '../../widgets/glow_highlight.dart';
 import '../household/picture_artwork.dart';
 import 'wiggling_present.dart';
 
@@ -49,6 +55,9 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
   String? _focusedSlug;
   bool _busy = false;
 
+  // Anchors the post-claim scroll + glow on the collection card.
+  final _collectionKey = GlobalKey<GlowHighlightState>();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -59,6 +68,15 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
     final threshold = household.rewardStreakThreshold;
     final streak = ref.watch(householdRewardStreakProvider).valueOrNull ?? 0;
     final ready = streak >= threshold;
+
+    // Whether a free reward was already claimed today (its local date).
+    final lastRedeem = household.lastFreeRedemption?.toLocal();
+    final now = DateTime.now();
+    final redeemedToday =
+        lastRedeem != null &&
+        lastRedeem.year == now.year &&
+        lastRedeem.month == now.month &&
+        lastRedeem.day == now.day;
 
     final catalog = ref.watch(catalogProvider);
     final selectable = ref.watch(selectableCatalogProvider);
@@ -108,7 +126,16 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            _ProgressHeader(streak: streak, threshold: threshold),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: _ProgressHeader(
+                  streak: streak,
+                  threshold: threshold,
+                  redeemedToday: redeemedToday,
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
             SegmentedButton<RewardKind>(
               segments: const [
@@ -193,23 +220,26 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                 onTap: (slug) => setState(() => _focusedSlug = slug),
               ),
             const SizedBox(height: 28),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _SectionHeader('Your Collection'),
-                    const SizedBox(height: 12),
-                    if (collectedChars.isEmpty && collectedPics.isEmpty)
-                      _EmptyNote(
-                        'Nothing yet - build a streak and claim your first.',
-                      )
-                    else
-                      _CollectedWrap(
-                        items: [...collectedChars, ...collectedPics],
-                      ),
-                  ],
+            GlowHighlight(
+              key: _collectionKey,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _SectionHeader('Your Collection'),
+                      const SizedBox(height: 12),
+                      if (collectedChars.isEmpty && collectedPics.isEmpty)
+                        _EmptyNote(
+                          'Nothing yet - build a streak and claim your first.',
+                        )
+                      else
+                        _CollectedWrap(
+                          items: [...collectedChars, ...collectedPics],
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -235,15 +265,16 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
         _busy = false;
         _focusedSlug = null; // refocus onto the next earnable item
       });
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            res.alreadyUnlocked
-                ? '${item.displayName} is already yours.'
-                : 'Unlocked ${item.displayName}! 🎉',
-          ),
-        ),
-      );
+      if (res.alreadyUnlocked) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('${item.displayName} is already yours.')),
+        );
+      } else {
+        // Confetti splash with the claimed item, then reveal it landing in
+        // the collection.
+        await _celebrate(item);
+        await _revealCollection();
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _busy = false);
@@ -252,6 +283,35 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
           : 'Could not claim that reward.';
       messenger.showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
     }
+  }
+
+  /// Full-screen confetti celebration of the just-claimed [item]. Completes
+  /// when the splash is dismissed (button, tap, or its auto-timer).
+  Future<void> _celebrate(_RewardItem item) {
+    return showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'reward',
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (_, _, _) => _ClaimCelebration(item: item),
+      transitionBuilder: (_, anim, _, child) =>
+          FadeTransition(opacity: anim, child: child),
+    );
+  }
+
+  /// Scrolls the collection card into view and pulses a glow around it, so the
+  /// claimed item is visibly "landing" in the collection.
+  Future<void> _revealCollection() async {
+    final ctx = _collectionKey.currentContext;
+    if (ctx == null) return;
+    await Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      alignment: 0.1,
+    );
+    if (mounted) _collectionKey.currentState?.flash();
   }
 
   _RewardItem _characterItem(Character c) => _RewardItem(
@@ -270,6 +330,11 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
       ),
     ),
     hero: CharacterArtwork(character: c, stage: false),
+    celebrateHero: CharacterArtwork(
+      character: c,
+      expression: CharacterExpression.celebrate,
+      stage: false,
+    ),
   );
 
   _RewardItem _pictureItem(Picture p) => _RewardItem(
@@ -283,6 +348,12 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
       ),
     ),
     hero: ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox.expand(
+        child: PictureArtwork(picture: p, fit: BoxFit.cover),
+      ),
+    ),
+    celebrateHero: ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: SizedBox.expand(
         child: PictureArtwork(picture: p, fit: BoxFit.cover),
@@ -308,6 +379,10 @@ class _RewardItem {
   final Widget thumb;
   final Widget hero;
 
+  /// The art for the claim celebration - a character's celebrate pose; for
+  /// houses just the house image (no pose variants).
+  final Widget celebrateHero;
+
   const _RewardItem({
     required this.slug,
     required this.displayName,
@@ -315,6 +390,7 @@ class _RewardItem {
     required this.aspectRatio,
     required this.thumb,
     required this.hero,
+    required this.celebrateHero,
   });
 }
 
@@ -668,8 +744,13 @@ class _EmptyNote extends StatelessWidget {
 class _ProgressHeader extends StatelessWidget {
   final int streak;
   final int threshold;
+  final bool redeemedToday;
 
-  const _ProgressHeader({required this.streak, required this.threshold});
+  const _ProgressHeader({
+    required this.streak,
+    required this.threshold,
+    required this.redeemedToday,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -689,7 +770,7 @@ class _ProgressHeader extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                ready ? 'Claim your reward below!' : 'Reward streak',
+                ready ? 'Claim your reward below!' : 'Your reward streak',
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -716,14 +797,183 @@ class _ProgressHeader extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          ready
+          redeemedToday
+              ? 'Congratulations! Start again and earn another reward.'
+              : ready
               ? 'Pick a reward to add it to your collection.'
               : 'Keep your daily streak going to earn a free character or house.',
           style: theme.textTheme.bodySmall?.copyWith(
             color: scheme.onSurfaceVariant,
           ),
         ),
+        // Up to halfway through the streak, nudge the impatient toward the
+        // shop - but not on a day they've already claimed a free one (don't
+        // undermine it), and not past halfway (encourage waiting it out).
+        if (streak <= threshold / 2 && !redeemedToday) ...[
+          const SizedBox(height: 8),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.push(Routes.store),
+            child: Text.rich(
+              TextSpan(
+                text: "Can't wait? ",
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'Get more here',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ],
+    );
+  }
+}
+
+/// Full-screen confetti splash for a freshly-claimed reward - the all-done
+/// cup's little sibling. Shows the claimed art popping in under a confetti
+/// shower; dismisses on the button, a tap, or a short auto-timer.
+class _ClaimCelebration extends StatefulWidget {
+  final _RewardItem item;
+
+  const _ClaimCelebration({required this.item});
+
+  @override
+  State<_ClaimCelebration> createState() => _ClaimCelebrationState();
+}
+
+class _ClaimCelebrationState extends State<_ClaimCelebration>
+    with SingleTickerProviderStateMixin {
+  late final ConfettiController _confetti;
+  late final AnimationController _pop;
+  Timer? _autoDismiss;
+
+  @override
+  void initState() {
+    super.initState();
+    _confetti = ConfettiController(duration: const Duration(seconds: 2));
+    _pop = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _confetti.play();
+      _pop.forward();
+    });
+    _autoDismiss = Timer(const Duration(seconds: 3), _dismiss);
+  }
+
+  void _dismiss() {
+    _autoDismiss?.cancel();
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    _autoDismiss?.cancel();
+    _confetti.dispose();
+    _pop.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final item = widget.item;
+
+    return GestureDetector(
+      onTap: _dismiss,
+      child: Material(
+        // Characters celebrate on their own stage colour (houses fall back to
+        // the soft violet), mirroring the chore-complete celebration.
+        color: item.accent ?? AppColors.violetSoft,
+        child: SafeArea(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Align(
+                alignment: const Alignment(0, -0.6),
+                child: ConfettiWidget(
+                  confettiController: _confetti,
+                  blastDirection: -pi / 2,
+                  blastDirectionality: BlastDirectionality.explosive,
+                  emissionFrequency: 0.05,
+                  numberOfParticles: 24,
+                  gravity: 0.18,
+                  shouldLoop: false,
+                  colors: const [
+                    Color(0xFF6B4FE0),
+                    Color(0xFFF0884A),
+                    Color(0xFF4FBF85),
+                    Color(0xFFFFC857),
+                    Color(0xFFE56B6F),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ScaleTransition(
+                      scale: CurvedAnimation(
+                        parent: _pop,
+                        curve: Curves.elasticOut,
+                      ),
+                      child: SizedBox(
+                        height: 200,
+                        width: 200 * item.aspectRatio,
+                        child: item.celebrateHero,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Unlocked!',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.onVioletSoft,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      item.displayName,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.onVioletSoft,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    FilledButton(
+                      onPressed: _dismiss,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 48,
+                          vertical: 16,
+                        ),
+                      ),
+                      child: const Text('View Collection'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
