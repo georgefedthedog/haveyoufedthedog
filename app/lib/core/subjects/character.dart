@@ -83,6 +83,11 @@ class Character {
   /// copy in `character_message.dart` / `awards_controller.dart`.
   final CharacterMessages? messages;
 
+  /// When true, this character is reserved (e.g. a private/personal pack) and
+  /// is excluded from the free streak rewards. Defaults false (claimable).
+  /// Doesn't affect resolution or the pickers - only the rewards page.
+  final bool rewardExcluded;
+
   const Character({
     required this.id,
     required this.displayName,
@@ -94,6 +99,7 @@ class Character {
     this.packIds = const [],
     this.sortOrder = 0,
     this.messages,
+    this.rewardExcluded = false,
   });
 
   /// The closest available expression - defaults via

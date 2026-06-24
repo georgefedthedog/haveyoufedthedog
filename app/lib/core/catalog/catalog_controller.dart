@@ -309,6 +309,7 @@ Picture? _pictureFrom(PocketBase pb, RecordModel r) {
     remoteVariants: variants,
     packIds: r.getListValue<String>('packs'),
     sortOrder: r.getIntValue('sort_order'),
+    rewardExcluded: r.getBoolValue('reward_excluded'),
   );
 }
 
@@ -333,6 +334,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
     packIds: r.getListValue<String>('packs'),
     sortOrder: r.getIntValue('sort_order'),
     messages: CharacterMessages.fromJson(r.data['messages']),
+    rewardExcluded: r.getBoolValue('reward_excluded'),
   );
 }
 

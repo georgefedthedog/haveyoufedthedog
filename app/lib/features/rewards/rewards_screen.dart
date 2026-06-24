@@ -82,17 +82,20 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
     final selectable = ref.watch(selectableCatalogProvider);
 
     // Earnable (the tray) is for the toggled kind only: resolvable catalog
-    // art the household can't already select.
+    // art the household can't already select, minus anything flagged
+    // reward-excluded (reserved for private/personal packs).
     final selectableCharIds = {for (final c in selectable.characters) c.id};
     final selectablePicIds = {for (final p in selectable.pictures) p.id};
     final earnable = _kind == RewardKind.character
         ? [
             for (final c in catalog.characters)
-              if (!selectableCharIds.contains(c.id)) _characterItem(c),
+              if (!c.rewardExcluded && !selectableCharIds.contains(c.id))
+                _characterItem(c),
           ]
         : [
             for (final p in catalog.pictures)
-              if (!selectablePicIds.contains(p.id)) _pictureItem(p),
+              if (!p.rewardExcluded && !selectablePicIds.contains(p.id))
+                _pictureItem(p),
           ];
 
     // The collection shows everything streak-unlocked across *both* kinds,

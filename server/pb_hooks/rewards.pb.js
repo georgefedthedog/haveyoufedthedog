@@ -54,13 +54,14 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
   }
 
   // Resolve the slug to a row that is actually resolvable - in no pack
-  // (general catalog) or an enabled pack. This is the same visibility filter
-  // the app's catalog fetch uses, so a streak can't unlock vaulted art.
+  // (general catalog) or an enabled pack - and not flagged reward_excluded
+  // (reserved for private/personal packs). Same visibility the app uses, so a
+  // streak can't unlock vaulted or reserved art.
   let row;
   try {
     row = $app.findFirstRecordByFilter(
       collection,
-      "slug = {:slug} && (packs:length = 0 || packs.enabled ?= true)",
+      "slug = {:slug} && reward_excluded != true && (packs:length = 0 || packs.enabled ?= true)",
       { slug: slug },
     );
   } catch (_) {

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -13,6 +14,7 @@ import '../../core/store/store_product.dart';
 import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/wiggle.dart';
+import '../rewards/streak_reward_bar.dart';
 
 /// The pack shop. Lists purchasable products (a `catalog_products` row + live
 /// store price), each previewing the packs it unlocks. Buying verifies the
@@ -54,17 +56,13 @@ class StoreScreen extends ConsumerWidget {
           ),
         ],
       ),
-      // A scope note, then the redeem-a-gift-code card, then the
-      // purchasable packs - the free path leads.
+      // A short support note, then the purchasable packs, then redeem-a-code,
+      // the reward-streak nudge, and finally the household scope note.
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
         children: [
-          if (household != null) ...[
-            _AppliesToNote(householdName: household.name),
-            const SizedBox(height: 16),
-            _PackSettings(household: household),
-            const SizedBox(height: 24),
-          ],
+          const _SupportNote(),
+          const SizedBox(height: 24),
           ...asyncProducts.when(
             loading: () => const [
               Padding(
@@ -82,6 +80,148 @@ class StoreScreen extends ConsumerWidget {
                     ],
                   ],
           ),
+          if (household != null) ...[
+            const SizedBox(height: 24),
+            _PackSettings(household: household),
+            // Secondary "or earn one free" nudge, below the packs so it
+            // doesn't compete with the buy CTAs.
+            const SizedBox(height: 24),
+            const Card(
+              clipBehavior: Clip.antiAlias,
+              child: StreakRewardBar(leadingDivider: false),
+            ),
+            const SizedBox(height: 24),
+            _AppliesToNote(householdName: household.name),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A gentle, looping rain of hearts behind the store content - the same heart
+/// particle as the award celebration, but continuous and sparse.
+class _HeartRain extends StatefulWidget {
+  const _HeartRain();
+
+  @override
+  State<_HeartRain> createState() => _HeartRainState();
+}
+
+class _HeartRainState extends State<_HeartRain> {
+  late final ConfettiController _confetti = ConfettiController(
+    duration: const Duration(seconds: 8),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _confetti.play();
+  }
+
+  @override
+  void dispose() {
+    _confetti.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      // Emit from over the me + Kiko avatars on the left of the card.
+      alignment: const Alignment(-0.65, 0),
+      child: ConfettiWidget(
+        confettiController: _confetti,
+        blastDirectionality: BlastDirectionality.explosive,
+        emissionFrequency: 0.04,
+        numberOfParticles: 1,
+        maxBlastForce: 6,
+        minBlastForce: 2,
+        gravity: 0.1,
+        particleDrag: 0.05,
+        minimumSize: const Size(9, 9),
+        maximumSize: const Size(18, 18),
+        shouldLoop: true,
+        createParticlePath: _heartPath,
+        colors: const [Color(0xFFE56B6F), Color(0xFFFF8FA3), Color(0xFFD64550)],
+      ),
+    );
+  }
+}
+
+/// Heart-shaped confetti particle - twin of the one in `awards_section.dart`.
+Path _heartPath(Size size) {
+  final w = size.width, h = size.height;
+  final path = Path();
+  path.moveTo(w / 2, h * 0.35);
+  path.cubicTo(w * 0.2, h * 0.05, -w * 0.2, h * 0.55, w / 2, h);
+  path.moveTo(w / 2, h * 0.35);
+  path.cubicTo(w * 0.8, h * 0.05, w * 1.2, h * 0.55, w / 2, h);
+  return path;
+}
+
+/// A short, warm note encouraging a purchase - the app is solo-made and stays
+/// ad-free / subscription-free on pack sales. Placed at the top of the store
+/// (high-intent surface) where it nudges fence-sitters without interrupting.
+class _SupportNote extends StatelessWidget {
+  const _SupportNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 90,
+                  height: 52,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Kiko tucked just behind, overlapping me on the right.
+                      Positioned(
+                        left: 38,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/general/kiko.png',
+                            width: 52,
+                            height: 52,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      ClipOval(
+                        child: Image.asset(
+                          'assets/general/me.png',
+                          width: 52,
+                          height: 52,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Made by one man and his dog. No ads, no subs - '
+                    'buying a pack is what keeps it that way. Thank you!',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Gentle heart rain over the message.
+          const Positioned.fill(child: IgnorePointer(child: _HeartRain())),
         ],
       ),
     );
@@ -89,8 +229,8 @@ class StoreScreen extends ConsumerWidget {
 }
 
 /// A small banner clarifying that everything here unlocks for the household
-/// the buyer is currently in - purchases and gift codes alike are
-/// household-scoped entitlements.
+/// the buyer is currently in - purchases, gift codes and streak rewards alike
+/// are household-scoped entitlements.
 class _AppliesToNote extends StatelessWidget {
   final String householdName;
   const _AppliesToNote({required this.householdName});
@@ -114,7 +254,8 @@ class _AppliesToNote extends StatelessWidget {
             child: Text.rich(
               TextSpan(
                 text:
-                    'Packs you buy or redeem are unlocked for all members of ',
+                    'Packs you buy or redeem and rewards are unlocked for all '
+                    'members of ',
                 children: [
                   TextSpan(
                     text: householdName,
