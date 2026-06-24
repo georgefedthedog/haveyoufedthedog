@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Glossy and gleeful.", "body": "{name} had a wonderful day 🦴" },
+      { "title": "Shiny coat, full tum.", "body": "{name} thinks you hung the moon." },
+      { "title": "Black as night, bright as day.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Bowl inspected. Empty.", "body": "{name} reports the situation as dire 👀" },
+      { "title": "Convinced it's wasting away.", "body": "{name} hasn't eaten in (checks watch) ages." },
+      { "title": "Parked by the cupboard.", "body": "{name} is staging a sit-in until fed." }
+    ],
+    "upcoming": [
+      { "title": "Nose to the wind.", "body": "{name} can smell dinner from a mile off." },
+      { "title": "Tail going like a metronome.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Sitting beautifully.", "body": "{name} is being a VERY good boy/girl." }
+    ],
+    "happyForNow": [
+      { "title": "Sprawled and snoozing.", "body": "{name} is full and content." },
+      { "title": "Dreaming of seconds.", "body": "All is well with {name}." },
+      { "title": "Warm, glossy, happy.", "body": "{name} is resting for now." }
+    ],
+    "none": [
+      { "title": "A day of food and naps.", "body": "{name} wholeheartedly approves 🦴" },
+      { "title": "Loitering by the fridge.", "body": "{name} lives in hope." }
+    ]
+  },
+  "awardTitle": "Bottomless Bowl Champion 🦴",
+  "awardThanks": "Thanks for feeding the glossiest appetite in the house last week!"
+}

@@ -3,7 +3,7 @@
     {
       "slug": "bernese_mountain_dog",
       "display_name": "Bernese Mountain Dog",
-      "base_color": "DCD1C6",
+      "base_color": "E3D1BF",
       "sort_order": 1010,
       "packs": ["all_dogs", "all_pets"]
     },
@@ -31,7 +31,7 @@
     {
       "slug": "cockerspaniel_1",
       "display_name": "Cocker Spaniel",
-      "base_color": "DBC7C9",
+      "base_color": "E3D1BF",
       "sort_order": 1050,
       "packs": ["all_dogs", "all_pets"]
     },
@@ -59,7 +59,7 @@
     {
       "slug": "french_bulldog",
       "display_name": "French Bulldog",
-      "base_color": "DCD0C6",
+      "base_color": "E3CFBF",
       "sort_order": 1090,
       "packs": ["all_dogs", "all_pets"]
     },
@@ -80,7 +80,7 @@
     {
       "slug": "husky",
       "display_name": "Husky",
-      "base_color": "DBD1C7",
+      "base_color": "E3D1BF",
       "sort_order": 1120,
       "packs": ["all_dogs", "all_pets"]
     },
@@ -129,7 +129,7 @@
     {
       "slug": "scruffy_mixed_breed",
       "display_name": "Scruffy Mixed Breed",
-      "base_color": "DCD0C6",
+      "base_color": "E3CFBF",
       "sort_order": 1190,
       "packs": ["all_dogs", "all_pets"]
     },
@@ -143,7 +143,7 @@
     {
       "slug": "staffy",
       "display_name": "Staffy",
-      "base_color": "DCD2C6",
+      "base_color": "E3D3BF",
       "sort_order": 1210,
       "packs": ["all_dogs", "all_pets"]
     },
@@ -162,9 +162,30 @@
       "packs": ["all_dogs", "all_pets"]
     },
     {
+      "slug": "black_labrador",
+      "display_name": "Black Labrador",
+      "base_color": "E3CFBF",
+      "sort_order": 1240,
+      "packs": ["all_dogs", "all_pets"]
+    },
+    {
+      "slug": "dalmatian",
+      "display_name": "Dalmatian",
+      "base_color": "E5D0C3",
+      "sort_order": 1250,
+      "packs": ["all_dogs", "all_pets"]
+    },
+    {
+      "slug": "schnauzer",
+      "display_name": "Schnauzer",
+      "base_color": "E3CDBF",
+      "sort_order": 1260,
+      "packs": ["all_dogs", "all_pets"]
+    },
+    {
       "slug": "black_cat",
       "display_name": "Black Cat",
-      "base_color": "DBD0C7",
+      "base_color": "E3CFBF",
       "sort_order": 2010,
       "packs": ["all_cats", "all_pets"]
     },
@@ -199,7 +220,7 @@
     {
       "slug": "shorthair_blue_cat",
       "display_name": "Shorthair Blue Cat",
-      "base_color": "DAC7DB",
+      "base_color": "E3D1BF",
       "sort_order": 2060,
       "packs": ["all_cats", "all_pets"]
     },
@@ -213,7 +234,7 @@
     {
       "slug": "tuxedo_cat",
       "display_name": "Tuxedo Cat",
-      "base_color": "DBD0C7",
+      "base_color": "E3CFBF",
       "sort_order": 2080,
       "packs": ["all_cats", "all_pets"]
     },
@@ -227,7 +248,7 @@
     {
       "slug": "grey_rabbit",
       "display_name": "Grey Rabbit",
-      "base_color": "DBCFC7",
+      "base_color": "E3CDBF",
       "sort_order": 3010,
       "packs": ["all_small_pets", "all_pets"]
     },
@@ -290,7 +311,7 @@
     {
       "slug": "black_bin",
       "display_name": "Black Bin",
-      "base_color": "DBCDC7",
+      "base_color": "E3D1BF",
       "sort_order": 4030
     },
     {
@@ -385,92 +406,6 @@
       "base_color": "C7D1DB",
       "sort_order": 258,
       "packs": ["robots_pack"]
-    }
-  ],
-  "packs": [
-    {
-      "key": "all_dogs",
-      "code": "ALLDOGS-G5CK",
-      "name": "All Dogs",
-      "enabled": false,
-      "redeemable": true,
-      "product": {
-        "sku": "sku_20260622_001_all_dogs",
-        "name": "All Dogs",
-        "description": "Every dog - all breeds, from the tiniest Chihuahua to the gentlest Bernese.",
-        "enabled": true,
-        "sort_order": 10
-      }
-    },
-    {
-      "key": "all_cats",
-      "code": "ALLCATS-5YJD",
-      "name": "All Cats",
-      "enabled": false,
-      "redeemable": true,
-      "product": {
-        "sku": "sku_20260622_002_all_cats",
-        "name": "All Cats",
-        "description": "Every cat - from dignified to delightfully chaotic.",
-        "enabled": true,
-        "sort_order": 20
-      }
-    },
-    {
-      "key": "all_small_pets",
-      "code": "ALLSMALL-PTV7",
-      "name": "All Small Pets",
-      "enabled": false,
-      "redeemable": true,
-      "product": {
-        "sku": "sku_20260622_003_all_small_pets",
-        "name": "All Small Pets",
-        "description": "Every small pet - rabbits, rodents, reptiles, fish and a friendly tarantula.",
-        "enabled": true,
-        "sort_order": 30
-      }
-    },
-    {
-      "key": "all_pets",
-      "code": "ALLPETS-QTZG",
-      "name": "All Pets",
-      "enabled": false,
-      "redeemable": true,
-      "product": {
-        "sku": "sku_20260622_004_all_pets",
-        "name": "All Pets",
-        "description": "The lot - every dog, cat and small pet in the collection.",
-        "enabled": true,
-        "sort_order": 40
-      }
-    },
-    {
-      "key": "robots_pack",
-      "code": "ROBOTS-CJ1P",
-      "name": "Robots Pack",
-      "enabled": true,
-      "redeemable": true,
-      "product": {
-        "sku": "sku_20260616_001_robots_pack_1",
-        "name": "Robots Pack",
-        "description": "Who doesn't want a pet robot and to live in a futuristic house? A pack of houses, characters, and avatars for the robot enthusiast.",
-        "enabled": true,
-        "sort_order": 5
-      }
-    },
-    {
-      "key": "paihia_house",
-      "code": "GCAC-1979",
-      "name": "Paihia House",
-      "enabled": true,
-      "redeemable": true
-    },
-    {
-      "key": "dell_cottage",
-      "code": "DELLCOTT-DFLZ",
-      "name": "Dell Cottage",
-      "enabled": true,
-      "redeemable": true
     }
   ],
   "avatars": [
@@ -821,6 +756,881 @@
       "display_name": "Robot Avatar 50",
       "sort_order": 299,
       "packs": ["robots_pack"]
+    },
+    {
+      "slug": "human_avatar_001",
+      "display_name": "Human Avatar 1",
+      "sort_order": 1000
+    },
+    {
+      "slug": "human_avatar_002",
+      "display_name": "Human Avatar 2",
+      "sort_order": 1001
+    },
+    {
+      "slug": "human_avatar_003",
+      "display_name": "Human Avatar 3",
+      "sort_order": 1002
+    },
+    {
+      "slug": "human_avatar_004",
+      "display_name": "Human Avatar 4",
+      "sort_order": 1003
+    },
+    {
+      "slug": "human_avatar_005",
+      "display_name": "Human Avatar 5",
+      "sort_order": 1004
+    },
+    {
+      "slug": "human_avatar_006",
+      "display_name": "Human Avatar 6",
+      "sort_order": 1005
+    },
+    {
+      "slug": "human_avatar_007",
+      "display_name": "Human Avatar 7",
+      "sort_order": 1006
+    },
+    {
+      "slug": "human_avatar_008",
+      "display_name": "Human Avatar 8",
+      "sort_order": 1007
+    },
+    {
+      "slug": "human_avatar_009",
+      "display_name": "Human Avatar 9",
+      "sort_order": 1008
+    },
+    {
+      "slug": "human_avatar_010",
+      "display_name": "Human Avatar 10",
+      "sort_order": 1009
+    },
+    {
+      "slug": "human_avatar_011",
+      "display_name": "Human Avatar 11",
+      "sort_order": 1010
+    },
+    {
+      "slug": "human_avatar_012",
+      "display_name": "Human Avatar 12",
+      "sort_order": 1011
+    },
+    {
+      "slug": "human_avatar_013",
+      "display_name": "Human Avatar 13",
+      "sort_order": 1012
+    },
+    {
+      "slug": "human_avatar_014",
+      "display_name": "Human Avatar 14",
+      "sort_order": 1013
+    },
+    {
+      "slug": "human_avatar_015",
+      "display_name": "Human Avatar 15",
+      "sort_order": 1014
+    },
+    {
+      "slug": "human_avatar_016",
+      "display_name": "Human Avatar 16",
+      "sort_order": 1015
+    },
+    {
+      "slug": "human_avatar_017",
+      "display_name": "Human Avatar 17",
+      "sort_order": 1016
+    },
+    {
+      "slug": "human_avatar_018",
+      "display_name": "Human Avatar 18",
+      "sort_order": 1017
+    },
+    {
+      "slug": "human_avatar_019",
+      "display_name": "Human Avatar 19",
+      "sort_order": 1018
+    },
+    {
+      "slug": "human_avatar_020",
+      "display_name": "Human Avatar 20",
+      "sort_order": 1019
+    },
+    {
+      "slug": "human_avatar_021",
+      "display_name": "Human Avatar 21",
+      "sort_order": 1020
+    },
+    {
+      "slug": "human_avatar_022",
+      "display_name": "Human Avatar 22",
+      "sort_order": 1021
+    },
+    {
+      "slug": "human_avatar_023",
+      "display_name": "Human Avatar 23",
+      "sort_order": 1022
+    },
+    {
+      "slug": "human_avatar_024",
+      "display_name": "Human Avatar 24",
+      "sort_order": 1023
+    },
+    {
+      "slug": "human_avatar_025",
+      "display_name": "Human Avatar 25",
+      "sort_order": 1024
+    },
+    {
+      "slug": "human_avatar_026",
+      "display_name": "Human Avatar 26",
+      "sort_order": 1025
+    },
+    {
+      "slug": "human_avatar_027",
+      "display_name": "Human Avatar 27",
+      "sort_order": 1026
+    },
+    {
+      "slug": "human_avatar_028",
+      "display_name": "Human Avatar 28",
+      "sort_order": 1027
+    },
+    {
+      "slug": "human_avatar_029",
+      "display_name": "Human Avatar 29",
+      "sort_order": 1028
+    },
+    {
+      "slug": "human_avatar_030",
+      "display_name": "Human Avatar 30",
+      "sort_order": 1029
+    },
+    {
+      "slug": "human_avatar_031",
+      "display_name": "Human Avatar 31",
+      "sort_order": 1030
+    },
+    {
+      "slug": "human_avatar_032",
+      "display_name": "Human Avatar 32",
+      "sort_order": 1031
+    },
+    {
+      "slug": "human_avatar_033",
+      "display_name": "Human Avatar 33",
+      "sort_order": 1032
+    },
+    {
+      "slug": "human_avatar_034",
+      "display_name": "Human Avatar 34",
+      "sort_order": 1033
+    },
+    {
+      "slug": "human_avatar_035",
+      "display_name": "Human Avatar 35",
+      "sort_order": 1034
+    },
+    {
+      "slug": "human_avatar_036",
+      "display_name": "Human Avatar 36",
+      "sort_order": 1035
+    },
+    {
+      "slug": "human_avatar_037",
+      "display_name": "Human Avatar 37",
+      "sort_order": 1036
+    },
+    {
+      "slug": "human_avatar_038",
+      "display_name": "Human Avatar 38",
+      "sort_order": 1037
+    },
+    {
+      "slug": "human_avatar_039",
+      "display_name": "Human Avatar 39",
+      "sort_order": 1038
+    },
+    {
+      "slug": "human_avatar_040",
+      "display_name": "Human Avatar 40",
+      "sort_order": 1039
+    },
+    {
+      "slug": "human_avatar_041",
+      "display_name": "Human Avatar 41",
+      "sort_order": 1040
+    },
+    {
+      "slug": "human_avatar_042",
+      "display_name": "Human Avatar 42",
+      "sort_order": 1041
+    },
+    {
+      "slug": "human_avatar_043",
+      "display_name": "Human Avatar 43",
+      "sort_order": 1042
+    },
+    {
+      "slug": "human_avatar_044",
+      "display_name": "Human Avatar 44",
+      "sort_order": 1043
+    },
+    {
+      "slug": "human_avatar_045",
+      "display_name": "Human Avatar 45",
+      "sort_order": 1044
+    },
+    {
+      "slug": "human_avatar_046",
+      "display_name": "Human Avatar 46",
+      "sort_order": 1045
+    },
+    {
+      "slug": "human_avatar_047",
+      "display_name": "Human Avatar 47",
+      "sort_order": 1046
+    },
+    {
+      "slug": "human_avatar_048",
+      "display_name": "Human Avatar 48",
+      "sort_order": 1047
+    },
+    {
+      "slug": "human_avatar_049",
+      "display_name": "Human Avatar 49",
+      "sort_order": 1048
+    },
+    {
+      "slug": "human_avatar_050",
+      "display_name": "Human Avatar 50",
+      "sort_order": 1049
+    },
+    {
+      "slug": "human_avatar_051",
+      "display_name": "Human Avatar 51",
+      "sort_order": 1050
+    },
+    {
+      "slug": "human_avatar_052",
+      "display_name": "Human Avatar 52",
+      "sort_order": 1051
+    },
+    {
+      "slug": "human_avatar_053",
+      "display_name": "Human Avatar 53",
+      "sort_order": 1052
+    },
+    {
+      "slug": "human_avatar_054",
+      "display_name": "Human Avatar 54",
+      "sort_order": 1053
+    },
+    {
+      "slug": "human_avatar_055",
+      "display_name": "Human Avatar 55",
+      "sort_order": 1054
+    },
+    {
+      "slug": "human_avatar_056",
+      "display_name": "Human Avatar 56",
+      "sort_order": 1055
+    },
+    {
+      "slug": "human_avatar_057",
+      "display_name": "Human Avatar 57",
+      "sort_order": 1056
+    },
+    {
+      "slug": "human_avatar_058",
+      "display_name": "Human Avatar 58",
+      "sort_order": 1057
+    },
+    {
+      "slug": "human_avatar_059",
+      "display_name": "Human Avatar 59",
+      "sort_order": 1058
+    },
+    {
+      "slug": "human_avatar_060",
+      "display_name": "Human Avatar 60",
+      "sort_order": 1059
+    },
+    {
+      "slug": "human_avatar_061",
+      "display_name": "Human Avatar 61",
+      "sort_order": 1060
+    },
+    {
+      "slug": "human_avatar_062",
+      "display_name": "Human Avatar 62",
+      "sort_order": 1061
+    },
+    {
+      "slug": "human_avatar_063",
+      "display_name": "Human Avatar 63",
+      "sort_order": 1062
+    },
+    {
+      "slug": "human_avatar_064",
+      "display_name": "Human Avatar 64",
+      "sort_order": 1063
+    },
+    {
+      "slug": "human_avatar_065",
+      "display_name": "Human Avatar 65",
+      "sort_order": 1064
+    },
+    {
+      "slug": "human_avatar_066",
+      "display_name": "Human Avatar 66",
+      "sort_order": 1065
+    },
+    {
+      "slug": "human_avatar_067",
+      "display_name": "Human Avatar 67",
+      "sort_order": 1066
+    },
+    {
+      "slug": "human_avatar_068",
+      "display_name": "Human Avatar 68",
+      "sort_order": 1067
+    },
+    {
+      "slug": "human_avatar_069",
+      "display_name": "Human Avatar 69",
+      "sort_order": 1068
+    },
+    {
+      "slug": "human_avatar_070",
+      "display_name": "Human Avatar 70",
+      "sort_order": 1069
+    },
+    {
+      "slug": "human_avatar_071",
+      "display_name": "Human Avatar 71",
+      "sort_order": 1070
+    },
+    {
+      "slug": "human_avatar_072",
+      "display_name": "Human Avatar 72",
+      "sort_order": 1071
+    },
+    {
+      "slug": "human_avatar_073",
+      "display_name": "Human Avatar 73",
+      "sort_order": 1072
+    },
+    {
+      "slug": "human_avatar_074",
+      "display_name": "Human Avatar 74",
+      "sort_order": 1073
+    },
+    {
+      "slug": "human_avatar_075",
+      "display_name": "Human Avatar 75",
+      "sort_order": 1074
+    },
+    {
+      "slug": "human_avatar_076",
+      "display_name": "Human Avatar 76",
+      "sort_order": 1075
+    },
+    {
+      "slug": "human_avatar_077",
+      "display_name": "Human Avatar 77",
+      "sort_order": 1076
+    },
+    {
+      "slug": "human_avatar_078",
+      "display_name": "Human Avatar 78",
+      "sort_order": 1077
+    },
+    {
+      "slug": "human_avatar_079",
+      "display_name": "Human Avatar 79",
+      "sort_order": 1078
+    },
+    {
+      "slug": "human_avatar_080",
+      "display_name": "Human Avatar 80",
+      "sort_order": 1079
+    },
+    {
+      "slug": "human_avatar_081",
+      "display_name": "Human Avatar 81",
+      "sort_order": 1080
+    },
+    {
+      "slug": "human_avatar_082",
+      "display_name": "Human Avatar 82",
+      "sort_order": 1081
+    },
+    {
+      "slug": "human_avatar_083",
+      "display_name": "Human Avatar 83",
+      "sort_order": 1082
+    },
+    {
+      "slug": "human_avatar_084",
+      "display_name": "Human Avatar 84",
+      "sort_order": 1083
+    },
+    {
+      "slug": "human_avatar_085",
+      "display_name": "Human Avatar 85",
+      "sort_order": 1084
+    },
+    {
+      "slug": "human_avatar_086",
+      "display_name": "Human Avatar 86",
+      "sort_order": 1085
+    },
+    {
+      "slug": "human_avatar_087",
+      "display_name": "Human Avatar 87",
+      "sort_order": 1086
+    },
+    {
+      "slug": "human_avatar_088",
+      "display_name": "Human Avatar 88",
+      "sort_order": 1087
+    },
+    {
+      "slug": "human_avatar_089",
+      "display_name": "Human Avatar 89",
+      "sort_order": 1088
+    },
+    {
+      "slug": "human_avatar_090",
+      "display_name": "Human Avatar 90",
+      "sort_order": 1089
+    },
+    {
+      "slug": "human_avatar_091",
+      "display_name": "Human Avatar 91",
+      "sort_order": 1090
+    },
+    {
+      "slug": "human_avatar_092",
+      "display_name": "Human Avatar 92",
+      "sort_order": 1091
+    },
+    {
+      "slug": "human_avatar_093",
+      "display_name": "Human Avatar 93",
+      "sort_order": 1092
+    },
+    {
+      "slug": "human_avatar_094",
+      "display_name": "Human Avatar 94",
+      "sort_order": 1093
+    },
+    {
+      "slug": "human_avatar_095",
+      "display_name": "Human Avatar 95",
+      "sort_order": 1094
+    },
+    {
+      "slug": "human_avatar_096",
+      "display_name": "Human Avatar 96",
+      "sort_order": 1095
+    },
+    {
+      "slug": "human_avatar_097",
+      "display_name": "Human Avatar 97",
+      "sort_order": 1096
+    },
+    {
+      "slug": "human_avatar_098",
+      "display_name": "Human Avatar 98",
+      "sort_order": 1097
+    },
+    {
+      "slug": "human_avatar_099",
+      "display_name": "Human Avatar 99",
+      "sort_order": 1098
+    },
+    {
+      "slug": "human_avatar_100",
+      "display_name": "Human Avatar 100",
+      "sort_order": 1099
+    },
+    {
+      "slug": "human_avatar_101",
+      "display_name": "Human Avatar 101",
+      "sort_order": 1100
+    },
+    {
+      "slug": "human_avatar_102",
+      "display_name": "Human Avatar 102",
+      "sort_order": 1101
+    },
+    {
+      "slug": "human_avatar_103",
+      "display_name": "Human Avatar 103",
+      "sort_order": 1102
+    },
+    {
+      "slug": "human_avatar_104",
+      "display_name": "Human Avatar 104",
+      "sort_order": 1103
+    },
+    {
+      "slug": "human_avatar_105",
+      "display_name": "Human Avatar 105",
+      "sort_order": 1104
+    },
+    {
+      "slug": "human_avatar_106",
+      "display_name": "Human Avatar 106",
+      "sort_order": 1105
+    },
+    {
+      "slug": "human_avatar_107",
+      "display_name": "Human Avatar 107",
+      "sort_order": 1106
+    },
+    {
+      "slug": "human_avatar_108",
+      "display_name": "Human Avatar 108",
+      "sort_order": 1107
+    },
+    {
+      "slug": "human_avatar_109",
+      "display_name": "Human Avatar 109",
+      "sort_order": 1108
+    },
+    {
+      "slug": "human_avatar_110",
+      "display_name": "Human Avatar 110",
+      "sort_order": 1109
+    },
+    {
+      "slug": "human_avatar_111",
+      "display_name": "Human Avatar 111",
+      "sort_order": 1110
+    },
+    {
+      "slug": "human_avatar_112",
+      "display_name": "Human Avatar 112",
+      "sort_order": 1111
+    },
+    {
+      "slug": "human_avatar_113",
+      "display_name": "Human Avatar 113",
+      "sort_order": 1112
+    },
+    {
+      "slug": "human_avatar_114",
+      "display_name": "Human Avatar 114",
+      "sort_order": 1113
+    },
+    {
+      "slug": "human_avatar_115",
+      "display_name": "Human Avatar 115",
+      "sort_order": 1114
+    },
+    {
+      "slug": "human_avatar_116",
+      "display_name": "Human Avatar 116",
+      "sort_order": 1115
+    },
+    {
+      "slug": "human_avatar_117",
+      "display_name": "Human Avatar 117",
+      "sort_order": 1116
+    },
+    {
+      "slug": "human_avatar_118",
+      "display_name": "Human Avatar 118",
+      "sort_order": 1117
+    },
+    {
+      "slug": "human_avatar_119",
+      "display_name": "Human Avatar 119",
+      "sort_order": 1118
+    },
+    {
+      "slug": "human_avatar_120",
+      "display_name": "Human Avatar 120",
+      "sort_order": 1119
+    },
+    {
+      "slug": "human_avatar_121",
+      "display_name": "Human Avatar 121",
+      "sort_order": 1120
+    },
+    {
+      "slug": "human_avatar_122",
+      "display_name": "Human Avatar 122",
+      "sort_order": 1121
+    },
+    {
+      "slug": "human_avatar_123",
+      "display_name": "Human Avatar 123",
+      "sort_order": 1122
+    },
+    {
+      "slug": "human_avatar_124",
+      "display_name": "Human Avatar 124",
+      "sort_order": 1123
+    },
+    {
+      "slug": "human_avatar_125",
+      "display_name": "Human Avatar 125",
+      "sort_order": 1124
+    },
+    {
+      "slug": "non_human_avatar_001",
+      "display_name": "Non-human Avatar 1",
+      "sort_order": 2000
+    },
+    {
+      "slug": "non_human_avatar_002",
+      "display_name": "Non-human Avatar 2",
+      "sort_order": 2001
+    },
+    {
+      "slug": "non_human_avatar_003",
+      "display_name": "Non-human Avatar 3",
+      "sort_order": 2002
+    },
+    {
+      "slug": "non_human_avatar_004",
+      "display_name": "Non-human Avatar 4",
+      "sort_order": 2003
+    },
+    {
+      "slug": "non_human_avatar_005",
+      "display_name": "Non-human Avatar 5",
+      "sort_order": 2004
+    },
+    {
+      "slug": "non_human_avatar_006",
+      "display_name": "Non-human Avatar 6",
+      "sort_order": 2005
+    },
+    {
+      "slug": "non_human_avatar_007",
+      "display_name": "Non-human Avatar 7",
+      "sort_order": 2006
+    },
+    {
+      "slug": "non_human_avatar_008",
+      "display_name": "Non-human Avatar 8",
+      "sort_order": 2007
+    },
+    {
+      "slug": "non_human_avatar_009",
+      "display_name": "Non-human Avatar 9",
+      "sort_order": 2008
+    },
+    {
+      "slug": "non_human_avatar_010",
+      "display_name": "Non-human Avatar 10",
+      "sort_order": 2009
+    },
+    {
+      "slug": "non_human_avatar_011",
+      "display_name": "Non-human Avatar 11",
+      "sort_order": 2010
+    },
+    {
+      "slug": "non_human_avatar_012",
+      "display_name": "Non-human Avatar 12",
+      "sort_order": 2011
+    },
+    {
+      "slug": "non_human_avatar_013",
+      "display_name": "Non-human Avatar 13",
+      "sort_order": 2012
+    },
+    {
+      "slug": "non_human_avatar_014",
+      "display_name": "Non-human Avatar 14",
+      "sort_order": 2013
+    },
+    {
+      "slug": "non_human_avatar_015",
+      "display_name": "Non-human Avatar 15",
+      "sort_order": 2014
+    },
+    {
+      "slug": "non_human_avatar_016",
+      "display_name": "Non-human Avatar 16",
+      "sort_order": 2015
+    },
+    {
+      "slug": "non_human_avatar_017",
+      "display_name": "Non-human Avatar 17",
+      "sort_order": 2016
+    },
+    {
+      "slug": "non_human_avatar_018",
+      "display_name": "Non-human Avatar 18",
+      "sort_order": 2017
+    },
+    {
+      "slug": "non_human_avatar_019",
+      "display_name": "Non-human Avatar 19",
+      "sort_order": 2018
+    },
+    {
+      "slug": "non_human_avatar_020",
+      "display_name": "Non-human Avatar 20",
+      "sort_order": 2019
+    },
+    {
+      "slug": "non_human_avatar_021",
+      "display_name": "Non-human Avatar 21",
+      "sort_order": 2020
+    },
+    {
+      "slug": "non_human_avatar_022",
+      "display_name": "Non-human Avatar 22",
+      "sort_order": 2021
+    },
+    {
+      "slug": "non_human_avatar_023",
+      "display_name": "Non-human Avatar 23",
+      "sort_order": 2022
+    },
+    {
+      "slug": "non_human_avatar_024",
+      "display_name": "Non-human Avatar 24",
+      "sort_order": 2023
+    },
+    {
+      "slug": "non_human_avatar_025",
+      "display_name": "Non-human Avatar 25",
+      "sort_order": 2024
+    },
+    {
+      "slug": "non_human_avatar_026",
+      "display_name": "Non-human Avatar 26",
+      "sort_order": 2025
+    },
+    {
+      "slug": "non_human_avatar_027",
+      "display_name": "Non-human Avatar 27",
+      "sort_order": 2026
+    },
+    {
+      "slug": "non_human_avatar_028",
+      "display_name": "Non-human Avatar 28",
+      "sort_order": 2027
+    },
+    {
+      "slug": "non_human_avatar_029",
+      "display_name": "Non-human Avatar 29",
+      "sort_order": 2028
+    },
+    {
+      "slug": "non_human_avatar_030",
+      "display_name": "Non-human Avatar 30",
+      "sort_order": 2029
+    },
+    {
+      "slug": "non_human_avatar_031",
+      "display_name": "Non-human Avatar 31",
+      "sort_order": 2030
+    },
+    {
+      "slug": "non_human_avatar_032",
+      "display_name": "Non-human Avatar 32",
+      "sort_order": 2031
+    },
+    {
+      "slug": "non_human_avatar_033",
+      "display_name": "Non-human Avatar 33",
+      "sort_order": 2032
+    },
+    {
+      "slug": "non_human_avatar_034",
+      "display_name": "Non-human Avatar 34",
+      "sort_order": 2033
+    },
+    {
+      "slug": "non_human_avatar_035",
+      "display_name": "Non-human Avatar 35",
+      "sort_order": 2034
+    },
+    {
+      "slug": "non_human_avatar_036",
+      "display_name": "Non-human Avatar 36",
+      "sort_order": 2035
+    },
+    {
+      "slug": "non_human_avatar_037",
+      "display_name": "Non-human Avatar 37",
+      "sort_order": 2036
+    },
+    {
+      "slug": "non_human_avatar_038",
+      "display_name": "Non-human Avatar 38",
+      "sort_order": 2037
+    },
+    {
+      "slug": "non_human_avatar_039",
+      "display_name": "Non-human Avatar 39",
+      "sort_order": 2038
+    },
+    {
+      "slug": "non_human_avatar_040",
+      "display_name": "Non-human Avatar 40",
+      "sort_order": 2039
+    },
+    {
+      "slug": "non_human_avatar_041",
+      "display_name": "Non-human Avatar 41",
+      "sort_order": 2040
+    },
+    {
+      "slug": "non_human_avatar_042",
+      "display_name": "Non-human Avatar 42",
+      "sort_order": 2041
+    },
+    {
+      "slug": "non_human_avatar_043",
+      "display_name": "Non-human Avatar 43",
+      "sort_order": 2042
+    },
+    {
+      "slug": "non_human_avatar_044",
+      "display_name": "Non-human Avatar 44",
+      "sort_order": 2043
+    },
+    {
+      "slug": "non_human_avatar_045",
+      "display_name": "Non-human Avatar 45",
+      "sort_order": 2044
+    },
+    {
+      "slug": "non_human_avatar_046",
+      "display_name": "Non-human Avatar 46",
+      "sort_order": 2045
+    },
+    {
+      "slug": "non_human_avatar_047",
+      "display_name": "Non-human Avatar 47",
+      "sort_order": 2046
+    },
+    {
+      "slug": "non_human_avatar_048",
+      "display_name": "Non-human Avatar 48",
+      "sort_order": 2047
+    },
+    {
+      "slug": "non_human_avatar_049",
+      "display_name": "Non-human Avatar 49",
+      "sort_order": 2048
+    },
+    {
+      "slug": "non_human_avatar_050",
+      "display_name": "Non-human Avatar 50",
+      "sort_order": 2049
     }
   ],
   "pictures": [
@@ -858,6 +1668,97 @@
       "slug": "semi",
       "display_name": "Semi-detached",
       "sort_order": 1010
+    },
+    {
+      "slug": "detached",
+      "display_name": "Detached",
+      "sort_order": 1020
+    }
+  ],
+  "packs": [
+    {
+      "key": "all_dogs",
+      "code": "ALLDOGS-G5CK",
+      "name": "All Dogs",
+      "enabled": true,
+      "redeemable": true,
+      "product": {
+        "sku": "sku_20260622_001_all_dogs",
+        "name": "All Dogs",
+        "description": "Every dog - all breeds, from the tiniest Chihuahua to the gentlest Bernese.",
+        "enabled": true,
+        "sort_order": 10
+      }
+    },
+    {
+      "key": "all_cats",
+      "code": "ALLCATS-5YJD",
+      "name": "All Cats",
+      "enabled": true,
+      "redeemable": true,
+      "product": {
+        "sku": "sku_20260622_002_all_cats",
+        "name": "All Cats",
+        "description": "Every cat - from dignified to delightfully chaotic.",
+        "enabled": true,
+        "sort_order": 20
+      }
+    },
+    {
+      "key": "all_small_pets",
+      "code": "ALLSMALL-PTV7",
+      "name": "All Small Pets",
+      "enabled": true,
+      "redeemable": true,
+      "product": {
+        "sku": "sku_20260622_003_all_small_pets",
+        "name": "All Small Pets",
+        "description": "Every small pet - rabbits, rodents, reptiles, fish and a friendly tarantula.",
+        "enabled": true,
+        "sort_order": 30
+      }
+    },
+    {
+      "key": "all_pets",
+      "code": "ALLPETS-QTZG",
+      "name": "All Pets",
+      "enabled": true,
+      "redeemable": true,
+      "product": {
+        "sku": "sku_20260622_004_all_pets",
+        "name": "All Pets",
+        "description": "The lot - every dog, cat and small pet in the collection.",
+        "enabled": true,
+        "sort_order": 40
+      }
+    },
+    {
+      "key": "robots_pack",
+      "code": "ROBOTS-CJ1P",
+      "name": "Robots Pack",
+      "enabled": true,
+      "redeemable": true,
+      "product": {
+        "sku": "sku_20260616_001_robots_pack_1",
+        "name": "Robots Pack",
+        "description": "Who doesn't want a pet robot and to live in a futuristic house? A pack of houses, characters, and avatars for the robot enthusiast.",
+        "enabled": true,
+        "sort_order": 5
+      }
+    },
+    {
+      "key": "paihia_house",
+      "code": "GCAC-1979",
+      "name": "Paihia House",
+      "enabled": true,
+      "redeemable": true
+    },
+    {
+      "key": "dell_cottage",
+      "code": "DELLCOTT-DFLZ",
+      "name": "Dell Cottage",
+      "enabled": true,
+      "redeemable": true
     }
   ]
 }

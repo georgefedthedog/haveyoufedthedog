@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Spotted and spoiled.", "body": "{name} had a brilliant day 🐾" },
+      { "title": "All spots present and full.", "body": "{name} adores you, every single dot." },
+      { "title": "Bounced out, well fed.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Doing laps of the kitchen.", "body": "{name} runs faster when hungry 👀" },
+      { "title": "Spots practically rattling.", "body": "{name} insists dinner is overdue." },
+      { "title": "Skidding to a halt by the bowl.", "body": "{name} has arrived. The bowl has not." }
+    ],
+    "upcoming": [
+      { "title": "Already at full gallop.", "body": "{name} heard the cupboard and bolted 🐾" },
+      { "title": "Vibrating with anticipation.", "body": "{name} can sense dinner approaching." },
+      { "title": "Spinning in happy circles.", "body": "{name} knows it's nearly time." }
+    ],
+    "happyForNow": [
+      { "title": "Finally sitting still.", "body": "{name} is full and content (briefly)." },
+      { "title": "Spots at rest.", "body": "All is well with {name}." },
+      { "title": "Catching its breath.", "body": "{name} is resting up for the next zoom." }
+    ],
+    "none": [
+      { "title": "A day of running and snacks.", "body": "{name} approves at top speed 🐾" },
+      { "title": "Off doing laps somewhere.", "body": "{name} is having an absolute blast." }
+    ]
+  },
+  "awardTitle": "Speediest to the Bowl 🐾",
+  "awardThanks": "Thanks for keeping all those spots fuelled and racing last week!"
+}

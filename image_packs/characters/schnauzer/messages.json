@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Bearded and satisfied.", "body": "{name} had a most agreeable day 🥨" },
+      { "title": "Eyebrows raised in approval.", "body": "{name} holds you in high regard." },
+      { "title": "Whiskers immaculate, belly full.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "A disapproving eyebrow.", "body": "{name} notes the bowl remains empty 👀" },
+      { "title": "Tapping a paw, pointedly.", "body": "{name} expected dinner some time ago." },
+      { "title": "Beard quivering with indignation.", "body": "{name} demands to speak to the kitchen." }
+    ],
+    "upcoming": [
+      { "title": "Eyebrows on high alert.", "body": "{name} detected activity in the kitchen." },
+      { "title": "Whiskers twitching.", "body": "{name} heard the cupboard 🐾" },
+      { "title": "Standing by, dignified.", "body": "{name} knows dinner approaches." }
+    ],
+    "happyForNow": [
+      { "title": "Resting, beard and all.", "body": "{name} is content for the moment." },
+      { "title": "Eyebrows at ease.", "body": "All is calm with {name}." },
+      { "title": "A dignified snooze.", "body": "{name} is taking a well-earned rest." }
+    ],
+    "none": [
+      { "title": "A day of dignity and snacks.", "body": "{name} approves 🥨" },
+      { "title": "Surveying the garden.", "body": "{name} keeps a distinguished watch." }
+    ]
+  },
+  "awardTitle": "Most Distinguished 🥨",
+  "awardThanks": "Thanks for keeping the finest beard in the house well fed last week!"
+}
