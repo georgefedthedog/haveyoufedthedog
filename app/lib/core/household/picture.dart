@@ -35,12 +35,18 @@ class Picture {
   /// the catalog row's `sort_order`). The merged picker list is sorted by this.
   final int sortOrder;
 
+  /// When true, this picture is reserved (e.g. a private/personal pack) and is
+  /// excluded from the free streak rewards. Defaults false (claimable).
+  /// Doesn't affect resolution or the pickers - only the rewards page.
+  final bool rewardExcluded;
+
   const Picture({
     required this.id,
     required this.displayName,
     this.remoteVariants,
     this.packIds = const [],
     this.sortOrder = 0,
+    this.rewardExcluded = false,
   });
 
   /// Asset path for a bundled picture's variant matching [bucket].

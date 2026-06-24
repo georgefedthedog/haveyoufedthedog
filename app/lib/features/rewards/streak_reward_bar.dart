@@ -7,17 +7,21 @@ import '../../core/household/current_household_controller.dart';
 import '../../router/routes.dart';
 import 'wiggling_present.dart';
 
-/// Reward-streak row designed to sit *inside* the Awards-tab stats card,
-/// directly under the streak/week/sweeps scoreboard - a leading divider plus
-/// a tappable progress strip that pushes the free-rewards page. Card-less by
-/// design so it shares the scoreboard's card (a separate card alongside the
-/// day-streak one read as two competing "streak" tiles).
+/// A tappable reward-streak progress strip (🎁 + "X/threshold" bar) that
+/// pushes the free-rewards page. Card-less by design: on the Awards tab it
+/// sits *inside* the stats card under the scoreboard (with a [leadingDivider]
+/// separating them); on the store page it's wrapped in its own card with
+/// [leadingDivider] off.
 ///
 /// Uses a 🎁 glyph rather than the day streak's 🔥 so the two aren't confused.
 /// Renders nothing until a household is resolved. Reads the same advisory
 /// [householdRewardStreakProvider] the rewards page uses.
 class StreakRewardBar extends ConsumerWidget {
-  const StreakRewardBar({super.key});
+  /// A divider above the row - true when embedded under the stats scoreboard,
+  /// false when it's the sole content of its own card.
+  final bool leadingDivider;
+
+  const StreakRewardBar({super.key, this.leadingDivider = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +38,7 @@ class StreakRewardBar extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Divider(height: 1),
+        if (leadingDivider) const Divider(height: 1),
         InkWell(
           onTap: () => context.push(Routes.rewards),
           child: Padding(
