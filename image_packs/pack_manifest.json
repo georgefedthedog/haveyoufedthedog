@@ -312,19 +312,22 @@
       "slug": "black_bin",
       "display_name": "Black Bin",
       "base_color": "EFD6DC",
-      "sort_order": 4030
+      "sort_order": 4030,
+      "packs": ["rewards"]
     },
     {
       "slug": "laundry_basket",
       "display_name": "Laundry Basket",
       "base_color": "D6EFD7",
-      "sort_order": 4040
+      "sort_order": 4040,
+      "packs": ["rewards"]
     },
     {
       "slug": "lawnmower",
       "display_name": "Lawnmower",
       "base_color": "D5C8F0",
-      "sort_order": 4050
+      "sort_order": 4050,
+      "packs": ["rewards"]
     },
     {
       "slug": "meds",
@@ -336,13 +339,15 @@
       "slug": "mop_and_bucket",
       "display_name": "Mop & Bucket",
       "base_color": "D3F0EE",
-      "sort_order": 4070
+      "sort_order": 4070,
+      "packs": ["rewards"]
     },
     {
       "slug": "vacuum_cleaner",
       "display_name": "Vacuum Cleaner",
       "base_color": "ECCCE6",
-      "sort_order": 4080
+      "sort_order": 4080,
+      "packs": ["rewards"]
     },
     {
       "slug": "robots_pack_dog_1",
@@ -1672,7 +1677,8 @@
     {
       "slug": "detached",
       "display_name": "Detached",
-      "sort_order": 1020
+      "sort_order": 1020,
+      "packs": ["rewards"]
     }
   ],
   "packs": [
@@ -1757,6 +1763,13 @@
       "key": "dell_cottage",
       "code": "DELLCOTT-DFLZ",
       "name": "Dell Cottage",
+      "enabled": true,
+      "redeemable": true
+    },
+    {
+      "key": "rewards",
+      "code": "REWARDS-G3KT",
+      "name": "Rewards",
       "enabled": true,
       "redeemable": true
     }
