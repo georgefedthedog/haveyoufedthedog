@@ -43,6 +43,19 @@ class FcmTokenSync extends _$FcmTokenSync {
             as String?;
 
     try {
+      // iOS only mints an FCM token once the APNs device token has been
+      // registered and handed to Firebase. getToken() returns null (or
+      // throws apns-token-not-set) before that, and this provider mounts
+      // the moment auth resolves - well before notificationService.init()
+      // has triggered APNs registration. Poll getAPNSToken() until it
+      // lands so we don't ask for the FCM token too early and silently
+      // save nothing. (onTokenRefresh below stays as the ongoing net.)
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        for (var i = 0; i < 15; i++) {
+          if (await FirebaseMessaging.instance.getAPNSToken() != null) break;
+          await Future<void>.delayed(const Duration(seconds: 1));
+        }
+      }
       final token = await FirebaseMessaging.instance.getToken();
       // Skip the round-trip if the token already matches - belt and
       // braces against any rebuild that escapes the equality fix in
