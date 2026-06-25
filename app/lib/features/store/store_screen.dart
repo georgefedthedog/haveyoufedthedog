@@ -210,8 +210,7 @@ class _SupportNote extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Made by one man and his dog. No ads, no subs - '
-                    'buying a pack is what keeps it that way. Thank you!',
+                    'Made by one man and his dog. No ads. No subscriptions. Packs support the app.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
