@@ -9,6 +9,7 @@ import '../../core/completions/streak_controller.dart';
 import '../../core/household/acting_user_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/households_controller.dart';
+import '../../core/nfc/nfc_service.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
@@ -40,6 +41,12 @@ class NfcLaunchHandler {
   /// current house.
   Future<void> handleNfcTap(String householdId, String subjectId) async {
     if (_busy) return;
+    // A tag we *just* wrote is usually still on the phone; ignore its instant
+    // self-tap so writing a tag doesn't immediately log a chore.
+    if (nfcTapJustWritten) {
+      debugPrint('NFC: tap ignored - tag was just written.');
+      return;
+    }
     final messenger = _messengerKey.currentState;
     try {
       if (householdId.isNotEmpty) {

@@ -37,7 +37,7 @@ at the repo root (workflow `ios-release`, `working_directory: app`); push to `ma
 then Start build in the Codemagic UI. iOS bundle id `com.haveyoufedthedog.app` is
 deliberately _not_ the Android `com.haveyoufedthedog`. Edit `ios/` config
 (Info.plist, entitlements, `project.pbxproj`) as plain text. The App ID's
-capabilities must mirror the app's entitlements (NFC Tag Reading + Push are wired; iOS IAP still deferred). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
+capabilities must mirror the app's entitlements (NFC Tag Reading [formats = `TAG`, not `NDEF` - the current SDK rejects NDEF at upload] + Push are wired; iOS IAP still deferred). `GoogleService-Info.plist` is committed in `ios/Runner/` + wired into
 `project.pbxproj` (native Firebase config, no `firebase_options.dart`). Signing is a
 self-managed distribution cert (RSA key in Codemagic group `ios_signing` + Google
 Drive backup) via the `haveyoufedthedog_asc` integration. Full walkthrough: README →
@@ -154,6 +154,25 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   `household_actions.dart` + `household_details_screen.dart`; managed members
   carry a managed-member badge and are removed by the chore-style drag-to-bin or the
   Edit-member screen's trash can.
+- **NFC tags are universal links, not in-app reading.** A tag holds
+  `haveyoufedthedog.com/nfc-tap?household=<hid>&subject=<sid>`; the OS opens the
+  app (App Link / Universal Link), `DeepLinkHandler` parks it, `AppRoot` routes
+  to `NfcLaunchHandler.handleNfcTap` - which auto-switches to the tag's household
+  (if the tapper is a member, so a multi-household dog-walker logs against the
+  right house) then logs the best chore, or opens the subject per the Edit
+  Profile per-device toggle. The app only _writes_ tags (the "Write an NFC tag"
+  card on Edit thing → `core/nfc/nfc_service.dart` NDEF write via `nfc_manager`).
+  Two load-bearing gotchas: pass `pollingOptions: {iso14443, iso15693}` to
+  `startSession` (the default also polls FeliCa/`iso18092`, which iOS gates
+  behind a `felica.systemcodes` entitlement we lack → "Missing required
+  entitlement"); and the iOS NFC formats entitlement must be `TAG`
+  (`NFCTagReaderSession`) since the current SDK rejects `NDEF` at App Store
+  upload. `subjects.nfc_tag_id` stores the written URL as a "tag written" marker.
+- **Deep-link paths live in two places that must stay in sync:** `/join`,
+  `/claim`, and `/nfc-tap` are listed in both the AASA `components`
+  (`landing_page/src/.well-known/apple-app-site-association`, iOS) and the Android
+  manifest `pathPrefix`. New path = add to both. Apple's CDN caches the AASA, so
+  a new path takes hours to propagate and only takes effect on a fresh install.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).

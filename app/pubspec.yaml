@@ -1,7 +1,7 @@
 name: haveyoufedthedog
 description: "Have You Fed the Dog?"
 publish_to: "none"
-version: 0.5.10+2029
+version: 0.5.11+2030
 
 environment:
   sdk: ^3.12.1

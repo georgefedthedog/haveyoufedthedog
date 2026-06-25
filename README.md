@@ -74,8 +74,10 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   `users` so the app gets `user_name` + `user_avatar` + `user_managed` in one
   fetch.
 - **subjects** - the characters. `name`, `household`, `icon` (character id:
-  dog/cat/plant/bin/fish/generic, or a `catalog_characters` slug),
-  `nfc_tag_id`.
+  dog/cat/plant/bin/fish/generic, or a `catalog_characters` slug). `nfc_tag_id`
+  holds the universal-link URL written to this subject's NFC tag - a "tag
+  written" marker that drives the NFC icon (it means a tag was written for the
+  subject, not that a live one still exists).
 - **chores** - `subject`, `name`, `hour`, `minute`, `active`, and a recurrence
   keyed by `schedule_type`:
   - `daily` - every day.
@@ -297,6 +299,21 @@ to publish. Served by nginx on the same box as the API
 TLS via the box's existing certbot). `hello@haveyoufedthedog.com` forwards to
 georgefedthedog@gmail.com (steel) via Cloudflare Email Routing.
 
+**Deep links (App Links / Universal Links).** Three paths open the app straight
+from the web domain: `/join` + `/claim` (invite + managed-member claim) and
+`/nfc-tap` (an NFC tag tap). Both platforms verify against files served from
+`haveyoufedthedog.com` - `.well-known/assetlinks.json` (Android) and
+`.well-known/apple-app-site-association` (iOS) - which live in `landing_page/src/`
+and publish with the site. **Adding a path means touching both** the AASA
+`components` and the Android manifest `pathPrefix`
+(`app/android/app/src/main/AndroidManifest.xml`); the SHA in `assetlinks.json` is
+the Play app-signing key, so Android verification only holds on Play-distributed
+builds. iOS fetches the AASA through Apple's CDN, which **caches** it - a new
+path can take hours to appear and only takes effect on a fresh install (check
+the live cache with `curl -s https://app-site-association.cdn-apple.com/a/v1/haveyoufedthedog.com`).
+This is separate from the _autofill_ `assetlinks.json` under `server/pb_public/`,
+which is on the API domain (see "Static files").
+
 ---
 
 ## Running the app locally
@@ -350,10 +367,13 @@ If `flutter emulators` comes up empty entirely, the Android SDK emulator
 package is missing - install "Android Emulator" + a system image via Android
 Studio's SDK Manager.
 
-Emulator caveats for this app: **no NFC** (tag binding/tapping can't be
-tested), and **FCM pushes only arrive if the AVD has Google Play services**
-(pick a Play-enabled system image). UI work is fine on an emulator; anything
-NFC- or push-shaped needs hardware.
+Emulator caveats for this app: **no NFC** (writing a tag can't be tested), and
+**FCM pushes only arrive if the AVD has Google Play services** (pick a
+Play-enabled system image). The NFC _tap_ logic is just the `/nfc-tap` deep
+link, so it's still testable without hardware - fire it with
+`adb shell am start -a android.intent.action.VIEW -d "https://haveyoufedthedog.com/nfc-tap?household=<hid>&subject=<sid>" -n com.haveyoufedthedog/.MainActivity`
+(escape the `&` as `\&` if your shell eats it). UI work is fine on an emulator;
+writing a tag and push need hardware.
 
 ### Sanity checks
 
@@ -463,9 +483,11 @@ fetch-signing-files ... --create` builds the cert _from that key_ on the first
   `.p12`.
 - **App ID capabilities must mirror the app's entitlements** (Apple Developer →
   Identifiers). The app declares **NFC Tag Reading** + **Push** (`aps-environment`)
-  entitlements in `Runner.entitlements`, with the APNs auth key uploaded to
-  Firebase. **iOS IAP verification** (StoreKit 2 + JWS in the worker) is still
-  deferred.
+  in `Runner.entitlements`, with the APNs auth key uploaded to Firebase. The NFC
+  formats entitlement must be **`TAG`** (`NFCTagReaderSession`) - the current
+  Xcode/iOS SDK rejects `NDEF` at App Store upload - and `NFCReaderUsageDescription`
+  is set in `Info.plist`. **iOS IAP verification** (StoreKit 2 + JWS in the worker)
+  is still deferred.
 - **Export compliance** is declared in `ios/Runner/Info.plist`
   (`ITSAppUsesNonExemptEncryption` = false - the app uses only standard HTTPS),
   so uploads skip the "Missing Compliance" gate and are immediately installable.
@@ -666,7 +688,7 @@ Caveats:
   worker's `reward-streak.js` (via the `claim-streak-reward` hook) is the
   authority that gates the grant.
 - **The drag-and-drop language.** Removing members, leaving a household,
-  deleting chores, logging out, binding/removing NFC tags - all
+  deleting chores, logging out - all
   `LongPressDraggable` onto a dashed-circle `DragTarget`
   (`app/lib/widgets/dashed_circle_painter.dart`). Destructive drops confirm;
   navigational ones don't.
@@ -679,10 +701,24 @@ Caveats:
   Page background is a BL→TR gradient from
   `AppBackdrop` (scaffolds are transparent); dark mode is deliberately flat
   (gradients band near black). Dark/light follows the phone.
-- **NFC flows.** Tag → subject binding lives on `subjects.nfc_tag_id`; a tap
-  either completes the next due chore or opens the subject page depending on
-  the per-device toggle in Edit Profile. App-closed taps work via the launch
-  intent (`nfc_launch_handler.dart`).
+- **NFC flows are universal links, not in-app reading.** A tag holds
+  `https://haveyoufedthedog.com/nfc-tap?household=<hid>&subject=<sid>`; tapping it
+  (app open, backgrounded, or closed) is an OS App Link / Universal Link, which
+  `DeepLinkHandler` parks and `AppRoot` routes to `NfcLaunchHandler.handleNfcTap`.
+  That switches to the tag's household if the tapper is a member (so a
+  multi-household dog-walker logs against the right house without switching
+  first), then completes the next due chore or opens the subject page per the
+  Edit Profile per-device toggle. The app never _reads_ tags - it only _writes_
+  them (`Edit thing → Write an NFC tag`: `core/nfc/nfc_service.dart` +
+  `features/nfc/nfc_write_dialog.dart`, an NDEF URI record via `nfc_manager`).
+  **Two gotchas, both load-bearing:** (1) we pass
+  `pollingOptions: {iso14443, iso15693}` to `startSession` - the default also
+  polls FeliCa (`iso18092`), which iOS gates behind a `felica.systemcodes`
+  entitlement we don't have, so a write fails with "Missing required entitlement"
+  (NTAG stickers are iso14443). (2) the iOS NFC formats entitlement must be
+  **`TAG`** (`NFCTagReaderSession`) - the current Xcode/iOS SDK rejects `NDEF` at
+  App Store upload. Writing needs real hardware (no emulator); tapping is just a
+  deep link, so it works on any phone with the app installed.
 - **Known limitations, accepted:** one `fcm_token` per user - the last
   device to launch the app owns pushes (only bites a developer with
   several devices on one account; fix someday = a `device_tokens`
