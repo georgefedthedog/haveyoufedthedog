@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
@@ -91,6 +92,17 @@ class FcmTokenSync extends _$FcmTokenSync {
               ? 'APNs token: null after 15s'
               : 'APNs token: got (${apns.length} chars)',
         );
+
+        // Pull the native AppDelegate breadcrumbs (didRegister / didFail /
+        // configure) so we can see, in this same card, whether iOS ever
+        // delivered the device token to the app at all.
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.reload();
+          _log('native: ${prefs.getString('fcm_native_diag') ?? '(none)'}');
+        } catch (e) {
+          _log('native diag read failed: $e');
+        }
       }
 
       String? token;
