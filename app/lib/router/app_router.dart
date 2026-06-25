@@ -68,8 +68,9 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(
         path: Routes.forgotPassword,
-        builder: (context, state) =>
-            _backdrop(ForgotPasswordScreen(initialEmail: state.extra as String?)),
+        builder: (context, state) => _backdrop(
+          ForgotPasswordScreen(initialEmail: state.extra as String?),
+        ),
       ),
       GoRoute(
         path: Routes.householdPicker,
@@ -82,9 +83,7 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.householdJoin,
         builder: (context, state) => _backdrop(
-          JoinHouseholdScreen(
-            initialCode: state.uri.queryParameters['code'],
-          ),
+          JoinHouseholdScreen(initialCode: state.uri.queryParameters['code']),
         ),
       ),
       GoRoute(

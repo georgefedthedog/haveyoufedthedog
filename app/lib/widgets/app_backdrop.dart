@@ -23,11 +23,15 @@ class AppBackdrop extends StatelessWidget {
       ],
     );
 
-    // Dark mode stays flat: near-black gradients render as visible
-    // banding seams rather than a smooth blend, so the lift is a
-    // light-mode-only treat.
+    // Now that this backdrop wraps each routed page (not just the navigator),
+    // page transitions fade it. A gradient + overlapping translucent paws
+    // can't accept inherited opacity, so Impeller logs a validation break on
+    // every transition. Isolating the painted content in a RepaintBoundary
+    // makes the fade apply to one flattened layer instead - no validation.
+    // Dark mode stays flat: near-black gradients render as visible banding
+    // seams rather than a smooth blend, so the lift is a light-mode-only treat.
     if (theme.brightness == Brightness.dark) {
-      return ColoredBox(color: surface, child: stacked);
+      return RepaintBoundary(child: ColoredBox(color: surface, child: stacked));
     }
 
     final hsl = HSLColor.fromColor(surface);
@@ -37,15 +41,17 @@ class AppBackdrop extends StatelessWidget {
     final light = hsl
         .withLightness((hsl.lightness + 0.03).clamp(0.0, 1.0))
         .toColor();
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomLeft,
-          end: Alignment.topRight,
-          colors: [dark, light],
+    return RepaintBoundary(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [dark, light],
+          ),
         ),
+        child: stacked,
       ),
-      child: stacked,
     );
   }
 }

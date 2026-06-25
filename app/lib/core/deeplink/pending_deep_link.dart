@@ -9,6 +9,11 @@ enum DeepLinkKind {
 
   /// `https://haveyoufedthedog.com/claim?code=...` - claim a managed member.
   claim,
+
+  /// `https://haveyoufedthedog.com/nfc-tap?subject=...` - log a chore for a
+  /// subject, fired by tapping an NFC tag that carries this universal link.
+  /// For this kind, [PendingDeepLink.code] holds the subject id.
+  nfcTap,
 }
 
 /// A deep link captured before the app could act on it, held until the
@@ -22,10 +27,24 @@ enum DeepLinkKind {
 /// straight to the Join form); a claim link while signed in is rejected with a
 /// snackbar - neither sets a pending link.
 class PendingDeepLink {
-  const PendingDeepLink({required this.kind, required this.code});
+  const PendingDeepLink({
+    required this.kind,
+    this.code = '',
+    this.householdId = '',
+    this.subjectId = '',
+  });
 
   final DeepLinkKind kind;
+
+  /// join/claim: the invite/claim code.
   final String code;
+
+  /// nfcTap only: the target household id from the tag URL. Empty falls back
+  /// to the currently-selected household.
+  final String householdId;
+
+  /// nfcTap only: the subject to log a chore for.
+  final String subjectId;
 }
 
 /// Holds the single pending deep link (or null). `keepAlive` so it survives

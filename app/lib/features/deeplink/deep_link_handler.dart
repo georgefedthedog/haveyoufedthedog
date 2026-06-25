@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/deeplink/pending_deep_link.dart';
 
@@ -35,11 +36,42 @@ class DeepLinkHandler {
     try {
       final initial = await _appLinks.getInitialLink();
       debugPrint('DeepLink: getInitialLink = ${initial ?? "null"}');
-      if (initial != null) _handle(initial);
+      if (initial != null) {
+        _handle(initial);
+      } else {
+        await _recoverColdLinkFromNative();
+      }
     } catch (e) {
       // No initial link, or a platform without support - ignore.
       debugPrint('DeepLink: getInitialLink threw: $e');
     }
+  }
+
+  /// iOS fallback: under the implicit-engine embedding, `app_links` misses the
+  /// cold-launch universal link, so the native `AppDelegate` stashes it in
+  /// shared_preferences (`cold_deep_link`). Poll briefly - the native
+  /// `continueUserActivity` callback can land just after this runs. Android is
+  /// unaffected (getInitialLink returns the URL there, so this never runs).
+  Future<void> _recoverColdLinkFromNative() async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) return;
+    for (var i = 0; i < 10; i++) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.reload();
+        final native = prefs.getString('cold_deep_link');
+        if (native != null && native.isNotEmpty) {
+          await prefs.remove('cold_deep_link');
+          debugPrint('DeepLink: recovered cold link from native = $native');
+          _handle(Uri.parse(native));
+          return;
+        }
+      } catch (e) {
+        debugPrint('DeepLink: native fallback read failed: $e');
+        return;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    debugPrint('DeepLink: no native cold link after poll');
   }
 
   void stop() {
@@ -53,13 +85,30 @@ class DeepLinkHandler {
     final kind = switch (segments.first) {
       'join' => DeepLinkKind.join,
       'claim' => DeepLinkKind.claim,
+      'nfc-tap' => DeepLinkKind.nfcTap,
       _ => null,
     };
     if (kind == null) return;
-    final code = uri.queryParameters['code']?.trim() ?? '';
-    debugPrint('DeepLink: parked $kind code=$code from $uri');
-    _ref
-        .read(pendingDeepLinkControllerProvider.notifier)
-        .set(PendingDeepLink(kind: kind, code: code));
+    // join/claim carry `code`; an nfc-tap carries `subject` (+ optional
+    // `household` so a multi-household member logs against the right house
+    // without switching first).
+    final PendingDeepLink pending;
+    if (kind == DeepLinkKind.nfcTap) {
+      pending = PendingDeepLink(
+        kind: kind,
+        subjectId: uri.queryParameters['subject']?.trim() ?? '',
+        householdId: uri.queryParameters['household']?.trim() ?? '',
+      );
+    } else {
+      pending = PendingDeepLink(
+        kind: kind,
+        code: uri.queryParameters['code']?.trim() ?? '',
+      );
+    }
+    debugPrint(
+      'DeepLink: parked $kind code=${pending.code} '
+      'hh=${pending.householdId} subject=${pending.subjectId} from $uri',
+    );
+    _ref.read(pendingDeepLinkControllerProvider.notifier).set(pending);
   }
 }

@@ -7,7 +7,9 @@
           { "/": "/join", "comment": "Join a household" },
           { "/": "/join/*", "comment": "Join a household (with params)" },
           { "/": "/claim", "comment": "Claim a managed member" },
-          { "/": "/claim/*", "comment": "Claim a managed member (with params)" }
+          { "/": "/claim/*", "comment": "Claim a managed member (with params)" },
+          { "/": "/nfc-tap", "comment": "Log a chore via an NFC tag tap" },
+          { "/": "/nfc-tap/*", "comment": "Log a chore via an NFC tag tap (with params)" }
         ]
       }
     ]

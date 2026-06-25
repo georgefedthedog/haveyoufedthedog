@@ -6,11 +6,13 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/diagnostics/debug_log.dart';
+import '../../core/household/nfc_setting_highlight_controller.dart';
 import '../../core/profile/avatars.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/confirm_by_typing.dart';
+import '../../widgets/glow_highlight.dart';
 import '../../widgets/labeled_field.dart';
 import '../store/browse_packs_button.dart';
 import 'avatar_picker.dart';
@@ -27,9 +29,12 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _form = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
+  final _nfcGlowKey = GlobalKey<GlowHighlightState>();
   String? _avatar;
   bool _seeded = false;
   bool _busy = false;
+  // Guards re-handling the same NFC-setting highlight request across rebuilds.
+  bool _handled = false;
 
   @override
   void dispose() {
@@ -97,6 +102,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
+  void _handleHighlight() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      ref.read(nfcSettingHighlightProvider.notifier).consume();
+      final ctx = _nfcGlowKey.currentContext;
+      if (ctx != null) {
+        await Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 400),
+          alignment: 0.2,
+        );
+      }
+      _nfcGlowKey.currentState?.flash();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final authAsync = ref.watch(authControllerProvider);
@@ -112,6 +133,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       // should store what's visibly selected.
       _avatar = auth.avatar ?? AvatarRegistry.all.first.id;
       _seeded = true;
+    }
+
+    // One-shot highlight requested from a subject's NFC card (mirrors the
+    // Home→You act-as cue): flash the tap-behaviour setting into view. Only
+    // act once it's actually showing; consuming resets the guard for next time.
+    final wantNfcHighlight = ref.watch(nfcSettingHighlightProvider);
+    if (wantNfcHighlight && !_handled) {
+      _handled = true;
+      _handleHighlight();
     }
 
     return Scaffold(
@@ -184,60 +214,65 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Builder(
-                    builder: (context) {
-                      final theme = Theme.of(context);
-                      final scheme = theme.colorScheme;
-                      final completesChore =
-                          ref
-                              .watch(nfcTapActionControllerProvider)
-                              .valueOrNull ??
-                          true;
-                      // Mirrors the invite card's header row on household
-                      // details: icon, titleSmall + bodySmall copy, switch.
-                      return Row(
-                        children: [
-                          const Icon(Icons.nfc),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Complete chore on tap',
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
+              GlowHighlight(
+                key: _nfcGlowKey,
+                borderRadius: 20,
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Builder(
+                      builder: (context) {
+                        final theme = Theme.of(context);
+                        final scheme = theme.colorScheme;
+                        final completesChore =
+                            ref
+                                .watch(nfcTapActionControllerProvider)
+                                .valueOrNull ??
+                            true;
+                        // Mirrors the invite card's header row on household
+                        // details: icon, titleSmall + bodySmall copy, switch.
+                        return Row(
+                          children: [
+                            const Icon(Icons.nfc),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Complete chore on tap',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  completesChore
-                                      ? 'Tapping a tag completes the current chore.'
-                                      : "Tapping a tag opens the thing's page.",
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onSurfaceVariant,
+                                  Text(
+                                    completesChore
+                                        ? 'Tapping a tag completes the current chore.'
+                                        : "Tapping a tag opens the thing's page.",
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: scheme.onSurfaceVariant,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Switch(
-                            value: completesChore,
-                            // Saves immediately - device preference, not
-                            // part of the profile Save.
-                            onChanged: _busy
-                                ? null
-                                : (v) => ref
-                                      .read(
-                                        nfcTapActionControllerProvider.notifier,
-                                      )
-                                      .setCompletesChore(v),
-                          ),
-                        ],
-                      );
-                    },
+                            Switch(
+                              value: completesChore,
+                              // Saves immediately - device preference, not
+                              // part of the profile Save.
+                              onChanged: _busy
+                                  ? null
+                                  : (v) => ref
+                                        .read(
+                                          nfcTapActionControllerProvider
+                                              .notifier,
+                                        )
+                                        .setCompletesChore(v),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -336,10 +371,7 @@ class _DebugLogCardState extends State<_DebugLogCard> {
                 ),
                 const SizedBox(height: 8),
                 if (lines.isEmpty)
-                  Text(
-                    'No debug output yet.',
-                    style: theme.textTheme.bodySmall,
-                  )
+                  Text('No debug output yet.', style: theme.textTheme.bodySmall)
                 else
                   SizedBox(
                     height: 260,
