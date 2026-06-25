@@ -62,7 +62,13 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   Europe/London), `residents` ("Who lives here?" label, e.g. "The
   Goodchilds"), `packs` (**multi**-relation to `catalog_packs` - the image
   packs this household owns, bought or redeemed; PB serializes single
-  relations as a bare string, so keep it multi).
+  relations as a bare string, so keep it multi). Free streak-reward fields
+  (see "streak rewards" below): `unlocked_characters` / `unlocked_pictures`
+  (JSON slug lists - catalog art earned free, household-scoped like packs),
+  `last_free_redemption` (date - the anchor the reward streak counts from,
+  reset on each claim), `reward_streak_threshold` (number - due-days needed to
+  earn a free reward; admin-set per household, empty/0 = the in-code default
+  of 28).
 - **household_members** - user ↔ household join with `role` (`owner`/`member`).
 - **household_member_details** - read-only SQL **view** joining members to
   `users` so the app gets `user_name` + `user_avatar` + `user_managed` in one
@@ -87,8 +93,11 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
   forever-id stored on user/household/subject records), `display_name`,
   `sort_order`, the art file field(s), and a `packs` **multi**-relation (the
   packs this row belongs to - empty = general catalog, everyone sees it; a row
-  can be in several packs). No per-row draft flag: saved = live; stage/retire
-  via the Vault pack trick (see "Publishing").
+  can be in several packs). `catalog_characters`/`catalog_pictures` also carry
+  `reward_excluded` (bool - true reserves the row for paid/private packs, i.e.
+  excludes it from the free streak rewards; resolution + pickers are
+  unaffected). No per-row draft flag: saved = live; stage/retire via the Vault
+  pack trick (see "Publishing").
 - **catalog_packs** - the art packs (groups) a household can own. `code`
   (**hidden field** - clients can't read or filter it; only the redeem hook
   resolves it), `name`, `enabled` (pack live at all), `redeemable` (accepts
@@ -114,6 +123,14 @@ server" below) - ask Claude for step-by-step instructions.
   asks the worker (`/verify-purchase`) to validate the receipt with the store,
   records the transaction in `purchases`, then appends the product's `grants`
   packs to `households.packs`. Idempotent on `store_transaction_id`.
+- **rewards.pb.js** - `POST /api/custom/claim-streak-reward`
+  `{householdId, kind, slug}`. The **free** counterpart to verify-purchase:
+  checks membership, resolves the slug to a resolvable, non-`reward_excluded`
+  catalog row, asks the worker (`/reward-streak`) to recompute the household's
+  reward streak, requires it to clear `reward_streak_threshold` (default 28),
+  then appends the slug to `households.unlocked_characters` /
+  `unlocked_pictures` and stamps `last_free_redemption`. Idempotent
+  (`alreadyUnlocked: true`).
 - **members.pb.js** + **\_members_helper.js** - owner-only managed member
   CRUD. `POST /api/custom/managed-member` `{householdId, name, avatar?}` mints
   a loginless `users` row (`managed:true`, synthetic
@@ -143,10 +160,11 @@ server" below) - ask Claude for step-by-step instructions.
 
 ### Worker service (`server/services/worker/`)
 
-Node/Express service with four jobs (composed in `index.js`; each concern is
-its own module). The two per-timezone crons share `pb-cron.js` - the PB
-superuser client (auth + paginated `list`), `zonedParts`, the once-a-minute
-non-overlapping scheduler, and the household-by-timezone cache:
+Node/Express service with four jobs plus an on-demand endpoint (composed in
+`index.js`; each concern is its own module). The two per-timezone crons share
+`pb-cron.js` - the PB superuser client (auth + paginated `list`), `zonedParts`,
+the once-a-minute non-overlapping scheduler, and the household-by-timezone
+cache:
 
 1. **FCM relay** - hooks POST `{tokens, title, body, data}` to
    `http://127.0.0.1:3055/notify`; it fans out via
@@ -199,6 +217,15 @@ non-overlapping scheduler, and the household-by-timezone cache:
    credentials. `verifyReceipt` is deprecated but operational; a future
    StoreKit 2 + JWS move would retire it (and needs the client switched off
    StoreKit 1, which currently sends the receipt).
+5. **Reward-streak compute** (`reward-streak.js`) - an on-demand endpoint, not
+   a cron: `rewards.pb.js` POSTs `{householdId}` to
+   `http://127.0.0.1:3055/reward-streak`, and it walks the household's active
+   chores + recent completions in the household's IANA timezone to return the
+   current lenient reward streak (consecutive due-days with any completion,
+   counted after `last_free_redemption`). It's the **authority** for free
+   streak-reward claims; the app computes an advisory copy for its progress
+   bar. Uses the same superuser `.env` as the crons (no creds → the endpoint
+   replies 503 and the rest of the service runs on).
 
 ### Backups
 
@@ -454,8 +481,9 @@ bash server/.deploy/deploy-all.sh        # all three
 
 Run from Git Bash / WSL. The SSH key may prompt for its passphrase
 (`ssh-add ~/.ssh/dogbox` once per session avoids repeats).
-**deploy-hooks.sh ships a hardcoded file list** - adding a new hook file
-means adding it to the `tar` line in the script.
+**deploy-hooks.sh and deploy-worker.sh both ship a hardcoded file list** -
+adding a new hook / worker file means adding it to the `tar` line in the
+script.
 
 Schema changes are **manual and admin-UI-first** (live data is sacred, PB's
 import diff is fiddly): make the change in the live admin UI, then Settings →
@@ -613,6 +641,18 @@ Caveats:
   change hands mid-week, and that same window/winner logic is mirrored in the
   worker's `award-cron.js` for the weekly push - the two must stay in sync
   (`CLAUDE.md` → Data conventions lists each app↔cron pair).
+- **Free streak rewards.** A household earns a catalog character or house
+  picture for free by keeping a daily streak, claimed on `features/rewards/`
+  (reached from the reward-streak bar on the Awards tab + the foot of the
+  store). Earnable = resolvable catalog art it can't already select and not
+  `reward_excluded`; a claim writes the slug to
+  `households.unlocked_characters`/`unlocked_pictures`, which the
+  `selectableCatalogProvider` gate ORs into the pickers. The streak is lenient
+  + household-wide and resets per claim (`last_free_redemption`); the bar is
+  `reward_streak_threshold` (default 28). Computed twice like the awards: the
+  app's `reward_streak_controller.dart` is advisory (progress bar), the
+  worker's `reward-streak.js` (via the `claim-streak-reward` hook) is the
+  authority that gates the grant.
 - **The drag-and-drop language.** Removing members, leaving a household,
   deleting chores, logging out, binding/removing NFC tags - all
   `LongPressDraggable` onto a dashed-circle `DragTarget`

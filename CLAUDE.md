@@ -45,7 +45,8 @@ Drive backup) via the `haveyoufedthedog_asc` integration. Full walkthrough: READ
 
 Server deploys (Git Bash/WSL): `bash server/.deploy/deploy-hooks.sh` /
 `deploy-worker.sh` / `deploy-public.sh` / `deploy-all.sh`. **deploy-hooks.sh
-has a hardcoded file list** - new hook files must be added to its `tar` line.
+and deploy-worker.sh both have a hardcoded file list** - new hook / worker
+files must be added to their `tar` line.
 `deploy-public.sh` syncs `server/pb_public/` (static files served at the API
 domain root, e.g. `.well-known/assetlinks.json`); PB only serves that dir
 because the systemd unit sets `--publicDir` to the per-instance path - its
@@ -115,6 +116,25 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   `BrowsePacksButton` under each picker (labelled per type - "Get more
   images / characters / avatars") → `features/store/` (the "Image packs"
   screen, which also hosts gift-code redemption).
+- **Free streak rewards:** `features/rewards/` lets a household earn a catalog
+  character or house picture for **free** by keeping a daily streak. The
+  *earnable* set is resolvable catalog art the household can't already select
+  (`catalogProvider` minus `selectableCatalogProvider`) that isn't flagged
+  `reward_excluded` (a per-row `catalog_characters`/`catalog_pictures` bool
+  reserving art for paid/private packs). The reward **streak** is lenient and
+  household-wide (any due subject fed that day) and resets after each claim
+  (the `households.last_free_redemption` anchor); the bar to clear is
+  `households.reward_streak_threshold` (admin-set per household; empty/0 = the
+  in-code default of 28, in both the app and the hook). Claiming calls
+  `/api/custom/claim-streak-reward` (`rewards.pb.js`), which recomputes the
+  streak server-side (see Data conventions) and appends the slug to
+  `households.unlocked_characters` / `unlocked_pictures` - a household-scoped
+  entitlement the `selectableCatalogProvider` gate ORs in by slug, so the
+  existing pickers need no changes. Entry points: the reward-streak bar
+  (`StreakRewardBar`) inside the Awards-tab stats card and at the foot of the
+  store; on a claim a confetti splash plays and the shared `GlowHighlight`
+  "look here" cue (`widgets/glow_highlight.dart`, also used by the invite +
+  act-as cards) lands the item in the collection.
 - **Managed members + "Act as":** a household member without their own login is
   a _managed_ user - a real but loginless `users` row (`managed: true`, synthetic
   `{id}@haveyoufedthedog.com` email, random password) the owner creates,
@@ -174,6 +194,17 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   character via `catalog_characters.messages` - see Remote content catalog); the
   push deliberately names only the subject, so there's no title to mirror
   server-side.
+- **The reward streak is computed on both sides, like the awards.** The app
+  shows an _advisory_ number (`reward_streak_controller.dart`, device-local,
+  drives the progress bar only), but the worker is **authoritative**: the claim
+  hook asks the worker's `/reward-streak` endpoint (`reward-streak.js`), which
+  walks the household's due-days in its IANA timezone and only grants past the
+  threshold. Keep the two in sync if you touch the rules - the lenient
+  any-subject-fed predicate, the grace-today exception, the
+  `last_free_redemption` anchor, and the default-28 threshold all live in both
+  `reward_streak_controller.dart` and `reward-streak.js`. Because the app number
+  is advisory, a day-boundary disagreement just shows the claim button slightly
+  early/late; the server is the gate.
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
   - never `TimeOfDay.format(context)`.
 
