@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Soggy and delighted.", "body": "{name} had a splashing day 💦" },
+      { "title": "Wet dog, happy dog.", "body": "{name} thinks you're the best." },
+      { "title": "Fresh from the water.", "body": "Good job looking after {name}." }
+    ],
+    "overdue": [
+      { "title": "Dripping by the bowl.", "body": "{name} swam back specially for dinner 👀" },
+      { "title": "Shaking off, still hungry.", "body": "{name} insists it's been hours." },
+      { "title": "Puddle forming, patience gone.", "body": "{name} won't leave until fed." }
+    ],
+    "upcoming": [
+      { "title": "Paddling over.", "body": "{name} heard the cupboard and came ashore 🐾" },
+      { "title": "Nose up, sniffing dinner.", "body": "{name} can smell it from the water." },
+      { "title": "Tail wagging a wake.", "body": "{name} is ready and waiting." }
+    ],
+    "happyForNow": [
+      { "title": "Drying off, dozing.", "body": "{name} is content and full." },
+      { "title": "Dreaming of the lake.", "body": "All is well with {name}." },
+      { "title": "Damp but happy.", "body": "{name} is resting for now." }
+    ],
+    "none": [
+      { "title": "A day of swims and snacks.", "body": "{name} approves 💦" },
+      { "title": "Off for another dip.", "body": "{name} can't resist the water." }
+    ]
+  },
+  "awardTitle": "Best in the Water 💦",
+  "awardThanks": "Thanks for feeding the happiest swimmer in the house last week!"
+}

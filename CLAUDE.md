@@ -160,8 +160,28 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
 
 ## Data conventions
 
-- Chore times are **wall-clock integers** (`hour`, `minute`) with no timezone;
-  `weekday_mask` is Mon=1 … Sun=64 (`1 << (weekday-1)`). `completed_at` is UTC.
+- Chore times are **wall-clock integers** (`hour`, `minute`) with no timezone.
+  `completed_at` is UTC. Recurrence is a `ScheduleRule`
+  (`core/chores/schedule_rule.dart`) keyed by `schedule_type`:
+  - `daily` - every day.
+  - `weekly` - `weekday_mask` (Mon=1 … Sun=64, `1 << (weekday-1)`) plus
+    `week_interval` 1 or 2. Fortnightly carries **no anchor date**: `week_phase`
+    (0/1) is parity against a fixed epoch (first Monday of 1970,
+    `ScheduleRule.weeksSinceEpoch`); a week is "on" when
+    `weeksSinceEpoch(day) % 2 == week_phase`, and the editor turns a
+    "this week / next week" pick into it.
+  - `monthly` - `month_mode` `day` (`month_day` 1-28, or `-1` = last day) or
+    `weekday` (`month_ordinal` 1-4 or `-1` = last × `month_weekday` ISO 1-7).
+    `-1` = "last"; PB reads an empty number as 0, so never use 0 for it.
+  Records always carry the **full** field set (`chore_actions._ruleFields`), so
+  switching type leaves no stale values; only the fields the active
+  `schedule_type` reads are consulted.
+- **Due-date logic is computed on both sides and must stay in sync.**
+  `ScheduleRule.isDueOn` (app) and `isChoreDueOn` in
+  `server/services/worker/pb-cron.js` (the one server mirror, used by
+  `overdue-cron.js` + `reward-streak.js`) implement the same rules - the
+  fortnightly epoch/parity and the monthly day/weekday math. Touch one, touch
+  the other.
 - `completions.completed_by` is the **acting identity**, not necessarily the
   signed-in user - "Act as" lets a signed-in member log for a managed
   member (see Architecture). Every stat keys off `completed_by`, so a managed

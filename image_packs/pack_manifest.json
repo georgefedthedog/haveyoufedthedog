@@ -183,6 +183,13 @@
       "packs": ["all_dogs", "all_pets"]
     },
     {
+      "slug": "water_dog",
+      "display_name": "Water Dog",
+      "base_color": "D0E3F0",
+      "sort_order": 1270,
+      "packs": ["all_dogs", "all_pets"]
+    },
+    {
       "slug": "black_cat",
       "display_name": "Black Cat",
       "base_color": "F0E1D2",
