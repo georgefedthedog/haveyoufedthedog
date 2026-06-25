@@ -6,6 +6,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'nfc_service.g.dart';
 
+DateTime _nfcWriteGuardUntil = DateTime.fromMillisecondsSinceEpoch(0);
+
+/// True for a few seconds after a successful tag write. The freshly-written tag
+/// is usually still on the phone, and the OS would otherwise immediately
+/// dispatch its `/nfc-tap` link and log a phantom chore - so `NfcLaunchHandler`
+/// ignores taps while this is set.
+bool get nfcTapJustWritten => DateTime.now().isBefore(_nfcWriteGuardUntil);
+
 /// Writes our `/nfc-tap` universal links to NFC tags. Reading is no longer
 /// done in-app at all - a tap is handled by the OS via the universal link (see
 /// [NfcLaunchHandler]); this service only *writes* the tag so families don't
@@ -58,6 +66,9 @@ class NfcService {
             await ndef!.write(
               NdefMessage([NdefRecord.createUri(Uri.parse(url))]),
             );
+            // The tag's still on the phone; stop the OS from instantly firing
+            // its own /nfc-tap link and logging a phantom chore.
+            _nfcWriteGuardUntil = DateTime.now().add(const Duration(seconds: 3));
             await NfcManager.instance.stopSession(alertMessage: 'Tag written!');
             if (!completer.isCompleted) completer.complete();
           } catch (e) {
