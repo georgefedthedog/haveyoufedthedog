@@ -9,6 +9,20 @@ import '../auth/auth_controller.dart';
 
 part 'fcm_token_sync.g.dart';
 
+/// TEMPORARY on-device diagnostics for the iOS push-token chain. Each stage of
+/// [FcmTokenSync] appends a line here; the Edit Profile screen renders it (with
+/// a copy button) so we can see, on a TestFlight phone with no console, exactly
+/// where token registration breaks. Remove once iOS push is confirmed healthy.
+final fcmDebugLog = ValueNotifier<List<String>>(const []);
+final _started = DateTime.now();
+
+void _log(String message) {
+  final secs = DateTime.now().difference(_started).inMilliseconds / 1000;
+  final line = '[+${secs.toStringAsFixed(1)}s] $message';
+  debugPrint('FCM: $line');
+  fcmDebugLog.value = [...fcmDebugLog.value, line];
+}
+
 /// Keeps `users.fcm_token` on PocketBase in step with the current device's
 /// Firebase Messaging token. Rebuilds whenever auth state changes:
 ///
@@ -37,12 +51,23 @@ class FcmTokenSync extends _$FcmTokenSync {
     _refreshSub = null;
     ref.onDispose(() => _refreshSub?.cancel());
 
+    _log('sync build, userId=${userId == null ? "null (signed out)" : "ok"}');
     if (userId == null) return;
     final existingToken =
         ref.read(authControllerProvider).valueOrNull?.user?.data['fcm_token']
             as String?;
 
     try {
+      // Where does the OS think we stand on notification permission? If this
+      // is denied / notDetermined, APNs never registers and no token appears.
+      try {
+        final settings = await FirebaseMessaging.instance
+            .getNotificationSettings();
+        _log('authStatus=${settings.authorizationStatus.name}');
+      } catch (e) {
+        _log('getNotificationSettings threw: $e');
+      }
+
       // iOS only mints an FCM token once the APNs device token has been
       // registered and handed to Firebase. getToken() returns null (or
       // throws apns-token-not-set) before that, and this provider mounts
@@ -51,29 +76,57 @@ class FcmTokenSync extends _$FcmTokenSync {
       // lands so we don't ask for the FCM token too early and silently
       // save nothing. (onTokenRefresh below stays as the ongoing net.)
       if (defaultTargetPlatform == TargetPlatform.iOS) {
+        String? apns;
         for (var i = 0; i < 15; i++) {
-          if (await FirebaseMessaging.instance.getAPNSToken() != null) break;
+          try {
+            apns = await FirebaseMessaging.instance.getAPNSToken();
+          } catch (e) {
+            _log('getAPNSToken threw: $e');
+          }
+          if (apns != null) break;
           await Future<void>.delayed(const Duration(seconds: 1));
         }
+        _log(
+          apns == null
+              ? 'APNs token: null after 15s'
+              : 'APNs token: got (${apns.length} chars)',
+        );
       }
-      final token = await FirebaseMessaging.instance.getToken();
+
+      String? token;
+      try {
+        token = await FirebaseMessaging.instance.getToken();
+      } catch (e) {
+        _log('getToken threw: $e');
+      }
+      _log(
+        token == null
+            ? 'getToken: null'
+            : 'getToken: ${token.substring(0, token.length.clamp(0, 12))}...',
+      );
+
       // Skip the round-trip if the token already matches - belt and
       // braces against any rebuild that escapes the equality fix in
       // AuthState.
       if (token != null && token != existingToken) {
         await pb.collection('users').update(userId, body: {'fcm_token': token});
+        _log('saved token to PB');
+      } else if (token != null) {
+        _log('token unchanged, skipped save');
       }
     } catch (e) {
-      debugPrint('FCM token initial save failed: $e');
+      _log('ERROR during initial save: $e');
     }
 
     _refreshSub = FirebaseMessaging.instance.onTokenRefresh.listen((
       token,
     ) async {
+      _log('onTokenRefresh fired (${token.length} chars)');
       try {
         await pb.collection('users').update(userId, body: {'fcm_token': token});
+        _log('saved refreshed token to PB');
       } catch (e) {
-        debugPrint('FCM token refresh save failed: $e');
+        _log('ERROR saving refreshed token: $e');
       }
     });
   }

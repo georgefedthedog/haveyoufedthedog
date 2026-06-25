@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_state.dart';
+import '../../core/notifications/fcm_token_sync.dart';
 import '../../core/profile/avatars.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../router/routes.dart';
@@ -239,11 +241,84 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 16),
+              const _FcmDebugCard(),
             ],
           ),
         ),
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
+    );
+  }
+}
+
+/// TEMPORARY: shows the live push-token diagnostics captured by
+/// [fcmDebugLog] so we can see, on a TestFlight phone, where iOS token
+/// registration breaks. Tap "Copy" to share the log. Remove once iOS push
+/// is confirmed working.
+class _FcmDebugCard extends StatelessWidget {
+  const _FcmDebugCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ValueListenableBuilder<List<String>>(
+          valueListenable: fcmDebugLog,
+          builder: (context, lines, _) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Push diagnostics',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.copy, size: 16),
+                      label: const Text('Copy'),
+                      onPressed: lines.isEmpty
+                          ? null
+                          : () {
+                              Clipboard.setData(
+                                ClipboardData(text: lines.join('\n')),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Copied')),
+                              );
+                            },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (lines.isEmpty)
+                  Text(
+                    'No diagnostics captured yet.',
+                    style: theme.textTheme.bodySmall,
+                  )
+                else
+                  for (final line in lines)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        line,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }
