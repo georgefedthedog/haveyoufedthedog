@@ -15,6 +15,9 @@ Model (pack_manifest.json):
     multi-relation `packs` field. A character resolves/sells if the household
     owns ANY of its packs.
   - FREE characters have no packs (general catalog: selectable by everyone).
+  - A character or picture may set `"reward_excluded": true` to keep it out of
+    the FREE streak rewards (reserve it for paid/private packs); default false.
+    Resolution + the pickers are unaffected - it only gates the rewards page.
 
 Price is NOT set here - it lives on each product's store listing in Play Console
 + App Store Connect (see store_products.csv). A product only appears in-app once
@@ -225,14 +228,17 @@ def upsert_character(s, base, c, pack_ids, dry, reupload):
         return "skip"
     existing = find_one(s, base, "catalog_characters", f"slug='{slug}'")
     scalars = text_fields(c)
+    rx = bool(c.get("reward_excluded", False))  # reserve from free rewards
     if dry:
         return "update" if existing else "create"
 
     # Multipart needs the multi-relation as repeated form fields (a list of
-    # tuples); plain JSON updates take a normal list.
+    # tuples); plain JSON updates take a normal list. Bools go as "true"/"false"
+    # form strings in multipart, a real bool in JSON.
     def multipart(url, method):
         files = open_images(slug)
-        data = list(scalars.items()) + [("packs", pid) for pid in pack_ids]
+        data = (list(scalars.items()) + [("packs", pid) for pid in pack_ids]
+                + [("reward_excluded", "true" if rx else "false")])
         try:
             return method(url, data=data, files=files, timeout=120)
         finally:
@@ -248,7 +254,7 @@ def upsert_character(s, base, c, pack_ids, dry, reupload):
     if reupload:
         r = multipart(url, s.patch)
     else:
-        r = s.patch(url, json={**scalars, "packs": pack_ids}, timeout=30)
+        r = s.patch(url, json={**scalars, "packs": pack_ids, "reward_excluded": rx}, timeout=30)
     if r.status_code != 200:
         die(f"{slug} update failed ({r.status_code}): {r.text[:400]}")
     return "update"
@@ -326,13 +332,15 @@ def upsert_picture(s, base, p, pack_ids, dry, reupload):
     existing = find_one(s, base, "catalog_pictures", f"slug='{slug}'")
     scalars = {"slug": slug, "display_name": p["display_name"],
                "sort_order": str(p.get("sort_order", 0))}
+    rx = bool(p.get("reward_excluded", False))  # reserve from free rewards
     if dry:
         return "update" if existing else "create"
 
     def multipart(url, method):
         files = {b: (os.path.basename(path), open(path, "rb"), "image/png")
                  for b, path in buckets.items()}
-        data = list(scalars.items()) + [("packs", pid) for pid in pack_ids]
+        data = (list(scalars.items()) + [("packs", pid) for pid in pack_ids]
+                + [("reward_excluded", "true" if rx else "false")])
         try:
             return method(url, data=data, files=files, timeout=120)
         finally:
@@ -346,7 +354,7 @@ def upsert_picture(s, base, p, pack_ids, dry, reupload):
         return "create"
     url = f"{base}/api/collections/catalog_pictures/records/{existing['id']}"
     r = (multipart(url, s.patch) if reupload
-         else s.patch(url, json={**scalars, "packs": pack_ids}, timeout=30))
+         else s.patch(url, json={**scalars, "packs": pack_ids, "reward_excluded": rx}, timeout=30))
     if r.status_code != 200:
         die(f"{slug} update failed ({r.status_code}): {r.text[:400]}")
     return "update"
@@ -496,7 +504,8 @@ def main():
             die(f"{slug}: unknown pack keys {bad}")
         label = (f"PAID  {slug:22} packs={','.join(keys)}" if keys
                  else f"FREE  {slug:22} (general catalog)")
-        print(f"  {label}")
+        excl = "  [reward-excluded]" if c.get("reward_excluded") else ""
+        print(f"  {label}{excl}")
         if offline:
             tally["char_create"] += 1
             continue
@@ -520,7 +529,8 @@ def main():
         print(f"\n{label}:")
         for it in items:
             keys, ids = resolve_packs(it)
-            print(f"  {it['slug']:24} packs={','.join(keys) or '(free)'}")
+            excl = "  [reward-excluded]" if it.get("reward_excluded") else ""
+            print(f"  {it['slug']:24} packs={','.join(keys) or '(free)'}{excl}")
             if offline:
                 tally[f"{kind}_create"] += 1
                 continue

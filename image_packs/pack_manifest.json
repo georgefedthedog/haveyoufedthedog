@@ -354,63 +354,72 @@
       "display_name": "Robot Dog",
       "base_color": "DDEFC9",
       "sort_order": 250,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_dog_2",
       "display_name": "Robot Dog",
       "base_color": "D4DAF2",
       "sort_order": 251,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_dog_3",
       "display_name": "Robot Dog",
       "base_color": "F1D7D5",
       "sort_order": 252,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_cat",
       "display_name": "Robot Cat",
       "base_color": "CAEFD8",
       "sort_order": 253,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_rabbit",
       "display_name": "Robot Rabbit",
       "base_color": "E6D3EF",
       "sort_order": 254,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_hamster",
       "display_name": "Robot Hamster",
       "base_color": "F0EECA",
       "sort_order": 255,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_fish",
       "display_name": "Robot Fish",
       "base_color": "C9E5ED",
       "sort_order": 256,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_plant",
       "display_name": "Robot Plant",
       "base_color": "ECCBDA",
       "sort_order": 257,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_bin",
       "display_name": "Robot Bin",
       "base_color": "DEF0DA",
       "sort_order": 258,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     }
   ],
   "avatars": [
@@ -1643,31 +1652,36 @@
       "slug": "paihia_house",
       "display_name": "Paihia House",
       "sort_order": 1,
-      "packs": ["paihia_house"]
+      "packs": ["paihia_house"],
+      "reward_excluded": true
     },
     {
       "slug": "dell_cottage",
       "display_name": "Dell Cottage",
       "sort_order": 2,
-      "packs": ["dell_cottage"]
+      "packs": ["dell_cottage"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_house_1",
       "display_name": "Robot House",
       "sort_order": 250,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_house_2",
       "display_name": "Robot House",
       "sort_order": 251,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "robots_pack_house_3",
       "display_name": "Robot House",
       "sort_order": 252,
-      "packs": ["robots_pack"]
+      "packs": ["robots_pack"],
+      "reward_excluded": true
     },
     {
       "slug": "semi",
