@@ -8,6 +8,7 @@ import '../../core/chores/chores_controller.dart';
 import '../../core/chores/schedule_rule.dart';
 import '../../core/chores/weekdays.dart';
 import '../../widgets/labeled_field.dart';
+import '../../widgets/single_select_chips.dart';
 import 'weekday_picker.dart';
 
 /// Create or edit a chore for a subject. When [choreId] is non-null we're
@@ -35,11 +36,18 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   final _nameCtrl = TextEditingController();
   TimeOfDay _time = const TimeOfDay(hour: 8, minute: 0);
   ScheduleType _scheduleType = ScheduleType.daily;
-  int _weekdayMask = Weekdays.all;
+  // Default for a new "Some days" chore: just Monday (editing seeds from the
+  // stored mask; daily chores ignore this and save `all`).
+  int _weekdayMask = Weekdays.mon;
   int _weekInterval = 1;
-  // The user's chosen anchor; the stored/previewed start is this snapped
-  // forward to the next day that's actually in the mask (_snappedStartDate).
-  DateTime _startDate = DateTime.now();
+  // Fortnightly only: whether the "on" weeks start next week vs this week.
+  // Resolved to a stored week_phase at save time (_resolveWeekPhase).
+  bool _startsNextWeek = false;
+  // Monthly.
+  MonthMode _monthMode = MonthMode.day;
+  int _monthDay = 1; // 1..28, or ScheduleRule.last
+  int _monthOrdinal = 1; // 1..4, or ScheduleRule.last
+  int _monthWeekday = DateTime.monday; // ISO 1..7
   bool _seeded = false;
   bool _busy = false;
 
@@ -57,24 +65,68 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     _time = TimeOfDay(hour: existing.hour, minute: existing.minute);
     _scheduleType = ScheduleType.fromWire(existing.scheduleType);
     _weekdayMask = existing.weekdayMask;
-    _weekInterval = const {1, 2, 4}.contains(existing.weekInterval)
+    _weekInterval = const {1, 2}.contains(existing.weekInterval)
         ? existing.weekInterval
         : 1;
-    final es = existing.startDate;
-    if (es != null) _startDate = DateTime(es.year, es.month, es.day);
+    // "Next week" = stored phase differs from the current week's parity.
+    _startsNextWeek =
+        existing.weekInterval > 1 &&
+        existing.weekPhase != ScheduleRule.weekPhaseForDate(DateTime.now());
+    _monthMode = existing.monthMode;
+    _monthDay = existing.monthDay;
+    _monthOrdinal = existing.monthOrdinal;
+    _monthWeekday = existing.monthWeekday;
     _seeded = true;
   }
 
-  /// The chosen anchor snapped forward to the next day whose weekday is in
-  /// the mask - so the stored start is always a real occurrence. Returns the
-  /// raw anchor unchanged when the mask is empty (save is guarded anyway).
-  DateTime _snappedStartDate() {
-    var d = DateTime(_startDate.year, _startDate.month, _startDate.day);
-    for (var i = 0; i < 7; i++) {
-      if ((_weekdayMask & Weekdays.bitFor(d)) != 0) return d;
-      d = d.add(const Duration(days: 1));
+  /// Sentinel for the "Which" chip row meaning the by-date mode (not an
+  /// ordinal). Picked so it can't collide with a real ordinal (1..4 or -1).
+  static const int _exactDay = 0;
+
+  /// Maps a "Which" chip selection onto the monthly mode: "Exact Day" switches
+  /// to by-date; any ordinal switches to by-weekday and stores the ordinal.
+  void _onMonthWhichChanged(int value) {
+    setState(() {
+      if (value == _exactDay) {
+        _monthMode = MonthMode.day;
+      } else {
+        _monthMode = MonthMode.weekday;
+        _monthOrdinal = value;
+      }
+    });
+  }
+
+  /// Resolves the fortnightly this/next-week choice into a stored phase.
+  int _resolveWeekPhase() {
+    final base = ScheduleRule.weekPhaseForDate(DateTime.now());
+    return _startsNextWeek ? (base + 1) % 2 : base;
+  }
+
+  /// The chore's rule from the current form state, shared by the live preview
+  /// and the save path so the two can't drift.
+  ScheduleRule _buildRule() {
+    switch (_scheduleType) {
+      case ScheduleType.daily:
+        return ScheduleRule.daily(hour: _time.hour, minute: _time.minute);
+      case ScheduleType.weekly:
+        return ScheduleRule.weekly(
+          hour: _time.hour,
+          minute: _time.minute,
+          weekdayMask: _weekdayMask,
+          weekInterval: _weekInterval,
+          weekPhase: _weekInterval > 1 ? _resolveWeekPhase() : 0,
+        );
+      case ScheduleType.monthly:
+        return ScheduleRule(
+          type: ScheduleType.monthly,
+          hour: _time.hour,
+          minute: _time.minute,
+          monthMode: _monthMode,
+          monthDay: _monthDay,
+          monthOrdinal: _monthOrdinal,
+          monthWeekday: _monthWeekday,
+        );
     }
-    return d;
   }
 
   /// Static preview of the chore in its neutral state - always shows the
@@ -85,15 +137,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final name = _nameCtrl.text.trim();
-    final weekly = _scheduleType == ScheduleType.weekly;
-    final rule = ScheduleRule(
-      type: _scheduleType,
-      hour: _time.hour,
-      minute: _time.minute,
-      weekdayMask: weekly ? _weekdayMask : Weekdays.all,
-      weekInterval: weekly ? _weekInterval : 1,
-      startDate: weekly && _weekInterval > 1 ? _snappedStartDate() : null,
-    );
+    final rule = _buildRule();
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -139,59 +183,43 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     );
   }
 
+  // Monthly dropdown options: days 1-28 plus "Last day"; the by-weekday
+  // ordinal (First..Fourth, Last); and the weekday (Mon..Sun, ISO 1-7).
+  List<DropdownMenuItem<int>> get _monthDayItems => [
+    for (var d = 1; d <= 28; d++)
+      DropdownMenuItem(value: d, child: Text('The ${ScheduleRule.ordinal(d)}')),
+    const DropdownMenuItem(
+      value: ScheduleRule.last,
+      child: Text('The last day'),
+    ),
+  ];
+
   Future<void> _pickTime() async {
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked != null) setState(() => _time = picked);
-  }
-
-  Future<void> _pickStartDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _snappedStartDate(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-    );
-    if (picked != null) setState(() => _startDate = picked);
   }
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
     if (_scheduleType == ScheduleType.weekly && _weekdayMask == 0) return;
 
-    // For daily chores the mask is irrelevant; force `all` so the server
-    // never stores a meaningless mask. (Also satisfies the schema's
-    // required+non-zero check, which doubles as a safety net for weekly.)
-    final weekly = _scheduleType == ScheduleType.weekly;
-    final maskToSend = weekly ? _weekdayMask : Weekdays.all;
-    final intervalToSend = weekly ? _weekInterval : 1;
-    final startToSend = weekly && _weekInterval > 1 ? _snappedStartDate() : null;
-
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     try {
       final actions = ref.read(choreActionsProvider);
+      final rule = _buildRule();
       if (_isEdit) {
         await actions.updateChore(
           widget.choreId!,
           name: _nameCtrl.text.trim(),
-          scheduleType: _scheduleType,
-          hour: _time.hour,
-          minute: _time.minute,
-          weekdayMask: maskToSend,
-          weekInterval: intervalToSend,
-          startDate: startToSend,
+          rule: rule,
         );
       } else {
         await actions.createChore(
           subjectId: widget.subjectId!,
           name: _nameCtrl.text.trim(),
-          scheduleType: _scheduleType,
-          hour: _time.hour,
-          minute: _time.minute,
-          weekdayMask: maskToSend,
-          weekInterval: intervalToSend,
-          startDate: startToSend,
+          rule: rule,
         );
       }
       if (mounted) router.pop();
@@ -317,6 +345,10 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                               value: ScheduleType.weekly,
                               label: Text('Some days'),
                             ),
+                            ButtonSegment(
+                              value: ScheduleType.monthly,
+                              label: Text('Monthly'),
+                            ),
                           ],
                           selected: {_scheduleType},
                           onSelectionChanged: (s) =>
@@ -353,7 +385,6 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                                 value: 2,
                                 label: Text('Fortnightly'),
                               ),
-                              ButtonSegment(value: 4, label: Text('4 weeks')),
                             ],
                             selected: {_weekInterval},
                             onSelectionChanged: (s) =>
@@ -363,29 +394,65 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                         if (_weekInterval > 1) ...[
                           const SizedBox(height: 16),
                           LabeledField(
-                            label: 'Starts',
-                            child: Card(
-                              margin: EdgeInsets.zero,
-                              color: scheme.surfaceContainerHigh,
-                              child: ListTile(
-                                leading: const Icon(Icons.event),
-                                title: Text(
-                                  _weekdayMask == 0
-                                      ? 'Pick a day first'
-                                      : MaterialLocalizations.of(
-                                          context,
-                                        ).formatMediumDate(_snappedStartDate()),
-                                ),
-                                trailing: const Icon(Icons.edit),
-                                onTap: _weekdayMask == 0 ? null : _pickStartDate,
-                              ),
+                            label: 'Starting',
+                            child: SingleSelectChips<bool>(
+                              selected: _startsNextWeek,
+                              onChanged: (v) =>
+                                  setState(() => _startsNextWeek = v),
+                              options: const [
+                                (value: false, label: 'This week'),
+                                (value: true, label: 'Next week'),
+                              ],
                             ),
                           ),
                         ],
                       ],
+                      if (_scheduleType == ScheduleType.monthly) ...[
+                        const SizedBox(height: 16),
+                        // "Exact Day" leads the row and selects by date; the
+                        // ordinals select the Nth (or last) weekday. The chip
+                        // choice drives _monthMode (see _onMonthWhichChanged).
+                        LabeledField(
+                          label: 'On the',
+                          child: SingleSelectChips<int>(
+                            selected: _monthMode == MonthMode.day
+                                ? _exactDay
+                                : _monthOrdinal,
+                            onChanged: _onMonthWhichChanged,
+                            options: const [
+                              (value: _exactDay, label: 'Exact Day'),
+                              (value: 1, label: 'First'),
+                              (value: 2, label: 'Second'),
+                              (value: 3, label: 'Third'),
+                              (value: 4, label: 'Fourth'),
+                              (value: ScheduleRule.last, label: 'Last'),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (_monthMode == MonthMode.day)
+                          LabeledField(
+                            label: 'Day',
+                            child: DropdownButtonFormField<int>(
+                              initialValue: _monthDay,
+                              items: _monthDayItems,
+                              onChanged: (v) =>
+                                  setState(() => _monthDay = v ?? _monthDay),
+                            ),
+                          )
+                        else
+                          LabeledField(
+                            label: 'Weekday',
+                            child: SingleWeekdayPicker(
+                              selected: _monthWeekday,
+                              onChanged: (w) =>
+                                  setState(() => _monthWeekday = w),
+                            ),
+                          ),
+                      ],
                       const SizedBox(height: 24),
                       LabeledField(
-                        label: 'Time',
+                        label: 'At',
                         child: Card(
                           margin: EdgeInsets.zero,
                           color: scheme.surfaceContainerHigh,

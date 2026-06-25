@@ -22,40 +22,10 @@
 //   - Days on or before last_free_redemption don't count, so each free unlock
 //     costs a fresh run of due-days.
 
-const { DEFAULT_TZ, DAY_MS, WEEK_MS, zonedParts } = require("./pb-cron");
+const { DEFAULT_TZ, DAY_MS, zonedParts, isChoreDueOn } = require("./pb-cron");
 
-/// Monday (UTC midnight epoch) of the week containing UTC-midnight epoch `ms`.
-/// Twin of overdue-cron.js's helper - kept local to avoid disturbing the
-/// deployed cron; the math is identical.
-function utcMondayMs(ms) {
-  const dow = new Date(ms).getUTCDay(); // 0=Sun .. 6=Sat
-  return ms - ((dow + 6) % 7) * DAY_MS;
-}
-
-/// Whether a chore's week cadence is "on" for the local date `dateMs` (a
-/// UTC-midnight epoch). Mirrors ScheduleRule._isOnWeek in the app and the twin
-/// in overdue-cron.js: no start anchor = always on; otherwise gate on the
-/// start date and, for fortnightly+, the Mon->Sun week parity.
-function isOnWeek(chore, dateMs) {
-  const raw = chore.start_date;
-  if (!raw) return true;
-  const sd = new Date(raw); // stored as UTC midnight
-  const startMs = Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate());
-  if (dateMs < startMs) return false; // not started yet
-  const interval = Number(chore.week_interval) || 1;
-  if (interval <= 1) return true;
-  const weeks = Math.round((utcMondayMs(dateMs) - utcMondayMs(startMs)) / WEEK_MS);
-  return weeks % interval === 0;
-}
-
-/// App weekday-mask bit (Mon=1 .. Sun=64) for a UTC-midnight-epoch local date.
-function weekdayBit(dateMs) {
-  const dow = new Date(dateMs).getUTCDay(); // 0=Sun .. 6=Sat
-  return dow === 0 ? 64 : 1 << (dow - 1);
-}
-
-/// Pure streak count over already-fetched data. `chores` need only carry
-/// weekday_mask / week_interval / start_date; `completions` only completed_at.
+/// Pure streak count over already-fetched data. `chores` carry the schedule
+/// fields isChoreDueOn reads; `completions` only completed_at.
 function computeRewardStreak({ tz, lastFreeRedemption, chores, completions, now }) {
   if (!chores.length) return 0;
 
@@ -81,11 +51,7 @@ function computeRewardStreak({ tz, lastFreeRedemption, chores, completions, now 
     if (dayMs < earliest) break; // nothing older is in our window
     if (dayMs <= anchorMs) break; // don't count the claim day or earlier
 
-    const bit = weekdayBit(dayMs);
-    const due = chores.some((ch) => {
-      const mask = Number(ch.weekday_mask) || 127;
-      return (mask & bit) !== 0 && isOnWeek(ch, dayMs);
-    });
+    const due = chores.some((ch) => isChoreDueOn(ch, dayMs));
     if (!due) continue;
 
     if (satisfied.has(dayMs)) {
@@ -110,7 +76,7 @@ async function computeRewardStreakForHousehold(pb, householdId) {
 
   const choreFilter = encodeURIComponent(`subject.household = '${householdId}' && active = true`);
   const chores = await pb.list(
-    `/api/collections/chores/records?filter=${choreFilter}&fields=weekday_mask,week_interval,start_date`,
+    `/api/collections/chores/records?filter=${choreFilter}&fields=schedule_type,weekday_mask,week_interval,week_phase,month_mode,month_day,month_ordinal,month_weekday`,
   );
   if (!chores.length) return 0;
 
