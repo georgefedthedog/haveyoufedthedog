@@ -20,20 +20,28 @@ class Chore {
   int get weekdayMask =>
       (record.data['weekday_mask'] as num?)?.toInt() ?? Weekdays.all;
 
-  /// Week cadence: 1 = every week (default), 2 = fortnightly, etc.
+  /// Week cadence: 1 = every week (default), 2 = fortnightly.
   int get weekInterval {
     final raw = (record.data['week_interval'] as num?)?.toInt() ?? 1;
     return raw < 1 ? 1 : raw;
   }
 
-  /// Anchor / earliest due day, as a pure calendar date. Stored as UTC
-  /// midnight and kept in UTC so the y/m/d round-trip exactly (no tz
-  /// rollback) - [ScheduleRule] compares it against day-level UTC dates.
-  DateTime? get startDate {
-    final raw = record.data['start_date'] as String?;
-    if (raw == null || raw.isEmpty) return null;
-    return DateTime.tryParse(raw);
-  }
+  /// Fortnightly phase (0/1); only meaningful when [weekInterval] is 2.
+  int get weekPhase => (record.data['week_phase'] as num?)?.toInt() ?? 0;
+
+  /// Monthly: fixed-date vs Nth-weekday selection.
+  MonthMode get monthMode =>
+      MonthMode.fromWire(record.data['month_mode'] as String?);
+
+  /// Monthly by-date day (1..28), or [ScheduleRule.last] for the last day.
+  int get monthDay => (record.data['month_day'] as num?)?.toInt() ?? 1;
+
+  /// Monthly by-weekday occurrence (1..4), or [ScheduleRule.last].
+  int get monthOrdinal => (record.data['month_ordinal'] as num?)?.toInt() ?? 1;
+
+  /// Monthly by-weekday day, ISO 1 (Mon) .. 7 (Sun).
+  int get monthWeekday =>
+      (record.data['month_weekday'] as num?)?.toInt() ?? DateTime.monday;
 
   bool get active => (record.data['active'] as bool?) ?? true;
   int get sortOrder => (record.data['sort_order'] as num?)?.toInt() ?? 0;
@@ -46,6 +54,10 @@ class Chore {
     minute: minute,
     weekdayMask: weekdayMask,
     weekInterval: weekInterval,
-    startDate: startDate,
+    weekPhase: weekPhase,
+    monthMode: monthMode,
+    monthDay: monthDay,
+    monthOrdinal: monthOrdinal,
+    monthWeekday: monthWeekday,
   );
 }

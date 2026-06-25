@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/chores/weekdays.dart';
+import '../../widgets/single_select_chips.dart';
 
 /// Row of 7 toggleable day chips (Mon→Sun). State is a bitmask using
 /// [Weekdays.bits] - bit 0 = Mon, bit 6 = Sun, matching
@@ -21,13 +22,39 @@ class WeekdayPicker extends StatelessWidget {
           FilterChip(
             label: Text(Weekdays.labels[i]),
             selected: (mask & Weekdays.bits[i]) != 0,
-            // No checkmark - it widens the chip on selection and makes
-            // the whole row reflow. The fill colour change is enough.
+            // Our own fixed-size check avatar (see chipCheck) instead of the
+            // built-in checkmark, which would widen the chip on selection.
             showCheckmark: false,
+            avatar: chipCheck((mask & Weekdays.bits[i]) != 0),
             onSelected: (s) => onChanged(
               s ? (mask | Weekdays.bits[i]) : (mask & ~Weekdays.bits[i]),
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Single-select day pills (Mon→Sun), same look as [WeekdayPicker] but only
+/// one day at a time. [selected] is an ISO weekday (Mon=1 .. Sun=7) - used by
+/// the monthly "Nth weekday" picker, which always needs exactly one day.
+class SingleWeekdayPicker extends StatelessWidget {
+  final int selected;
+  final ValueChanged<int> onChanged;
+
+  const SingleWeekdayPicker({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleSelectChips<int>(
+      selected: selected,
+      onChanged: onChanged,
+      options: [
+        for (var i = 0; i < 7; i++) (value: i + 1, label: Weekdays.labels[i]),
       ],
     );
   }

@@ -20,35 +20,12 @@
 
 const {
   DEFAULT_TZ,
-  DAY_MS,
-  WEEK_MS,
   createPbClient,
   zonedParts,
   makeHouseholdsByZone,
   everyMinute,
+  isChoreDueOn,
 } = require("./pb-cron");
-
-/// Monday (UTC midnight epoch) of the week containing UTC-midnight epoch `ms`.
-function utcMondayMs(ms) {
-  const dow = new Date(ms).getUTCDay(); // 0=Sun .. 6=Sat
-  return ms - ((dow + 6) % 7) * DAY_MS;
-}
-
-/// Whether a chore's week cadence is "on" for the local calendar date
-/// `dateMs` (a UTC-midnight epoch). Mirrors ScheduleRule._isOnWeek in the
-/// app: no start anchor = always on; otherwise gate on the start date and,
-/// for fortnightly+, the Mon→Sun week parity from the anchor week.
-function isOnWeek(chore, dateMs) {
-  const raw = chore.start_date;
-  if (!raw) return true;
-  const sd = new Date(raw); // stored as UTC midnight
-  const startMs = Date.UTC(sd.getUTCFullYear(), sd.getUTCMonth(), sd.getUTCDate());
-  if (dateMs < startMs) return false; // not started yet
-  const interval = Number(chore.week_interval) || 1;
-  if (interval <= 1) return true;
-  const weeks = Math.round((utcMondayMs(dateMs) - utcMondayMs(startMs)) / WEEK_MS);
-  return weeks % interval === 0;
-}
 
 function startOverdueCron({ pbUrl, identity, password, sendPush }) {
   const pb = createPbClient({ pbUrl, identity, password });
@@ -78,14 +55,8 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
 
     for (const chore of chores.items || []) {
       try {
-        const mask = chore.weekday_mask || 127;
-        if ((mask & p.weekdayBit) === 0) {
-          console.log(`[overdue] skip "${chore.name}" - weekday mask ${mask} excludes bit ${p.weekdayBit}`);
-          continue;
-        }
-
-        if (!isOnWeek(chore, p.dateMs)) {
-          console.log(`[overdue] skip "${chore.name}" - off-week (interval ${chore.week_interval || 1}, start ${chore.start_date || "none"})`);
+        if (!isChoreDueOn(chore, p.dateMs)) {
+          console.log(`[overdue] skip "${chore.name}" - not due today (${chore.schedule_type || "daily"})`);
           continue;
         }
 

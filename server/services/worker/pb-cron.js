@@ -87,6 +87,77 @@ function zonedParts(date, timeZone) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Schedule due-date logic. The single server-side mirror of the app's
+// ScheduleRule (lib/core/chores/schedule_rule.dart). All cadence decisions go
+// through isChoreDueOn; if you change the app's isDueOn / weeksSinceEpoch /
+// monthly math, change this to match.
+// ---------------------------------------------------------------------------
+
+// First Monday of the Unix epoch - the fixed anchor for fortnightly parity,
+// identical to ScheduleRule._weekEpoch.
+const WEEK_EPOCH_MS = Date.UTC(1970, 0, 5);
+
+/// Monday (UTC midnight epoch) of the week containing UTC-midnight epoch `ms`.
+function utcMondayMs(ms) {
+  const dow = new Date(ms).getUTCDay(); // 0=Sun .. 6=Sat
+  return ms - ((dow + 6) % 7) * DAY_MS;
+}
+
+/// Whole weeks from WEEK_EPOCH_MS to the Monday of `dateMs`'s week. Both ends
+/// are UTC-midnight Mondays so the division is exact. Mirrors
+/// ScheduleRule.weeksSinceEpoch.
+function weeksSinceEpoch(dateMs) {
+  return Math.round((utcMondayMs(dateMs) - WEEK_EPOCH_MS) / WEEK_MS);
+}
+
+/// App weekday-mask bit (Mon=1 .. Sun=64) for a UTC-midnight-epoch date.
+function weekdayBit(dateMs) {
+  const dow = new Date(dateMs).getUTCDay(); // 0=Sun .. 6=Sat
+  return dow === 0 ? 64 : 1 << (dow - 1);
+}
+
+/// Number of days in the month containing `dateMs` (UTC-midnight epoch).
+function daysInMonth(dateMs) {
+  const d = new Date(dateMs);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+}
+
+/// Whether `chore` is due on the local calendar date `dateMs` (a UTC-midnight
+/// epoch). Mirrors ScheduleRule.isDueOn: daily = always; weekly = weekday mask
+/// plus fortnightly phase; monthly = a fixed date or an Nth/last weekday.
+function isChoreDueOn(chore, dateMs) {
+  const type = chore.schedule_type || "daily";
+  if (type === "weekly") {
+    const mask = Number(chore.weekday_mask) || 127;
+    if ((mask & weekdayBit(dateMs)) === 0) return false;
+    const interval = Number(chore.week_interval) || 1;
+    if (interval <= 1) return true;
+    const phase = Number(chore.week_phase) || 0;
+    return weeksSinceEpoch(dateMs) % interval === phase;
+  }
+  if (type === "monthly") return isChoreDueMonthly(chore, dateMs);
+  return true; // daily (and any unknown type) - every day
+}
+
+/// Monthly arm of isChoreDueOn. `last` (-1) means the last day / last weekday
+/// of the month, matching ScheduleRule.last.
+function isChoreDueMonthly(chore, dateMs) {
+  const d = new Date(dateMs);
+  const dom = d.getUTCDate();
+  const dim = daysInMonth(dateMs);
+  if ((chore.month_mode || "day") === "weekday") {
+    const iso = d.getUTCDay() === 0 ? 7 : d.getUTCDay(); // ISO Mon=1 .. Sun=7
+    if (iso !== (Number(chore.month_weekday) || 1)) return false;
+    const ord = Number(chore.month_ordinal) || 1;
+    if (ord === -1) return dom + 7 > dim; // last occurrence: none later
+    return Math.floor((dom - 1) / 7) + 1 === ord; // Nth occurrence
+  }
+  const md = Number(chore.month_day) || 1;
+  if (md === -1) return dom === dim; // last day of the month
+  return dom === md;
+}
+
 /// Household ids grouped by timezone (empty -> default), cached for
 /// HOUSEHOLDS_CACHE_MS - the set "changes about never". Logs the timezone
 /// list under `logPrefix` only when it changes. Returns a function; call it
@@ -149,4 +220,6 @@ module.exports = {
   zonedParts,
   makeHouseholdsByZone,
   everyMinute,
+  weekdayBit,
+  isChoreDueOn,
 };
