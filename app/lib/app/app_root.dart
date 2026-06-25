@@ -38,14 +38,12 @@ class _AppRootState extends ConsumerState<AppRoot> {
   void initState() {
     super.initState();
     _nfcLaunch = NfcLaunchHandler(ref, rootMessengerKey);
-    _nfcLaunch!.start();
     _deepLink = DeepLinkHandler(ref);
     _deepLink!.start();
   }
 
   @override
   void dispose() {
-    _nfcLaunch?.stop();
     _deepLink?.stop();
     super.dispose();
   }
@@ -82,6 +80,16 @@ class _AppRootState extends ConsumerState<AppRoot> {
             // the pending link from here (kept across a delete-and-claim so the
             // signed-out flow can finish the job).
             _handleSignedInClaim();
+          case DeepLinkKind.nfcTap:
+            // The handler switches to the tag's household itself (if the
+            // tapper's a member), so this works at needsToPick or ready - no
+            // pre-selected household required.
+            debugPrint(
+              'DeepLink: nfc-tap hh=${pending.householdId} '
+              'subject=${pending.subjectId}',
+            );
+            ref.read(pendingDeepLinkControllerProvider.notifier).clear();
+            _nfcLaunch?.handleNfcTap(pending.householdId, pending.subjectId);
         }
     }
   }

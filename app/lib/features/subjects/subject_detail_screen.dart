@@ -142,14 +142,14 @@ class _Hero extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
           child: Stack(
             children: [
-              // NFC indicator in the card's top-right corner when a tag
-              // is bound to this subject.
+              // NFC indicator in the card's top-right corner once a tag has
+              // been written for this subject.
               if (subject.nfcTagId != null)
                 Positioned(
                   top: 0,
                   right: 0,
                   child: Tooltip(
-                    message: 'NFC tag linked',
+                    message: 'NFC tag written',
                     child: Icon(
                       Icons.nfc,
                       size: 20,

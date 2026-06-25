@@ -1,17 +1,18 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/household/current_household_controller.dart';
+import '../../core/household/nfc_setting_highlight_controller.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
-import '../../widgets/wiggle.dart';
-import '../nfc/nfc_scan_dialog.dart';
+import '../nfc/nfc_write_dialog.dart';
 import '../store/browse_packs_button.dart';
 import 'character_carousel.dart';
 
@@ -34,20 +35,31 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   // what the carousel visibly shows - onChanged only fires on swipe, so
   // without this a no-touch save would store null (→ generic).
   String? _icon = CharacterRegistry.all.first.id;
-  String? _nfcTagId;
   bool _seeded = false;
   bool _busy = false;
+  // "A tag has been written for this subject" - drives the linked indicator.
+  bool _hasTag = false;
 
-  // Tapping the Register/Remove target pokes this; the tag chip wiggles to
-  // reveal it's dragged across to bind/unbind.
-  final _wiggle = WiggleController();
+  // Tappable "Edit Profile" link in the tag card subtitle - owned here so it
+  // can be disposed.
+  late final TapGestureRecognizer _editProfileTap;
 
   bool get _isEdit => widget.subjectId != null;
 
   @override
+  void initState() {
+    super.initState();
+    _editProfileTap = TapGestureRecognizer()
+      ..onTap = () {
+        ref.read(nfcSettingHighlightProvider.notifier).request();
+        context.push(Routes.profile);
+      };
+  }
+
+  @override
   void dispose() {
     _nameCtrl.dispose();
-    _wiggle.dispose();
+    _editProfileTap.dispose();
     super.dispose();
   }
 
@@ -58,81 +70,44 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     if (_seeded) return;
     _nameCtrl.text = existing.name;
     _icon = existing.icon;
-    _nfcTagId = existing.nfcTagId;
+    _hasTag = existing.nfcTagId != null;
     _seeded = true;
   }
 
-  Future<void> _scanAndBindTag() async {
-    final tagId = await showDialog<String>(
+  /// Write the subject's `/nfc-tap` universal link to a physical tag. Edit mode
+  /// only (we need the subject id). The URL carries the current household so a
+  /// tap logs against the right house even for multi-household members.
+  Future<void> _writeTag() async {
+    final hid = ref.read(currentHouseholdControllerProvider).valueOrNull?.id;
+    if (hid == null || widget.subjectId == null) return;
+    final url =
+        'https://haveyoufedthedog.com/nfc-tap'
+        '?household=$hid&subject=${widget.subjectId}';
+    final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => const NfcScanDialog(),
+      builder: (_) => NfcWriteDialog(url: url),
     );
-    if (tagId == null || tagId.isEmpty || !mounted) return;
-    setState(() => _nfcTagId = tagId);
-    if (_isEdit) {
-      // Save immediately so the binding takes effect even if the user
-      // backs out without hitting Save.
-      try {
-        await ref
-            .read(subjectActionsProvider)
-            .updateSubject(widget.subjectId!, nfcTagId: tagId);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              showCloseIcon: true,
-              content: Text('Could not save tag: $e'),
-            ),
-          );
-        }
-      }
+    if (ok != true || !mounted) return;
+    setState(() => _hasTag = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(subjectActionsProvider).setNfcTag(widget.subjectId!, url);
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(showCloseIcon: true, content: Text('Could not save tag: $e')),
+      );
     }
   }
 
-  Future<void> _removeTag() async {
-    final name = _nameCtrl.text.trim();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Remove tag?'),
-        content: Text(
-          'Tapping it will no longer reach '
-          '${name.isEmpty ? "this thing" : name}. You can bind it again '
-          'any time by re-scanning.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-
-    setState(() => _nfcTagId = null);
-    if (_isEdit) {
-      try {
-        await ref
-            .read(subjectActionsProvider)
-            .updateSubject(widget.subjectId!, clearNfcTag: true);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              showCloseIcon: true,
-              content: Text('Could not remove tag: $e'),
-            ),
-          );
-        }
+  Future<void> _forgetTag() async {
+    setState(() => _hasTag = false);
+    try {
+      await ref.read(subjectActionsProvider).clearNfcTag(widget.subjectId!);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(showCloseIcon: true, content: Text('Could not forget: $e')),
+        );
       }
     }
   }
@@ -151,10 +126,6 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
         if (mounted) router.pop();
       } else {
         final created = await actions.createSubject(name: name, icon: _icon);
-        // If the user scanned a tag during a new-subject flow, bind it now.
-        if (_nfcTagId != null) {
-          await actions.updateSubject(created.id, nfcTagId: _nfcTagId);
-        }
         // Wait for the invalidated subjects list to refetch so the detail
         // screen finds the new record immediately - otherwise the screen's
         // "subject missing → bounce to home" guard fires on the stale list.
@@ -258,6 +229,10 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       _seedFromExisting(existing);
     }
 
+    // Per-device tap behaviour, surfaced in the tag card subtitle.
+    final completesChore =
+        ref.watch(nfcTapActionControllerProvider).valueOrNull ?? true;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Edit thing' : 'New thing'),
@@ -325,131 +300,96 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Builder(
-                    builder: (context) {
-                      final theme = Theme.of(context);
-                      final scheme = theme.colorScheme;
-                      final completesChore =
-                          ref
-                              .watch(nfcTapActionControllerProvider)
-                              .valueOrNull ??
-                          true;
-
-                      // Both states share the drag mechanic: carry the tag
-                      // chip into the dashed circle - purple "Register"
-                      // (starts the scan) when unbound, red "Remove" bin
-                      // when bound. Same gesture as members and chores.
-                      final bound = _nfcTagId != null;
-                      final tagChip = Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: scheme.primaryContainer,
-                            ),
-                            child: Icon(
-                              Icons.nfc,
-                              size: 24,
-                              color: scheme.onPrimaryContainer,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Tag',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      );
-
-                      final title = bound
-                          ? 'Tag registered'
-                          : 'No tag registered';
-                      final subtitle = bound
-                          ? (completesChore
-                                ? 'On this phone, a tap ticks off the '
-                                      'current chore. Change this setting in '
-                                      'Edit Profile.'
-                                : "On this phone, a tap opens this thing's "
-                                      'page. Change this setting in '
-                                      'Edit Profile.')
-                          : 'Drag the tag to bind one to '
-                                '${_nameCtrl.text.trim().isEmpty ? "this thing" : _nameCtrl.text.trim()}.';
-                      final targetBase = bound
-                          ? Colors.red.shade300
-                          : scheme.primary;
-                      final targetHover = bound ? Colors.red : scheme.primary;
-                      final targetIcon = bound
-                          ? Icons.delete_outline
-                          : Icons.add;
-                      final targetLabel = bound ? 'Remove' : 'Register';
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Wiggle(
-                            controller: _wiggle,
-                            child: LongPressDraggable<String>(
-                              data: _nfcTagId ?? 'register',
-                              feedback: Material(
-                                color: Colors.transparent,
-                                child: tagChip,
-                              ),
-                              childWhenDragging: Opacity(
-                                opacity: 0.3,
-                                child: tagChip,
-                              ),
-                              child: tagChip,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+              if (_isEdit) ...[
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Builder(
+                      builder: (context) {
+                        final theme = Theme.of(context);
+                        final scheme = theme.colorScheme;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
                               children: [
-                                Text(
-                                  title,
-                                  textAlign: TextAlign.center,
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                Text(
-                                  subtitle,
-                                  textAlign: TextAlign.center,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onSurfaceVariant,
+                                Icon(Icons.nfc, color: scheme.primary),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _hasTag ? 'Tag written' : 'No tag yet',
+                                        style: theme.textTheme.titleSmall
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                      if (_hasTag)
+                                        Text.rich(
+                                          TextSpan(
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      scheme.onSurfaceVariant,
+                                                ),
+                                            children: [
+                                              TextSpan(
+                                                text: completesChore
+                                                    ? 'On this phone, a tap ticks off the current chore. Change this in '
+                                                    : "On this phone, a tap opens this thing's page. Change this in ",
+                                              ),
+                                              TextSpan(
+                                                text: 'Edit Profile',
+                                                style: TextStyle(
+                                                  color: scheme.primary,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                recognizer: _editProfileTap,
+                                              ),
+                                              const TextSpan(text: '.'),
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        Text(
+                                          'Write a tag so a tap logs this '
+                                          'thing.',
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                color: scheme.onSurfaceVariant,
+                                              ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          DropTargetCircle<String>(
-                            icon: targetIcon,
-                            label: targetLabel,
-                            baseColor: targetBase,
-                            hoverColor: targetHover,
-                            enabled: !_busy,
-                            onDrop: (_) =>
-                                bound ? _removeTag() : _scanAndBindTag(),
-                            onTap: _wiggle.poke,
-                          ),
-                        ],
-                      );
-                    },
+                            const SizedBox(height: 12),
+                            FilledButton.icon(
+                              icon: const Icon(Icons.nfc),
+                              label: Text(
+                                _hasTag
+                                    ? 'Write another NFC tag'
+                                    : 'Write an NFC tag',
+                              ),
+                              onPressed: _busy ? null : _writeTag,
+                            ),
+                            if (_hasTag)
+                              TextButton(
+                                onPressed: _busy ? null : _forgetTag,
+                                child: const Text('Forget tag'),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

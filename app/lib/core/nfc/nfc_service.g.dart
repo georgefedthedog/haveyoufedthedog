@@ -6,13 +6,12 @@ part of 'nfc_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$nfcServiceHash() => r'd83c5fb4c61eae17562a5a8a20102a2ca59e1dff';
+String _$nfcServiceHash() => r'282500a68971556318cb4a740d5f2568f9af5f15';
 
-/// Long-lived NFC session wrapper.
-///
-/// One reader session is started lazily on the first [setHandler] call and
-/// reused for the app's lifetime. Handlers can be pushed/restored to support
-/// modal scan flows without dropping the home-screen listener.
+/// Writes our `/nfc-tap` universal links to NFC tags. Reading is no longer
+/// done in-app at all - a tap is handled by the OS via the universal link (see
+/// [NfcLaunchHandler]); this service only *writes* the tag so families don't
+/// need a third-party app.
 ///
 /// Copied from [nfcService].
 @ProviderFor(nfcService)

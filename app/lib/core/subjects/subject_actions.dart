@@ -58,8 +58,6 @@ class SubjectActions {
     String? name,
     String? icon,
     bool clearIcon = false,
-    String? nfcTagId,
-    bool clearNfcTag = false,
   }) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final body = <String, dynamic>{};
@@ -69,14 +67,25 @@ class SubjectActions {
     } else if (icon != null) {
       body['icon'] = icon;
     }
-    if (clearNfcTag) {
-      body['nfc_tag_id'] = '';
-    } else if (nfcTagId != null) {
-      body['nfc_tag_id'] = nfcTagId;
-    }
     final rec = await pb.collection('subjects').update(id, body: body);
     _ref.invalidate(subjectsControllerProvider);
     return Subject(rec);
+  }
+
+  /// Records that an NFC tag has been written for this subject (stores the
+  /// written URL in `nfc_tag_id`). Drives the "tag linked" indicator. Note
+  /// this means "a tag was written," not "a working tag exists right now."
+  Future<void> setNfcTag(String id, String url) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await pb.collection('subjects').update(id, body: {'nfc_tag_id': url});
+    _ref.invalidate(subjectsControllerProvider);
+  }
+
+  /// Forgets the written-tag marker (clears `nfc_tag_id`).
+  Future<void> clearNfcTag(String id) async {
+    final pb = await _ref.read(pocketbaseClientProvider.future);
+    await pb.collection('subjects').update(id, body: {'nfc_tag_id': ''});
+    _ref.invalidate(subjectsControllerProvider);
   }
 
   Future<void> deleteSubject(String id) async {
@@ -85,19 +94,19 @@ class SubjectActions {
     _ref.invalidate(subjectsControllerProvider);
   }
 
-  /// Looks up a subject in the current household by its bound NFC tag id.
-  /// Returns null if no subject has that tag registered.
-  Future<Subject?> findByNfcTag(String tagId) async {
+  /// Looks up a subject by id, scoped to the current household. Returns null
+  /// if it doesn't exist, isn't accessible, or belongs to another household
+  /// (so an NFC tag from a household you're not in won't log anywhere).
+  Future<Subject?> findById(String id) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
     final householdId = await _currentHouseholdId();
-    final escaped = tagId.replaceAll('"', '');
-    final list = await pb.collection('subjects').getList(
-          page: 1,
-          perPage: 1,
-          filter:
-              'household = "$householdId" && nfc_tag_id = "$escaped"',
-        );
-    if (list.items.isEmpty) return null;
-    return Subject(list.items.first);
+    try {
+      final rec = await pb.collection('subjects').getOne(id);
+      final subject = Subject(rec);
+      return subject.householdId == householdId ? subject : null;
+    } catch (_) {
+      return null;
+    }
   }
+
 }
