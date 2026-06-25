@@ -5,10 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/app_root.dart';
+import 'core/diagnostics/debug_log.dart';
 import 'core/notifications/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // TEMPORARY: mirror all debugPrint output into the on-device debug-log card
+  // (Edit Profile) so we can read logs on a console-less TestFlight build.
+  installDebugLogCapture();
 
   // A Firebase init failure must not brick launch - the app is fully usable
   // (sign in, log chores) without push. Surface it and carry on.

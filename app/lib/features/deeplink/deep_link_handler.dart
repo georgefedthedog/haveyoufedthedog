@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/deeplink/pending_deep_link.dart';
@@ -33,9 +34,11 @@ class DeepLinkHandler {
     // Cold path: the link that launched the app (null if not launched by one).
     try {
       final initial = await _appLinks.getInitialLink();
+      debugPrint('DeepLink: getInitialLink = ${initial ?? "null"}');
       if (initial != null) _handle(initial);
-    } catch (_) {
+    } catch (e) {
       // No initial link, or a platform without support - ignore.
+      debugPrint('DeepLink: getInitialLink threw: $e');
     }
   }
 
@@ -54,6 +57,7 @@ class DeepLinkHandler {
     };
     if (kind == null) return;
     final code = uri.queryParameters['code']?.trim() ?? '';
+    debugPrint('DeepLink: parked $kind code=$code from $uri');
     _ref
         .read(pendingDeepLinkControllerProvider.notifier)
         .set(PendingDeepLink(kind: kind, code: code));

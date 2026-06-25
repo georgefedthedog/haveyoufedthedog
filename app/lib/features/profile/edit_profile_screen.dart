@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_state.dart';
-import '../../core/notifications/fcm_token_sync.dart';
+import '../../core/diagnostics/debug_log.dart';
 import '../../core/profile/avatars.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../router/routes.dart';
@@ -242,7 +242,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const _FcmDebugCard(),
+              const _DebugLogCard(),
             ],
           ),
         ),
@@ -252,21 +252,46 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 }
 
-/// TEMPORARY: shows the live push-token diagnostics captured by
-/// [fcmDebugLog] so we can see, on a TestFlight phone, where iOS token
-/// registration breaks. Tap "Copy" to share the log. Remove once iOS push
-/// is confirmed working.
-class _FcmDebugCard extends StatelessWidget {
-  const _FcmDebugCard();
+/// TEMPORARY: the live on-device debug log (all `debugPrint` output, captured
+/// via [installDebugLogCapture]) so we can read logs on a console-less
+/// TestFlight build. Hidden behind a "Here be dragons" link so it's out of the
+/// way for normal use; tap to reveal. Newest line first, fixed-height scroll,
+/// capped buffer. Copy shares the whole log; Clear empties it for a fresh
+/// repro. Remove once no longer needed.
+class _DebugLogCard extends StatefulWidget {
+  const _DebugLogCard();
+
+  @override
+  State<_DebugLogCard> createState() => _DebugLogCardState();
+}
+
+class _DebugLogCardState extends State<_DebugLogCard> {
+  bool _revealed = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (!_revealed) {
+      return Center(
+        child: TextButton.icon(
+          onPressed: () => setState(() => _revealed = true),
+          icon: const Text('🐉'),
+          label: Text(
+            'Here be dragons',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: ValueListenableBuilder<List<String>>(
-          valueListenable: fcmDebugLog,
+          valueListenable: debugLog,
           builder: (context, lines, _) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -275,15 +300,15 @@ class _FcmDebugCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Push diagnostics',
+                        'Debug log (${lines.length})',
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.copy, size: 16),
-                      label: const Text('Copy'),
+                    IconButton(
+                      tooltip: 'Copy',
+                      icon: const Icon(Icons.copy, size: 18),
                       onPressed: lines.isEmpty
                           ? null
                           : () {
@@ -295,25 +320,46 @@ class _FcmDebugCard extends StatelessWidget {
                               );
                             },
                     ),
+                    IconButton(
+                      tooltip: 'Clear',
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      onPressed: lines.isEmpty
+                          ? null
+                          : () => debugLog.value = const [],
+                    ),
+                    IconButton(
+                      tooltip: 'Hide',
+                      icon: const Icon(Icons.expand_less, size: 18),
+                      onPressed: () => setState(() => _revealed = false),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 if (lines.isEmpty)
                   Text(
-                    'No diagnostics captured yet.',
+                    'No debug output yet.',
                     style: theme.textTheme.bodySmall,
                   )
                 else
-                  for (final line in lines)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        line,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontFamily: 'monospace',
+                  SizedBox(
+                    height: 260,
+                    child: Scrollbar(
+                      child: ListView.builder(
+                        primary: false,
+                        itemCount: lines.length,
+                        itemBuilder: (context, i) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          // Newest first.
+                          child: Text(
+                            lines[lines.length - 1 - i],
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontFamily: 'monospace',
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                  ),
               ],
             );
           },
