@@ -31,6 +31,15 @@ class NfcService {
     final completer = Completer<void>();
     try {
       await NfcManager.instance.startSession(
+        // Only poll ISO-14443 (NTAG / NFC Forum Type 2 stickers) and ISO-15693.
+        // The default polls FeliCa (iso18092) too, which on iOS requires the
+        // `felica.systemcodes` entitlement we don't have - and starting a
+        // session that needs an absent entitlement fails with "missing required
+        // entitlement". We never need FeliCa, so leave it out.
+        pollingOptions: const {
+          NfcPollingOption.iso14443,
+          NfcPollingOption.iso15693,
+        },
         alertMessage: 'Hold a tag near the top of your phone.',
         onDiscovered: (NfcTag tag) async {
           final ndef = Ndef.from(tag);
