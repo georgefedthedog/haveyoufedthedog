@@ -62,8 +62,10 @@ class _AppRootState extends ConsumerState<AppRoot> {
   ///    pre-filled; a *claim* link is rejected (claiming is a fresh sign-up).
   void _consumePendingDeepLink() {
     final pending = ref.read(pendingDeepLinkControllerProvider);
+    final phase = ref.read(routingPhaseProvider);
+    debugPrint('DeepLink consume: phase=${phase.name} pending=${pending?.kind}');
     if (pending == null) return;
-    switch (ref.read(routingPhaseProvider)) {
+    switch (phase) {
       case RoutingPhase.loading:
       case RoutingPhase.signedOut:
         return; // wait - consumed downstream or after authentication
@@ -71,6 +73,7 @@ class _AppRootState extends ConsumerState<AppRoot> {
       case RoutingPhase.ready:
         switch (pending.kind) {
           case DeepLinkKind.join:
+            debugPrint('DeepLink: pushing ${_joinLocation(pending.code)}');
             ref.read(appRouterProvider).push(_joinLocation(pending.code));
             ref.read(pendingDeepLinkControllerProvider.notifier).clear();
           case DeepLinkKind.claim:
