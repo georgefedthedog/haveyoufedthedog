@@ -76,9 +76,21 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
 - **subjects** - the characters. `name`, `household`, `icon` (character id:
   dog/cat/plant/bin/fish/generic, or a `catalog_characters` slug),
   `nfc_tag_id`.
-- **chores** - `subject`, `name`, `schedule_type` (`daily`/`weekly`), `hour`,
-  `minute`, `weekday_mask` (Mon=1 … Sun=64, i.e. `1 << (weekday-1)`),
-  `active`. **Times are family wall-clock with no timezone** - see the
+- **chores** - `subject`, `name`, `hour`, `minute`, `active`, and a recurrence
+  keyed by `schedule_type`:
+  - `daily` - every day.
+  - `weekly` - `weekday_mask` (Mon=1 … Sun=64, i.e. `1 << (weekday-1)`) and
+    `week_interval` (1 = weekly, 2 = fortnightly). Fortnightly stores **no
+    anchor date**: `week_phase` (0/1) is parity against a fixed epoch (first
+    Monday of 1970), so the app and the worker agree on which alternate week is
+    "on"; the editor resolves a "this week / next week" pick into it.
+  - `monthly` - `month_mode` `day` (`month_day` 1-28, or `-1` = last day of the
+    month) or `weekday` (`month_ordinal` 1-4 or `-1` = last, with `month_weekday`
+    ISO 1-7). `-1` means "last"; PB reads an empty number as 0, so 0 is never
+    that sentinel.
+  The full field set is written on every save (`chore_actions._ruleFields`);
+  only the fields the active `schedule_type` reads are consulted, the rest are
+  inert defaults. **Times are family wall-clock with no timezone** - see the
   timezone contract below.
 - **completions** - `subject`, `chore`, `completed_by`, `completed_at` (UTC),
   `source` (`button`/`nfc`). `completed_by` is the **acting identity** ("Act
