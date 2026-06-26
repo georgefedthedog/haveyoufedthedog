@@ -399,7 +399,7 @@ class _BodyState extends ConsumerState<_Body> {
                   setState(() => _stagedPicture = pictureId),
             ),
           ),
-          const BrowsePacksButton(label: 'Get more homes'),
+          const BrowsePacksButton(label: 'Get more homes →'),
           const SizedBox(height: 24),
           Card(
             child: Padding(
@@ -1500,7 +1500,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
                   onChanged: (id) => setState(() => _avatar = id),
                 ),
               ),
-              const BrowsePacksButton(label: 'Get more avatars'),
+              const BrowsePacksButton(label: 'Get more avatars →'),
               const SizedBox(height: 16),
               Card(
                 child: Padding(

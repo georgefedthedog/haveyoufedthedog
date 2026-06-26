@@ -172,7 +172,10 @@ class _TimelineRow extends ConsumerWidget {
           : CrossAxisAlignment.end,
       children: [
         Text(
-          chore?.name ?? 'Logged',
+          // Prefer the live chore name (so a rename shows retroactively),
+          // fall back to the name stored on the completion when the chore is
+          // gone, then a neutral last resort.
+          chore?.name ?? completion.choreName ?? 'Logged',
           overflow: TextOverflow.ellipsis,
           textAlign: isMe ? TextAlign.left : TextAlign.right,
           style: theme.textTheme.bodyMedium?.copyWith(

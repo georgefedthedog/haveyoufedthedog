@@ -79,7 +79,10 @@ Future<int> householdRewardStreak(Ref ref) async {
     // Count only days strictly after the last redemption anchor.
     if (anchorDay != null && !day.isAfter(anchorDay)) break;
 
-    final isDueDay = activeChores.any((c) => c.rule.isDueOn(day));
+    // One-offs are generous toward the streak (mirrors reward-streak.js):
+    // completing one still counts (it lands in completedDays like any
+    // completion), but a missed one never makes a day "due" and breaks the run.
+    final isDueDay = activeChores.any((c) => !c.isOnce && c.rule.isDueOn(day));
     if (!isDueDay) continue;
 
     if (completedDays.contains(day)) {

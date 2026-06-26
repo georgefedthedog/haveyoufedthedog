@@ -48,6 +48,13 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   int _monthDay = 1; // 1..28, or ScheduleRule.last
   int _monthOrdinal = 1; // 1..4, or ScheduleRule.last
   int _monthWeekday = DateTime.monday; // ISO 1..7
+  // One-time: the due date (date-only). Null until the user picks "Once" (we
+  // seed it to today on that switch), or seeded from an existing one-off.
+  DateTime? _onceDate;
+  // Schedule mode: true = a single dated task, false = a recurring frequency.
+  // Kept separate from [_scheduleType] (which only ever holds daily/weekly/
+  // monthly) so a one-off isn't crammed into the "Repeats" frequency row.
+  bool _isOnce = false;
   bool _seeded = false;
   bool _busy = false;
 
@@ -63,7 +70,11 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     if (_seeded) return;
     _nameCtrl.text = existing.name;
     _time = TimeOfDay(hour: existing.hour, minute: existing.minute);
-    _scheduleType = ScheduleType.fromWire(existing.scheduleType);
+    final seedType = ScheduleType.fromWire(existing.scheduleType);
+    _isOnce = seedType == ScheduleType.once;
+    // The frequency row never holds "once" (the mode toggle owns that), so a
+    // one-off's hidden frequency just defaults to daily.
+    _scheduleType = _isOnce ? ScheduleType.daily : seedType;
     _weekdayMask = existing.weekdayMask;
     _weekInterval = const {1, 2}.contains(existing.weekInterval)
         ? existing.weekInterval
@@ -76,6 +87,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     _monthDay = existing.monthDay;
     _monthOrdinal = existing.monthOrdinal;
     _monthWeekday = existing.monthWeekday;
+    _onceDate = existing.onceDate;
     _seeded = true;
   }
 
@@ -105,6 +117,13 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   /// The chore's rule from the current form state, shared by the live preview
   /// and the save path so the two can't drift.
   ScheduleRule _buildRule() {
+    if (_isOnce) {
+      return ScheduleRule.once(
+        hour: _time.hour,
+        minute: _time.minute,
+        onceDate: _onceDate ?? _today(),
+      );
+    }
     switch (_scheduleType) {
       case ScheduleType.daily:
         return ScheduleRule.daily(hour: _time.hour, minute: _time.minute);
@@ -126,7 +145,21 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
           monthOrdinal: _monthOrdinal,
           monthWeekday: _monthWeekday,
         );
+      case ScheduleType.once:
+        // Unreachable - the mode toggle handles one-offs above - but the switch
+        // must stay exhaustive.
+        return ScheduleRule.once(
+          hour: _time.hour,
+          minute: _time.minute,
+          onceDate: _onceDate ?? _today(),
+        );
     }
+  }
+
+  /// Today, date-only - the fallback one-off date before the user has picked.
+  static DateTime _today() {
+    final n = DateTime.now();
+    return DateTime(n.year, n.month, n.day);
   }
 
   /// Static preview of the chore in its neutral state - always shows the
@@ -154,7 +187,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
               radius: 22,
               backgroundColor: scheme.surfaceContainerHighest,
               foregroundColor: scheme.onSurfaceVariant,
-              child: const Icon(Icons.schedule, size: 22),
+              child: Icon(_isOnce ? Icons.event : Icons.schedule, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -199,9 +232,48 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     if (picked != null) setState(() => _time = picked);
   }
 
+  Future<void> _pickDate() async {
+    final today = _today();
+    // Clamp the initial date up to today - a carried-over (past) one-off can't
+    // re-seed the picker below firstDate, but its stored date stays on the
+    // tile until the user actually picks a new one.
+    final seed = _onceDate ?? today;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: seed.isBefore(today) ? today : seed,
+      firstDate: today,
+      lastDate: DateTime(today.year + 5),
+    );
+    if (picked != null) setState(() => _onceDate = picked);
+  }
+
+  /// "Wed, 30 Jun 2027" for the one-off date tile.
+  String _onceDateLabel() {
+    final d = _onceDate;
+    if (d == null) return 'Pick a date';
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${Weekdays.labels[d.weekday - 1]}, '
+        '${d.day} ${months[d.month - 1]} ${d.year}';
+  }
+
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
-    if (_scheduleType == ScheduleType.weekly && _weekdayMask == 0) return;
+    if (!_isOnce && _scheduleType == ScheduleType.weekly && _weekdayMask == 0) {
+      return;
+    }
 
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
@@ -332,30 +404,54 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      // Recurring vs a single dated task. Separate from the
+                      // frequency below because a one-off isn't a "repeat".
                       LabeledField(
-                        label: 'Repeats',
-                        child: SegmentedButton<ScheduleType>(
+                        label: 'Schedule',
+                        child: SegmentedButton<bool>(
                           showSelectedIcon: false,
                           segments: const [
-                            ButtonSegment(
-                              value: ScheduleType.daily,
-                              label: Text('Every day'),
-                            ),
-                            ButtonSegment(
-                              value: ScheduleType.weekly,
-                              label: Text('Some days'),
-                            ),
-                            ButtonSegment(
-                              value: ScheduleType.monthly,
-                              label: Text('Monthly'),
-                            ),
+                            ButtonSegment(value: false, label: Text('Repeats')),
+                            ButtonSegment(value: true, label: Text('One time')),
                           ],
-                          selected: {_scheduleType},
-                          onSelectionChanged: (s) =>
-                              setState(() => _scheduleType = s.first),
+                          selected: {_isOnce},
+                          onSelectionChanged: (s) => setState(() {
+                            _isOnce = s.first;
+                            // Seed today the first time "One time" is chosen so
+                            // the date tile shows a real date straight away.
+                            if (_isOnce && _onceDate == null) {
+                              _onceDate = _today();
+                            }
+                          }),
                         ),
                       ),
-                      if (_scheduleType == ScheduleType.weekly) ...[
+                      if (!_isOnce) ...[
+                        const SizedBox(height: 24),
+                        LabeledField(
+                          label: 'Frequency',
+                          child: SegmentedButton<ScheduleType>(
+                            showSelectedIcon: false,
+                            segments: const [
+                              ButtonSegment(
+                                value: ScheduleType.daily,
+                                label: Text('Every day'),
+                              ),
+                              ButtonSegment(
+                                value: ScheduleType.weekly,
+                                label: Text('Some days'),
+                              ),
+                              ButtonSegment(
+                                value: ScheduleType.monthly,
+                                label: Text('Monthly'),
+                              ),
+                            ],
+                            selected: {_scheduleType},
+                            onSelectionChanged: (s) =>
+                                setState(() => _scheduleType = s.first),
+                          ),
+                        ),
+                      ],
+                      if (!_isOnce && _scheduleType == ScheduleType.weekly) ...[
                         const SizedBox(height: 16),
                         LabeledField(
                           label: 'On these days',
@@ -407,7 +503,8 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                           ),
                         ],
                       ],
-                      if (_scheduleType == ScheduleType.monthly) ...[
+                      if (!_isOnce &&
+                          _scheduleType == ScheduleType.monthly) ...[
                         const SizedBox(height: 16),
                         // "Exact Day" leads the row and selects by date; the
                         // ordinals select the Nth (or last) weekday. The chip
@@ -449,6 +546,22 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                                   setState(() => _monthWeekday = w),
                             ),
                           ),
+                      ],
+                      if (_isOnce) ...[
+                        const SizedBox(height: 24),
+                        LabeledField(
+                          label: 'On',
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            color: scheme.surfaceContainerHigh,
+                            child: ListTile(
+                              leading: const Icon(Icons.event),
+                              title: Text(_onceDateLabel()),
+                              trailing: const Icon(Icons.edit),
+                              onTap: _pickDate,
+                            ),
+                          ),
+                        ),
                       ],
                       const SizedBox(height: 24),
                       LabeledField(

@@ -40,13 +40,35 @@ class ChoreRow extends ConsumerWidget {
   /// its status.
   final Widget? leading;
 
+  /// When set, tapping the leading slot fires this instead of toggling the
+  /// chore - e.g. the home card's subject portrait opens the subject page.
+  final VoidCallback? onLeadingTap;
+
+  /// When set, tapping the trailing status slot fires this instead of toggling
+  /// the chore - e.g. the home card's status opens the chore editor.
+  final VoidCallback? onTrailingTap;
+
   const ChoreRow({
     super.key,
     required this.chore,
     required this.subjectId,
     required this.existingCompletion,
     this.leading,
+    this.onLeadingTap,
+    this.onTrailingTap,
   });
+
+  /// Wraps [child] in a tap target that swallows the gesture (so it doesn't
+  /// reach the row's complete-on-tap InkWell) when [onTap] is set; otherwise
+  /// returns [child] untouched.
+  static Widget _tappable(VoidCallback? onTap, Widget child) {
+    if (onTap == null) return child;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: child,
+    );
+  }
 
   Future<void> _log(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -56,6 +78,7 @@ class ChoreRow extends ConsumerWidget {
           .logChore(
             subjectId: subjectId,
             choreId: chore.id,
+            choreName: chore.name,
             source: CompletionSource.button,
           );
 
@@ -207,31 +230,47 @@ class ChoreRow extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  leading ??
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: avatarBg,
-                        foregroundColor: avatarFg,
-                        child: Icon(
-                          isDone
-                              ? Icons.check
-                              : isOverdue
-                              ? Icons.error_outline
-                              : Icons.schedule,
-                          size: 22,
+                  _tappable(
+                    onLeadingTap,
+                    leading ??
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor: avatarBg,
+                          foregroundColor: avatarFg,
+                          child: Icon(
+                            isDone
+                                ? Icons.check
+                                : isOverdue
+                                ? Icons.error_outline
+                                : chore.isOnce
+                                ? Icons.event
+                                : Icons.schedule,
+                            size: 22,
+                          ),
                         ),
-                      ),
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          chore.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: titleColor,
-                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                chore.name,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: titleColor,
+                                ),
+                              ),
+                            ),
+                            if (chore.isOnce) ...[
+                              const SizedBox(width: 8),
+                              const _OnceBadge(),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -244,11 +283,15 @@ class ChoreRow extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  _TrailingStatus(
-                    isDone: isDone,
-                    isOverdue: isOverdue,
-                    isDueSoon: isDueSoon,
-                    dueIn: dueIn,
+                  _tappable(
+                    onTrailingTap,
+                    _TrailingStatus(
+                      isDone: isDone,
+                      isOverdue: isOverdue,
+                      isDueSoon: isDueSoon,
+                      dueIn: dueIn,
+                      isOnce: chore.isOnce,
+                    ),
                   ),
                 ],
               ),
@@ -308,6 +351,33 @@ class ChoreRow extends ConsumerWidget {
   }
 }
 
+/// Small "One-time" pill marking a one-off chore on a [ChoreRow]. Primary
+/// tint so it reads on the neutral, green (done) and red (overdue) card states
+/// alike without competing with them.
+class _OnceBadge extends StatelessWidget {
+  const _OnceBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        'One-time',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: scheme.primary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
 /// "5 minutes overdue", "1 minute overdue", "1 hour overdue",
 /// "over 3 hours overdue".
 String _formatOverdue(Duration d) {
@@ -329,12 +399,14 @@ class _TrailingStatus extends StatelessWidget {
   final bool isOverdue;
   final bool isDueSoon;
   final Duration? dueIn;
+  final bool isOnce;
 
   const _TrailingStatus({
     required this.isDone,
     required this.isOverdue,
     required this.isDueSoon,
     required this.dueIn,
+    required this.isOnce,
   });
 
   @override
@@ -391,8 +463,13 @@ class _TrailingStatus extends StatelessWidget {
       );
     }
 
-    // Anything later than an hour away - neutral clock icon.
-    return Icon(Icons.schedule, size: 28, color: scheme.onSurfaceVariant);
+    // Anything later than an hour away - neutral clock, or a calendar glyph
+    // for a one-off (it's a dated task, not a recurring time).
+    return Icon(
+      isOnce ? Icons.event : Icons.schedule,
+      size: 28,
+      color: scheme.onSurfaceVariant,
+    );
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../api/pocketbase_client.dart';
 import '../chores/chore.dart';
 import '../household/acting_user_controller.dart';
+import 'completed_once_chores_controller.dart';
 import 'completion.dart';
 import 'household_history_controller.dart';
 import 'recent_completions_controller.dart';
@@ -35,9 +36,15 @@ class CompletionActions {
 
   /// Log a completion of [choreId] for [subjectId], attributed to [source].
   /// Returns the new [Completion] so callers can offer Undo.
+  ///
+  /// [choreName] is denormalised onto the completion so the history timeline
+  /// can still name the chore after it's gone from the live list - a deleted
+  /// recurring chore, or a retired one-off (which goes `active = false` and so
+  /// drops out of the timeline's live-chore lookup).
   Future<Completion> logChore({
     required String subjectId,
     required String choreId,
+    required String choreName,
     required CompletionSource source,
   }) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);
@@ -49,6 +56,7 @@ class CompletionActions {
           body: {
             'subject': subjectId,
             'chore': choreId,
+            'chore_name': choreName,
             'completed_at': now.toIso8601String(),
             'completed_by': actingUserId,
             'source': source.wire,
@@ -132,6 +140,7 @@ class CompletionActions {
     final completion = await logChore(
       subjectId: subjectId,
       choreId: pick.id,
+      choreName: pick.name,
       source: source,
     );
     return (chore: pick, completion: completion);
@@ -144,6 +153,7 @@ class CompletionActions {
   void _bump(String? subjectId) {
     _ref.invalidate(todayCompletionsControllerProvider);
     _ref.invalidate(householdHistoryControllerProvider);
+    _ref.invalidate(completedOnceChoreIdsControllerProvider);
     if (subjectId != null) {
       _ref.invalidate(recentCompletionsControllerProvider(subjectId));
     }

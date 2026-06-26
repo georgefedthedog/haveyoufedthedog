@@ -11,6 +11,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chores_controller.dart';
+import '../../core/completions/completed_once_chores_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
@@ -252,10 +253,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             .watch(todayCompletionsControllerProvider)
                             .valueOrNull ??
                         const <Completion>[];
+                    final completedOnceIds =
+                        ref
+                            .watch(completedOnceChoreIdsControllerProvider)
+                            .valueOrNull ??
+                        const <String>{};
                     final tasks = _todaysTasks(
                       subjects: subjects,
                       chores: allChores,
                       completions: completions,
+                      completedOnceIds: completedOnceIds,
                     );
                     final doneCount = tasks
                         .where((t) => t.completion != null)
@@ -354,6 +361,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   leading: _CharacterAvatar(
                                     subject: t.subject,
                                     expression: _expressionFor(t),
+                                  ),
+                                  // Subject portrait opens the subject; the
+                                  // status icon opens the chore editor. Taps
+                                  // elsewhere on the row still complete it.
+                                  onLeadingTap: () => context.push(
+                                    Routes.subjectDetail(t.subject.id),
+                                  ),
+                                  onTrailingTap: () => context.push(
+                                    Routes.choreEdit(t.chore.id),
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -755,6 +771,7 @@ List<_TodayTask> _todaysTasks({
   required List<Subject> subjects,
   required List<Chore> chores,
   required List<Completion> completions,
+  required Set<String> completedOnceIds,
 }) {
   final now = DateTime.now();
   final subjectById = <String, Subject>{for (final s in subjects) s.id: s};
@@ -768,11 +785,24 @@ List<_TodayTask> _todaysTasks({
     if (!chore.rule.isDueOn(now)) continue;
     final subject = subjectById[chore.subjectId];
     if (subject == null) continue;
+
+    final completion = completionByChoreId[chore.id];
+    // A one-off carries over until it's done, but once finished it should drop
+    // off the list. It still shows as done on its completion day (matched in
+    // today's completions above); a completed one-off with no completion *today*
+    // was done on a prior day, so hide it - covering the gap until the worker
+    // flips it inactive.
+    if (chore.isOnce &&
+        completion == null &&
+        completedOnceIds.contains(chore.id)) {
+      continue;
+    }
+
     out.add(
       _TodayTask(
         chore: chore,
         subject: subject,
-        completion: completionByChoreId[chore.id],
+        completion: completion,
       ),
     );
   }
