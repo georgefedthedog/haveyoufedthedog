@@ -1274,7 +1274,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": ["daily", "weekly", "monthly"]
+        "values": ["once", "daily", "weekly", "monthly"]
       },
       {
         "help": "",
@@ -1325,29 +1325,6 @@
         "onlyInt": true,
         "presentable": false,
         "required": true,
-        "system": false,
-        "type": "number"
-      },
-      {
-        "help": "",
-        "hidden": false,
-        "id": "bool_ch_active_000005",
-        "name": "active",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "bool"
-      },
-      {
-        "help": "",
-        "hidden": false,
-        "id": "num_ch_sortorder_0005",
-        "max": null,
-        "min": null,
-        "name": "sort_order",
-        "onlyInt": true,
-        "presentable": false,
-        "required": false,
         "system": false,
         "type": "number"
       },
@@ -1414,6 +1391,44 @@
         "required": false,
         "system": false,
         "type": "number"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "bool_ch_active_000005",
+        "name": "active",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "num_ch_sortorder_0005",
+        "max": null,
+        "min": null,
+        "name": "sort_order",
+        "onlyInt": true,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "Stored as text to avoid timezone issues",
+        "hidden": false,
+        "id": "text3866337329",
+        "max": 10,
+        "min": 0,
+        "name": "due_date",
+        "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
       },
       {
         "hidden": false,
@@ -1491,6 +1506,21 @@
         "required": false,
         "system": false,
         "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "Denormalized chore name so the timeline can still show details for deleted recurring chores",
+        "hidden": false,
+        "id": "text3519078469",
+        "max": 0,
+        "min": 0,
+        "name": "chore_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
       },
       {
         "help": "",

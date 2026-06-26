@@ -51,7 +51,13 @@ function computeRewardStreak({ tz, lastFreeRedemption, chores, completions, now 
     if (dayMs < earliest) break; // nothing older is in our window
     if (dayMs <= anchorMs) break; // don't count the claim day or earlier
 
-    const due = chores.some((ch) => isChoreDueOn(ch, dayMs));
+    // One-offs are deliberately generous toward the streak: completing one
+    // still helps (it lands in `satisfied` like any completion), but a missed
+    // one must never make a day "due" and break the run. So only recurring
+    // chores count toward whether a day is due.
+    const due = chores.some(
+      (ch) => (ch.schedule_type || "daily") !== "once" && isChoreDueOn(ch, dayMs),
+    );
     if (!due) continue;
 
     if (satisfied.has(dayMs)) {

@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
-import '../../core/chores/chore_actions.dart';
 import '../../core/chores/chores_controller.dart';
+import '../../core/chores/manage_chores_highlight_controller.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/recent_completions_controller.dart';
 import '../../core/completions/streak_controller.dart';
@@ -17,7 +17,6 @@ import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_mood_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
-import '../../widgets/dashed_circle_painter.dart';
 import '../chores/chore_row.dart';
 import '../history/completion_timeline.dart';
 
@@ -92,8 +91,6 @@ class _Body extends ConsumerWidget {
                 children: [
                   const SizedBox(height: 24),
                   _TodaySection(subject: subject),
-                  const SizedBox(height: 24),
-                  _ChoresSection(subjectId: subject.id),
                   const SizedBox(height: 24),
                   _HistorySection(subject: subject),
                 ],
@@ -340,316 +337,19 @@ class _TodaySection extends ConsumerWidget {
                 existingCompletion: latestByChoreId[c.id],
               ),
             ),
+        const SizedBox(height: 4),
+        Center(
+          child: TextButton(
+            onPressed: () {
+              // Ask the Edit screen to flash its Manage chores section, then
+              // navigate there.
+              ref.read(manageChoresHighlightProvider.notifier).request();
+              context.push(Routes.subjectEdit(subject.id));
+            },
+            child: const Text('Manage chores →'),
+          ),
+        ),
       ],
-    );
-  }
-}
-
-class _ChoresSection extends ConsumerStatefulWidget {
-  final String subjectId;
-  const _ChoresSection({required this.subjectId});
-
-  @override
-  ConsumerState<_ChoresSection> createState() => _ChoresSectionState();
-}
-
-class _ChoresSectionState extends ConsumerState<_ChoresSection> {
-  /// True while a chore chip is being long-press dragged - the Add slot
-  /// morphs into the red Remove drop target for the duration.
-  bool _dragging = false;
-
-  Future<void> _confirmAndDelete(Chore chore) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Delete ${chore.name}?'),
-        content: const Text(
-          'Its schedule and reminders go with it. Past completions stay '
-          'in the history.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    try {
-      await ref.read(choreActionsProvider).deleteChore(chore.id);
-    } catch (e) {
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final asyncChores = ref.watch(choresControllerProvider);
-    final chores =
-        (asyncChores.valueOrNull ?? const [])
-            .where((c) => c.subjectId == widget.subjectId)
-            .toList()
-          ..sort(
-            (a, b) =>
-                (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
-          );
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Manage chores',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 12,
-              runSpacing: 16,
-              children: [
-                for (final c in chores)
-                  _ChoreChip(
-                    chore: c,
-                    onTap: () => context.push(Routes.choreEdit(c.id)),
-                    onDragChanged: (active) =>
-                        setState(() => _dragging = active),
-                  ),
-                if (_dragging)
-                  _RemoveChoreChip(onDrop: _confirmAndDelete)
-                else
-                  _AddChoreChip(
-                    onTap: () =>
-                        context.push(Routes.choreNew(widget.subjectId)),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// One chore in the manage-chores cloud: pastel circle with a clock,
-/// pencil badge on the edge, name + schedule underneath. Tap to edit;
-/// long-press to lift and drag onto the Remove slot to delete.
-class _ChoreChip extends StatelessWidget {
-  final Chore chore;
-  final VoidCallback onTap;
-
-  /// Fired with true when a long-press drag lifts this chip, false when
-  /// the drag ends (dropped or cancelled). The parent swaps the Add slot
-  /// for the Remove bin while any drag is live.
-  final ValueChanged<bool> onDragChanged;
-
-  const _ChoreChip({
-    required this.chore,
-    required this.onTap,
-    required this.onDragChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final chip = _chipBody(theme, scheme);
-    return LongPressDraggable<Chore>(
-      data: chore,
-      onDragStarted: () => onDragChanged(true),
-      onDragEnd: (_) => onDragChanged(false),
-      // The lifted copy swaps its pencil badge for a red cross - you're
-      // carrying it toward the bin, not editing it.
-      feedback: Material(
-        color: Colors.transparent,
-        child: _chipBody(theme, scheme, removing: true),
-      ),
-      childWhenDragging: Opacity(opacity: 0.3, child: chip),
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: chip,
-      ),
-    );
-  }
-
-  Widget _chipBody(
-    ThemeData theme,
-    ColorScheme scheme, {
-    bool removing = false,
-  }) {
-    return SizedBox(
-      width: 80,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.primaryContainer,
-                ),
-                child: Icon(
-                  Icons.schedule,
-                  size: 24,
-                  color: scheme.onPrimaryContainer,
-                ),
-              ),
-              Positioned(
-                right: -2,
-                bottom: -2,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: removing ? Colors.red : scheme.primary,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: Icon(
-                    removing ? Icons.close : Icons.edit,
-                    size: 11,
-                    color: removing ? Colors.white : scheme.onPrimary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            chore.name,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            chore.rule.humanLabel(),
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Drop target the Add slot morphs into while a chore chip is being
-/// dragged - dashed red circle with a bin, fills solid on hover. Dropping
-/// hands the chore to [onDrop] (which confirms before deleting).
-class _RemoveChoreChip extends StatelessWidget {
-  final ValueChanged<Chore> onDrop;
-
-  const _RemoveChoreChip({required this.onDrop});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DragTarget<Chore>(
-      onWillAcceptWithDetails: (_) => true,
-      onAcceptWithDetails: (details) => onDrop(details.data),
-      builder: (context, candidate, _) {
-        final hovering = candidate.isNotEmpty;
-        final red = hovering ? Colors.red : Colors.red.shade300;
-        return SizedBox(
-          width: 80,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomPaint(
-                painter: DashedCirclePainter(color: red, filled: hovering),
-                child: SizedBox(
-                  width: 56,
-                  height: 56,
-                  child: Icon(
-                    Icons.delete_outline,
-                    size: 24,
-                    color: hovering ? Colors.white : red,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Delete',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: red,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Trailing "Add chore" affordance - dashed circle with a plus, styled
-/// like the chore chips so it reads as the next empty slot.
-class _AddChoreChip extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _AddChoreChip({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final accent = theme.colorScheme.primary;
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 80,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CustomPaint(
-              painter: DashedCirclePainter(color: accent),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: Icon(Icons.add, size: 24, color: accent),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Add',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: accent,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

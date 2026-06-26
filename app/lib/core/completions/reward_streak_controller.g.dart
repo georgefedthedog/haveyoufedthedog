@@ -7,7 +7,7 @@ part of 'reward_streak_controller.dart';
 // **************************************************************************
 
 String _$householdRewardStreakHash() =>
-    r'4fa3aa23c00c255318c5dd074b0bcf40353a4d61';
+    r'4d62b081e894c285072dce2eaee82ec6bc248151';
 
 /// Approximate household-wide reward streak for the streak-unlock progress UI:
 /// consecutive **due-days** (any active chore for any subject in the current

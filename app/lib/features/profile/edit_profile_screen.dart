@@ -168,7 +168,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   onChanged: (id) => setState(() => _avatar = id),
                 ),
               ),
-              const BrowsePacksButton(label: 'Get more avatars'),
+              const BrowsePacksButton(label: 'Get more avatars →'),
               const SizedBox(height: 16),
               Card(
                 child: Padding(

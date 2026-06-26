@@ -60,6 +60,19 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
           continue;
         }
 
+        // A one-off nudges daily while outstanding, but the moment it's been
+        // completed (ever) it must go quiet - even before the hourly retire
+        // sweep flips it inactive - so a finished one never fires a stale
+        // overdue push. (Recurring chores use the since-midnight check below.)
+        if ((chore.schedule_type || "daily") === "once") {
+          const everFilter = encodeURIComponent(`chore = '${chore.id}'`);
+          const ever = await pb.get(`/api/collections/completions/records?perPage=1&filter=${everFilter}`);
+          if ((ever.items || []).length) {
+            console.log(`[overdue] skip "${chore.name}" - one-off already completed`);
+            continue;
+          }
+        }
+
         const subject = chore.expand?.subject;
         if (!subject) {
           console.log(`[overdue] skip "${chore.name}" - subject not expanded`);

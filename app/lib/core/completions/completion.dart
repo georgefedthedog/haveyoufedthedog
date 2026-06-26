@@ -34,6 +34,15 @@ class Completion {
     return (v is String && v.isNotEmpty) ? v : null;
   }
 
+  /// The chore's name, denormalised onto the completion at log time. The
+  /// history timeline falls back to this when the live chore is gone - a
+  /// deleted recurring chore, or a retired one-off filtered out by
+  /// `active = true`. Null for completions logged before this field existed.
+  String? get choreName {
+    final v = record.data['chore_name'];
+    return (v is String && v.isNotEmpty) ? v : null;
+  }
+
   DateTime get completedAt =>
       DateTime.parse(record.data['completed_at'] as String).toLocal();
 

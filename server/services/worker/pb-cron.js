@@ -55,7 +55,22 @@ function createPbClient({ pbUrl, identity, password }) {
     return out;
   }
 
-  return { get, list };
+  async function update(path, body, retried = false) {
+    if (!token) await authenticate();
+    const res = await fetch(`${pbUrl}${path}`, {
+      method: "PATCH",
+      headers: { Authorization: token, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.status === 401 && !retried) {
+      token = null;
+      return update(path, body, true);
+    }
+    if (!res.ok) throw new Error(`PB ${res.status} for PATCH ${path}`);
+    return res.json();
+  }
+
+  return { get, list, update };
 }
 
 /// Wall-clock parts of `date` in `timeZone`: the weekday (Sun=0..Sat=6) and
@@ -123,6 +138,16 @@ function daysInMonth(dateMs) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
 }
 
+/// `YYYY-MM-DD` for a UTC-midnight-epoch date - the local calendar date, in the
+/// same text shape as the app's `chores.due_date`, so the once carryover below
+/// is a plain string compare (ISO dates sort chronologically).
+function ymd(dateMs) {
+  const d = new Date(dateMs);
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${m}-${day}`;
+}
+
 /// Whether `chore` is due on the local calendar date `dateMs` (a UTC-midnight
 /// epoch). Mirrors ScheduleRule.isDueOn: daily = always; weekly = weekday mask
 /// plus fortnightly phase; monthly = a fixed date or an Nth/last weekday.
@@ -137,6 +162,12 @@ function isChoreDueOn(chore, dateMs) {
     return weeksSinceEpoch(dateMs) % interval === phase;
   }
   if (type === "monthly") return isChoreDueMonthly(chore, dateMs);
+  if (type === "once") {
+    // Carryover: due on its date and every day after, until it's done (mirrors
+    // ScheduleRule.isDueOn). An empty/missing date is never due.
+    const due = chore.due_date;
+    return due ? ymd(dateMs) >= due : false;
+  }
   return true; // daily (and any unknown type) - every day
 }
 

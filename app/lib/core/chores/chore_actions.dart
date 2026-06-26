@@ -67,7 +67,16 @@ class ChoreActions {
     'month_day': rule.monthDay,
     'month_ordinal': rule.monthOrdinal,
     'month_weekday': rule.monthWeekday,
+    // Empty for any recurring type, so switching away from "once" clears a
+    // stale date (the full-field-set rule). `YYYY-MM-DD`, no timezone.
+    'due_date': rule.onceDate == null ? '' : _ymd(rule.onceDate!),
   };
+
+  /// `YYYY-MM-DD` for the one-off `due_date` wire field.
+  static String _ymd(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
 
   Future<void> deleteChore(String id) async {
     final pb = await _ref.read(pocketbaseClientProvider.future);

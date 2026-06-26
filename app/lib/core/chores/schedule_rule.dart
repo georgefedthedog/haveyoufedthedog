@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'weekdays.dart';
 
-/// How often a chore recurs.
+/// How often a chore recurs. [once] is the odd one out - a single-shot task
+/// with no recurrence; see [ScheduleRule.onceDate].
 enum ScheduleType {
   daily,
   weekly,
-  monthly;
+  monthly,
+  once;
 
   static ScheduleType fromWire(String? raw) {
     switch (raw) {
@@ -14,6 +16,8 @@ enum ScheduleType {
         return ScheduleType.weekly;
       case 'monthly':
         return ScheduleType.monthly;
+      case 'once':
+        return ScheduleType.once;
       default:
         return ScheduleType.daily;
     }
@@ -70,6 +74,13 @@ class ScheduleRule {
   /// Monthly [MonthMode.weekday]: the weekday, ISO 1 (Mon) .. 7 (Sun).
   final int monthWeekday;
 
+  /// One-time ([ScheduleType.once]): the calendar date the task is due
+  /// (date-only - the time of day is still [hour]/[minute]). A one-off carries
+  /// over as overdue on every day from this date onward until it's completed,
+  /// so [isDueOn] returns true for the target date and all days after. Null for
+  /// every recurring type.
+  final DateTime? onceDate;
+
   /// Sentinel for [monthDay] / [monthOrdinal]: "the last one in the month"
   /// (last calendar day, or last occurrence of [monthWeekday]).
   static const int last = -1;
@@ -90,6 +101,7 @@ class ScheduleRule {
     this.monthDay = 1,
     this.monthOrdinal = 1,
     this.monthWeekday = DateTime.monday,
+    this.onceDate,
   });
 
   factory ScheduleRule.daily({required int hour, required int minute}) =>
@@ -110,6 +122,19 @@ class ScheduleRule {
     weekPhase: weekPhase,
   );
 
+  /// A one-time task due on [onceDate] at [hour]:[minute]. The date is
+  /// normalised to date-only so the carryover comparison in [isDueOn] is clean.
+  factory ScheduleRule.once({
+    required int hour,
+    required int minute,
+    required DateTime onceDate,
+  }) => ScheduleRule(
+    type: ScheduleType.once,
+    hour: hour,
+    minute: minute,
+    onceDate: DateTime(onceDate.year, onceDate.month, onceDate.day),
+  );
+
   TimeOfDay get timeOfDay => TimeOfDay(hour: hour, minute: minute);
 
   bool isDueOn(DateTime day) {
@@ -122,6 +147,16 @@ class ScheduleRule {
         return weeksSinceEpoch(day) % weekInterval == weekPhase;
       case ScheduleType.monthly:
         return _isDueMonthly(day);
+      case ScheduleType.once:
+        // Standing task: due on its date and every day after, until it's
+        // completed (the home screen + retirement handle the "until completed"
+        // part - the rule itself just never stops being due once the date
+        // arrives). Compared date-only so the time of day doesn't matter.
+        final target = onceDate;
+        if (target == null) return false;
+        final d = DateTime(day.year, day.month, day.day);
+        final t = DateTime(target.year, target.month, target.day);
+        return !d.isBefore(t);
     }
   }
 
@@ -161,9 +196,15 @@ class ScheduleRule {
     return firstOfNext.subtract(const Duration(days: 1)).day;
   }
 
-  /// Scheduled DateTime for a given calendar day, in local time.
-  DateTime scheduledAt(DateTime day) =>
-      DateTime(day.year, day.month, day.day, hour, minute);
+  /// Scheduled DateTime for a given calendar day, in local time. A one-off
+  /// ignores [day] - it has a single fixed instant on its [onceDate] - so its
+  /// overdue / "due in" math stays anchored to the real date even once it's
+  /// carried over to a later day (recurring types are always asked about the
+  /// day they're due, so [day] is right for them).
+  DateTime scheduledAt(DateTime day) {
+    final d = (type == ScheduleType.once && onceDate != null) ? onceDate! : day;
+    return DateTime(d.year, d.month, d.day, hour, minute);
+  }
 
   /// [now] defaults to the wall clock; it only affects the fortnightly
   /// "this week / next week" suffix, which is relative to the current week.
@@ -176,8 +217,24 @@ class ScheduleRule {
         return _weeklyLabel(tStr, now ?? DateTime.now());
       case ScheduleType.monthly:
         return '${_monthlyLabel()} at $tStr';
+      case ScheduleType.once:
+        final d = onceDate;
+        if (d == null) return 'One time at $tStr';
+        return 'One time on ${_humanDate(d)} at $tStr';
     }
   }
+
+  /// "30 Jun" / "30 Jun 2027" - the one-off date for [humanLabel]. The year is
+  /// only shown when it isn't the current one, to keep the common case short.
+  static String _humanDate(DateTime d) {
+    final base = '${d.day} ${_monthAbbr[d.month - 1]}';
+    return d.year == DateTime.now().year ? base : '$base ${d.year}';
+  }
+
+  static const _monthAbbr = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
 
   String _weeklyLabel(String tStr, DateTime now) {
     final days = <String>[];

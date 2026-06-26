@@ -40,6 +40,7 @@ class ChoreChipWithTap extends ConsumerWidget {
       await ref.read(completionActionsProvider).logChore(
             subjectId: subjectId,
             choreId: chore.id,
+            choreName: chore.name,
             source: CompletionSource.button,
           );
 

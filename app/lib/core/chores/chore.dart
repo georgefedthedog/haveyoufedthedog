@@ -15,6 +15,9 @@ class Chore {
   String get name => record.data['name'] as String;
 
   String get scheduleType => record.data['schedule_type'] as String;
+
+  /// Whether this is a one-time chore ([ScheduleType.once]).
+  bool get isOnce => scheduleType == ScheduleType.once.wire;
   int get hour => (record.data['hour'] as num).toInt();
   int get minute => (record.data['minute'] as num).toInt();
   int get weekdayMask =>
@@ -46,6 +49,16 @@ class Chore {
   bool get active => (record.data['active'] as bool?) ?? true;
   int get sortOrder => (record.data['sort_order'] as num?)?.toInt() ?? 0;
 
+  /// One-time chores: the due date parsed from the `due_date` wire string
+  /// (`YYYY-MM-DD`, date-only, no timezone - stored as text to dodge the tz
+  /// shifts a real date field would bring). Null for recurring chores, or for
+  /// an unset / malformed value.
+  DateTime? get onceDate {
+    final v = record.data['due_date'];
+    if (v is! String || v.isEmpty) return null;
+    return DateTime.tryParse(v);
+  }
+
   /// The chore's recurrence rule. Built fresh each call - cheap, and
   /// keeps the wrapper free of mutable state.
   ScheduleRule get rule => ScheduleRule(
@@ -59,5 +72,6 @@ class Chore {
     monthDay: monthDay,
     monthOrdinal: monthOrdinal,
     monthWeekday: monthWeekday,
+    onceDate: onceDate,
   );
 }

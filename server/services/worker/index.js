@@ -5,6 +5,7 @@
 //   - verify.js        in-app-purchase verification (POST /verify-purchase)
 //   - overdue-cron.js  per-timezone overdue-chore nudges
 //   - award-cron.js    per-timezone weekly character-award pushes (Sun 6pm)
+//   - retire-cron.js   hourly sweep retiring finished one-off chores
 //
 // Both integrations are config-gated and fail soft: missing Firebase or Play
 // credentials disable only their own feature, the rest of the service still
@@ -16,6 +17,7 @@ const { initFirebase, sendPush, notifyHandler } = require("./notify");
 const { initPlayVerifier, verifyPurchaseHandler } = require("./verify");
 const { startOverdueCron } = require("./overdue-cron");
 const { startAwardCron } = require("./award-cron");
+const { startRetireCron } = require("./retire-cron");
 const { createPbClient } = require("./pb-cron");
 const { makeRewardStreakHandler } = require("./reward-streak");
 
@@ -59,6 +61,7 @@ if (superuser) {
   const creds = { ...superuser, sendPush };
   startOverdueCron(creds);
   startAwardCron(creds);
+  startRetireCron(superuser); // no push - it only flips chores inactive
 } else {
   console.warn(
     "[cron] PB_SUPERUSER_EMAIL/_PASSWORD not set - overdue + award crons disabled"
