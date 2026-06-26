@@ -419,7 +419,7 @@ class _HouseHero extends ConsumerWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => context.push(Routes.householdDetails(household.id)),
       child: AspectRatio(
-        aspectRatio: 5 / 4,
+        aspectRatio: PictureArtwork.houseAspectRatio,
         child: Stack(
           children: [
             Positioned.fill(

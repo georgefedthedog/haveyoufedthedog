@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chore_actions.dart';
 import '../../core/chores/chores_controller.dart';
 import '../../core/chores/schedule_rule.dart';
 import '../../core/chores/weekdays.dart';
+import '../../core/subjects/character.dart';
+import '../../core/subjects/character_artwork.dart';
+import '../../core/subjects/subject.dart';
+import '../../core/subjects/subjects_controller.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/single_select_chips.dart';
 import 'weekday_picker.dart';
@@ -166,11 +171,15 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   /// full name and the complete schedule line (days + time), regardless
   /// of whether the chore would currently be overdue / due-soon. The
   /// styling mirrors ChoreRow's resting look without its live status.
-  Widget _buildPreviewRow() {
+  Widget _buildPreviewRow(Subject? subject) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final name = _nameCtrl.text.trim();
     final rule = _buildRule();
+    // The subject's character on the left (generic fallback if it isn't
+    // resolved yet); the schedule-type icon on the right - a clock for
+    // recurring, a calendar for a one-off (matching the list rows).
+    final character = ref.watch(catalogProvider).lookupCharacter(subject?.icon);
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -183,11 +192,20 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: scheme.surfaceContainerHighest,
-              foregroundColor: scheme.onSurfaceVariant,
-              child: Icon(_isOnce ? Icons.event : Icons.schedule, size: 22),
+            SizedBox(
+              width: 44,
+              height: 44,
+              child: ClipOval(
+                child: ColoredBox(
+                  color: character.stageColor,
+                  child: CharacterArtwork(
+                    character: character,
+                    expression: CharacterExpression.idle,
+                    stage: false,
+                    iconSize: 28,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -209,6 +227,11 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(width: 12),
+            Icon(
+              _isOnce ? Icons.event : Icons.schedule,
+              color: scheme.onSurfaceVariant,
             ),
           ],
         ),
@@ -346,9 +369,10 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Chore? existing;
     if (_isEdit) {
       final asyncChores = ref.watch(choresControllerProvider);
-      final existing = asyncChores.valueOrNull?.firstWhere(
+      existing = asyncChores.valueOrNull?.firstWhere(
         (c) => c.id == widget.choreId,
         orElse: () => throw StateError('Chore ${widget.choreId} missing'),
       );
@@ -359,6 +383,19 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     }
 
     final scheme = Theme.of(context).colorScheme;
+
+    // The subject behind this chore - the create-time arg, or the edited
+    // chore's subject - resolved for the preview's portrait.
+    final subjectId = widget.subjectId ?? existing?.subjectId;
+    final subjects =
+        ref.watch(subjectsControllerProvider).valueOrNull ?? const <Subject>[];
+    Subject? subject;
+    for (final s in subjects) {
+      if (s.id == subjectId) {
+        subject = s;
+        break;
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -380,7 +417,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
             children: [
               // Live preview of the chore's name + full schedule line,
               // updating as the form changes.
-              _buildPreviewRow(),
+              _buildPreviewRow(subject),
               const SizedBox(height: 16),
               Card(
                 child: Padding(

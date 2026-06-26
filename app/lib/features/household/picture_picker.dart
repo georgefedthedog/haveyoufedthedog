@@ -32,7 +32,7 @@ class PicturePicker extends ConsumerStatefulWidget {
 }
 
 class _PicturePickerState extends ConsumerState<PicturePicker> {
-  static const _viewportFraction = 0.75;
+  static const _viewportFraction = 0.65;
   late final PageController _controller;
   late int _currentIndex;
   late List<Picture> _pictures;
@@ -102,28 +102,38 @@ class _PicturePickerState extends ConsumerState<PicturePicker> {
       _pictures = pictures;
     }
 
-    return SizedBox(
-      height: 200,
-      child: PageView.builder(
-        controller: _controller,
-        itemCount: _pictures.length,
-        onPageChanged: (i) {
-          _currentIndex = i;
-          widget.onChanged(_pictures[i].id);
-        },
-        itemBuilder: (context, i) {
-          return _CarouselTile(
-            picture: _pictures[i],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Height the carousel so the centred tile's house image lands on the
+        // shared 7:5 house ratio - working back from the peek width
+        // (viewportFraction) and the tile's shadow padding (4 each side
+        // horizontally, 8 top + 16 bottom).
+        final tileWidth = constraints.maxWidth * _viewportFraction;
+        final height = (tileWidth - 8) / PictureArtwork.houseAspectRatio + 24;
+        return SizedBox(
+          height: height,
+          child: PageView.builder(
             controller: _controller,
-            index: i,
-            onTap: () => _controller.animateToPage(
-              i,
-              duration: const Duration(milliseconds: 280),
-              curve: Curves.easeOut,
-            ),
-          );
-        },
-      ),
+            itemCount: _pictures.length,
+            onPageChanged: (i) {
+              _currentIndex = i;
+              widget.onChanged(_pictures[i].id);
+            },
+            itemBuilder: (context, i) {
+              return _CarouselTile(
+                picture: _pictures[i],
+                controller: _controller,
+                index: i,
+                onTap: () => _controller.animateToPage(
+                  i,
+                  duration: const Duration(milliseconds: 280),
+                  curve: Curves.easeOut,
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

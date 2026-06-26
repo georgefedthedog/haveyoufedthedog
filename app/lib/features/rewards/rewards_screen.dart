@@ -218,7 +218,9 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
               _Tray(
                 items: earnable,
                 crossAxisCount: _kind == RewardKind.character ? 4 : 3,
-                childAspectRatio: _kind == RewardKind.character ? 1 : 9 / 6,
+                childAspectRatio: _kind == RewardKind.character
+                    ? 1
+                    : PictureArtwork.houseAspectRatio,
                 focusedSlug: focused?.slug,
                 onTap: (slug) => setState(() => _focusedSlug = slug),
               ),
@@ -493,7 +495,10 @@ class _StageState extends State<_Stage> with SingleTickerProviderStateMixin {
               ? SizedBox(width: _size, height: _size, child: card)
               : SizedBox(
                   height: _size,
-                  child: AspectRatio(aspectRatio: 9 / 6, child: card),
+                  child: AspectRatio(
+                    aspectRatio: PictureArtwork.houseAspectRatio,
+                    child: card,
+                  ),
                 );
           final stage = CustomPaint(
             foregroundPainter: DashedRRectPainter(

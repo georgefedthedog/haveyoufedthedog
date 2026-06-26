@@ -15,6 +15,7 @@ import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
 import '../../router/routes.dart';
+import '../../widgets/confirm_by_typing.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import '../../widgets/glow_highlight.dart';
 import '../../widgets/labeled_field.dart';
@@ -175,31 +176,14 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   }
 
   Future<void> _delete() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Delete ${_nameCtrl.text}?'),
-        content: const Text(
+    final confirmed = await confirmByTyping(
+      context,
+      title: 'Delete ${_nameCtrl.text}?',
+      body:
           'All chores and history for this thing will be permanently '
           'removed. This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-              foregroundColor: Theme.of(ctx).colorScheme.onError,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     if (!mounted) return;
     setState(() => _busy = true);
@@ -272,7 +256,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit thing' : 'New thing'),
+        title: Text(_isEdit ? 'Edit ${existing!.name}' : 'New thing'),
         actions: [
           if (_isEdit)
             IconButton(
