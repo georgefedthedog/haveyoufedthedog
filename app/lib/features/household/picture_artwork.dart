@@ -16,6 +16,12 @@ import '../home/time_of_day_bucket.dart';
 /// the disk cache as soon as one renders, so the scene never flips to a
 /// placeholder when the bucket rolls over (e.g. evening at 5pm).
 class PictureArtwork extends StatelessWidget {
+  /// The standard aspect ratio (width / height) for showing a house picture as
+  /// a card - the home hero, the rewards tiles, the featured reward card. A
+  /// 7:5 photo-print framing; the art is cover-cropped to fit. One constant so
+  /// every house surface stays in step.
+  static const double houseAspectRatio = 7 / 5;
+
   final Picture? picture;
 
   /// Forced height. Width follows from `BoxFit.contain` so the aspect

@@ -44,7 +44,7 @@ class Leaderboard extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'No completions this week yet - go log one!',
+                  'No chores completed yet this week!',
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ),

@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/auth_controller.dart';
 import '../core/catalog/catalog_controller.dart';
 import '../core/household/acting_user_controller.dart';
+import '../core/subjects/character.dart';
+import '../core/subjects/character_artwork.dart';
+import '../core/subjects/subject.dart';
+import '../core/subjects/subjects_controller.dart';
 import '../features/profile/avatar_artwork.dart';
 import '../router/routes.dart';
 
@@ -16,7 +20,7 @@ import '../router/routes.dart';
 /// `navigatorContainerBuilder` passes every branch Navigator in
 /// [children]; pushing onto a branch (`context.push('/subject/123')`)
 /// replaces the shell entirely until the pushed route is popped.
-class RootNavShell extends StatefulWidget {
+class RootNavShell extends ConsumerStatefulWidget {
   final StatefulNavigationShell shell;
 
   /// One Navigator per branch, same order as the bottom-bar tabs.
@@ -25,10 +29,10 @@ class RootNavShell extends StatefulWidget {
   const RootNavShell({super.key, required this.shell, required this.children});
 
   @override
-  State<RootNavShell> createState() => _RootNavShellState();
+  ConsumerState<RootNavShell> createState() => _RootNavShellState();
 }
 
-class _RootNavShellState extends State<RootNavShell> {
+class _RootNavShellState extends ConsumerState<RootNavShell> {
   // All solid glyphs: there's no hollow paw in any icon font, so the
   // other three match it rather than the paw sticking out.
   static const _items = <_NavItem>[
@@ -76,6 +80,31 @@ class _RootNavShellState extends State<RootNavShell> {
     );
   }
 
+  /// Quick-add a chore from the central FAB. A chore needs a subject, so pick
+  /// the thing first: none → add a thing; exactly one → straight to its New
+  /// Chore form (no needless picker); several → a bottom sheet of character
+  /// tiles, then the form for whichever was tapped.
+  Future<void> _quickAddChore() async {
+    final subjects =
+        ref.read(subjectsControllerProvider).valueOrNull ?? const <Subject>[];
+    if (subjects.isEmpty) {
+      context.push(Routes.subjectNew);
+      return;
+    }
+    if (subjects.length == 1) {
+      context.push(Routes.choreNew(subjects.first.id));
+      return;
+    }
+    final picked = await showModalBottomSheet<Subject>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => _SubjectPickerSheet(subjects: subjects),
+    );
+    if (picked != null && mounted) {
+      context.push(Routes.choreNew(picked.id));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +117,12 @@ class _RootNavShellState extends State<RootNavShell> {
           for (final child in widget.children) _KeepAliveBranch(child: child),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _quickAddChore,
+        tooltip: 'Add a chore',
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _BottomBar(
         items: _items,
         currentIndex: widget.shell.currentIndex,
@@ -143,10 +178,20 @@ class _BottomBar extends StatelessWidget {
     return BottomAppBar(
       color: scheme.surfaceContainer,
       surfaceTintColor: Colors.transparent,
+      // Carve a notch for the centre-docked add-a-chore FAB; the tabs split
+      // 2 + 2 around a fixed centre gap so they stay clear of it.
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 6,
       child: SizedBox(
         height: 56,
         child: Row(
-          children: [for (var i = 0; i < items.length; i++) _tab(i, scheme)],
+          children: [
+            _tab(0, scheme),
+            _tab(1, scheme),
+            const SizedBox(width: 56),
+            _tab(2, scheme),
+            _tab(3, scheme),
+          ],
         ),
       ),
     );
@@ -220,7 +265,7 @@ class _YouTab extends ConsumerWidget {
             shape: BoxShape.circle,
             border: Border.all(color: ringColor, width: 2),
           ),
-          child: AvatarArtwork(avatar: avatar, size: 33),
+          child: AvatarArtwork(avatar: avatar, size: 34),
         ),
         const SizedBox(height: 2),
         Text(
@@ -234,6 +279,99 @@ class _YouTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Bottom sheet listing the household's things as character tiles, shown by
+/// the central FAB when there's more than one. Tapping a tile pops the sheet
+/// with that subject; the shell then opens its New Chore form.
+class _SubjectPickerSheet extends StatelessWidget {
+  final List<Subject> subjects;
+  const _SubjectPickerSheet({required this.subjects});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Add a chore for…',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: [
+                for (final s in subjects)
+                  _SubjectTile(
+                    subject: s,
+                    onTap: () => Navigator.pop(context, s),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One thing in the picker sheet: its character on a circular stage with the
+/// name underneath. Tap to choose it.
+class _SubjectTile extends ConsumerWidget {
+  final Subject subject;
+  final VoidCallback onTap;
+  const _SubjectTile({required this.subject, required this.onTap});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final character = ref.watch(catalogProvider).lookupCharacter(subject.icon);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        width: 84,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 64,
+              height: 64,
+              child: ClipOval(
+                child: ColoredBox(
+                  color: character.stageColor,
+                  child: CharacterArtwork(
+                    character: character,
+                    expression: CharacterExpression.idle,
+                    stage: false,
+                    iconSize: 40,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              subject.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
