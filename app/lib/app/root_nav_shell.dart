@@ -11,6 +11,7 @@ import '../core/subjects/subject.dart';
 import '../core/subjects/subjects_controller.dart';
 import '../features/profile/avatar_artwork.dart';
 import '../router/routes.dart';
+import '../widgets/dashed_circle_painter.dart';
 
 /// Hosts the four bottom-nav tabs (Home / Things / Awards / You) in a
 /// swipeable PageView - swipe left/right between tabs, or tap the bar - with a
@@ -318,6 +319,15 @@ class _SubjectPickerSheet extends StatelessWidget {
                     subject: s,
                     onTap: () => Navigator.pop(context, s),
                   ),
+                _NewThingTile(
+                  onTap: () {
+                    // Capture the router before popping the sheet, then open
+                    // the New thing page.
+                    final router = GoRouter.of(context);
+                    Navigator.pop(context);
+                    router.push(Routes.subjectNew);
+                  },
+                ),
               ],
             ),
           ],
@@ -368,6 +378,50 @@ class _SubjectTile extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Trailing "New thing" target in the picker sheet - a dashed circle with a
+/// plus, sized like the subject tiles, that opens the New thing page.
+class _NewThingTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _NewThingTile({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        width: 84,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomPaint(
+              painter: DashedCirclePainter(color: accent),
+              child: SizedBox(
+                width: 64,
+                height: 64,
+                child: Icon(Icons.add, size: 28, color: accent),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'New thing',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: accent,
                 fontWeight: FontWeight.w600,
               ),
             ),
