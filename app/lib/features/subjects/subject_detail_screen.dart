@@ -335,6 +335,9 @@ class _TodaySection extends ConsumerWidget {
                 chore: c,
                 subjectId: subject.id,
                 existingCompletion: latestByChoreId[c.id],
+                // Status icon opens the chore editor (no leading tap here -
+                // you're already on the subject).
+                onTrailingTap: () => context.push(Routes.choreEdit(c.id)),
               ),
             ),
         const SizedBox(height: 4),
