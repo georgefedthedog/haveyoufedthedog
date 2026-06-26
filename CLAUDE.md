@@ -176,6 +176,17 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).
+- **Subject + chore screens.** The View thing screen
+  (`subject_detail_screen.dart`) shows the hero, today's chores, history, and a
+  "Manage chores" link; the add/edit/drag-delete chore chip cloud lives on the
+  Edit thing screen (`edit_subject_screen.dart`). The link sets
+  `manageChoresHighlightProvider` then navigates, and Edit thing scrolls +
+  flashes that section via `GlowHighlight` (same one-shot pattern as the
+  NFC-setting cue); creating a new thing lands on its Edit screen. A central
+  quick-add-chore FAB on `RootNavShell` works from any tab - it picks the thing
+  first (one thing → straight to New Chore; several → a bottom-sheet character
+  picker). Grave deletes (account / household / subject / managed member) gate
+  behind the shared `confirmByTyping` (type DELETE).
 
 ## Data conventions
 
@@ -192,15 +203,29 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   - `monthly` - `month_mode` `day` (`month_day` 1-28, or `-1` = last day) or
     `weekday` (`month_ordinal` 1-4 or `-1` = last × `month_weekday` ISO 1-7).
     `-1` = "last"; PB reads an empty number as 0, so never use 0 for it.
-  Records always carry the **full** field set (`chore_actions._ruleFields`), so
-  switching type leaves no stale values; only the fields the active
-  `schedule_type` reads are consulted.
+  - `once` - a one-off on `due_date` (text `YYYY-MM-DD`, no timezone, so no
+    tz-shift). Carries over: due on its date and every day after, until done
+    (lifecycle below); future-dated ones don't show until their day. The
+    editor's "Repeats / One time" toggle picks this vs the recurring
+    frequencies.
+  Records always carry the **full** field set (`chore_actions._ruleFields`,
+  including `due_date` - empty for recurring), so switching type leaves no stale
+  values; only the fields the active `schedule_type` reads are consulted.
 - **Due-date logic is computed on both sides and must stay in sync.**
   `ScheduleRule.isDueOn` (app) and `isChoreDueOn` in
   `server/services/worker/pb-cron.js` (the one server mirror, used by
-  `overdue-cron.js` + `reward-streak.js`) implement the same rules - the
-  fortnightly epoch/parity and the monthly day/weekday math. Touch one, touch
-  the other.
+  `overdue-cron.js`, `retire-cron.js` + `reward-streak.js`) implement the same
+  rules - the fortnightly epoch/parity, the monthly day/weekday math, and the
+  `once` carryover (`due_date` onward). Touch one, touch the other.
+- **One-off chore lifecycle.** A `once` chore is a standing task: shown from its
+  `due_date` onward (overdue carryover) until completed, then it drops off.
+  `completions.chore_name` is stamped at log time so history still names a
+  retired/deleted chore (the timeline prefers the live chore name, falls back to
+  it). Retirement = `active = false`, set by `retire-cron.js` the day **after**
+  completion (so it still shows "done" on its day); the client
+  `completedOnceChoreIdsController` hides a finished one-off in the gap until
+  then, and `overdue-cron.js` skips nudging a completed one. Recurring chores
+  never carry over (a missed day just reappears on its next scheduled day).
 - `completions.completed_by` is the **acting identity**, not necessarily the
   signed-in user - "Act as" lets a signed-in member log for a managed
   member (see Architecture). Every stat keys off `completed_by`, so a managed
@@ -208,11 +233,13 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   delete rules were relaxed from self-only to **"any member of the subject's
   household"** so act-as logging and undo work; it stays backward-compatible
   because a self-attributed write is still a member write.
-- The overdue + award crons live in the **Node worker service**
-  (`server/services/worker/`: `overdue-cron.js` / `award-cron.js`, sharing
-  `pb-cron.js`), not in PB hooks. They convert per household via
-  `households.timezone` (IANA; empty = Europe/London), so the server's own
-  clock setting doesn't matter.
+- The overdue, award + retire crons live in the **Node worker service**
+  (`server/services/worker/`: `overdue-cron.js` / `award-cron.js` /
+  `retire-cron.js`, sharing `pb-cron.js`), not in PB hooks. They convert per
+  household via `households.timezone` (IANA; empty = Europe/London), so the
+  server's own clock setting doesn't matter. `retire-cron.js` is the hourly
+  one-off sweep (a couple of minutes past each hour) that flips a finished
+  one-off `active = false` the day after it's done, in the household's tz.
 - Weekly windows everywhere are Mon→Sun local. Award ties go to nobody.
 - **Character "Best Human" awards are settled, not live.** The personality
   badges + Team Effort + leaderboard track the in-progress Mon→Sun week, but
@@ -240,10 +267,12 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   walks the household's due-days in its IANA timezone and only grants past the
   threshold. Keep the two in sync if you touch the rules - the lenient
   any-subject-fed predicate, the grace-today exception, the
-  `last_free_redemption` anchor, and the default-28 threshold all live in both
-  `reward_streak_controller.dart` and `reward-streak.js`. Because the app number
-  is advisory, a day-boundary disagreement just shows the claim button slightly
-  early/late; the server is the gate.
+  `last_free_redemption` anchor, the default-28 threshold, and the **one-off
+  exclusion** (a `once` chore never makes a day "due", so a missed one can't
+  break the streak; completing it still counts like any completion) all live in
+  both `reward_streak_controller.dart` and `reward-streak.js`. Because the app
+  number is advisory, a day-boundary disagreement just shows the claim button
+  slightly early/late; the server is the gate.
 - Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
   - never `TimeOfDay.format(context)`.
 
@@ -304,6 +333,12 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
 - Characters have expressions (idle/happy/sad/sleeping/celebrate + award
   pose); mood logic lives in `subjectMoodProvider` - reuse it rather than
   re-deriving "is the dog sad" in widgets.
+- House pictures render at `PictureArtwork.houseAspectRatio` (7:5) on every
+  showcase surface - home hero, rewards grid + featured card, picker carousel -
+  one constant so they stay in step; the compact switcher thumbnail stays
+  square. One-off chores read distinctly from recurring: a "One-time" pill on
+  the list row and a calendar glyph (`Icons.event`) where recurring shows the
+  clock.
 
 ## Windows shell gotchas
 

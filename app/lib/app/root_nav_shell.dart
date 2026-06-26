@@ -13,8 +13,10 @@ import '../features/profile/avatar_artwork.dart';
 import '../router/routes.dart';
 
 /// Hosts the four bottom-nav tabs (Home / Things / Awards / You) in a
-/// swipeable PageView - swipe left/right between tabs, or tap the bar.
-/// Adding a thing lives in the Things tab's AppBar (+), not a FAB.
+/// swipeable PageView - swipe left/right between tabs, or tap the bar - with a
+/// centre-docked quick-add-chore FAB over a notched bar (picks the thing first,
+/// then opens New Chore). Adding a *thing* still lives in the Things tab's
+/// AppBar (+).
 ///
 /// Wired by `app_router.dart` via a custom [StatefulShellRoute] whose
 /// `navigatorContainerBuilder` passes every branch Navigator in
