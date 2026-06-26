@@ -2,9 +2,10 @@
 
 A fun family chore tracker. Everything the household looks after - the dog,
 the cat, the plants, the wheelie bin - becomes a friendly cartoon **character**.
-Chores recur on a schedule ("Brekkie, every day at 6:50 am"), anyone in the
-household can tick them off (tap a row, or tap an **NFC tag** stuck near the
-dog food), and everyone else gets a push notification. Completions feed
+Chores recur on a schedule ("Brekkie, every day at 6:50 am") or fire once on a
+date ("Vet, 12 May"), anyone in the household can tick them off (tap a row, or
+tap an **NFC tag** stuck near the dog food), and everyone else gets a push
+notification. Completions feed
 streaks, a weekly leaderboard, and a tongue-in-cheek **awards** system
 (Early Bird, Night Owl, "Kiko-dog's Best Human 🩵"…). Branded as a dog feeder,
 but the engine is generic recurring-care tasks.
@@ -90,18 +91,26 @@ Cloudflare** on a Hetzner box (`dogbox-1`).
     month) or `weekday` (`month_ordinal` 1-4 or `-1` = last, with `month_weekday`
     ISO 1-7). `-1` means "last"; PB reads an empty number as 0, so 0 is never
     that sentinel.
-  The full field set is written on every save (`chore_actions._ruleFields`);
-  only the fields the active `schedule_type` reads are consulted, the rest are
-  inert defaults. **Times are family wall-clock with no timezone** - see the
-  timezone contract below.
-- **completions** - `subject`, `chore`, `completed_by`, `completed_at` (UTC),
-  `source` (`button`/`nfc`). `completed_by` is the **acting identity** ("Act
-  as" lets a signed-in member log for a managed member), not necessarily
-  the caller - so the create/update/delete rules allow any member of the
-  subject's household (relaxed from self-only) and act-as logging + undo work.
-  `completed_by` is **optional and non-cascading** on purpose: deleting a user
-  (incl. a managed member) blanks it (PB clears optional references), so the
-  chore still counts in history but shows as "Someone".
+  - `once` - a single dated task on `due_date` (text `YYYY-MM-DD`, no timezone).
+    It carries over - due on its date and every day after, until completed -
+    then a worker sweep retires it (`active = false`). See "one-off chores" in
+    the worker section.
+  The full field set is written on every save (`chore_actions._ruleFields`,
+  `due_date` included - empty for recurring); only the fields the active
+  `schedule_type` reads are consulted, the rest are inert defaults. **Times are
+  family wall-clock with no timezone** - see the timezone contract below.
+- **completions** - `subject`, `chore`, `chore_name`, `completed_by`,
+  `completed_at` (UTC), `source` (`button`/`nfc`). `completed_by` is the
+  **acting identity** ("Act as" lets a signed-in member log for a managed
+  member), not necessarily the caller - so the create/update/delete rules allow
+  any member of the subject's household (relaxed from self-only) and act-as
+  logging + undo work. `completed_by` is **optional and non-cascading** on
+  purpose: deleting a user (incl. a managed member) blanks it (PB clears
+  optional references), so the chore still counts in history but shows as
+  "Someone". `chore_name` is the chore's name **denormalised at log time** so
+  the history timeline still names a chore that's since been deleted or retired
+  (a finished one-off goes `active = false` and drops out of the live list);
+  the timeline prefers the live chore name and falls back to this.
 - **catalog_avatars / catalog_pictures / catalog_characters** - the remote
   art catalog (ship new art without an app release). Per row: `slug` (the
   forever-id stored on user/household/subject records), `display_name`,
@@ -174,11 +183,11 @@ server" below) - ask Claude for step-by-step instructions.
 
 ### Worker service (`server/services/worker/`)
 
-Node/Express service with four jobs plus an on-demand endpoint (composed in
-`index.js`; each concern is its own module). The two per-timezone crons share
-`pb-cron.js` - the PB superuser client (auth + paginated `list`), `zonedParts`,
-the once-a-minute non-overlapping scheduler, and the household-by-timezone
-cache:
+Node/Express service with five jobs plus an on-demand endpoint (composed in
+`index.js`; each concern is its own module). The three per-timezone crons share
+`pb-cron.js` - the PB superuser client (auth + paginated `list` + `update`),
+`zonedParts`, the once-a-minute non-overlapping scheduler, and the
+household-by-timezone cache:
 
 1. **FCM relay** - hooks POST `{tokens, title, body, data}` to
    `http://127.0.0.1:3055/notify`; it fans out via
@@ -220,7 +229,15 @@ cache:
    window, the unique-max tiebreak, and the award-title flavour map are all
    duplicated from the app's award logic - change both sides together (the
    app names each app↔cron pair in `CLAUDE.md` → Data conventions).
-4. **In-app-purchase verification** (`verify.js`) - hooks POST a receipt to
+4. **Retire cron** (`retire-cron.js`) - hourly (a couple of minutes past each
+   hour), per household timezone, flips a finished **one-off** chore
+   `active = false` the day **after** it was completed - so a `once` task
+   carries over until done, then drops off for good. It only retires one whose
+   latest completion is on a *prior* local day (one finished *today* stays
+   active so it still shows as "done"). The app hides a finished one-off
+   immediately client-side; this is the durable server-side retirement. Same
+   superuser `.env` as the other crons.
+5. **In-app-purchase verification** (`verify.js`) - hooks POST a receipt to
    `http://127.0.0.1:3055/verify-purchase`; it validates with the store and
    reports back so `purchases.pb.js` can grant the household its packs.
    **Android** uses the Play Developer API (`play-service-account.json`, another
@@ -231,12 +248,13 @@ cache:
    credentials. `verifyReceipt` is deprecated but operational; a future
    StoreKit 2 + JWS move would retire it (and needs the client switched off
    StoreKit 1, which currently sends the receipt).
-5. **Reward-streak compute** (`reward-streak.js`) - an on-demand endpoint, not
+6. **Reward-streak compute** (`reward-streak.js`) - an on-demand endpoint, not
    a cron: `rewards.pb.js` POSTs `{householdId}` to
    `http://127.0.0.1:3055/reward-streak`, and it walks the household's active
    chores + recent completions in the household's IANA timezone to return the
    current lenient reward streak (consecutive due-days with any completion,
-   counted after `last_free_redemption`). It's the **authority** for free
+   counted after `last_free_redemption`; one-off chores are excluded from the
+   due-day test, so a missed one can't break it). It's the **authority** for free
    streak-reward claims; the app computes an advisory copy for its progress
    bar. Uses the same superuser `.env` as the crons (no creds → the endpoint
    replies 503 and the rest of the service runs on).
