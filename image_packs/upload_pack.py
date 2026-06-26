@@ -57,6 +57,7 @@ def die(msg):
 
 def auth(base, email, password):
     s = requests.Session()
+    primary = None  # remember the modern endpoint's response to report on failure
     for path in ("/api/collections/_superusers/auth-with-password",
                  "/api/admins/auth-with-password"):
         try:
@@ -69,7 +70,10 @@ def auth(base, email, password):
             s.headers["Authorization"] = r.json()["token"]
             print(f"Authenticated via {path}")
             return s
-    die(f"auth failed ({r.status_code}): {r.text[:300]}")
+        if primary is None:
+            primary = r  # the _superusers attempt; the /api/admins fallback is
+                         # gone (404) on current PB, so don't let it mask this
+    die(f"auth failed ({primary.status_code}): {primary.text[:300]}")
 
 
 def find_one(s, base, collection, filt):
@@ -460,7 +464,9 @@ def main():
     password = os.environ.get("PB_ADMIN_PASSWORD")
     offline = args.dry_run and not (email and password)
     if not args.dry_run and not (email and password):
-        die("set PB_ADMIN_EMAIL and PB_ADMIN_PASSWORD in the environment")
+        die("run the following:\n"
+                "export PB_ADMIN_EMAIL=georgefedthedog@gmail.com\n"
+                "export PB_ADMIN_PASSWORD=[INSERT_PASSWORD]")
     s = None if offline else auth(base, email, password)
     if offline:
         print("(dry run, no creds: planning offline; server lookups skipped)\n")

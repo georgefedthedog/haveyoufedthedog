@@ -357,6 +357,13 @@
       "packs": ["rewards"]
     },
     {
+      "slug": "teaching_owl",
+      "display_name": "Teaching Owl",
+      "base_color": "F0E3CE",
+      "sort_order": 4090,
+      "packs": ["rewards"]
+    },
+    {
       "slug": "robots_pack_dog_1",
       "display_name": "Robot Dog",
       "base_color": "DDEFC9",

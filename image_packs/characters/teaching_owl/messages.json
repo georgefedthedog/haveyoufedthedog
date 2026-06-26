@@ -1,0 +1,30 @@
+{
+  "lines": {
+    "allDone": [
+      { "title": "Lesson complete.", "body": "{name} gives you a wise nod 🦉" },
+      { "title": "Top of the class.", "body": "{name} is proud of your work 📚" },
+      { "title": "Homework: handed in.", "body": "Gold star for {name} today ⭐" }
+    ],
+    "overdue": [
+      { "title": "Class is waiting.", "body": "{name} taps the lectern, patiently 🦉" },
+      { "title": "A lesson is overdue.", "body": "{name} peers at you over its glasses 👀" },
+      { "title": "Don't fall behind.", "body": "{name} has work still to mark." }
+    ],
+    "upcoming": [
+      { "title": "Lesson coming up.", "body": "{name} is sharpening its pencils 📚" },
+      { "title": "Bell about to ring.", "body": "{name} knows it's nearly time." },
+      { "title": "Chalk at the ready.", "body": "{name} is poised to teach 🦉" }
+    ],
+    "happyForNow": [
+      { "title": "Reading quietly.", "body": "{name} is content for now 📖" },
+      { "title": "Nothing due just yet.", "body": "{name} has a lesson later." },
+      { "title": "Perched and patient.", "body": "All is well with {name}." }
+    ],
+    "none": [
+      { "title": "School's out today.", "body": "{name} approves of the rest 🦉" },
+      { "title": "No lessons due.", "body": "{name} is all caught up 📚" }
+    ]
+  },
+  "awardTitle": "Top of the Class 🦉",
+  "awardThanks": "Thanks for keeping up with every lesson last week!"
+}
