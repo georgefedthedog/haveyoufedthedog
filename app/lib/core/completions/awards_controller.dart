@@ -87,7 +87,8 @@ class WeeklyAwards {
   /// All seven days swept - only attainable from Sunday evening.
   final bool perfectWeek;
 
-  /// Nobody carried more than half the load (needs ≥2 contributors and a
+  /// Nobody did much more than their fair share - the busiest contributor
+  /// stayed within 1.5x an even split (needs ≥2 contributors and a
   /// meaningful number of completions).
   final bool teamEffort;
 
@@ -242,10 +243,17 @@ WeeklyAwards weeklyAwards(Ref ref) {
 
   final weekTally = tally(thisWeek);
   final weekTotal = thisWeek.length;
+  final contributorCount = weekTally.length;
   final maxShare = weekTally.isEmpty
       ? 0.0
       : weekTally.values.reduce((a, b) => a > b ? a : b) / weekTotal;
-  final teamEffort = weekTotal >= 5 && weekTally.length >= 2 && maxShare <= 0.5;
+  // Team Effort scales with household size: nobody may do more than 1.5x an
+  // even share (1 / contributors). A fixed 50% cap was unwinnable for two
+  // people (it needed a perfect tie, impossible on odd weeks) and far too
+  // lenient for big households (49% is one person carrying a five-way team).
+  final teamEffort = weekTotal >= 5 &&
+      contributorCount >= 2 &&
+      maxShare <= 1.5 / contributorCount;
   final contributorIds =
       (weekTally.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
           .map((e) => e.key)

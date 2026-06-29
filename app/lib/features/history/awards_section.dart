@@ -111,9 +111,11 @@ class BadgesSection extends ConsumerWidget {
   }
 }
 
-/// Team Effort - the household-wide badge. Earned when nobody carries
-/// more than half the week's load. The footer shows everyone who chipped
-/// in (overlapping avatar stack) rather than a single winner.
+/// Team Effort - the household-wide badge. Earned when everyone pulls
+/// their weight - nobody does much more than their fair share of the
+/// week's load (it scales with how many people chipped in). The footer
+/// shows every contributor (overlapping avatar stack) rather than a
+/// single winner.
 class _TeamEffortCard extends ConsumerWidget {
   final bool awarded;
   final List<HouseholdMember> contributors;
@@ -155,7 +157,7 @@ class _TeamEffortCard extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Everyone shares the load - nobody does more than half',
+              'Everyone pulled their weight - the load was shared fairly',
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.onSurfaceVariant,
