@@ -8,6 +8,27 @@ const DEFAULT_TZ = "Europe/London";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 const HOUSEHOLDS_CACHE_MS = 5 * 60 * 1000;
+const FETCH_TIMEOUT_MS = 10 * 1000;
+
+/// `fetch` with a hard timeout. A request with no timeout can hang forever -
+/// and because the per-minute tick has a `running` guard, one hung request
+/// wedges the whole cron until the process restarts (it once went dark for
+/// days that way). On timeout this rejects, so the tick's catch resets
+/// `running` and the next minute retries cleanly.
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err.name === "AbortError") {
+      throw new Error(`PB request timed out after ${FETCH_TIMEOUT_MS}ms: ${url}`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // Sun=0 .. Sat=6 (matches Date.getUTCDay), and the Mon=1 … Sun=64 weekday
 // mask bits the app stores on chores.
@@ -21,7 +42,7 @@ function createPbClient({ pbUrl, identity, password }) {
   let token = null;
 
   async function authenticate() {
-    const res = await fetch(`${pbUrl}/api/collections/_superusers/auth-with-password`, {
+    const res = await fetchWithTimeout(`${pbUrl}/api/collections/_superusers/auth-with-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ identity, password }),
@@ -32,7 +53,7 @@ function createPbClient({ pbUrl, identity, password }) {
 
   async function get(path, retried = false) {
     if (!token) await authenticate();
-    const res = await fetch(`${pbUrl}${path}`, { headers: { Authorization: token } });
+    const res = await fetchWithTimeout(`${pbUrl}${path}`, { headers: { Authorization: token } });
     if (res.status === 401 && !retried) {
       token = null;
       return get(path, true);
@@ -57,7 +78,7 @@ function createPbClient({ pbUrl, identity, password }) {
 
   async function update(path, body, retried = false) {
     if (!token) await authenticate();
-    const res = await fetch(`${pbUrl}${path}`, {
+    const res = await fetchWithTimeout(`${pbUrl}${path}`, {
       method: "PATCH",
       headers: { Authorization: token, "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -200,6 +221,17 @@ function makeHouseholdsByZone(client, logPrefix) {
   return async function householdsByZone() {
     if (Date.now() - cache.at < HOUSEHOLDS_CACHE_MS) return cache.byZone;
     const items = await client.list(`/api/collections/households/records?fields=id,timezone`);
+
+    // An empty result is almost always a transient (a PB restart caught
+    // mid-request, a momentary auth blip), not "every household is gone".
+    // Caching it would silence the crons for HOUSEHOLDS_CACHE_MS, so keep the
+    // last good set and retry next minute. Don't bump cache.at, so the retry
+    // isn't throttled. Warn each time so a genuine empty period is visible.
+    if (!items.length) {
+      console.warn(`${logPrefix} households fetch returned empty - keeping last good (${Object.keys(cache.byZone).length} tz)`);
+      return cache.byZone;
+    }
+
     const byZone = {};
     for (const h of items) {
       const tz = h.timezone || DEFAULT_TZ;
@@ -221,9 +253,20 @@ function makeHouseholdsByZone(client, logPrefix) {
 /// causes the next tick to be skipped rather than stacking.
 function everyMinute(fn) {
   let running = false;
+  let runningSince = 0;
   async function tick() {
-    if (running) return;
+    if (running) {
+      // A tick still "running" minutes later means a wedged await - the
+      // failure mode that once silenced the crons for days looked exactly
+      // like normal quiet in the logs. Surface it so the silence is visible.
+      const stuckMs = Date.now() - runningSince;
+      if (stuckMs > 2 * 60 * 1000) {
+        console.warn(`[cron] tick skipped - previous run still going after ${Math.round(stuckMs / 1000)}s`);
+      }
+      return;
+    }
     running = true;
+    runningSince = Date.now();
     try {
       await fn(new Date(Date.now() - 60 * 1000));
     } catch (err) {
