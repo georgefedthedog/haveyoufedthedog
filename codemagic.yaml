@@ -17,6 +17,31 @@
 # separate step once enrollment clears. The app builds and runs without it.
 
 workflows:
+  # Holds a Mac builder alive for a VNC session (App Store screenshots via the
+  # iOS Simulator - no local Apple hardware). Start it manually with "Enable
+  # SSH/VNC access" ticked, connect with a VNC client, then in a terminal:
+  #   open -a Simulator      (pick iPhone 16 Pro Max / iPad Pro 13")
+  #   cd ~/clone/app && flutter run
+  # Cmd+S in Simulator saves native-resolution PNGs to the Desktop; scp them
+  # down with the SSH details from the build page. Cancel the build when done.
+  screenshots:
+    name: Screenshots (VNC session)
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    working_directory: app
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    scripts:
+      - name: Pre-fetch Flutter packages
+        script: flutter pub get
+
+      - name: Hold machine for VNC session
+        script: sleep 7000 # ~116 min; session ends sooner if you cancel the build
+
   ios-release:
     name: iOS Release
     instance_type: mac_mini_m2 # matches the instance shown in Codemagic
