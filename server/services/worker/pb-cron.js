@@ -9,6 +9,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 const HOUSEHOLDS_CACHE_MS = 5 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 10 * 1000;
+const AUTH_MAX_AGE_MS = 30 * 60 * 1000;
 
 /// `fetch` with a hard timeout. A request with no timeout can hang forever -
 /// and because the per-minute tick has a `running` guard, one hung request
@@ -38,8 +39,16 @@ const WEEKDAY_BIT = { Mon: 1, Tue: 2, Wed: 4, Thu: 8, Fri: 16, Sat: 32, Sun: 64 
 /// An authenticated PocketBase client for a superuser. `get` does one
 /// request (re-authing once on a 401); `list` follows pagination to return
 /// every record from a list endpoint (PB caps perPage at 500).
+///
+/// Tokens are re-minted before they can expire (AUTH_MAX_AGE_MS, well under
+/// the 24h PB issues) because PB treats an *expired* token as a guest, not a
+/// 401: rule-scoped lists come back as a successful 200 with zero items, so
+/// the 401 retry below never fires and every fetch stays empty until the
+/// process restarts - which is exactly how the crons once went silent 24h
+/// after each deploy.
 function createPbClient({ pbUrl, identity, password }) {
   let token = null;
+  let authedAt = 0;
 
   async function authenticate() {
     const res = await fetchWithTimeout(`${pbUrl}/api/collections/_superusers/auth-with-password`, {
@@ -49,10 +58,15 @@ function createPbClient({ pbUrl, identity, password }) {
     });
     if (!res.ok) throw new Error(`PB superuser auth failed: ${res.status}`);
     token = (await res.json()).token;
+    authedAt = Date.now();
+  }
+
+  async function ensureFreshToken() {
+    if (!token || Date.now() - authedAt > AUTH_MAX_AGE_MS) await authenticate();
   }
 
   async function get(path, retried = false) {
-    if (!token) await authenticate();
+    await ensureFreshToken();
     const res = await fetchWithTimeout(`${pbUrl}${path}`, { headers: { Authorization: token } });
     if (res.status === 401 && !retried) {
       token = null;
@@ -77,7 +91,7 @@ function createPbClient({ pbUrl, identity, password }) {
   }
 
   async function update(path, body, retried = false) {
-    if (!token) await authenticate();
+    await ensureFreshToken();
     const res = await fetchWithTimeout(`${pbUrl}${path}`, {
       method: "PATCH",
       headers: { Authorization: token, "Content-Type": "application/json" },
@@ -91,7 +105,7 @@ function createPbClient({ pbUrl, identity, password }) {
     return res.json();
   }
 
-  return { get, list, update };
+  return { get, list, update, reauth: authenticate };
 }
 
 /// Wall-clock parts of `date` in `timeZone`: the weekday (Sun=0..Sat=6) and
@@ -220,13 +234,21 @@ function makeHouseholdsByZone(client, logPrefix) {
   let lastLogged = null;
   return async function householdsByZone() {
     if (Date.now() - cache.at < HOUSEHOLDS_CACHE_MS) return cache.byZone;
-    const items = await client.list(`/api/collections/households/records?fields=id,timezone`);
+    let items = await client.list(`/api/collections/households/records?fields=id,timezone`);
 
-    // An empty result is almost always a transient (a PB restart caught
-    // mid-request, a momentary auth blip), not "every household is gone".
-    // Caching it would silence the crons for HOUSEHOLDS_CACHE_MS, so keep the
-    // last good set and retry next minute. Don't bump cache.at, so the retry
-    // isn't throttled. Warn each time so a genuine empty period is visible.
+    // There are always households, so an empty 200 means the auth state is
+    // broken in a way PB doesn't 401 (a dead token is treated as a guest and
+    // rule-filtered to zero rows). Mint a fresh token and retry once.
+    if (!items.length) {
+      console.warn(`${logPrefix} households fetch returned empty - re-authing and retrying`);
+      await client.reauth();
+      items = await client.list(`/api/collections/households/records?fields=id,timezone`);
+    }
+
+    // Still empty: a transient (a PB restart caught mid-request). Caching it
+    // would silence the crons for HOUSEHOLDS_CACHE_MS, so keep the last good
+    // set and retry next minute. Don't bump cache.at, so the retry isn't
+    // throttled. Warn each time so a genuine empty period is visible.
     if (!items.length) {
       console.warn(`${logPrefix} households fetch returned empty - keeping last good (${Object.keys(cache.byZone).length} tz)`);
       return cache.byZone;
