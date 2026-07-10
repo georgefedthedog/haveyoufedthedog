@@ -65,6 +65,7 @@ class _AppRootState extends ConsumerState<AppRoot> {
     if (pending == null) return;
     switch (phase) {
       case RoutingPhase.loading:
+      case RoutingPhase.error:
       case RoutingPhase.signedOut:
         return; // wait - consumed downstream or after authentication
       case RoutingPhase.needsToPick:

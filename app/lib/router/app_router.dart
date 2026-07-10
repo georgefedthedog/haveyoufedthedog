@@ -20,6 +20,7 @@ import '../features/profile/edit_profile_screen.dart';
 import '../features/profile/you_tab_screen.dart';
 import '../features/rewards/rewards_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/splash/startup_error_screen.dart';
 import '../features/store/store_screen.dart';
 import '../features/subjects/edit_subject_screen.dart';
 import '../features/subjects/subject_detail_screen.dart';
@@ -61,6 +62,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => _backdrop(const SplashScreen()),
+      ),
+      GoRoute(
+        path: Routes.startupError,
+        builder: (context, state) => _backdrop(const StartupErrorScreen()),
       ),
       GoRoute(
         path: Routes.auth,
@@ -210,6 +215,9 @@ String? _redirect(Ref ref, String loc) {
   switch (ref.read(routingPhaseProvider)) {
     case RoutingPhase.loading:
       return loc == Routes.splash ? null : Routes.splash;
+
+    case RoutingPhase.error:
+      return loc == Routes.startupError ? null : Routes.startupError;
 
     case RoutingPhase.signedOut:
       const allowedSignedOut = {Routes.auth, Routes.forgotPassword};

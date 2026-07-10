@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -24,7 +25,7 @@ const _secureStorage = FlutterSecureStorage(
 /// caches the resolved client for the rest of the session.
 @Riverpod(keepAlive: true)
 Future<PocketBase> pocketbaseClient(Ref ref) async {
-  final initial = await _secureStorage.read(key: _kPbAuthKey);
+  final initial = await _readPersistedAuth();
   return PocketBase(
     _pbBaseUrl,
     authStore: AsyncAuthStore(
@@ -33,4 +34,31 @@ Future<PocketBase> pocketbaseClient(Ref ref) async {
       clear: () => _secureStorage.delete(key: _kPbAuthKey),
     ),
   );
+}
+
+/// Reads the persisted auth token, tolerating an unreadable secure store.
+///
+/// The encrypted store can become undecryptable when its ciphertext survives
+/// but the AES key that wrote it is gone - e.g. the app is restored onto a
+/// new phone (or reinstalled across a signing-key change) via Android backup,
+/// since the Keystore key is device-bound and never travels. `read` then
+/// throws (`AEADBadTagException`) instead of returning; left unhandled that
+/// error bubbles up through auth and hangs the app on the splash forever.
+///
+/// Recover by wiping the whole store and starting signed-out - the user just
+/// logs in again. Use `deleteAll`, not `delete`: the corruption is the
+/// androidx keyset shared across the store, so clearing our one key leaves it
+/// broken and the next launch fails identically.
+Future<String?> _readPersistedAuth() async {
+  try {
+    return await _secureStorage.read(key: _kPbAuthKey);
+  } catch (e, st) {
+    debugPrint('Secure storage read failed, resetting store: $e\n$st');
+    try {
+      await _secureStorage.deleteAll();
+    } catch (e2) {
+      debugPrint('Secure storage deleteAll (post read failure) failed: $e2');
+    }
+    return null;
+  }
 }

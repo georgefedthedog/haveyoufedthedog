@@ -31,6 +31,13 @@ enum RoutingPhase {
 
   /// Fully resolved - the user has a current household. Show app routes.
   ready,
+
+  /// Startup state couldn't be resolved - the auth snapshot or the initial
+  /// households fetch errored. Show a retry screen instead of spinning on
+  /// splash forever. (An unreadable secure store no longer lands here - the
+  /// PB client resets and continues signed-out - but a failed network fetch
+  /// still can.)
+  error,
 }
 
 /// Derives the current [RoutingPhase] from auth + households + current.
@@ -41,14 +48,16 @@ enum RoutingPhase {
 @Riverpod(keepAlive: true)
 RoutingPhase routingPhase(Ref ref) {
   final authAsync = ref.watch(authControllerProvider);
+  // An *error* here (vs. a null-while-loading value) means init genuinely
+  // failed - surface it rather than spinning on splash forever.
+  if (authAsync.hasError) return RoutingPhase.error;
   final auth = authAsync.valueOrNull;
   if (auth == null) return RoutingPhase.loading;
   if (!auth.isAuthenticated) return RoutingPhase.signedOut;
 
   final households = ref.watch(householdsControllerProvider);
-  if (households.isLoading || households.hasError) {
-    return RoutingPhase.loading;
-  }
+  if (households.hasError) return RoutingPhase.error;
+  if (households.isLoading) return RoutingPhase.loading;
   final list = households.requireValue;
   if (list.isEmpty) return RoutingPhase.needsToPick;
 
@@ -66,7 +75,7 @@ RoutingPhase routingPhase(Ref ref) {
   if (currentAsync.isLoading && currentAsync.valueOrNull == null) {
     return RoutingPhase.loading;
   }
-  if (currentAsync.hasError) return RoutingPhase.loading;
+  if (currentAsync.hasError) return RoutingPhase.error;
   if (currentAsync.valueOrNull == null) return RoutingPhase.needsToPick;
 
   return RoutingPhase.ready;

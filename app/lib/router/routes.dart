@@ -6,6 +6,11 @@ class Routes {
   /// redirect logic sends users away as soon as the state settles.
   static const splash = '/splash';
 
+  /// Shown when startup state can't be resolved - the auth snapshot or the
+  /// initial households fetch errored. Offers a retry instead of leaving the
+  /// user on an indefinite splash spinner.
+  static const startupError = '/startup-error';
+
   /// Login + signup tabs. For unauthenticated users.
   static const auth = '/auth';
 

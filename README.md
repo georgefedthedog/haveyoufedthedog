@@ -326,7 +326,9 @@ and publish with the site. **Adding a path means touching both** the AASA
 `components` and the Android manifest `pathPrefix`
 (`app/android/app/src/main/AndroidManifest.xml`); the SHA in `assetlinks.json` is
 the Play app-signing key, so Android verification only holds on Play-distributed
-builds. iOS fetches the AASA through Apple's CDN, which **caches** it - a new
+builds. A new **NFC** path additionally needs the Android `NDEF_DISCOVERED`
+intent-filter in the same manifest and an AAR on the tags (see the NFC note
+below) - App Link verification alone does not auto-open a tag on Android 13+. iOS fetches the AASA through Apple's CDN, which **caches** it - a new
 path can take hours to appear and only takes effect on a fresh install (check
 the live cache with `curl -s https://app-site-association.cdn-apple.com/a/v1/haveyoufedthedog.com`).
 This is separate from the _autofill_ `assetlinks.json` under `server/pb_public/`,
@@ -719,17 +721,24 @@ Caveats:
   Page background is a BL→TR gradient from
   `AppBackdrop` (scaffolds are transparent); dark mode is deliberately flat
   (gradients band near black). Dark/light follows the phone.
-- **NFC flows are universal links, not in-app reading.** A tag holds
+- **NFC flows open the app via the OS, not in-app reading.** A tag holds
   `https://haveyoufedthedog.com/nfc-tap?household=<hid>&subject=<sid>`; tapping it
-  (app open, backgrounded, or closed) is an OS App Link / Universal Link, which
-  `DeepLinkHandler` parks and `AppRoot` routes to `NfcLaunchHandler.handleNfcTap`.
-  That switches to the tag's household if the tapper is a member (so a
-  multi-household dog-walker logs against the right house without switching
-  first), then completes the next due chore or opens the subject page per the
-  Edit Profile per-device toggle. The app never _reads_ tags - it only _writes_
-  them (`Edit thing → Write an NFC tag`: `core/nfc/nfc_service.dart` +
-  `features/nfc/nfc_write_dialog.dart`, an NDEF URI record via `nfc_manager`).
-  **Two gotchas, both load-bearing:** (1) we pass
+  (app open, backgrounded, or closed) opens the app, which `DeepLinkHandler`
+  parks (the `app_links` plugin reads the launch intent's data URI) and `AppRoot`
+  routes to `NfcLaunchHandler.handleNfcTap`. That switches to the tag's household
+  if the tapper is a member (so a multi-household dog-walker logs against the
+  right house without switching first), then completes the next due chore or
+  opens the subject page per the Edit Profile per-device toggle. The app never
+  _reads_ tags - it only _writes_ them (`Edit thing → Write an NFC tag`:
+  `core/nfc/nfc_service.dart` + `features/nfc/nfc_write_dialog.dart`, via
+  `nfc_manager`). **The tag carries records for both platforms:** an NDEF URI
+  record (iOS Universal Link) **plus an Android Application Record (AAR)** naming
+  `com.haveyoufedthedog`. iOS uses the URI record and ignores the AAR; Android
+  13+/Pixel routes a bare `https` tag through the OS "Open link found via NFC?"
+  weblink prompt (never offering it to our `NDEF_DISCOVERED` intent-filter), so
+  the AAR is what forces a direct launch. The AAR lives **on the tag**, so
+  changing the package name or tag format means re-writing every existing tag.
+  **Two more gotchas, both load-bearing:** (1) we pass
   `pollingOptions: {iso14443, iso15693}` to `startSession` - the default also
   polls FeliCa (`iso18092`), which iOS gates behind a `felica.systemcodes`
   entitlement we don't have, so a write fails with "Missing required entitlement"

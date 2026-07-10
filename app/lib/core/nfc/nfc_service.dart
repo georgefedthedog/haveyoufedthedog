@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'nfc_service.g.dart';
+
+/// The Android application id, written to tags as an Android Application
+/// Record (AAR). Must match `applicationId` in android/app/build.gradle.kts.
+const _androidPackage = 'com.haveyoufedthedog';
 
 DateTime _nfcWriteGuardUntil = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -64,7 +70,22 @@ class NfcService {
           }
           try {
             await ndef!.write(
-              NdefMessage([NdefRecord.createUri(Uri.parse(url))]),
+              NdefMessage([
+                // URI record first: iOS reads this for the Universal Link and
+                // ignores the AAR that follows.
+                NdefRecord.createUri(Uri.parse(url)),
+                // Android Application Record. Android 13+/Pixel routes bare
+                // https tags through the OS "Open link found via NFC?" weblink
+                // prompt and never offers them to our NDEF_DISCOVERED filter;
+                // an AAR forces a direct launch of this package instead (and
+                // opens the Play Store if it isn't installed). Written last so
+                // it doesn't shadow the URI record on iOS.
+                NdefRecord.createExternal(
+                  'android.com',
+                  'pkg',
+                  Uint8List.fromList(utf8.encode(_androidPackage)),
+                ),
+              ]),
             );
             // The tag's still on the phone; stop the OS from instantly firing
             // its own /nfc-tap link and logging a phantom chore.

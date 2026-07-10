@@ -154,25 +154,39 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   `household_actions.dart` + `household_details_screen.dart`; managed members
   carry a managed-member badge and are removed by the chore-style drag-to-bin or the
   Edit-member screen's trash can.
-- **NFC tags are universal links, not in-app reading.** A tag holds
+- **NFC tags open the app via the OS, not in-app reading.** A tag holds
   `haveyoufedthedog.com/nfc-tap?household=<hid>&subject=<sid>`; the OS opens the
-  app (App Link / Universal Link), `DeepLinkHandler` parks it, `AppRoot` routes
-  to `NfcLaunchHandler.handleNfcTap` - which auto-switches to the tag's household
+  app, `DeepLinkHandler` parks it (the `app_links` plugin reads the launch
+  intent's data URI on both platforms), `AppRoot` routes to
+  `NfcLaunchHandler.handleNfcTap` - which auto-switches to the tag's household
   (if the tapper is a member, so a multi-household dog-walker logs against the
   right house) then logs the best chore, or opens the subject per the Edit
-  Profile per-device toggle. The app only _writes_ tags (the "Write an NFC tag"
-  card on Edit thing → `core/nfc/nfc_service.dart` NDEF write via `nfc_manager`).
-  Two load-bearing gotchas: pass `pollingOptions: {iso14443, iso15693}` to
+  Profile per-device toggle. **The two platforms auto-open by different
+  mechanisms, and a tag carries the records for both:** the app writes an NDEF
+  URI record (iOS Universal Link) **plus an Android Application Record (AAR)**
+  naming `com.haveyoufedthedog`. iOS uses the URI record and ignores the AAR;
+  Android needs the AAR because 13+/Pixel routes a bare `https` tag through the
+  OS "Open link found via NFC?" weblink prompt and never offers it to our
+  `NDEF_DISCOVERED` filter - the AAR forces a direct launch of our package
+  (`android/app/src/main/AndroidManifest.xml` has the matching
+  `NDEF_DISCOVERED` intent-filter for `/nfc-tap`). Because the AAR lives on the
+  tag, changing the package name or the tag format means **re-writing every
+  existing tag**. The app only _writes_ tags (the "Write an NFC tag" card on
+  Edit thing → `core/nfc/nfc_service.dart` NDEF write via `nfc_manager`). Two
+  more load-bearing gotchas: pass `pollingOptions: {iso14443, iso15693}` to
   `startSession` (the default also polls FeliCa/`iso18092`, which iOS gates
   behind a `felica.systemcodes` entitlement we lack → "Missing required
   entitlement"); and the iOS NFC formats entitlement must be `TAG`
   (`NFCTagReaderSession`) since the current SDK rejects `NDEF` at App Store
   upload. `subjects.nfc_tag_id` stores the written URL as a "tag written" marker.
-- **Deep-link paths live in two places that must stay in sync:** `/join`,
+- **Deep-link paths live in multiple places that must stay in sync:** `/join`,
   `/claim`, and `/nfc-tap` are listed in both the AASA `components`
   (`landing_page/src/.well-known/apple-app-site-association`, iOS) and the Android
-  manifest `pathPrefix`. New path = add to both. Apple's CDN caches the AASA, so
-  a new path takes hours to propagate and only takes effect on a fresh install.
+  manifest App Links `pathPrefix`. New path = add to both. Apple's CDN caches
+  the AASA, so a new path takes hours to propagate and only takes effect on a
+  fresh install. A new **NFC** path additionally needs the Android
+  `NDEF_DISCOVERED` intent-filter (same manifest) and, on the tags, an AAR
+  alongside the URL - see the NFC note above.
 - In-place record patching (`updateOneInPlace`) instead of `invalidate` where
   a full refetch would flash null and bounce the user (household rename,
   picture, invite toggles).

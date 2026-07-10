@@ -1,10 +1,23 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <!-- Auto Backup is off deliberately. The app is online-only (all state
+         lives on the server), so there's nothing local worth backing up - and
+         backing up flutter_secure_storage's encrypted prefs is actively
+         harmful: their AES key lives in the device-bound Android Keystore,
+         which is never backed up. Restored onto a new phone (or across a
+         signing-key reinstall) the ciphertext can't be decrypted, so the read
+         throws (AEADBadTagException) and the app hangs on launch. The PB
+         client also self-heals a corrupt store (see pocketbase_client.dart);
+         this stops the bad state from ever being restored in the first place.
+         tools:replace guards against a dependency manifest setting it true. -->
     <application
         android:label="Have You Fed The Dog?"
         android:name="${applicationName}"
+        android:allowBackup="false"
+        tools:replace="android:allowBackup"
         android:icon="@mipmap/ic_launcher">
         <!-- FCM default channel id: matches the channel created in
              notification_service.dart and used by the worker service.
@@ -69,6 +82,21 @@
                 <data android:pathPrefix="/join"/>
                 <data android:pathPrefix="/claim"/>
                 <data android:pathPrefix="/nfc-tap"/>
+            </intent-filter>
+            <!-- NFC: tapping a physical tag whose NDEF record holds a
+                 https://haveyoufedthedog.com/nfc-tap?... URL launches the app
+                 directly, skipping Android's generic "Open link found via NFC?"
+                 dialog. NDEF_DISCOVERED outranks the system tag dispatcher, so
+                 there's no chooser. No native handling is needed: the app_links
+                 plugin reads the intent's data URI (it doesn't require
+                 ACTION_VIEW), so DeepLinkHandler receives it exactly like a web
+                 link. Android-only - iOS offers no equivalent (system NFC
+                 prompt only). Only /nfc-tap lives on tags; /join and /claim are
+                 web links, so they're deliberately not listed here. -->
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="https" android:host="haveyoufedthedog.com" android:pathPrefix="/nfc-tap"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
