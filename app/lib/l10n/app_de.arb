@@ -415,5 +415,26 @@
   "characterAwardThanksPlant": "Danke, dass letzte Woche alles gewachsen und gediehen ist!",
   "characterAwardThanksBin": "Danke, dass letzte Woche alles wie geschmiert gerollt ist!",
   "characterAwardThanksFish": "Danke, dass du letzte Woche Wellen geschlagen hast!",
-  "characterAwardThanksGeneric": "Danke, dass du letzte Woche großartig warst!"
+  "characterAwardThanksGeneric": "Danke, dass du letzte Woche großartig warst!",
+
+  "serverNotSignedIn": "Du musst angemeldet sein.",
+  "serverNotMember": "Du bist kein Mitglied dieses Haushalts.",
+  "serverOwnerOnly": "Das kann nur der Besitzer des Haushalts.",
+  "serverNameRequired": "Ein Name ist erforderlich.",
+  "serverPasswordTooShort": "Das Passwort braucht mindestens 8 Zeichen.",
+  "serverClaimCodeInvalid": "Dieser Übernahmecode ist ungültig.",
+  "serverEmailInUse": "Diese E-Mail wird schon verwendet.",
+  "serverNoSuchMember": "Mitglied nicht gefunden.",
+  "serverInviteCodeInvalid": "Kein offener Haushalt mit diesem Code.",
+  "serverPackCodeInvalid": "Kein Paket mit diesem Code.",
+  "serverPackGone": "Dieses Paket ist nicht mehr einlösbar.",
+  "serverUnknownProduct": "Unbekanntes Produkt.",
+  "serverVerifyFailed": "Der Kauf konnte nicht überprüft werden.",
+  "serverVerifyUnavailable": "Die Kaufprüfung ist gerade nicht verfügbar.",
+  "serverRewardUnavailable": "Dieses Element lässt sich nicht freischalten.",
+  "serverStreakCheckFailed": "Deine Serie lässt sich gerade nicht prüfen - versuch es gleich nochmal.",
+  "serverStreakTooLow": "Du brauchst eine Serie von {threshold}, um das freizuschalten - du bist bei {streak}.",
+
+  "notifChannelName": "Erledigte Aufgaben",
+  "notifChannelDesc": "Wenn jemand in deinem Haushalt eine Aufgabe einträgt."
 }

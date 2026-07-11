@@ -31,7 +31,7 @@
 routerAdd("POST", "/api/custom/managed-member", e => {
   const auth = e.auth;
   if (!auth) {
-    return e.json(401, { message: "You must be signed in." });
+    return e.json(401, { code: "not_signed_in", message: "You must be signed in." });
   }
 
   const info = e.requestInfo();
@@ -40,18 +40,18 @@ routerAdd("POST", "/api/custom/managed-member", e => {
   const name = String(body.name || "").trim();
   const avatar = String(body.avatar || "").trim();
 
-  if (!householdId) return e.json(400, { message: "householdId is required." });
-  if (!name) return e.json(400, { message: "A name is required." });
+  if (!householdId) return e.json(400, { code: "household_required", message: "householdId is required." });
+  if (!name) return e.json(400, { code: "name_required", message: "A name is required." });
 
   // Caller must be the OWNER of the target household.
   let ownerMembership;
   try {
     ownerMembership = $app.findFirstRecordByFilter("household_members", "user = {:user} && household = {:hh} && role = 'owner'", { user: auth.id, hh: householdId });
   } catch (_) {
-    return e.json(403, { message: "Only the household owner can add members." });
+    return e.json(403, { code: "owner_only", message: "Only the household owner can add members." });
   }
   if (!ownerMembership) {
-    return e.json(403, { message: "Only the household owner can add members." });
+    return e.json(403, { code: "owner_only", message: "Only the household owner can add members." });
   }
 
   // Mint the loginless user. Email must be unique + present on first save, so
@@ -103,7 +103,7 @@ routerAdd("PATCH", "/api/custom/managed-member/{userId}", e => {
 
   if (body.name !== undefined) {
     const name = String(body.name || "").trim();
-    if (!name) return e.json(400, { message: "A name is required." });
+    if (!name) return e.json(400, { code: "name_required", message: "A name is required." });
     target.set("name", name);
   }
   if (body.avatar !== undefined) {
@@ -170,10 +170,10 @@ routerAdd("POST", "/api/custom/claim-account", e => {
   const password = String(body.password || "");
   const name = String(body.name || "").trim();
 
-  if (!code) return e.json(400, { message: "A claim code is required." });
-  if (!email) return e.json(400, { message: "An email is required." });
+  if (!code) return e.json(400, { code: "claim_code_required", message: "A claim code is required." });
+  if (!email) return e.json(400, { code: "email_required", message: "An email is required." });
   if (password.length < 8) {
-    return e.json(400, { message: "Password must be at least 8 characters." });
+    return e.json(400, { code: "password_too_short", message: "Password must be at least 8 characters." });
   }
 
   // Resolve the managed account the code belongs to. A non-empty code never
@@ -182,9 +182,9 @@ routerAdd("POST", "/api/custom/claim-account", e => {
   try {
     user = $app.findFirstRecordByFilter("users", "claim_code = {:code} && managed = true", { code: code });
   } catch (_) {
-    return e.json(404, { message: "That claim code isn't valid." });
+    return e.json(404, { code: "claim_code_invalid", message: "That claim code isn't valid." });
   }
-  if (!user) return e.json(404, { message: "That claim code isn't valid." });
+  if (!user) return e.json(404, { code: "claim_code_invalid", message: "That claim code isn't valid." });
 
   user.set("email", email);
   user.set("emailVisibility", false);
@@ -197,7 +197,7 @@ routerAdd("POST", "/api/custom/claim-account", e => {
     $app.save(user);
   } catch (err) {
     console.warn("[claim-account] save failed:", err);
-    return e.json(409, { message: "That email is already in use." });
+    return e.json(409, { code: "email_in_use", message: "That email is already in use." });
   }
 
   return e.json(200, { userId: user.id });

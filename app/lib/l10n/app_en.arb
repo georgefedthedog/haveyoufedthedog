@@ -1742,5 +1742,87 @@
   "characterAwardThanksGeneric": "Thanks for being amazing last week!",
   "@characterAwardThanksGeneric": {
     "description": "The fallback thank-you line."
+  },
+
+  "serverNotSignedIn": "You must be signed in.",
+  "@serverNotSignedIn": {
+    "description": "Server error code not_signed_in. Server errors arrive as stable codes; these keys are the localized rendering."
+  },
+  "serverNotMember": "You are not a member of that household.",
+  "@serverNotMember": {
+    "description": "Server error code not_member."
+  },
+  "serverOwnerOnly": "Only the household owner can do that.",
+  "@serverOwnerOnly": {
+    "description": "Server error code owner_only."
+  },
+  "serverNameRequired": "A name is required.",
+  "@serverNameRequired": {
+    "description": "Server error code name_required."
+  },
+  "serverPasswordTooShort": "Password must be at least 8 characters.",
+  "@serverPasswordTooShort": {
+    "description": "Server error code password_too_short."
+  },
+  "serverClaimCodeInvalid": "That claim code isn't valid.",
+  "@serverClaimCodeInvalid": {
+    "description": "Server error code claim_code_invalid."
+  },
+  "serverEmailInUse": "That email is already in use.",
+  "@serverEmailInUse": {
+    "description": "Server error code email_in_use."
+  },
+  "serverNoSuchMember": "No such member.",
+  "@serverNoSuchMember": {
+    "description": "Server error codes no_such_member / no_such_managed_member."
+  },
+  "serverInviteCodeInvalid": "No open household with that code.",
+  "@serverInviteCodeInvalid": {
+    "description": "Server error code invite_code_invalid."
+  },
+  "serverPackCodeInvalid": "No pack with that code.",
+  "@serverPackCodeInvalid": {
+    "description": "Server error code pack_code_invalid."
+  },
+  "serverPackGone": "That pack is no longer available to redeem.",
+  "@serverPackGone": {
+    "description": "Server error code pack_gone."
+  },
+  "serverUnknownProduct": "Unknown product.",
+  "@serverUnknownProduct": {
+    "description": "Server error code unknown_product."
+  },
+  "serverVerifyFailed": "We couldn't verify that purchase.",
+  "@serverVerifyFailed": {
+    "description": "Server error code verify_failed."
+  },
+  "serverVerifyUnavailable": "Purchase verification is temporarily unavailable.",
+  "@serverVerifyUnavailable": {
+    "description": "Server error code verify_unavailable."
+  },
+  "serverRewardUnavailable": "That item isn't available to unlock.",
+  "@serverRewardUnavailable": {
+    "description": "Server error code reward_unavailable."
+  },
+  "serverStreakCheckFailed": "Couldn't check your streak just now - try again shortly.",
+  "@serverStreakCheckFailed": {
+    "description": "Server error code streak_check_failed."
+  },
+  "serverStreakTooLow": "You need a streak of {threshold} to unlock this - you're on {streak}.",
+  "@serverStreakTooLow": {
+    "description": "Server error code streak_too_low, rendered from its params.",
+    "placeholders": {
+      "threshold": {"type": "int"},
+      "streak": {"type": "int"}
+    }
+  },
+
+  "notifChannelName": "Chore completions",
+  "@notifChannelName": {
+    "description": "Android notification channel name, shown in the system notification settings."
+  },
+  "notifChannelDesc": "When someone in your household logs a chore.",
+  "@notifChannelDesc": {
+    "description": "Android notification channel description in system settings."
   }
 }

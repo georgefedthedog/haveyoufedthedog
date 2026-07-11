@@ -1356,4 +1356,69 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get characterAwardThanksGeneric =>
       'Merci d\'avoir été génial la semaine dernière !';
+
+  @override
+  String get serverNotSignedIn => 'Tu dois être connecté.';
+
+  @override
+  String get serverNotMember => 'Tu n\'es pas membre de ce foyer.';
+
+  @override
+  String get serverOwnerOnly => 'Seul le propriétaire du foyer peut faire ça.';
+
+  @override
+  String get serverNameRequired => 'Un nom est requis.';
+
+  @override
+  String get serverPasswordTooShort =>
+      'Le mot de passe doit faire au moins 8 caractères.';
+
+  @override
+  String get serverClaimCodeInvalid =>
+      'Ce code de récupération n\'est pas valide.';
+
+  @override
+  String get serverEmailInUse => 'Cet e-mail est déjà utilisé.';
+
+  @override
+  String get serverNoSuchMember => 'Membre introuvable.';
+
+  @override
+  String get serverInviteCodeInvalid => 'Aucun foyer ouvert avec ce code.';
+
+  @override
+  String get serverPackCodeInvalid => 'Aucun pack avec ce code.';
+
+  @override
+  String get serverPackGone => 'Ce pack n\'est plus disponible.';
+
+  @override
+  String get serverUnknownProduct => 'Produit inconnu.';
+
+  @override
+  String get serverVerifyFailed => 'Impossible de vérifier cet achat.';
+
+  @override
+  String get serverVerifyUnavailable =>
+      'La vérification des achats est momentanément indisponible.';
+
+  @override
+  String get serverRewardUnavailable =>
+      'Cet élément ne peut pas être débloqué.';
+
+  @override
+  String get serverStreakCheckFailed =>
+      'Impossible de vérifier ta série pour l\'instant - réessaie bientôt.';
+
+  @override
+  String serverStreakTooLow(int threshold, int streak) {
+    return 'Il te faut une série de $threshold pour débloquer ça - tu en es à $streak.';
+  }
+
+  @override
+  String get notifChannelName => 'Corvées validées';
+
+  @override
+  String get notifChannelDesc =>
+      'Quand quelqu\'un de ton foyer valide une corvée.';
 }

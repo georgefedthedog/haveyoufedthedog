@@ -2361,6 +2361,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thanks for being amazing last week!'**
   String get characterAwardThanksGeneric;
+
+  /// Server error code not_signed_in. Server errors arrive as stable codes; these keys are the localized rendering.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be signed in.'**
+  String get serverNotSignedIn;
+
+  /// Server error code not_member.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not a member of that household.'**
+  String get serverNotMember;
+
+  /// Server error code owner_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the household owner can do that.'**
+  String get serverOwnerOnly;
+
+  /// Server error code name_required.
+  ///
+  /// In en, this message translates to:
+  /// **'A name is required.'**
+  String get serverNameRequired;
+
+  /// Server error code password_too_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters.'**
+  String get serverPasswordTooShort;
+
+  /// Server error code claim_code_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That claim code isn\'t valid.'**
+  String get serverClaimCodeInvalid;
+
+  /// Server error code email_in_use.
+  ///
+  /// In en, this message translates to:
+  /// **'That email is already in use.'**
+  String get serverEmailInUse;
+
+  /// Server error codes no_such_member / no_such_managed_member.
+  ///
+  /// In en, this message translates to:
+  /// **'No such member.'**
+  String get serverNoSuchMember;
+
+  /// Server error code invite_code_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'No open household with that code.'**
+  String get serverInviteCodeInvalid;
+
+  /// Server error code pack_code_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'No pack with that code.'**
+  String get serverPackCodeInvalid;
+
+  /// Server error code pack_gone.
+  ///
+  /// In en, this message translates to:
+  /// **'That pack is no longer available to redeem.'**
+  String get serverPackGone;
+
+  /// Server error code unknown_product.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown product.'**
+  String get serverUnknownProduct;
+
+  /// Server error code verify_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t verify that purchase.'**
+  String get serverVerifyFailed;
+
+  /// Server error code verify_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase verification is temporarily unavailable.'**
+  String get serverVerifyUnavailable;
+
+  /// Server error code reward_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'That item isn\'t available to unlock.'**
+  String get serverRewardUnavailable;
+
+  /// Server error code streak_check_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check your streak just now - try again shortly.'**
+  String get serverStreakCheckFailed;
+
+  /// Server error code streak_too_low, rendered from its params.
+  ///
+  /// In en, this message translates to:
+  /// **'You need a streak of {threshold} to unlock this - you\'re on {streak}.'**
+  String serverStreakTooLow(int threshold, int streak);
+
+  /// Android notification channel name, shown in the system notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Chore completions'**
+  String get notifChannelName;
+
+  /// Android notification channel description in system settings.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone in your household logs a chore.'**
+  String get notifChannelDesc;
 }
 
 class _AppLocalizationsDelegate

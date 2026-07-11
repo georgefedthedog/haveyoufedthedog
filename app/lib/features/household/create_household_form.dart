@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../../core/api/server_messages.dart';
 import '../../core/household/household_actions.dart';
 import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
@@ -41,9 +42,11 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
       // Router redirects when memberships update.
     } on ClientException catch (e) {
       if (mounted) {
-        final msg =
-            e.response['message'] as String? ??
-            context.l10n.createHouseholdFailed;
+        final msg = serverMessage(
+          context.l10n,
+          e.response,
+          fallback: context.l10n.createHouseholdFailed,
+        );
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));

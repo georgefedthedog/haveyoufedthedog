@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../../core/api/server_messages.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
@@ -45,8 +46,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       // Router will redirect to /home automatically because auth state changed.
     } on ClientException catch (e) {
       if (mounted) {
-        final msg =
-            e.response['message'] as String? ?? context.l10n.authLoginFailed;
+        final msg = serverMessage(
+          context.l10n,
+          e.response,
+          fallback: context.l10n.authLoginFailed,
+        );
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));

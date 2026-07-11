@@ -98,9 +98,15 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   can carry their own
   personality copy:** the optional `messages` JSON field on `catalog_characters`
   (parsed into `Character.messages`) overrides the mood status lines and the
-  weekly award title/thanks - per slot, falling back to the bundled `generic`
-  voice for anything omitted. Bundled characters keep their hardcoded copy
-  (`character_message.dart`, `characterAwardTitles`/`characterAwardThanks`).
+  weekly award title/thanks - per slot, falling back to the localized generic
+  voice for anything omitted. Translations nest under a sibling `i18n` key
+  (`{"lines": ..., "i18n": {"de": {...}}}`); `upload_pack.py` builds it from
+  `messages.<lang>.json` files next to a character's `messages.json`. In a
+  non-English UI an untranslated pack voice deliberately falls back to the
+  localized generic voice rather than mixing languages. Bundled characters'
+  English voice is the const table in `character_message.dart`; their de/fr/es
+  voices are `assets/l10n/characters/<lang>.json`
+  (`bundledCharacterVoicesProvider`), same JSON shape as pack `messages`.
 - **Selling packs (IAP):** `core/store/` layers paid unlocks on the catalog.
   A `catalog_products` row (a `sku` + `grants` → one-or-more `catalog_packs`)
   is sold via native store IAP (`in_app_purchase`); `storeProductsProvider`
@@ -200,7 +206,44 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   quick-add-chore FAB on `RootNavShell` works from any tab - it picks the thing
   first (one thing → straight to New Chore; several → a bottom-sheet character
   picker). Grave deletes (account / household / subject / managed member) gate
-  behind the shared `confirmByTyping` (type DELETE).
+  behind the shared `confirmByTyping` (type DELETE - the word itself is the
+  localized `confirmByTypingWord` key).
+
+## Localization (i18n)
+
+- The app ships in en (fallback) + de/fr/es via gen_l10n: `app/l10n.yaml`,
+  ARBs in `lib/l10n/app_<lang>.arb`, generated `AppLocalizations` committed
+  like other codegen. **Every user-facing string goes through
+  `context.l10n.<key>`** (`lib/l10n/l10n.dart` extension) - new UI copy means
+  a key in ALL FOUR ARBs (English first, with an `@` description written for
+  the translator; `untranslated.json` lists gaps and should stay empty).
+  Keys are camelCase and area-prefixed (`editChore*`, `store*`); shared verbs
+  live under `common*`; plurals are ICU (`{count, plural, one{...}
+  other{...}}`); raw exception details pass through `{details}` placeholders
+  untranslated. The two context-less sites (notification channel names, NFC
+  launch snackbars, purchase-stream messages) read `appLocalizationsProvider`
+  (`core/l10n/`) instead - never watch that from widgets.
+- Language follows the device, with a per-device override on Edit Profile
+  (`appLocaleControllerProvider`, SharedPreferences). `localeSyncProvider`
+  writes the resolved language to `users.locale` (empty = English) so the
+  server can localize pushes.
+- **Server pushes are localized by recipient**: the worker's `l10n.js`
+  (overdue + award templates) and the hooks' `_l10n_helper.js` (completion
+  templates) group tokens by `users.locale`; empty locale = byte-identical
+  English, keeping pre-i18n clients unaffected. Keep those two template
+  tables and the app ARBs in the same voice.
+- **Hook errors carry a stable `code`** (snake_case) alongside their English
+  `message`; the app maps codes to ARB strings in
+  `core/api/server_messages.dart` (unknown code → raw message). New hook
+  errors need: a `code` in the hook, a case in `serverMessage`, and a
+  `server*` key in all four ARBs.
+- Character mood/award copy is data, not ARB - see Remote content catalog
+  (bundled voices in `assets/l10n/characters/<lang>.json`, pack voices under
+  the `messages.i18n` key).
+- iOS: `CFBundleLocalizations` in Info.plist + per-language
+  `<lang>.lproj/InfoPlist.strings` (NFC usage description), wired as a
+  `PBXVariantGroup` in `project.pbxproj`; verifiable only on a Codemagic
+  build. The app display name stays the English brand on both platforms.
 
 ## Data conventions
 
@@ -269,11 +312,12 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   window math (`WeekWindow.settledAward` ⇔ `award-cron.js`'s window math), and
   the unique-max tiebreak (`_uniqueMax` ⇔ `uniqueMax`). (The two crons' shared
   PB/timezone plumbing lives in `server/services/worker/pb-cron.js`.) The award
-  **title and thanks line are app-only** (`characterAwardTitles` /
-  `characterAwardThanks` in `awards_controller.dart`, overridable per pack
-  character via `catalog_characters.messages` - see Remote content catalog); the
-  push deliberately names only the subject, so there's no title to mirror
-  server-side.
+  **title and thanks line are app-only** (`characterAwardTitle` /
+  `characterAwardThanks` resolvers in `awards_section.dart`, reading the ARB
+  per character id with a pack-`messages` override - see Remote content
+  catalog); the push deliberately names only the subject, so there's no title
+  to mirror server-side. `weeklyAwardsProvider` itself emits only ids +
+  winners - all award display strings resolve at the widget layer.
 - **The reward streak is computed on both sides, like the awards.** The app
   shows an _advisory_ number (`reward_streak_controller.dart`, device-local,
   drives the progress bar only), but the worker is **authoritative**: the claim
@@ -287,8 +331,11 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
   both `reward_streak_controller.dart` and `reward-streak.js`. Because the app
   number is advisory, a day-boundary disagreement just shows the claim button
   slightly early/late; the server is the gate.
-- Clock strings render via `ScheduleRule.formatClock` ("6:30 pm", lowercase)
-  - never `TimeOfDay.format(context)`.
+- Clock strings render via `formatClock(h, m, localeName)` in
+  `core/chores/schedule_labels.dart` ("6:30 pm" lowercase in English, 24-hour
+  "18:30" in de/fr/es) - never `TimeOfDay.format(context)`. Schedule
+  sentences come from `describeSchedule(rule, l10n)` there too;
+  `ScheduleRule` itself is a pure, locale-free model.
 
 ## PocketBase hooks (Goja)
 

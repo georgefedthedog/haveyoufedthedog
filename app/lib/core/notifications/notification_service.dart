@@ -11,12 +11,15 @@ import '../../router/routes.dart';
 import '../completions/recent_completions_controller.dart';
 import '../completions/today_completions_controller.dart';
 import '../household/current_household_controller.dart';
+import '../l10n/app_localizations_provider.dart';
 
 part 'notification_service.g.dart';
 
+/// Pinned in AndroidManifest.xml meta-data - must NEVER change (existing
+/// installs and the worker both send to it). The user-visible name and
+/// description are localized at init; re-creating the channel with the same
+/// id just updates them, so a language change applies on the next launch.
 const _channelId = 'chore_completions';
-const _channelName = 'Chore completions';
-const _channelDescription = 'When someone in your household logs a chore.';
 
 /// Sets up notification rendering - Firebase Messaging gives us the
 /// payload, `flutter_local_notifications` paints it. Channel id matches
@@ -41,10 +44,11 @@ class NotificationService with WidgetsBindingObserver {
   NotificationService(this._ref);
 
   Future<void> init() async {
-    const channel = AndroidNotificationChannel(
+    final l10n = _ref.read(appLocalizationsProvider);
+    final channel = AndroidNotificationChannel(
       _channelId,
-      _channelName,
-      description: _channelDescription,
+      l10n.notifChannelName,
+      description: l10n.notifChannelDesc,
       importance: Importance.high,
     );
     await _local
@@ -126,20 +130,21 @@ class NotificationService with WidgetsBindingObserver {
     _refresh(message.data['subjectId'] as String?);
 
     if (notif == null) return;
+    final l10n = _ref.read(appLocalizationsProvider);
     _local.show(
       notif.hashCode,
       notif.title,
       notif.body,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
-          _channelName,
-          channelDescription: _channelDescription,
+          l10n.notifChannelName,
+          channelDescription: l10n.notifChannelDesc,
           icon: 'ic_stat_notification',
           importance: Importance.high,
           priority: Priority.high,
         ),
-        iOS: DarwinNotificationDetails(),
+        iOS: const DarwinNotificationDetails(),
       ),
     );
   }

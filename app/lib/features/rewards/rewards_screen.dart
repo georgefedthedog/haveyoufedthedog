@@ -12,6 +12,7 @@ import '../../core/catalog/catalog_controller.dart';
 import '../../core/completions/reward_streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_actions.dart';
+import '../../core/api/server_messages.dart';
 import '../../core/household/picture.dart';
 import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
@@ -282,7 +283,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
       if (!mounted) return;
       setState(() => _busy = false);
       final msg = e is ClientException
-          ? (e.response['message'] as String? ?? l10n.rewardsClaimFailed)
+          ? serverMessage(l10n, e.response, fallback: l10n.rewardsClaimFailed)
           : l10n.rewardsClaimFailed;
       messenger.showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
     }

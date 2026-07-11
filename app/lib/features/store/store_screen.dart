@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../../core/api/server_messages.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household.dart';
@@ -340,7 +341,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
         SnackBar(
           showCloseIcon: true,
           content: Text(
-            e.response['message'] as String? ?? l10n.storeCodeFailed,
+            serverMessage(l10n, e.response, fallback: l10n.storeCodeFailed),
           ),
         ),
       );

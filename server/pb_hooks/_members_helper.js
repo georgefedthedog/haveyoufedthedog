@@ -11,13 +11,13 @@
 function ownedManagedTarget(e) {
   const auth = e.auth;
   if (!auth) {
-    e.json(401, { message: "You must be signed in." });
+    e.json(401, { code: "not_signed_in", message: "You must be signed in." });
     return null;
   }
 
   const userId = String(e.request.pathValue("userId") || "").trim();
   if (!userId) {
-    e.json(400, { message: "Member id is required." });
+    e.json(400, { code: "member_id_required", message: "Member id is required." });
     return null;
   }
 
@@ -25,11 +25,11 @@ function ownedManagedTarget(e) {
   try {
     target = $app.findRecordById("users", userId);
   } catch (_) {
-    e.json(404, { message: "No such member." });
+    e.json(404, { code: "no_such_member", message: "No such member." });
     return null;
   }
   if (!target || !target.getBool("managed")) {
-    e.json(404, { message: "No such managed member." });
+    e.json(404, { code: "no_such_managed_member", message: "No such managed member." });
     return null;
   }
 
@@ -50,7 +50,7 @@ function ownedManagedTarget(e) {
     if (owner) return target;
   }
 
-  e.json(403, { message: "Only the household owner can manage this member." });
+  e.json(403, { code: "owner_only", message: "Only the household owner can manage this member." });
   return null;
 }
 

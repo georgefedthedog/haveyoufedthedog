@@ -16,6 +16,16 @@
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<!-- Languages the app ships; enables the per-app language setting in
+		     iOS Settings and localizes system permission alerts (the localized
+		     NFCReaderUsageDescription lives in <lang>.lproj/InfoPlist.strings). -->
+		<key>CFBundleLocalizations</key>
+		<array>
+			<string>en</string>
+			<string>de</string>
+			<string>es</string>
+			<string>fr</string>
+		</array>
 		<key>CFBundleDisplayName</key>
 		<string>Have You Fed the Dog?</string>
 		<key>CFBundleExecutable</key>

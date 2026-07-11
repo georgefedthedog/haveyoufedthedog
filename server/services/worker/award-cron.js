@@ -18,6 +18,7 @@
 // and the per-winner push).
 
 const { DEFAULT_TZ, WEEK_MS, WEEKDAY, createPbClient, zonedParts, makeHouseholdsByZone, everyMinute } = require("./pb-cron");
+const { t } = require("./l10n");
 
 // Sunday hour (local, 24h) when awards present. Must match the app's
 // awardPresentationHour in stats_controller.dart.
@@ -91,25 +92,27 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
     if (!wins.size) return;
 
     const members = await pb.list(`/api/collections/household_members/records?filter=${encodeURIComponent(`household = '${hid}'`)}&expand=user`);
+    // Winner pushes are per-user, so each one renders in that user's own
+    // language (users.locale; empty = en keeps today's English strings).
     const tokenByUser = {};
     for (const m of members) {
       const u = m.expand?.user;
-      if (u?.fcm_token) tokenByUser[m.user] = u.fcm_token;
+      if (u?.fcm_token) tokenByUser[m.user] = { token: u.fcm_token, locale: u.locale || "" };
     }
 
     for (const [userId, awards] of wins) {
-      const tkn = tokenByUser[userId];
-      if (!tkn) {
+      const rec = tokenByUser[userId];
+      if (!rec) {
         console.log(`[awards] ${hid} winner ${userId} has no fcm_token - skip`);
         continue;
       }
       const first = awards[0];
       const single = awards.length === 1;
-      const title = single ? "🏆 You won an award!" : `🏆 You won ${awards.length} awards!`;
-      const body = single ? `You've received an award from ${first.subjectName} - tap to receive it!` : `You won ${awards.length} awards last week - open to see who crowned you!`;
+      const title = single ? t(rec.locale, "awardSingleTitle") : t(rec.locale, "awardMultiTitle", { count: awards.length });
+      const body = single ? t(rec.locale, "awardSingleBody", { subject: first.subjectName }) : t(rec.locale, "awardMultiBody", { count: awards.length });
       try {
         const result = await sendPush({
-          tokens: [tkn],
+          tokens: [rec.token],
           title,
           body,
           data: { type: "award" },

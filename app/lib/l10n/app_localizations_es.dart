@@ -1356,4 +1356,69 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get characterAwardThanksGeneric =>
       '¡Gracias por ser increíble la semana pasada!';
+
+  @override
+  String get serverNotSignedIn => 'Debes iniciar sesión.';
+
+  @override
+  String get serverNotMember => 'No eres miembro de ese hogar.';
+
+  @override
+  String get serverOwnerOnly =>
+      'Solo el propietario del hogar puede hacer eso.';
+
+  @override
+  String get serverNameRequired => 'Se necesita un nombre.';
+
+  @override
+  String get serverPasswordTooShort =>
+      'La contraseña debe tener al menos 8 caracteres.';
+
+  @override
+  String get serverClaimCodeInvalid => 'Ese código de traspaso no es válido.';
+
+  @override
+  String get serverEmailInUse => 'Ese correo ya está en uso.';
+
+  @override
+  String get serverNoSuchMember => 'Miembro no encontrado.';
+
+  @override
+  String get serverInviteCodeInvalid =>
+      'No hay ningún hogar abierto con ese código.';
+
+  @override
+  String get serverPackCodeInvalid => 'No hay ningún pack con ese código.';
+
+  @override
+  String get serverPackGone => 'Ese pack ya no está disponible.';
+
+  @override
+  String get serverUnknownProduct => 'Producto desconocido.';
+
+  @override
+  String get serverVerifyFailed => 'No se pudo verificar esa compra.';
+
+  @override
+  String get serverVerifyUnavailable =>
+      'La verificación de compras no está disponible ahora mismo.';
+
+  @override
+  String get serverRewardUnavailable => 'Ese elemento no se puede desbloquear.';
+
+  @override
+  String get serverStreakCheckFailed =>
+      'No se pudo comprobar tu racha ahora mismo - reinténtalo en un momento.';
+
+  @override
+  String serverStreakTooLow(int threshold, int streak) {
+    return 'Necesitas una racha de $threshold para desbloquearlo - llevas $streak.';
+  }
+
+  @override
+  String get notifChannelName => 'Tareas completadas';
+
+  @override
+  String get notifChannelDesc =>
+      'Cuando alguien de tu hogar registra una tarea.';
 }

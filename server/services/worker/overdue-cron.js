@@ -26,6 +26,7 @@ const {
   everyMinute,
   isChoreDueOn,
 } = require("./pb-cron");
+const { t, lang } = require("./l10n");
 
 function startOverdueCron({ pbUrl, identity, password, sendPush }) {
   const pb = createPbClient({ pbUrl, identity, password });
@@ -89,19 +90,35 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
 
         const memberFilter = encodeURIComponent(`household = '${subject.household}'`);
         const members = await pb.get(`/api/collections/household_members/records?perPage=100&filter=${memberFilter}&expand=user`);
-        const tokens = (members.items || []).map(m => m.expand?.user?.fcm_token).filter(Boolean);
-        if (!tokens.length) {
+
+        // One payload per recipient language (users.locale; empty = en, so
+        // pre-i18n clients keep today's English strings).
+        const tokensByLang = {};
+        for (const m of members.items || []) {
+          const u = m.expand?.user;
+          if (!u?.fcm_token) continue;
+          const l = lang(u.locale);
+          (tokensByLang[l] = tokensByLang[l] || []).push(u.fcm_token);
+        }
+        const langs = Object.keys(tokensByLang);
+        if (!langs.length) {
           console.log(`[overdue] skip "${chore.name}" - no fcm_tokens among ${(members.items || []).length} member(s)`);
           continue;
         }
 
-        const result = await sendPush({
-          tokens,
-          title: subject.name || "Someone",
-          body: `${chore.name || "A chore"} is overdue - ${subject.name || "someone"} is waiting!`,
-          data: { subjectId: subject.id, type: "subject" },
-        });
-        console.log(`[overdue] sent "${chore.name}" to ${tokens.length} token(s):`, result);
+        for (const l of langs) {
+          const tokens = tokensByLang[l];
+          const result = await sendPush({
+            tokens,
+            title: subject.name || t(l, "someone"),
+            body: t(l, "overdueBody", {
+              chore: chore.name || t(l, "aChore"),
+              subject: subject.name || t(l, "someoneLower"),
+            }),
+            data: { subjectId: subject.id, type: "subject" },
+          });
+          console.log(`[overdue] sent "${chore.name}" [${l}] to ${tokens.length} token(s):`, result);
+        }
       } catch (err) {
         console.error("[overdue] chore", chore.id, "error:", err.message);
       }

@@ -1347,4 +1347,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get characterAwardThanksGeneric =>
       'Thanks for being amazing last week!';
+
+  @override
+  String get serverNotSignedIn => 'You must be signed in.';
+
+  @override
+  String get serverNotMember => 'You are not a member of that household.';
+
+  @override
+  String get serverOwnerOnly => 'Only the household owner can do that.';
+
+  @override
+  String get serverNameRequired => 'A name is required.';
+
+  @override
+  String get serverPasswordTooShort =>
+      'Password must be at least 8 characters.';
+
+  @override
+  String get serverClaimCodeInvalid => 'That claim code isn\'t valid.';
+
+  @override
+  String get serverEmailInUse => 'That email is already in use.';
+
+  @override
+  String get serverNoSuchMember => 'No such member.';
+
+  @override
+  String get serverInviteCodeInvalid => 'No open household with that code.';
+
+  @override
+  String get serverPackCodeInvalid => 'No pack with that code.';
+
+  @override
+  String get serverPackGone => 'That pack is no longer available to redeem.';
+
+  @override
+  String get serverUnknownProduct => 'Unknown product.';
+
+  @override
+  String get serverVerifyFailed => 'We couldn\'t verify that purchase.';
+
+  @override
+  String get serverVerifyUnavailable =>
+      'Purchase verification is temporarily unavailable.';
+
+  @override
+  String get serverRewardUnavailable => 'That item isn\'t available to unlock.';
+
+  @override
+  String get serverStreakCheckFailed =>
+      'Couldn\'t check your streak just now - try again shortly.';
+
+  @override
+  String serverStreakTooLow(int threshold, int streak) {
+    return 'You need a streak of $threshold to unlock this - you\'re on $streak.';
+  }
+
+  @override
+  String get notifChannelName => 'Chore completions';
+
+  @override
+  String get notifChannelDesc => 'When someone in your household logs a chore.';
 }

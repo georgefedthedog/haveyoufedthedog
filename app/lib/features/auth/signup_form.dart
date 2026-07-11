@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import '../../core/api/server_messages.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
@@ -114,10 +115,13 @@ class _SignupFormState extends ConsumerState<SignupForm> {
       TextInput.finishAutofillContext();
     } on ClientException catch (e) {
       if (mounted) {
-        final fallback = claim
-            ? context.l10n.authCouldNotClaim
-            : context.l10n.authSignupFailed;
-        final msg = e.response['message'] as String? ?? fallback;
+        final msg = serverMessage(
+          context.l10n,
+          e.response,
+          fallback: claim
+              ? context.l10n.authCouldNotClaim
+              : context.l10n.authSignupFailed,
+        );
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));

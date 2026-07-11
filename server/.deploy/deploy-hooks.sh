@@ -11,7 +11,7 @@ REMOTE_HOOKS="/var/lib/pocketbase/8090/pb_hooks"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> Uploading hooks + restarting pocketbase@8090..."
-tar -cz -C "$DIR/pb_hooks" notify.pb.js join.pb.js packs.pb.js purchases.pb.js cleanup.pb.js members.pb.js rewards.pb.js _notify_helper.js _members_helper.js \
+tar -cz -C "$DIR/pb_hooks" notify.pb.js join.pb.js packs.pb.js purchases.pb.js cleanup.pb.js members.pb.js rewards.pb.js _notify_helper.js _members_helper.js _l10n_helper.js \
   | ssh "${SSH_OPTS[@]}" "$SERVER" "sudo bash -c '
       mkdir -p $REMOTE_HOOKS &&
       tar -xz -C $REMOTE_HOOKS &&

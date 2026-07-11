@@ -24,7 +24,7 @@
 routerAdd("POST", "/api/custom/claim-streak-reward", e => {
   const auth = e.auth;
   if (!auth) {
-    return e.json(401, { message: "You must be signed in to claim a reward." });
+    return e.json(401, { code: "not_signed_in", message: "You must be signed in to claim a reward." });
   }
 
   const info = e.requestInfo();
@@ -33,11 +33,11 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
   const kind = String(body.kind || "").trim().toLowerCase();
   const slug = String(body.slug || "").trim();
 
-  if (!householdId) return e.json(400, { message: "householdId is required." });
+  if (!householdId) return e.json(400, { code: "household_required", message: "householdId is required." });
   if (kind !== "character" && kind !== "picture") {
-    return e.json(400, { message: "kind must be 'character' or 'picture'." });
+    return e.json(400, { code: "bad_kind", message: "kind must be 'character' or 'picture'." });
   }
-  if (!slug) return e.json(400, { message: "slug is required." });
+  if (!slug) return e.json(400, { code: "slug_required", message: "slug is required." });
 
   const collection = kind === "character" ? "catalog_characters" : "catalog_pictures";
   const field = kind === "character" ? "unlocked_characters" : "unlocked_pictures";
@@ -47,10 +47,10 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
   try {
     membership = $app.findFirstRecordByFilter("household_members", "user = {:user} && household = {:hh}", { user: auth.id, hh: householdId });
   } catch (_) {
-    return e.json(403, { message: "You are not a member of that household." });
+    return e.json(403, { code: "not_member", message: "You are not a member of that household." });
   }
   if (!membership) {
-    return e.json(403, { message: "You are not a member of that household." });
+    return e.json(403, { code: "not_member", message: "You are not a member of that household." });
   }
 
   // Resolve the slug to a row that is actually resolvable - in no pack
@@ -65,10 +65,10 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
       { slug: slug },
     );
   } catch (_) {
-    return e.json(404, { message: "That item isn't available to unlock." });
+    return e.json(404, { code: "reward_unavailable", message: "That item isn't available to unlock." });
   }
   if (!row) {
-    return e.json(404, { message: "That item isn't available to unlock." });
+    return e.json(404, { code: "reward_unavailable", message: "That item isn't available to unlock." });
   }
 
   const household = $app.findRecordById("households", householdId);
@@ -99,12 +99,12 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
     const data = JSON.parse(resp.raw || "{}");
     if (resp.statusCode !== 200 || typeof data.streak !== "number") {
       console.warn("[claim-streak-reward] worker streak failed", resp.statusCode, resp.raw);
-      return e.json(503, { message: "Couldn't check your streak just now - try again shortly." });
+      return e.json(503, { code: "streak_check_failed", message: "Couldn't check your streak just now - try again shortly." });
     }
     streak = data.streak;
   } catch (err) {
     console.error("[claim-streak-reward] worker unreachable:", err);
-    return e.json(503, { message: "Couldn't check your streak just now - try again shortly." });
+    return e.json(503, { code: "streak_check_failed", message: "Couldn't check your streak just now - try again shortly." });
   }
 
   // Threshold is admin-set per household; empty/0 means the default of 28
@@ -115,6 +115,7 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
 
   if (streak < threshold) {
     return e.json(403, {
+      code: "streak_too_low",
       message: `You need a streak of ${threshold} to unlock this - you're on ${streak}.`,
       streak: streak,
       threshold: threshold,

@@ -415,5 +415,26 @@
   "characterAwardThanksPlant": "¡Gracias por mantenerlo todo creciendo la semana pasada!",
   "characterAwardThanksBin": "¡Gracias por mantenerlo todo rodando la semana pasada!",
   "characterAwardThanksFish": "¡Gracias por hacer olas la semana pasada!",
-  "characterAwardThanksGeneric": "¡Gracias por ser increíble la semana pasada!"
+  "characterAwardThanksGeneric": "¡Gracias por ser increíble la semana pasada!",
+
+  "serverNotSignedIn": "Debes iniciar sesión.",
+  "serverNotMember": "No eres miembro de ese hogar.",
+  "serverOwnerOnly": "Solo el propietario del hogar puede hacer eso.",
+  "serverNameRequired": "Se necesita un nombre.",
+  "serverPasswordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+  "serverClaimCodeInvalid": "Ese código de traspaso no es válido.",
+  "serverEmailInUse": "Ese correo ya está en uso.",
+  "serverNoSuchMember": "Miembro no encontrado.",
+  "serverInviteCodeInvalid": "No hay ningún hogar abierto con ese código.",
+  "serverPackCodeInvalid": "No hay ningún pack con ese código.",
+  "serverPackGone": "Ese pack ya no está disponible.",
+  "serverUnknownProduct": "Producto desconocido.",
+  "serverVerifyFailed": "No se pudo verificar esa compra.",
+  "serverVerifyUnavailable": "La verificación de compras no está disponible ahora mismo.",
+  "serverRewardUnavailable": "Ese elemento no se puede desbloquear.",
+  "serverStreakCheckFailed": "No se pudo comprobar tu racha ahora mismo - reinténtalo en un momento.",
+  "serverStreakTooLow": "Necesitas una racha de {threshold} para desbloquearlo - llevas {streak}.",
+
+  "notifChannelName": "Tareas completadas",
+  "notifChannelDesc": "Cuando alguien de tu hogar registra una tarea."
 }

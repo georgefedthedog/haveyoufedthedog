@@ -5,6 +5,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../api/server_messages.dart';
 import '../household/current_household_controller.dart';
 import '../household/household_actions.dart';
 import '../l10n/app_localizations_provider.dart';
@@ -166,12 +167,15 @@ class PurchaseController extends _$PurchaseController {
       );
       return true;
     } on ClientException catch (e) {
+      final l10n = ref.read(appLocalizationsProvider);
       state = PurchaseProgress(
         PurchasePhase.error,
         sku: p.productID,
-        message:
-            e.response['message'] as String? ??
-            ref.read(appLocalizationsProvider).purchaseVerifyFailed,
+        message: serverMessage(
+          l10n,
+          e.response,
+          fallback: l10n.purchaseVerifyFailed,
+        ),
       );
       return false;
     } catch (e) {

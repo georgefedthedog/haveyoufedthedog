@@ -23,7 +23,7 @@
 routerAdd("POST", "/api/custom/verify-purchase", e => {
   const auth = e.auth;
   if (!auth) {
-    return e.json(401, { message: "You must be signed in to make a purchase." });
+    return e.json(401, { code: "not_signed_in", message: "You must be signed in to make a purchase." });
   }
 
   const info = e.requestInfo();
@@ -34,21 +34,21 @@ routerAdd("POST", "/api/custom/verify-purchase", e => {
   const householdId = String(body.householdId || "").trim();
 
   if (platform !== "android" && platform !== "ios") {
-    return e.json(400, { message: "platform must be 'android' or 'ios'." });
+    return e.json(400, { code: "bad_platform", message: "platform must be 'android' or 'ios'." });
   }
-  if (!sku) return e.json(400, { message: "sku is required." });
-  if (!purchaseToken) return e.json(400, { message: "purchaseToken is required." });
-  if (!householdId) return e.json(400, { message: "householdId is required." });
+  if (!sku) return e.json(400, { code: "sku_required", message: "sku is required." });
+  if (!purchaseToken) return e.json(400, { code: "token_required", message: "purchaseToken is required." });
+  if (!householdId) return e.json(400, { code: "household_required", message: "householdId is required." });
 
   // Caller must be a member of the target household.
   let membership;
   try {
     membership = $app.findFirstRecordByFilter("household_members", "user = {:user} && household = {:hh}", { user: auth.id, hh: householdId });
   } catch (_) {
-    return e.json(403, { message: "You are not a member of that household." });
+    return e.json(403, { code: "not_member", message: "You are not a member of that household." });
   }
   if (!membership) {
-    return e.json(403, { message: "You are not a member of that household." });
+    return e.json(403, { code: "not_member", message: "You are not a member of that household." });
   }
 
   // Resolve the SKU to an enabled product before spending a store API call.
@@ -56,10 +56,10 @@ routerAdd("POST", "/api/custom/verify-purchase", e => {
   try {
     product = $app.findFirstRecordByFilter("catalog_products", "sku = {:sku} && enabled = true", { sku: sku });
   } catch (_) {
-    return e.json(404, { message: "Unknown product." });
+    return e.json(404, { code: "unknown_product", message: "Unknown product." });
   }
   if (!product) {
-    return e.json(404, { message: "Unknown product." });
+    return e.json(404, { code: "unknown_product", message: "Unknown product." });
   }
 
   // Verify the receipt with the store via the internal Node service. A
@@ -76,17 +76,17 @@ routerAdd("POST", "/api/custom/verify-purchase", e => {
     verified = JSON.parse(resp.raw || "{}");
     if (resp.statusCode !== 200 || !verified.valid) {
       console.warn("[verify-purchase] verification failed", resp.statusCode, resp.raw);
-      return e.json(402, { message: "We couldn't verify that purchase." });
+      return e.json(402, { code: "verify_failed", message: "We couldn't verify that purchase." });
     }
   } catch (err) {
     console.error("[verify-purchase] verifier unreachable:", err);
-    return e.json(503, { message: "Purchase verification is temporarily unavailable." });
+    return e.json(503, { code: "verify_unavailable", message: "Purchase verification is temporarily unavailable." });
   }
 
   const txnId = String(verified.transactionId || "").trim();
   if (!txnId) {
     console.error("[verify-purchase] verifier returned no transactionId");
-    return e.json(502, { message: "We couldn't verify that purchase." });
+    return e.json(502, { code: "verify_failed", message: "We couldn't verify that purchase." });
   }
 
   // Packs this product grants. Goja-wrapped Go slices lack the full JS Array

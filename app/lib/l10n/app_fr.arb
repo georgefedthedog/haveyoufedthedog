@@ -415,5 +415,26 @@
   "characterAwardThanksPlant": "Merci d'avoir fait pousser tout ça la semaine dernière !",
   "characterAwardThanksBin": "Merci d'avoir fait rouler tout ça la semaine dernière !",
   "characterAwardThanksFish": "Merci d'avoir fait des vagues la semaine dernière !",
-  "characterAwardThanksGeneric": "Merci d'avoir été génial la semaine dernière !"
+  "characterAwardThanksGeneric": "Merci d'avoir été génial la semaine dernière !",
+
+  "serverNotSignedIn": "Tu dois être connecté.",
+  "serverNotMember": "Tu n'es pas membre de ce foyer.",
+  "serverOwnerOnly": "Seul le propriétaire du foyer peut faire ça.",
+  "serverNameRequired": "Un nom est requis.",
+  "serverPasswordTooShort": "Le mot de passe doit faire au moins 8 caractères.",
+  "serverClaimCodeInvalid": "Ce code de récupération n'est pas valide.",
+  "serverEmailInUse": "Cet e-mail est déjà utilisé.",
+  "serverNoSuchMember": "Membre introuvable.",
+  "serverInviteCodeInvalid": "Aucun foyer ouvert avec ce code.",
+  "serverPackCodeInvalid": "Aucun pack avec ce code.",
+  "serverPackGone": "Ce pack n'est plus disponible.",
+  "serverUnknownProduct": "Produit inconnu.",
+  "serverVerifyFailed": "Impossible de vérifier cet achat.",
+  "serverVerifyUnavailable": "La vérification des achats est momentanément indisponible.",
+  "serverRewardUnavailable": "Cet élément ne peut pas être débloqué.",
+  "serverStreakCheckFailed": "Impossible de vérifier ta série pour l'instant - réessaie bientôt.",
+  "serverStreakTooLow": "Il te faut une série de {threshold} pour débloquer ça - tu en es à {streak}.",
+
+  "notifChannelName": "Corvées validées",
+  "notifChannelDesc": "Quand quelqu'un de ton foyer valide une corvée."
 }

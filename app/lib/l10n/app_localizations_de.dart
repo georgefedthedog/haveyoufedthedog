@@ -1359,4 +1359,69 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get characterAwardThanksGeneric =>
       'Danke, dass du letzte Woche großartig warst!';
+
+  @override
+  String get serverNotSignedIn => 'Du musst angemeldet sein.';
+
+  @override
+  String get serverNotMember => 'Du bist kein Mitglied dieses Haushalts.';
+
+  @override
+  String get serverOwnerOnly => 'Das kann nur der Besitzer des Haushalts.';
+
+  @override
+  String get serverNameRequired => 'Ein Name ist erforderlich.';
+
+  @override
+  String get serverPasswordTooShort =>
+      'Das Passwort braucht mindestens 8 Zeichen.';
+
+  @override
+  String get serverClaimCodeInvalid => 'Dieser Übernahmecode ist ungültig.';
+
+  @override
+  String get serverEmailInUse => 'Diese E-Mail wird schon verwendet.';
+
+  @override
+  String get serverNoSuchMember => 'Mitglied nicht gefunden.';
+
+  @override
+  String get serverInviteCodeInvalid =>
+      'Kein offener Haushalt mit diesem Code.';
+
+  @override
+  String get serverPackCodeInvalid => 'Kein Paket mit diesem Code.';
+
+  @override
+  String get serverPackGone => 'Dieses Paket ist nicht mehr einlösbar.';
+
+  @override
+  String get serverUnknownProduct => 'Unbekanntes Produkt.';
+
+  @override
+  String get serverVerifyFailed => 'Der Kauf konnte nicht überprüft werden.';
+
+  @override
+  String get serverVerifyUnavailable =>
+      'Die Kaufprüfung ist gerade nicht verfügbar.';
+
+  @override
+  String get serverRewardUnavailable =>
+      'Dieses Element lässt sich nicht freischalten.';
+
+  @override
+  String get serverStreakCheckFailed =>
+      'Deine Serie lässt sich gerade nicht prüfen - versuch es gleich nochmal.';
+
+  @override
+  String serverStreakTooLow(int threshold, int streak) {
+    return 'Du brauchst eine Serie von $threshold, um das freizuschalten - du bist bei $streak.';
+  }
+
+  @override
+  String get notifChannelName => 'Erledigte Aufgaben';
+
+  @override
+  String get notifChannelDesc =>
+      'Wenn jemand in deinem Haushalt eine Aufgabe einträgt.';
 }

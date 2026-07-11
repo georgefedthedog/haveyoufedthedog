@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/api/server_messages.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household.dart';
@@ -303,7 +304,7 @@ class _BodyState extends ConsumerState<_Body> {
         SnackBar(
           showCloseIcon: true,
           content: Text(
-            e.response['message'] as String? ?? l10n.householdSaveFailed,
+            serverMessage(l10n, e.response, fallback: l10n.householdSaveFailed),
           ),
         ),
       );
@@ -1300,7 +1301,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
         SnackBar(
           showCloseIcon: true,
           content: Text(
-            e.response['message'] as String? ?? l10n.householdSaveFailed,
+            serverMessage(l10n, e.response, fallback: l10n.householdSaveFailed),
           ),
         ),
       );

@@ -12,7 +12,7 @@
 routerAdd("POST", "/api/custom/join-household-by-code", e => {
   const auth = e.auth;
   if (!auth) {
-    return e.json(401, { message: "You must be signed in to join." });
+    return e.json(401, { code: "not_signed_in", message: "You must be signed in to join." });
   }
 
   const info = e.requestInfo();
@@ -20,7 +20,7 @@ routerAdd("POST", "/api/custom/join-household-by-code", e => {
     .trim()
     .toUpperCase();
   if (!code) {
-    return e.json(400, { message: "Invite code is required." });
+    return e.json(400, { code: "invite_code_required", message: "Invite code is required." });
   }
 
   // Find an open household with this code.
@@ -28,10 +28,10 @@ routerAdd("POST", "/api/custom/join-household-by-code", e => {
   try {
     household = $app.findFirstRecordByFilter("households", "invite_code = {:code} && invites_open = true", { code: code });
   } catch (_) {
-    return e.json(404, { message: "No open household with that code." });
+    return e.json(404, { code: "invite_code_invalid", message: "No open household with that code." });
   }
   if (!household) {
-    return e.json(404, { message: "No open household with that code." });
+    return e.json(404, { code: "invite_code_invalid", message: "No open household with that code." });
   }
 
   // Already a member? Idempotent return.
