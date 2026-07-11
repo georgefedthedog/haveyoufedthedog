@@ -1824,5 +1824,30 @@
   "notifChannelDesc": "When someone in your household logs a chore.",
   "@notifChannelDesc": {
     "description": "Android notification channel description in system settings."
+  },
+
+  "characterNameDog": "Dog",
+  "@characterNameDog": {
+    "description": "Bundled character display name under its picker tile."
+  },
+  "characterNameCat": "Cat",
+  "@characterNameCat": {
+    "description": "Bundled character display name under its picker tile."
+  },
+  "characterNamePlant": "Plant",
+  "@characterNamePlant": {
+    "description": "Bundled character display name under its picker tile."
+  },
+  "characterNameBin": "Wheelie bin",
+  "@characterNameBin": {
+    "description": "Bundled character display name - the household rubbish bin on wheels."
+  },
+  "characterNameFish": "Fish",
+  "@characterNameFish": {
+    "description": "Bundled character display name under its picker tile."
+  },
+  "characterNameGeneric": "Other",
+  "@characterNameGeneric": {
+    "description": "Bundled fallback character's display name - anything that isn't one of the named types."
   }
 }

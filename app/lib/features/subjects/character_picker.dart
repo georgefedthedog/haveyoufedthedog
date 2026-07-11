@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
+import '../../core/subjects/characters.dart';
+import '../../l10n/l10n.dart';
 
 /// Horizontal scrolling row of character avatars. The selected one is
 /// highlighted with a primary border and primary-container background.
@@ -87,7 +89,7 @@ class _Tile extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            character.displayName,
+            localizedCharacterName(context.l10n, character),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: isSelected
                       ? scheme.primary

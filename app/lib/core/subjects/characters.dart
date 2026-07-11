@@ -1,6 +1,23 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+import '../l10n/name_i18n.dart';
 import 'character.dart';
+
+/// Display name for a character in the app's language: a catalog row's
+/// `name_i18n` translation wins, bundled ids map to ARB keys, anything else
+/// keeps the row's base `display_name`.
+String localizedCharacterName(AppLocalizations l10n, Character character) =>
+    pickLocalized(character.nameI18n, l10n.localeName) ??
+    switch (character.id) {
+      'dog' => l10n.characterNameDog,
+      'cat' => l10n.characterNameCat,
+      'plant' => l10n.characterNamePlant,
+      'bin' => l10n.characterNameBin,
+      'fish' => l10n.characterNameFish,
+      'generic' => l10n.characterNameGeneric,
+      _ => character.displayName,
+    };
 
 /// Curated registry of characters a subject can be drawn as. Each entry's
 /// [Character.id] is what gets stored on `subjects.icon`.

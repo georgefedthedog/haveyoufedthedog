@@ -14,10 +14,12 @@ import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_actions.dart';
 import '../../core/api/server_messages.dart';
 import '../../core/household/picture.dart';
+import '../../core/l10n/name_i18n.dart';
 import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
+import '../../core/subjects/characters.dart';
 import '../../widgets/dashed_rrect_painter.dart';
 import '../../widgets/glow_highlight.dart';
 import '../household/picture_artwork.dart';
@@ -320,7 +322,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
 
   _RewardItem _characterItem(Character c) => _RewardItem(
     slug: c.id,
-    displayName: c.displayName,
+    displayName: localizedCharacterName(context.l10n, c),
     accent: c.stageColor,
     aspectRatio: 1,
     thumb: ClipRRect(
@@ -343,7 +345,8 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
 
   _RewardItem _pictureItem(Picture p) => _RewardItem(
     slug: p.id,
-    displayName: p.displayName,
+    displayName:
+        pickLocalized(p.nameI18n, context.l10n.localeName) ?? p.displayName,
     aspectRatio: 9 / 6,
     thumb: ClipRRect(
       borderRadius: BorderRadius.circular(12),

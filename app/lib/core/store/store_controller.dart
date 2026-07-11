@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../api/pocketbase_client.dart';
 import '../auth/auth_controller.dart';
+import '../l10n/name_i18n.dart';
 import 'store_product.dart';
 
 part 'store_controller.g.dart';
@@ -86,5 +87,7 @@ StoreProduct _productFrom(
     heroImage: hero.isEmpty ? null : pb.files.getUrl(r, hero),
     sortOrder: r.getIntValue('sort_order'),
     details: details,
+    nameI18n: nameI18nFromJson(r.data['name_i18n']),
+    descriptionI18n: nameI18nFromJson(r.data['description_i18n']),
   );
 }

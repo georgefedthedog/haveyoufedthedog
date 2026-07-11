@@ -436,5 +436,12 @@
   "serverStreakTooLow": "Il te faut une série de {threshold} pour débloquer ça - tu en es à {streak}.",
 
   "notifChannelName": "Corvées validées",
-  "notifChannelDesc": "Quand quelqu'un de ton foyer valide une corvée."
+  "notifChannelDesc": "Quand quelqu'un de ton foyer valide une corvée.",
+
+  "characterNameDog": "Chien",
+  "characterNameCat": "Chat",
+  "characterNamePlant": "Plante",
+  "characterNameBin": "Poubelle",
+  "characterNameFish": "Poisson",
+  "characterNameGeneric": "Autre"
 }

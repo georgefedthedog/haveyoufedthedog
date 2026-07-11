@@ -613,6 +613,17 @@
         "type": "text"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "json3101737697",
+        "maxSize": 0,
+        "name": "display_name_i18n",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
         "help": "Picker order among remote characters (bundled ones always come first).",
         "hidden": false,
         "id": "number_cch_sort_00001",
@@ -847,6 +858,17 @@
       {
         "help": "",
         "hidden": false,
+        "id": "json3101737697",
+        "maxSize": 0,
+        "name": "name_i18n",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "help": "",
+        "hidden": false,
         "id": "bool1358543748",
         "name": "enabled",
         "presentable": false,
@@ -942,6 +964,17 @@
         "required": true,
         "system": false,
         "type": "text"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "json1683039627",
+        "maxSize": 0,
+        "name": "display_name_i18n",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
       },
       {
         "help": "Picker order among remote pictures (bundled ones always come first).",
@@ -1135,6 +1168,17 @@
         "type": "text"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "json3101737697",
+        "maxSize": 0,
+        "name": "name_i18n",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
@@ -1148,6 +1192,17 @@
         "required": false,
         "system": false,
         "type": "text"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "json157190018",
+        "maxSize": 0,
+        "name": "description_i18n",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
       },
       {
         "help": "",

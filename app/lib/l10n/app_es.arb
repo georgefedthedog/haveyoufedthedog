@@ -436,5 +436,12 @@
   "serverStreakTooLow": "Necesitas una racha de {threshold} para desbloquearlo - llevas {streak}.",
 
   "notifChannelName": "Tareas completadas",
-  "notifChannelDesc": "Cuando alguien de tu hogar registra una tarea."
+  "notifChannelDesc": "Cuando alguien de tu hogar registra una tarea.",
+
+  "characterNameDog": "Perro",
+  "characterNameCat": "Gato",
+  "characterNamePlant": "Planta",
+  "characterNameBin": "Cubo de basura",
+  "characterNameFish": "Pez",
+  "characterNameGeneric": "Otro"
 }

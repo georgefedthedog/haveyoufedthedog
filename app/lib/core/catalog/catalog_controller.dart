@@ -14,6 +14,7 @@ import '../household/current_household_controller.dart';
 import '../household/households_controller.dart';
 import '../household/picture.dart';
 import '../household/pictures.dart';
+import '../l10n/name_i18n.dart';
 import '../profile/avatar.dart';
 import '../profile/avatars.dart';
 import '../storage/shared_preferences_provider.dart';
@@ -71,6 +72,11 @@ RemoteCatalog _catalogFrom(PocketBase pb, List<List<RecordModel>> results) {
     packNames: {
       for (final r in results[3])
         if (r.getStringValue('name').isNotEmpty) r.id: r.getStringValue('name'),
+    },
+    packNamesI18n: {
+      for (final r in results[3])
+        if (nameI18nFromJson(r.data['name_i18n']).isNotEmpty)
+          r.id: nameI18nFromJson(r.data['name_i18n']),
     },
   );
 }
@@ -148,6 +154,7 @@ Catalog catalog(Ref ref) {
       (c) => c.sortOrder,
     ),
     packNames: remote.packNames,
+    packNamesI18n: remote.packNamesI18n,
   );
 }
 
@@ -310,6 +317,7 @@ Picture? _pictureFrom(PocketBase pb, RecordModel r) {
     packIds: r.getListValue<String>('packs'),
     sortOrder: r.getIntValue('sort_order'),
     rewardExcluded: r.getBoolValue('reward_excluded'),
+    nameI18n: nameI18nFromJson(r.data['display_name_i18n']),
   );
 }
 
@@ -335,6 +343,7 @@ Character? _characterFrom(PocketBase pb, RecordModel r) {
     sortOrder: r.getIntValue('sort_order'),
     messages: CharacterMessages.fromJson(r.data['messages']),
     rewardExcluded: r.getBoolValue('reward_excluded'),
+    nameI18n: nameI18nFromJson(r.data['display_name_i18n']),
   );
 }
 

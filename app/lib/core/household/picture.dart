@@ -40,6 +40,10 @@ class Picture {
   /// Doesn't affect resolution or the pickers - only the rewards page.
   final bool rewardExcluded;
 
+  /// `{lang: name}` translations of [displayName] from the catalog row's
+  /// `display_name_i18n` column; empty for bundled pictures.
+  final Map<String, String> nameI18n;
+
   const Picture({
     required this.id,
     required this.displayName,
@@ -47,6 +51,7 @@ class Picture {
     this.packIds = const [],
     this.sortOrder = 0,
     this.rewardExcluded = false,
+    this.nameI18n = const {},
   });
 
   /// Asset path for a bundled picture's variant matching [bucket].

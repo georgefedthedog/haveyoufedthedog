@@ -1409,4 +1409,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifChannelDesc => 'When someone in your household logs a chore.';
+
+  @override
+  String get characterNameDog => 'Dog';
+
+  @override
+  String get characterNameCat => 'Cat';
+
+  @override
+  String get characterNamePlant => 'Plant';
+
+  @override
+  String get characterNameBin => 'Wheelie bin';
+
+  @override
+  String get characterNameFish => 'Fish';
+
+  @override
+  String get characterNameGeneric => 'Other';
 }

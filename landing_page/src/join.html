@@ -156,8 +156,8 @@
         src="img/logo.png"
         alt="Have You Fed The Dog?"
       />
-      <h1>Join the household</h1>
-      <p>
+      <h1 data-i18n="heading">Join the household</h1>
+      <p data-i18n="intro">
         If you have the app installed, this link should have opened it straight to the join screen. If not, open
         <strong>Have You Fed The Dog?</strong> and enter your invite code:
       </p>
@@ -175,21 +175,72 @@
         Copy code
       </button>
       <ol class="steps">
-        <li>Open the Have You Fed The Dog? app.</li>
-        <li>Go to <strong>Households → Join</strong>.</li>
-        <li>Enter the code above and tap <strong>Join household</strong>.</li>
+        <li data-i18n="step1">Open the Have You Fed The Dog? app.</li>
+        <li data-i18n="step2">Go to <strong>Households → Join</strong>.</li>
+        <li data-i18n="step3">Enter the code above and tap <strong>Join household</strong>.</li>
       </ol>
       <a
         class="home"
         href="/"
+        data-i18n="back"
         >← Back to haveyoufedthedog.com</a
       >
     </main>
     <script>
       (function () {
+        // Browser-language copy swap (fr/de/es); English markup is the
+        // fallback. Matches the app's terminology per language.
+        var L10N = {
+          fr: {
+            heading: "Rejoindre le foyer",
+            intro: "Si l'appli est installée, ce lien a dû l'ouvrir directement sur l'écran « Rejoindre ». Sinon, ouvre <strong>Have You Fed The Dog?</strong> et saisis ton code d'invitation :",
+            step1: "Ouvre l'appli Have You Fed The Dog?.",
+            step2: "Va dans <strong>Foyers → Rejoindre</strong>.",
+            step3: "Saisis le code ci-dessus et touche <strong>Rejoindre un foyer</strong>.",
+            back: "← Retour sur haveyoufedthedog.com",
+            copy: "Copier le code",
+            copied: "Copié !",
+            nocode: "(pas de code dans le lien)"
+          },
+          de: {
+            heading: "Dem Haushalt beitreten",
+            intro: "Wenn die App installiert ist, sollte dieser Link sie direkt beim Beitritt geöffnet haben. Falls nicht: öffne <strong>Have You Fed The Dog?</strong> und gib deinen Einladungscode ein:",
+            step1: "Öffne die Have You Fed The Dog?-App.",
+            step2: "Geh zu <strong>Haushalte → Beitreten</strong>.",
+            step3: "Gib den Code oben ein und tippe auf <strong>Haushalt beitreten</strong>.",
+            back: "← Zurück zu haveyoufedthedog.com",
+            copy: "Code kopieren",
+            copied: "Kopiert!",
+            nocode: "(kein Code im Link)"
+          },
+          es: {
+            heading: "Unirse al hogar",
+            intro: "Si tienes la app instalada, este enlace debería haberla abierto directamente en la pantalla de unirse. Si no, abre <strong>Have You Fed The Dog?</strong> y escribe tu código de invitación:",
+            step1: "Abre la app Have You Fed The Dog?.",
+            step2: "Ve a <strong>Hogares → Unirse</strong>.",
+            step3: "Escribe el código de arriba y toca <strong>Unirse a un hogar</strong>.",
+            back: "← Volver a haveyoufedthedog.com",
+            copy: "Copiar código",
+            copied: "¡Copiado!",
+            nocode: "(sin código en el enlace)"
+          }
+        };
+        var t = L10N[(navigator.language || "en").slice(0, 2)] || {};
+        var nodes = document.querySelectorAll("[data-i18n]");
+        for (var i = 0; i < nodes.length; i++) {
+          var s = t[nodes[i].getAttribute("data-i18n")];
+          if (s) nodes[i].innerHTML = s;
+        }
+        var TXT = {
+          copy: t.copy || "Copy code",
+          copied: t.copied || "Copied!",
+          nocode: t.nocode || "(no code in link)"
+        };
+
         var code = new URLSearchParams(location.search).get("code");
         var el = document.getElementById("code");
         var btn = document.getElementById("copy");
+        btn.textContent = TXT.copy;
         if (code) {
           code = code.trim().toUpperCase();
           el.textContent = code;
@@ -198,15 +249,15 @@
             btn.hidden = false;
             btn.addEventListener("click", function () {
               navigator.clipboard.writeText(code).then(function () {
-                btn.textContent = "Copied!";
+                btn.textContent = TXT.copied;
                 setTimeout(function () {
-                  btn.textContent = "Copy code";
+                  btn.textContent = TXT.copy;
                 }, 1500);
               });
             });
           }
         } else {
-          el.textContent = "(no code in link)";
+          el.textContent = TXT.nocode;
         }
       })();
     </script>

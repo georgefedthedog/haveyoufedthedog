@@ -426,7 +426,8 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
     // (disabled / deleted / catalog not loaded yet) are silently skipped.
     final catalog = ref.watch(catalogProvider);
     final appliedNames = [
-      for (final id in widget.household.packIds) ?catalog.packName(id),
+      for (final id in widget.household.packIds)
+        ?catalog.packName(id, localeName: context.l10n.localeName),
     ];
 
     return Card(
@@ -599,7 +600,10 @@ class _ProductCard extends ConsumerWidget {
         progress.phase == PurchasePhase.pending && progress.sku == product.sku;
 
     // Resolvable pack names (enabled packs only) - what the buyer unlocks.
-    final includes = [for (final id in product.packIds) ?catalog.packName(id)];
+    final includes = [
+      for (final id in product.packIds)
+        ?catalog.packName(id, localeName: context.l10n.localeName),
+    ];
 
     return Card(
       child: Padding(
@@ -621,7 +625,7 @@ class _ProductCard extends ConsumerWidget {
               const SizedBox(height: 12),
             ],
             Text(
-              product.name,
+              product.localizedName(context.l10n.localeName),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
@@ -629,7 +633,7 @@ class _ProductCard extends ConsumerWidget {
             if (product.description.isNotEmpty) ...[
               const SizedBox(height: 4),
               Text(
-                product.description,
+                product.localizedDescription(context.l10n.localeName),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),

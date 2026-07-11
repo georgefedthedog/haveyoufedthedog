@@ -1424,4 +1424,22 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get notifChannelDesc =>
       'Wenn jemand in deinem Haushalt eine Aufgabe einträgt.';
+
+  @override
+  String get characterNameDog => 'Hund';
+
+  @override
+  String get characterNameCat => 'Katze';
+
+  @override
+  String get characterNamePlant => 'Pflanze';
+
+  @override
+  String get characterNameBin => 'Mülltonne';
+
+  @override
+  String get characterNameFish => 'Fisch';
+
+  @override
+  String get characterNameGeneric => 'Sonstiges';
 }

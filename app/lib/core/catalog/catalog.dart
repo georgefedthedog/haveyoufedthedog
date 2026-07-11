@@ -1,5 +1,6 @@
 import '../household/picture.dart';
 import '../household/pictures.dart';
+import '../l10n/name_i18n.dart';
 import '../profile/avatar.dart';
 import '../subjects/character.dart';
 import '../subjects/characters.dart';
@@ -18,11 +19,15 @@ class RemoteCatalog {
   /// reach the client (hidden field).
   final Map<String, String> packNames;
 
+  /// Pack id → `{lang: name}` translations (the rows' `name_i18n` column).
+  final Map<String, Map<String, String>> packNamesI18n;
+
   const RemoteCatalog({
     required this.avatars,
     required this.pictures,
     required this.characters,
     this.packNames = const {},
+    this.packNamesI18n = const {},
   });
 
   static const empty = RemoteCatalog(
@@ -50,16 +55,28 @@ class Catalog {
   /// Pack id → display name for enabled packs (see [RemoteCatalog.packNames]).
   final Map<String, String> packNames;
 
+  /// Pack id → `{lang: name}` translations (see [RemoteCatalog.packNamesI18n]).
+  final Map<String, Map<String, String>> packNamesI18n;
+
   const Catalog({
     required this.avatars,
     required this.pictures,
     required this.characters,
     this.packNames = const {},
+    this.packNamesI18n = const {},
   });
 
-  /// Display name for an applied pack id; null when the pack is unknown
-  /// (disabled, deleted, or the catalog hasn't loaded) - callers skip it.
-  String? packName(String id) => packNames[id];
+  /// Display name for an applied pack id in [localeName] (falling back to
+  /// the row's base English name); null when the pack is unknown (disabled,
+  /// deleted, or the catalog hasn't loaded) - callers skip it.
+  String? packName(String id, {String localeName = 'en'}) {
+    final i18n = packNamesI18n[id];
+    if (i18n != null) {
+      final localized = pickLocalized(i18n, localeName);
+      if (localized != null) return localized;
+    }
+    return packNames[id];
+  }
 
   Avatar? lookupAvatar(String? id) {
     if (id == null || id.isEmpty) return null;

@@ -88,6 +88,11 @@ class Character {
   /// Doesn't affect resolution or the pickers - only the rewards page.
   final bool rewardExcluded;
 
+  /// `{lang: name}` translations of [displayName] from the catalog row's
+  /// `display_name_i18n` column; empty for bundled characters (theirs are
+  /// ARB keys - see `localizedCharacterName`).
+  final Map<String, String> nameI18n;
+
   const Character({
     required this.id,
     required this.displayName,
@@ -100,6 +105,7 @@ class Character {
     this.sortOrder = 0,
     this.messages,
     this.rewardExcluded = false,
+    this.nameI18n = const {},
   });
 
   /// The closest available expression - defaults via

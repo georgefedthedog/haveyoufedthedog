@@ -2475,6 +2475,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When someone in your household logs a chore.'**
   String get notifChannelDesc;
+
+  /// Bundled character display name under its picker tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Dog'**
+  String get characterNameDog;
+
+  /// Bundled character display name under its picker tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Cat'**
+  String get characterNameCat;
+
+  /// Bundled character display name under its picker tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Plant'**
+  String get characterNamePlant;
+
+  /// Bundled character display name - the household rubbish bin on wheels.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheelie bin'**
+  String get characterNameBin;
+
+  /// Bundled character display name under its picker tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get characterNameFish;
+
+  /// Bundled fallback character's display name - anything that isn't one of the named types.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get characterNameGeneric;
 }
 
 class _AppLocalizationsDelegate

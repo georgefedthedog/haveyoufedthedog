@@ -1,5 +1,7 @@
 import 'package:in_app_purchase/in_app_purchase.dart';
 
+import '../l10n/name_i18n.dart';
+
 /// A purchasable product: a `catalog_products` row merged with its live store
 /// listing (localized price, etc.). Only products the store can actually sell
 /// reach this type, so [details] is always present.
@@ -19,6 +21,11 @@ class StoreProduct {
   final String name;
 
   final String description;
+
+  /// `{lang: text}` translations of [name] / [description] from the row's
+  /// `name_i18n` / `description_i18n` columns; empty = English only.
+  final Map<String, String> nameI18n;
+  final Map<String, String> descriptionI18n;
 
   /// `catalog_packs` ids this product unlocks when purchased.
   final List<String> packIds;
@@ -41,7 +48,16 @@ class StoreProduct {
     required this.heroImage,
     required this.sortOrder,
     required this.details,
+    this.nameI18n = const {},
+    this.descriptionI18n = const {},
   });
+
+  /// [name] / [description] in the app's language, falling back to the
+  /// row's base English text.
+  String localizedName(String localeName) =>
+      pickLocalized(nameI18n, localeName) ?? name;
+  String localizedDescription(String localeName) =>
+      pickLocalized(descriptionI18n, localeName) ?? description;
 
   /// Localized price string, e.g. "£2.99" - formatted by the store for the
   /// user's region and currency.

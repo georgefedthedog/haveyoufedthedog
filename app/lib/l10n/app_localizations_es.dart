@@ -1421,4 +1421,22 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get notifChannelDesc =>
       'Cuando alguien de tu hogar registra una tarea.';
+
+  @override
+  String get characterNameDog => 'Perro';
+
+  @override
+  String get characterNameCat => 'Gato';
+
+  @override
+  String get characterNamePlant => 'Planta';
+
+  @override
+  String get characterNameBin => 'Cubo de basura';
+
+  @override
+  String get characterNameFish => 'Pez';
+
+  @override
+  String get characterNameGeneric => 'Otro';
 }

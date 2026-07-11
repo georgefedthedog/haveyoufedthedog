@@ -436,5 +436,12 @@
   "serverStreakTooLow": "Du brauchst eine Serie von {threshold}, um das freizuschalten - du bist bei {streak}.",
 
   "notifChannelName": "Erledigte Aufgaben",
-  "notifChannelDesc": "Wenn jemand in deinem Haushalt eine Aufgabe einträgt."
+  "notifChannelDesc": "Wenn jemand in deinem Haushalt eine Aufgabe einträgt.",
+
+  "characterNameDog": "Hund",
+  "characterNameCat": "Katze",
+  "characterNamePlant": "Pflanze",
+  "characterNameBin": "Mülltonne",
+  "characterNameFish": "Fisch",
+  "characterNameGeneric": "Sonstiges"
 }

@@ -1421,4 +1421,22 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get notifChannelDesc =>
       'Quand quelqu\'un de ton foyer valide une corvée.';
+
+  @override
+  String get characterNameDog => 'Chien';
+
+  @override
+  String get characterNameCat => 'Chat';
+
+  @override
+  String get characterNamePlant => 'Plante';
+
+  @override
+  String get characterNameBin => 'Poubelle';
+
+  @override
+  String get characterNameFish => 'Poisson';
+
+  @override
+  String get characterNameGeneric => 'Autre';
 }

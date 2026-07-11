@@ -268,7 +268,7 @@ class _YouTab extends ConsumerWidget {
     final ringColor = isOther
         ? Colors.red
         : (isSelected ? scheme.primary : Colors.transparent);
-    final label = isOther ? actingMember.displayName : 'You';
+    final label = isOther ? actingMember.displayName : context.l10n.youTabTitle;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

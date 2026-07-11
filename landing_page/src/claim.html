@@ -156,8 +156,8 @@
         src="img/logo.png"
         alt="Have You Fed The Dog?"
       />
-      <h1>Claim your account</h1>
-      <p>
+      <h1 data-i18n="heading">Claim your account</h1>
+      <p data-i18n="intro">
         If you have the app installed, this link should have opened it to the sign-up screen with your claim code filled in. If not, open
         <strong>Have You Fed The Dog?</strong> and sign up with this claim code:
       </p>
@@ -175,21 +175,72 @@
         Copy code
       </button>
       <ol class="steps">
-        <li>Open the Have You Fed The Dog? app.</li>
-        <li>Tap <strong>Sign up</strong>, then <strong>“I have a claim code”</strong>.</li>
-        <li>Enter the code above and tap <strong>Claim account</strong>.</li>
+        <li data-i18n="step1">Open the Have You Fed The Dog? app.</li>
+        <li data-i18n="step2">Tap <strong>Sign up</strong>, then <strong>“I have a claim code”</strong>.</li>
+        <li data-i18n="step3">Enter the code above and tap <strong>Claim account</strong>.</li>
       </ol>
       <a
         class="home"
         href="/"
+        data-i18n="back"
         >← Back to haveyoufedthedog.com</a
       >
     </main>
     <script>
       (function () {
+        // Browser-language copy swap (fr/de/es); English markup is the
+        // fallback. Matches the app's terminology per language.
+        var L10N = {
+          fr: {
+            heading: "Récupère ton compte",
+            intro: "Si l'appli est installée, ce lien a dû l'ouvrir sur l'écran d'inscription avec ton code déjà rempli. Sinon, ouvre <strong>Have You Fed The Dog?</strong> et inscris-toi avec ce code de récupération :",
+            step1: "Ouvre l'appli Have You Fed The Dog?.",
+            step2: "Touche <strong>S'inscrire</strong>, puis <strong>« J'ai un code de récupération »</strong>.",
+            step3: "Saisis le code ci-dessus et touche <strong>Récupérer le compte</strong>.",
+            back: "← Retour sur haveyoufedthedog.com",
+            copy: "Copier le code",
+            copied: "Copié !",
+            nocode: "(pas de code dans le lien)"
+          },
+          de: {
+            heading: "Übernimm dein Konto",
+            intro: "Wenn die App installiert ist, sollte dieser Link sie mit ausgefülltem Übernahmecode bei der Registrierung geöffnet haben. Falls nicht: öffne <strong>Have You Fed The Dog?</strong> und registriere dich mit diesem Übernahmecode:",
+            step1: "Öffne die Have You Fed The Dog?-App.",
+            step2: "Tippe auf <strong>Registrieren</strong>, dann auf <strong>„Ich habe einen Übernahmecode“</strong>.",
+            step3: "Gib den Code oben ein und tippe auf <strong>Konto übernehmen</strong>.",
+            back: "← Zurück zu haveyoufedthedog.com",
+            copy: "Code kopieren",
+            copied: "Kopiert!",
+            nocode: "(kein Code im Link)"
+          },
+          es: {
+            heading: "Reclama tu cuenta",
+            intro: "Si tienes la app instalada, este enlace debería haberla abierto en el registro con tu código ya rellenado. Si no, abre <strong>Have You Fed The Dog?</strong> y regístrate con este código de traspaso:",
+            step1: "Abre la app Have You Fed The Dog?.",
+            step2: "Toca <strong>Registrarse</strong> y luego <strong>«Tengo un código de traspaso»</strong>.",
+            step3: "Escribe el código de arriba y toca <strong>Reclamar cuenta</strong>.",
+            back: "← Volver a haveyoufedthedog.com",
+            copy: "Copiar código",
+            copied: "¡Copiado!",
+            nocode: "(sin código en el enlace)"
+          }
+        };
+        var t = L10N[(navigator.language || "en").slice(0, 2)] || {};
+        var nodes = document.querySelectorAll("[data-i18n]");
+        for (var i = 0; i < nodes.length; i++) {
+          var s = t[nodes[i].getAttribute("data-i18n")];
+          if (s) nodes[i].innerHTML = s;
+        }
+        var TXT = {
+          copy: t.copy || "Copy code",
+          copied: t.copied || "Copied!",
+          nocode: t.nocode || "(no code in link)"
+        };
+
         var code = new URLSearchParams(location.search).get("code");
         var el = document.getElementById("code");
         var btn = document.getElementById("copy");
+        btn.textContent = TXT.copy;
         if (code) {
           code = code.trim().toUpperCase();
           el.textContent = code;
@@ -198,15 +249,15 @@
             btn.hidden = false;
             btn.addEventListener("click", function () {
               navigator.clipboard.writeText(code).then(function () {
-                btn.textContent = "Copied!";
+                btn.textContent = TXT.copied;
                 setTimeout(function () {
-                  btn.textContent = "Copy code";
+                  btn.textContent = TXT.copy;
                 }, 1500);
               });
             });
           }
         } else {
-          el.textContent = "(no code in link)";
+          el.textContent = TXT.nocode;
         }
       })();
     </script>
