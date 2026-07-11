@@ -240,6 +240,22 @@ default is the _binary_ dir, a documented gotcha (README → "Static files").
 - Character mood/award copy is data, not ARB - see Remote content catalog
   (bundled voices in `assets/l10n/characters/<lang>.json`, pack voices under
   the `messages.i18n` key).
+- **Catalog names localize via additive JSON columns** - flat `{lang: text}`
+  maps, base field = English fallback: `display_name_i18n` on
+  `catalog_characters`/`catalog_pictures`, `name_i18n` on `catalog_packs` +
+  `catalog_products`, `description_i18n` on products (note the two naming
+  patterns). Parsed by `core/l10n/name_i18n.dart`; resolved at the widget
+  layer via `localizedCharacterName` (`characters.dart` - bundled ids read
+  ARB keys), `StoreProduct.localizedName/-Description`, and
+  `catalog.packName(id, localeName:)`. Authored as `display_name_i18n` /
+  `name_i18n` / `description_i18n` keys in `image_packs/pack_manifest.json`
+  and pushed by `upload_pack.py`. `catalog_avatars` has no i18n column -
+  avatar names never render.
+- The landing page's `join.html` / `claim.html` / `index.html` swap copy
+  client-side from inline `L10N` dictionaries keyed on `navigator.language`
+  (English markup is the fallback). Play/App Store listing + IAP
+  translations live in `store_listings_i18n.md` (hand-pasted into the
+  consoles).
 - iOS: `CFBundleLocalizations` in Info.plist + per-language
   `<lang>.lproj/InfoPlist.strings` (NFC usage description), wired as a
   `PBXVariantGroup` in `project.pbxproj`; verifiable only on a Codemagic
