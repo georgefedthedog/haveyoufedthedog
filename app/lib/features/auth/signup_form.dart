@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/password_field.dart';
 
@@ -112,9 +113,11 @@ class _SignupFormState extends ConsumerState<SignupForm> {
       // credential.
       TextInput.finishAutofillContext();
     } on ClientException catch (e) {
-      final fallback = claim ? 'Could not claim account' : 'Signup failed';
-      final msg = e.response['message'] as String? ?? fallback;
       if (mounted) {
+        final fallback = claim
+            ? context.l10n.authCouldNotClaim
+            : context.l10n.authSignupFailed;
+        final msg = e.response['message'] as String? ?? fallback;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
@@ -122,7 +125,10 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text('Signup failed: $e')),
+          SnackBar(
+            showCloseIcon: true,
+            content: Text(context.l10n.authSignupFailedDetails('$e')),
+          ),
         );
       }
     } finally {
@@ -139,14 +145,14 @@ class _SignupFormState extends ConsumerState<SignupForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             LabeledField(
-              label: 'Your name',
+              label: context.l10n.authYourNameLabel,
               child: TextFormField(
                 controller: _nameCtrl,
                 focusNode: _nameFocus,
                 decoration: InputDecoration(
                   hintText: _isClaim
-                      ? 'Leave blank to keep your current name'
-                      : 'Seen by your housemates',
+                      ? context.l10n.authNameHintClaim
+                      : context.l10n.authNameHint,
                   prefixIcon: const Icon(Icons.person_outline),
                 ),
                 autofillHints: const [AutofillHints.name],
@@ -154,37 +160,38 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                 textInputAction: TextInputAction.next,
                 // Claiming keeps the owner-set name, so it's optional then.
                 validator: (v) => (!_isClaim && (v == null || v.trim().isEmpty))
-                    ? 'Required'
+                    ? context.l10n.commonRequired
                     : null,
               ),
             ),
             const SizedBox(height: 16),
             LabeledField(
-              label: 'Email',
+              label: context.l10n.authEmailLabel,
               child: TextFormField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your email',
-                  prefixIcon: Icon(Icons.mail_outline),
+                decoration: InputDecoration(
+                  hintText: context.l10n.authEmailHint,
+                  prefixIcon: const Icon(Icons.mail_outline),
                 ),
                 validator: (v) => (v == null || !v.contains('@'))
-                    ? 'Enter a valid email'
+                    ? context.l10n.authEmailInvalid
                     : null,
               ),
             ),
             const SizedBox(height: 16),
             PasswordField(
               controller: _passwordCtrl,
-              helperText: 'At least 8 characters',
-              hintText: 'Choose a password',
+              helperText: context.l10n.authPasswordRule,
+              hintText: context.l10n.authChoosePasswordHint,
               prefixIcon: const Icon(Icons.lock_outline),
               autofillHints: const [AutofillHints.newPassword],
               onFieldSubmitted: (_) => _submit(),
-              validator: (v) =>
-                  (v == null || v.length < 8) ? 'At least 8 characters' : null,
+              validator: (v) => (v == null || v.length < 8)
+                  ? context.l10n.authPasswordRule
+                  : null,
             ),
             const SizedBox(height: 8),
             // Tucked behind a disclosure: normal signups never see the field.
@@ -202,7 +209,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                 icon: Icon(
                   _claimExpanded ? Icons.expand_less : Icons.expand_more,
                 ),
-                label: const Text('I have a claim code'),
+                label: Text(context.l10n.authClaimCodeToggle),
               ),
             ),
             AnimatedSize(
@@ -213,7 +220,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                   ? Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: LabeledField(
-                        label: 'Claim code',
+                        label: context.l10n.authClaimCodeLabel,
                         child: TextFormField(
                           controller: _claimCtrl,
                           // Manual "I have a claim code" expansion focuses here
@@ -221,9 +228,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                           autofocus: !_claimFromLink,
                           textCapitalization: TextCapitalization.characters,
                           textInputAction: TextInputAction.done,
-                          decoration: const InputDecoration(
-                            hintText: 'Joining as an existing member?',
-                            prefixIcon: Icon(Icons.vpn_key_outlined),
+                          decoration: InputDecoration(
+                            hintText: context.l10n.authClaimCodeHint,
+                            prefixIcon: const Icon(Icons.vpn_key_outlined),
                           ),
                           // Drives the name validator + the button label.
                           onChanged: (_) => setState(() {}),
@@ -242,7 +249,11 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                       width: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(_isClaim ? 'Claim account' : 'Sign up'),
+                  : Text(
+                      _isClaim
+                          ? context.l10n.authClaimAccount
+                          : context.l10n.authSignUp,
+                    ),
             ),
           ],
         ),

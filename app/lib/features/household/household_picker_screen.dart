@@ -7,6 +7,7 @@ import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household.dart';
 import '../../core/household/households_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import 'picture_artwork.dart';
 
@@ -32,7 +33,7 @@ class HouseholdPickerScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your households'),
+        title: Text(context.l10n.householdsYourTitle),
         // Manual back arrow because the auto-detected one disappears if the
         // user is force-redirected here (no back stack). Always fall through
         // to home so they can never get stranded.
@@ -45,7 +46,7 @@ class HouseholdPickerScreen extends ConsumerWidget {
           if (isStranded)
             PopupMenuButton<String>(
               icon: const Icon(Icons.menu),
-              tooltip: 'Menu',
+              tooltip: context.l10n.menuTooltip,
               onSelected: (value) {
                 switch (value) {
                   case 'profile':
@@ -54,20 +55,20 @@ class HouseholdPickerScreen extends ConsumerWidget {
                     ref.read(authControllerProvider.notifier).logout();
                 }
               },
-              itemBuilder: (_) => const [
+              itemBuilder: (_) => [
                 PopupMenuItem(
                   value: 'profile',
                   child: ListTile(
-                    leading: Icon(Icons.person_outline),
-                    title: Text('Edit profile'),
+                    leading: const Icon(Icons.person_outline),
+                    title: Text(context.l10n.menuEditProfile),
                   ),
                 ),
-                PopupMenuDivider(),
+                const PopupMenuDivider(),
                 PopupMenuItem(
                   value: 'logout',
                   child: ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Log out'),
+                    leading: const Icon(Icons.logout),
+                    title: Text(context.l10n.commonLogOut),
                   ),
                 ),
               ],
@@ -76,16 +77,16 @@ class HouseholdPickerScreen extends ConsumerWidget {
       ),
       body: asyncHouseholds.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) =>
+            Center(child: Text(context.l10n.commonErrorDetails('$e'))),
         data: (households) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
             if (households.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
                 child: Text(
-                  "You're not in any households yet. Create one or join "
-                  'with an invite code below.',
+                  context.l10n.householdsEmpty,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -105,13 +106,13 @@ class HouseholdPickerScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             FilledButton.icon(
               icon: const Icon(Icons.add_home),
-              label: const Text('Create a new household'),
+              label: Text(context.l10n.householdsCreateNew),
               onPressed: () => context.push(Routes.householdCreate),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               icon: const Icon(Icons.group_add),
-              label: const Text('Join with invite code'),
+              label: Text(context.l10n.householdsJoinWithCode),
               onPressed: () => context.push(Routes.householdJoin),
             ),
           ],
@@ -188,7 +189,9 @@ class _HouseholdHeroTile extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        household.role,
+                        household.isOwner
+                            ? context.l10n.householdRoleOwner
+                            : context.l10n.householdRoleMember,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),

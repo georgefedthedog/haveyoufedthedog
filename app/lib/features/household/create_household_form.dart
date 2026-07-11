@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/household/household_actions.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
 
 /// Name input + Create button. On success the router redirects to /home.
@@ -39,8 +40,10 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
           );
       // Router redirects when memberships update.
     } on ClientException catch (e) {
-      final msg = e.response['message'] as String? ?? 'Could not create';
       if (mounted) {
+        final msg =
+            e.response['message'] as String? ??
+            context.l10n.createHouseholdFailed;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
@@ -65,8 +68,7 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
         children: [
           const SizedBox(height: 16),
           Text(
-            'Start a new household - for your family, flatmates, '
-            'or anyone you share chores with.',
+            context.l10n.createHouseholdIntro,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -78,28 +80,29 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   LabeledField(
-                    label: 'Household name',
+                    label: context.l10n.householdNameLabel,
                     child: TextFormField(
                       controller: _nameCtrl,
-                      decoration: const InputDecoration(
-                        hintText: 'e.g. "Paihia House" or "Home"',
+                      decoration: InputDecoration(
+                        hintText: context.l10n.householdNameHint,
                       ),
                       autofocus: true,
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.next,
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? context.l10n.commonRequired
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
                   // Optional, same field as on household details - empty
                   // is fine.
                   LabeledField(
-                    label: 'Who lives here?',
+                    label: context.l10n.householdResidentsLabel,
                     child: TextFormField(
                       controller: _residentsCtrl,
-                      decoration: const InputDecoration(
-                        hintText: 'The Goodchilds',
+                      decoration: InputDecoration(
+                        hintText: context.l10n.householdResidentsHint,
                       ),
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.done,
@@ -115,7 +118,7 @@ class _CreateHouseholdFormState extends ConsumerState<CreateHouseholdForm> {
                             width: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Create household'),
+                        : Text(context.l10n.createHouseholdTitle),
                   ),
                 ],
               ),

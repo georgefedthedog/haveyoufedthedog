@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/nfc/nfc_service.dart';
+import '../../l10n/l10n.dart';
 
 /// Writes [url] to a tag. Pops `true` on success. On iOS the system scan sheet
 /// drives the interaction; on Android this dialog is the "hold a tag" prompt.
@@ -48,7 +49,7 @@ class _NfcWriteDialogState extends ConsumerState<NfcWriteDialog> {
     final Widget body;
     if (_unavailable) {
       body = Text(
-        'NFC is off or unavailable on this device. Turn NFC on and try again.',
+        context.l10n.nfcUnavailable,
         style: theme.textTheme.bodyMedium,
       );
     } else if (_error != null) {
@@ -64,7 +65,7 @@ class _NfcWriteDialogState extends ConsumerState<NfcWriteDialog> {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Hold a tag to the top of your phone…',
+              context.l10n.nfcHoldTag,
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -73,15 +74,18 @@ class _NfcWriteDialogState extends ConsumerState<NfcWriteDialog> {
     }
 
     return AlertDialog(
-      title: const Text('Write NFC tag'),
+      title: Text(context.l10n.nfcWriteTagTitle),
       content: body,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         if (_error != null || _unavailable)
-          FilledButton(onPressed: _start, child: const Text('Try again')),
+          FilledButton(
+            onPressed: _start,
+            child: Text(context.l10n.commonTryAgain),
+          ),
       ],
     );
   }

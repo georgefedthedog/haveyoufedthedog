@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/household/households_controller.dart';
+import '../../l10n/l10n.dart';
 
 /// Shown when the app can't resolve its startup state - the auth snapshot or
 /// the initial households fetch errored (typically the server is unreachable).
@@ -32,7 +33,7 @@ class StartupErrorScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                "We couldn't start up",
+                context.l10n.startupErrorTitle,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -40,7 +41,7 @@ class StartupErrorScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Check your connection and try again.',
+                context.l10n.startupErrorBody,
                 style: theme.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -50,7 +51,7 @@ class StartupErrorScreen extends ConsumerWidget {
                   ref.invalidate(authControllerProvider);
                   ref.invalidate(householdsControllerProvider);
                 },
-                child: const Text('Try again'),
+                child: Text(context.l10n.commonTryAgain),
               ),
             ],
           ),

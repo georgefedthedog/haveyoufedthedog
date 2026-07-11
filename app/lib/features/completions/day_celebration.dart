@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
@@ -143,7 +144,7 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'All chores done today!',
+                    context.l10n.homeSummaryAllDone,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       color: AppColors.onVioletSoft,
@@ -151,7 +152,7 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'The whole house is happy. Nice work, team!',
+                    context.l10n.dayCelebrationBody,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.onVioletSoft,
@@ -161,7 +162,7 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                   if (completers.isNotEmpty) ...[
                     const SizedBox(height: 24),
                     Text(
-                      'Thanks!',
+                      context.l10n.dayCelebrationThanks,
                       textAlign: TextAlign.center,
                       // headlineSmall carries the display font (Knewave).
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -197,7 +198,7 @@ class _DayCelebrationState extends ConsumerState<DayCelebration>
                         vertical: 16,
                       ),
                     ),
-                    child: const Text('See awards'),
+                    child: Text(context.l10n.dayCelebrationSeeAwards),
                   ),
                 ],
               ),

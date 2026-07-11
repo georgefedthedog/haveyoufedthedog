@@ -10,6 +10,8 @@ import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_mood_controller.dart';
+import '../../l10n/l10n.dart';
+import '../../widgets/marquee_text.dart';
 
 /// Home-screen card for one subject. Stage-coloured panel with the
 /// character on the left and name + today's progress on the right. The
@@ -49,8 +51,10 @@ class SubjectHeroCard extends ConsumerWidget {
     final allDone = total > 0 && doneCount == total;
 
     final progressLabel = total == 0
-        ? (hasAnyChores ? 'Nothing due today' : 'No chores yet')
-        : '$doneCount of $total done today';
+        ? (hasAnyChores
+              ? context.l10n.subjectNothingDueToday
+              : context.l10n.subjectNoChoresYet)
+        : context.l10n.subjectDoneToday(doneCount, total);
 
     final streak = ref.watch(subjectStreakProvider(subject.id));
 
@@ -116,12 +120,11 @@ class SubjectHeroCard extends ConsumerWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: Text(
+                            child: MarqueeText(
                               subject.name,
                               style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (streak >= 3) _StreakPill(streak: streak),

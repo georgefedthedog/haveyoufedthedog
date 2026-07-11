@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/profile/avatar.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/dashed_circle_painter.dart';
 import 'avatar_artwork.dart';
 
@@ -45,7 +46,7 @@ class AvatarPicker extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Drag or tap',
+          context.l10n.avatarDragOrTap,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -191,7 +192,7 @@ class _StageState extends State<_Stage> with SingleTickerProviderStateMixin {
                   shape: const CircleBorder(),
                   elevation: 2,
                   child: IconButton(
-                    tooltip: 'Surprise me',
+                    tooltip: context.l10n.avatarSurpriseMe,
                     color: scheme.onSecondaryContainer,
                     icon: const Icon(Icons.casino),
                     onPressed: widget.onSurprise,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/household/household_actions.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
 
 /// Invite code input + Join button. On success the router redirects.
@@ -38,8 +39,10 @@ class _JoinHouseholdFormState extends ConsumerState<JoinHouseholdForm> {
           .read(householdActionsProvider)
           .joinByCode(_codeCtrl.text.trim());
     } on ClientException catch (e) {
-      final msg = e.response['message'] as String? ?? 'Could not join';
       if (mounted) {
+        final msg =
+            e.response['message'] as String? ??
+            context.l10n.joinHouseholdFailed;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(showCloseIcon: true, content: Text(msg)),
         );
@@ -64,24 +67,24 @@ class _JoinHouseholdFormState extends ConsumerState<JoinHouseholdForm> {
         children: [
           const SizedBox(height: 16),
           Text(
-            'Got a code from a family member? Paste it here to join '
-            'their household.',
+            context.l10n.joinIntro,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
           LabeledField(
-            label: 'Invite code',
+            label: context.l10n.inviteCodeLabel,
             child: TextFormField(
               controller: _codeCtrl,
-              decoration: const InputDecoration(
-                hintText: 'e.g. KIKO-7H4P',
+              decoration: InputDecoration(
+                hintText: context.l10n.inviteCodeHint,
               ),
               autofocus: true,
               textCapitalization: TextCapitalization.characters,
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+              validator: (v) => (v == null || v.trim().isEmpty)
+                  ? context.l10n.commonRequired
+                  : null,
             ),
           ),
           const SizedBox(height: 24),
@@ -93,7 +96,7 @@ class _JoinHouseholdFormState extends ConsumerState<JoinHouseholdForm> {
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Join household'),
+                : Text(context.l10n.joinHouseholdTitle),
           ),
         ],
       ),

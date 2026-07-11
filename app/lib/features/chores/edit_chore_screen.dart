@@ -6,12 +6,14 @@ import '../../core/catalog/catalog_controller.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chore_actions.dart';
 import '../../core/chores/chores_controller.dart';
+import '../../core/chores/schedule_labels.dart';
 import '../../core/chores/schedule_rule.dart';
 import '../../core/chores/weekdays.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/single_select_chips.dart';
 import 'weekday_picker.dart';
@@ -213,14 +215,14 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name.isEmpty ? 'New chore' : name,
+                    name.isEmpty ? context.l10n.editChoreNewTitle : name,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    rule.humanLabel(),
+                    describeSchedule(rule, context.l10n),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -243,10 +245,17 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   // ordinal (First..Fourth, Last); and the weekday (Mon..Sun, ISO 1-7).
   List<DropdownMenuItem<int>> get _monthDayItems => [
     for (var d = 1; d <= 28; d++)
-      DropdownMenuItem(value: d, child: Text('The ${ScheduleRule.ordinal(d)}')),
-    const DropdownMenuItem(
+      DropdownMenuItem(
+        value: d,
+        child: Text(
+          context.l10n.editChoreMonthDayItem(
+            ordinalDay(d, context.l10n.localeName),
+          ),
+        ),
+      ),
+    DropdownMenuItem(
       value: ScheduleRule.last,
-      child: Text('The last day'),
+      child: Text(context.l10n.editChoreLastDay),
     ),
   ];
 
@@ -273,23 +282,8 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
   /// "Wed, 30 Jun 2027" for the one-off date tile.
   String _onceDateLabel() {
     final d = _onceDate;
-    if (d == null) return 'Pick a date';
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${Weekdays.labels[d.weekday - 1]}, '
-        '${d.day} ${months[d.month - 1]} ${d.year}';
+    if (d == null) return context.l10n.editChorePickDate;
+    return fullDate(d, context.l10n.localeName);
   }
 
   Future<void> _save() async {
@@ -301,6 +295,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     try {
       final actions = ref.read(choreActionsProvider);
       final rule = _buildRule();
@@ -320,7 +315,10 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
       if (mounted) router.pop();
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotSave('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -330,15 +328,12 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Delete ${_nameCtrl.text}?'),
-        content: const Text(
-          'All completion history for this chore will be permanently '
-          'removed. This cannot be undone.',
-        ),
+        title: Text(ctx.l10n.commonDeleteTitle(_nameCtrl.text)),
+        content: Text(ctx.l10n.editChoreDeleteBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -346,7 +341,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
               foregroundColor: Theme.of(ctx).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(ctx.l10n.commonDelete),
           ),
         ],
       ),
@@ -356,12 +351,16 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     try {
       await ref.read(choreActionsProvider).deleteChore(widget.choreId!);
       if (mounted) router.pop();
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotDelete('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -399,12 +398,16 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit chore' : 'New chore'),
+        title: Text(
+          _isEdit
+              ? context.l10n.editChoreTitle
+              : context.l10n.editChoreNewTitle,
+        ),
         actions: [
           if (_isEdit)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete chore',
+              tooltip: context.l10n.editChoreDeleteTooltip,
               onPressed: _busy ? null : _delete,
             ),
         ],
@@ -426,17 +429,17 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       LabeledField(
-                        label: 'Name',
+                        label: context.l10n.editChoreNameLabel,
                         child: TextFormField(
                           controller: _nameCtrl,
                           autofocus: !_isEdit,
-                          decoration: const InputDecoration(
-                            hintText: 'e.g. Breakfast',
+                          decoration: InputDecoration(
+                            hintText: context.l10n.editChoreNameHint,
                           ),
                           textInputAction: TextInputAction.done,
                           onChanged: (_) => setState(() {}),
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Required'
+                              ? context.l10n.commonRequired
                               : null,
                         ),
                       ),
@@ -444,12 +447,18 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       // Recurring vs a single dated task. Separate from the
                       // frequency below because a one-off isn't a "repeat".
                       LabeledField(
-                        label: 'Schedule',
+                        label: context.l10n.editChoreScheduleLabel,
                         child: SegmentedButton<bool>(
                           showSelectedIcon: false,
-                          segments: const [
-                            ButtonSegment(value: false, label: Text('Repeats')),
-                            ButtonSegment(value: true, label: Text('One time')),
+                          segments: [
+                            ButtonSegment(
+                              value: false,
+                              label: Text(context.l10n.editChoreRepeats),
+                            ),
+                            ButtonSegment(
+                              value: true,
+                              label: Text(context.l10n.editChoreOneTime),
+                            ),
                           ],
                           selected: {_isOnce},
                           onSelectionChanged: (s) => setState(() {
@@ -465,21 +474,21 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       if (!_isOnce) ...[
                         const SizedBox(height: 24),
                         LabeledField(
-                          label: 'Frequency',
+                          label: context.l10n.editChoreFrequencyLabel,
                           child: SegmentedButton<ScheduleType>(
                             showSelectedIcon: false,
-                            segments: const [
+                            segments: [
                               ButtonSegment(
                                 value: ScheduleType.daily,
-                                label: Text('Every day'),
+                                label: Text(context.l10n.editChoreFreqDaily),
                               ),
                               ButtonSegment(
                                 value: ScheduleType.weekly,
-                                label: Text('Some days'),
+                                label: Text(context.l10n.editChoreFreqWeekly),
                               ),
                               ButtonSegment(
                                 value: ScheduleType.monthly,
-                                label: Text('Monthly'),
+                                label: Text(context.l10n.editChoreFreqMonthly),
                               ),
                             ],
                             selected: {_scheduleType},
@@ -491,7 +500,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       if (!_isOnce && _scheduleType == ScheduleType.weekly) ...[
                         const SizedBox(height: 16),
                         LabeledField(
-                          label: 'On these days',
+                          label: context.l10n.editChoreOnTheseDays,
                           child: WeekdayPicker(
                             mask: _weekdayMask,
                             onChanged: (m) => setState(() => _weekdayMask = m),
@@ -500,23 +509,23 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                         if (_weekdayMask == 0) ...[
                           const SizedBox(height: 8),
                           Text(
-                            'Pick at least one day.',
+                            context.l10n.editChorePickOneDay,
                             style: TextStyle(color: scheme.error),
                           ),
                         ],
                         const SizedBox(height: 16),
                         LabeledField(
-                          label: 'How often',
+                          label: context.l10n.editChoreHowOften,
                           child: SegmentedButton<int>(
                             showSelectedIcon: false,
-                            segments: const [
+                            segments: [
                               ButtonSegment(
                                 value: 1,
-                                label: Text('Every week'),
+                                label: Text(context.l10n.editChoreEveryWeek),
                               ),
                               ButtonSegment(
                                 value: 2,
-                                label: Text('Fortnightly'),
+                                label: Text(context.l10n.editChoreFortnightly),
                               ),
                             ],
                             selected: {_weekInterval},
@@ -527,14 +536,20 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                         if (_weekInterval > 1) ...[
                           const SizedBox(height: 16),
                           LabeledField(
-                            label: 'Starting',
+                            label: context.l10n.editChoreStarting,
                             child: SingleSelectChips<bool>(
                               selected: _startsNextWeek,
                               onChanged: (v) =>
                                   setState(() => _startsNextWeek = v),
-                              options: const [
-                                (value: false, label: 'This week'),
-                                (value: true, label: 'Next week'),
+                              options: [
+                                (
+                                  value: false,
+                                  label: context.l10n.editChoreThisWeek,
+                                ),
+                                (
+                                  value: true,
+                                  label: context.l10n.editChoreNextWeek,
+                                ),
                               ],
                             ),
                           ),
@@ -547,26 +562,38 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                         // ordinals select the Nth (or last) weekday. The chip
                         // choice drives _monthMode (see _onMonthWhichChanged).
                         LabeledField(
-                          label: 'On the',
+                          label: context.l10n.editChoreOnThe,
                           child: SingleSelectChips<int>(
                             selected: _monthMode == MonthMode.day
                                 ? _exactDay
                                 : _monthOrdinal,
                             onChanged: _onMonthWhichChanged,
-                            options: const [
-                              (value: _exactDay, label: 'Exact Day'),
-                              (value: 1, label: 'First'),
-                              (value: 2, label: 'Second'),
-                              (value: 3, label: 'Third'),
-                              (value: 4, label: 'Fourth'),
-                              (value: ScheduleRule.last, label: 'Last'),
+                            options: [
+                              (
+                                value: _exactDay,
+                                label: context.l10n.editChoreExactDay,
+                              ),
+                              (value: 1, label: context.l10n.editChorePosFirst),
+                              (
+                                value: 2,
+                                label: context.l10n.editChorePosSecond,
+                              ),
+                              (value: 3, label: context.l10n.editChorePosThird),
+                              (
+                                value: 4,
+                                label: context.l10n.editChorePosFourth,
+                              ),
+                              (
+                                value: ScheduleRule.last,
+                                label: context.l10n.editChorePosLast,
+                              ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 16),
                         if (_monthMode == MonthMode.day)
                           LabeledField(
-                            label: 'Day',
+                            label: context.l10n.editChoreDayLabel,
                             child: DropdownButtonFormField<int>(
                               initialValue: _monthDay,
                               items: _monthDayItems,
@@ -576,7 +603,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                           )
                         else
                           LabeledField(
-                            label: 'Weekday',
+                            label: context.l10n.editChoreWeekdayLabel,
                             child: SingleWeekdayPicker(
                               selected: _monthWeekday,
                               onChanged: (w) =>
@@ -587,7 +614,7 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       if (_isOnce) ...[
                         const SizedBox(height: 24),
                         LabeledField(
-                          label: 'On',
+                          label: context.l10n.editChoreOnDateLabel,
                           child: Card(
                             margin: EdgeInsets.zero,
                             color: scheme.surfaceContainerHigh,
@@ -602,16 +629,17 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       ],
                       const SizedBox(height: 24),
                       LabeledField(
-                        label: 'At',
+                        label: context.l10n.editChoreAtTimeLabel,
                         child: Card(
                           margin: EdgeInsets.zero,
                           color: scheme.surfaceContainerHigh,
                           child: ListTile(
                             leading: const Icon(Icons.schedule),
                             title: Text(
-                              ScheduleRule.formatClock(
+                              formatClock(
                                 _time.hour,
                                 _time.minute,
+                                context.l10n.localeName,
                               ),
                             ),
                             trailing: const Icon(Icons.edit),
@@ -622,7 +650,11 @@ class _EditChoreScreenState extends ConsumerState<EditChoreScreen> {
                       const SizedBox(height: 24),
                       FilledButton.icon(
                         icon: const Icon(Icons.check),
-                        label: Text(_isEdit ? 'Save changes' : 'Add chore'),
+                        label: Text(
+                          _isEdit
+                              ? context.l10n.commonSaveChanges
+                              : context.l10n.editChoreAddChore,
+                        ),
                         onPressed: _busy ? null : _save,
                       ),
                     ],

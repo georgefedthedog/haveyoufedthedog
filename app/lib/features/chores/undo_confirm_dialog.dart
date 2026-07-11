@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 /// Confirm before un-logging a completion - completed rows and chips sit
 /// right where thumbs scroll, so accidental taps are easy. Same dialog
 /// shape as the other destructive confirms (error/onError action button).
@@ -10,15 +12,12 @@ Future<bool> confirmUndoCompletion(
   final result = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text('Undo "$choreName"?'),
-      content: const Text(
-        'This marks the chore as not done again, and the rest of the '
-        'household is told.',
-      ),
+      title: Text(ctx.l10n.undoDialogTitle(choreName)),
+      content: Text(ctx.l10n.undoDialogBody),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('Cancel'),
+          child: Text(ctx.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -26,7 +25,7 @@ Future<bool> confirmUndoCompletion(
             foregroundColor: Theme.of(ctx).colorScheme.onError,
           ),
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('Undo it'),
+          child: Text(ctx.l10n.undoDialogAction),
         ),
       ],
     ),

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/chores/chore.dart';
-import '../../core/chores/schedule_rule.dart';
+import '../../core/chores/schedule_labels.dart';
 import '../../core/completions/completion.dart';
 import '../../core/completions/completion_actions.dart';
 import '../../core/completions/recent_completions_controller.dart';
@@ -15,6 +15,7 @@ import '../../core/catalog/catalog_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
 import '../profile/avatar_artwork.dart';
@@ -72,6 +73,7 @@ class ChoreRow extends ConsumerWidget {
 
   Future<void> _log(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       await ref
           .read(completionActionsProvider)
@@ -117,7 +119,10 @@ class ChoreRow extends ConsumerWidget {
     } catch (e) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not log: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.choreCouldNotLog('$e')),
+        ),
       );
     }
   }
@@ -128,6 +133,7 @@ class ChoreRow extends ConsumerWidget {
     Completion completion,
   ) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     // Undo allowed for whoever logged it (including while acting as that
     // member) or the household owner - mirrors the server delete rule.
     final actingUserId = ref.read(actingUserControllerProvider).valueOrNull;
@@ -137,11 +143,7 @@ class ChoreRow extends ConsumerWidget {
     if (completion.completedById != actingUserId && !isOwner) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Switch to whoever logged this (or ask an owner) to undo it.',
-          ),
-        ),
+        SnackBar(content: Text(l10n.choreUndoNotAllowed)),
       );
       return;
     }
@@ -149,11 +151,16 @@ class ChoreRow extends ConsumerWidget {
     try {
       await ref.read(completionActionsProvider).undo(completion.id);
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(SnackBar(content: Text('Removed: ${chore.name}')));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.choreRemoved(chore.name))),
+      );
     } catch (e) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not undo: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.choreCouldNotUndo('$e')),
+        ),
       );
     }
   }
@@ -172,8 +179,8 @@ class ChoreRow extends ConsumerWidget {
     final isDueSoon = dueIn != null && dueIn <= const Duration(hours: 1);
 
     final scheduleLine = isOverdue
-        ? _formatOverdue(now.difference(scheduledToday))
-        : chore.rule.humanLabel();
+        ? _formatOverdue(context.l10n, now.difference(scheduledToday))
+        : describeSchedule(chore.rule, context.l10n);
 
     // "Usually around 7:05 AM" - the household's habit for this chore,
     // from the mean of past completion times.
@@ -325,7 +332,7 @@ class ChoreRow extends ConsumerWidget {
                     const SizedBox(width: 14),
                     Expanded(
                       child: Text(
-                        'Usually done around',
+                        context.l10n.choreUsuallyDoneAround,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: subLineColor,
                           fontWeight: FontWeight.w600,
@@ -334,7 +341,11 @@ class ChoreRow extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      ScheduleRule.formatClock(meanTime.hour, meanTime.minute),
+                      formatClock(
+                        meanTime.hour,
+                        meanTime.minute,
+                        context.l10n.localeName,
+                      ),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: subLineColor,
                         fontWeight: FontWeight.w600,
@@ -368,7 +379,7 @@ class _OnceBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        'One-time',
+        context.l10n.choreOneTimePill,
         style: theme.textTheme.labelSmall?.copyWith(
           color: scheme.primary,
           fontWeight: FontWeight.w700,
@@ -379,15 +390,11 @@ class _OnceBadge extends StatelessWidget {
 }
 
 /// "5 minutes overdue", "1 minute overdue", "1 hour overdue",
-/// "over 3 hours overdue".
-String _formatOverdue(Duration d) {
+/// "over 3 hours overdue" - ICU plurals from the ARB.
+String _formatOverdue(AppLocalizations l10n, Duration d) {
   final minutes = d.inMinutes;
-  if (minutes < 60) {
-    return minutes == 1 ? '1 minute overdue' : '$minutes minutes overdue';
-  }
-  final hours = d.inHours;
-  if (hours == 1) return '1 hour overdue';
-  return 'over $hours hours overdue';
+  if (minutes < 60) return l10n.overdueMinutes(minutes);
+  return l10n.overdueHours(d.inHours);
 }
 
 /// Trailing cell on a [ChoreRow]. Shows either:
@@ -431,14 +438,14 @@ class _TrailingStatus extends StatelessWidget {
       final showHours = m >= 60;
       final value = showHours ? dueIn!.inHours : m;
       final unit = showHours
-          ? (value == 1 ? 'hour' : 'hrs')
-          : (value == 1 ? 'min' : 'mins');
+          ? context.l10n.dueInUnitHours(value)
+          : context.l10n.dueInUnitMins(value);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Due in',
+            context.l10n.dueIn,
             style: theme.textTheme.labelSmall?.copyWith(
               color: Colors.orange.shade800,
               fontWeight: FontWeight.w600,
@@ -497,7 +504,7 @@ class _CompletedByRow extends ConsumerWidget {
         break;
       }
     }
-    final name = me?.displayName ?? 'Someone';
+    final name = me?.displayName ?? context.l10n.commonSomeone;
     final avatar = ref.watch(catalogProvider).lookupAvatar(me?.avatar);
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
     final seed = me?.userId ?? completion.completedById;
@@ -531,7 +538,7 @@ class _CompletedByRow extends ConsumerWidget {
         const SizedBox(width: 14),
         Expanded(
           child: Text(
-            'Completed by $name',
+            context.l10n.choreCompletedBy(name),
             style: theme.textTheme.bodySmall?.copyWith(
               color: Colors.green.shade900,
               fontWeight: FontWeight.w600,
@@ -540,9 +547,10 @@ class _CompletedByRow extends ConsumerWidget {
           ),
         ),
         Text(
-          ScheduleRule.formatClock(
+          formatClock(
             completion.completedAt.hour,
             completion.completedAt.minute,
+            context.l10n.localeName,
           ),
           style: theme.textTheme.bodySmall?.copyWith(
             color: Colors.green.shade700,

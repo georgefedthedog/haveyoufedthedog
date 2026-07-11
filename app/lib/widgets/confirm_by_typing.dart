@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 /// A grave-action confirmation: the destructive button stays disabled until
-/// the user types [confirmWord] (default "DELETE"). For irreversible actions
-/// like deleting your account or a managed member. Returns true only if
-/// confirmed.
+/// the user types [confirmWord] (default: the localized DELETE). For
+/// irreversible actions like deleting your account or a managed member.
+/// Returns true only if confirmed.
 Future<bool> confirmByTyping(
   BuildContext context, {
   required String title,
   required String body,
-  String confirmWord = 'DELETE',
-  String actionLabel = 'Delete',
+  String? confirmWord,
+  String? actionLabel,
 }) async {
   final result = await showDialog<bool>(
     context: context,
@@ -29,8 +31,8 @@ Future<bool> confirmByTyping(
 class _ConfirmByTypingDialog extends StatefulWidget {
   final String title;
   final String body;
-  final String confirmWord;
-  final String actionLabel;
+  final String? confirmWord;
+  final String? actionLabel;
 
   const _ConfirmByTypingDialog({
     required this.title,
@@ -55,8 +57,9 @@ class _ConfirmByTypingDialogState extends State<_ConfirmByTypingDialog> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final ok =
-        _typed.text.trim().toUpperCase() == widget.confirmWord.toUpperCase();
+    final l10n = context.l10n;
+    final word = widget.confirmWord ?? l10n.confirmByTypingWord;
+    final ok = _typed.text.trim().toUpperCase() == word.toUpperCase();
     return AlertDialog(
       title: Text(widget.title),
       content: Column(
@@ -70,7 +73,7 @@ class _ConfirmByTypingDialogState extends State<_ConfirmByTypingDialog> {
             autofocus: true,
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              hintText: 'Type ${widget.confirmWord} to confirm',
+              hintText: l10n.confirmByTypingHint(word),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -79,7 +82,7 @@ class _ConfirmByTypingDialogState extends State<_ConfirmByTypingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
+          child: Text(l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -87,7 +90,7 @@ class _ConfirmByTypingDialogState extends State<_ConfirmByTypingDialog> {
             foregroundColor: scheme.onError,
           ),
           onPressed: ok ? () => Navigator.pop(context, true) : null,
-          child: Text(widget.actionLabel),
+          child: Text(widget.actionLabel ?? l10n.commonDelete),
         ),
       ],
     );

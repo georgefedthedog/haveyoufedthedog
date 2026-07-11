@@ -11,6 +11,7 @@ import '../../core/completions/streak_controller.dart';
 import '../../core/household/acting_user_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../completions/celebration_args.dart';
 import 'chore_status_chip.dart';
@@ -36,6 +37,7 @@ class ChoreChipWithTap extends ConsumerWidget {
 
   Future<void> _log(BuildContext context, WidgetRef ref) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       await ref.read(completionActionsProvider).logChore(
             subjectId: subjectId,
@@ -79,7 +81,7 @@ class ChoreChipWithTap extends ConsumerWidget {
     } catch (e) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(SnackBar(
-        content: Text('Could not log: $e'),
+        content: Text(l10n.choreCouldNotLog('$e')),
         showCloseIcon: true,
       ));
     }
@@ -88,6 +90,7 @@ class ChoreChipWithTap extends ConsumerWidget {
   Future<void> _undo(
       BuildContext context, WidgetRef ref, Completion completion) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     // You can undo a completion you logged - including one logged while
     // acting as the member who did it (completed_by == the acting id) - or
     // any of them if you're the household owner. Mirrors the server delete
@@ -99,10 +102,8 @@ class ChoreChipWithTap extends ConsumerWidget {
         false;
     if (completion.completedById != actingUserId && !isOwner) {
       messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(const SnackBar(
-        content: Text(
-          "Switch to whoever logged this (or ask an owner) to undo it.",
-        ),
+      messenger.showSnackBar(SnackBar(
+        content: Text(l10n.choreUndoNotAllowed),
       ));
       return;
     }
@@ -111,12 +112,12 @@ class ChoreChipWithTap extends ConsumerWidget {
       await ref.read(completionActionsProvider).undo(completion.id);
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(SnackBar(
-        content: Text('Removed: ${chore.name}'),
+        content: Text(l10n.choreRemoved(chore.name)),
       ));
     } catch (e) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(SnackBar(
-        content: Text('Could not undo: $e'),
+        content: Text(l10n.choreCouldNotUndo('$e')),
         showCloseIcon: true,
       ));
     }

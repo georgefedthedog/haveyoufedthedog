@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'character.dart';
+import 'character_messages.dart';
 
 /// How the subject is doing today. Drives both the friendly status line
 /// under the character hero AND the character's facial expression. Mood
@@ -34,16 +35,30 @@ typedef CharacterLine = ({String title, String body});
 /// character at the given mood. Multiple variants per (character × mood)
 /// cell - picks one randomly so repeat visits don't feel scripted.
 ///
+/// Per-slot resolution, highest first:
+/// 1. the pack character's own lines translated into [locale] (`i18n` key);
+/// 2. the pack character's top-level (English) lines - English UI only, so
+///    an untranslated pack falls back to the localized generic voice rather
+///    than breaking the app's language;
+/// 3. [voices] - the bundled per-locale voice for this character id
+///    (`bundledCharacterVoicesProvider`), then its 'generic' entry;
+/// 4. the bundled English table for this character, then its generic rows.
+///
 /// Substitutes `{name}` with [subjectName] in both parts.
 CharacterLine characterLine({
   required Character character,
   required SubjectMood mood,
   required String subjectName,
+  String locale = 'en',
+  Map<String, CharacterMessages> voices = const {},
 }) {
-  // Per-slot override: a pack character's custom lines for this mood win,
-  // else the bundled table for this character, else the generic table.
+  final lang = locale.split('_').first;
+  final pack = character.messages;
   final lines =
-      character.messages?.lines[mood.name] ??
+      pack?.translations[lang]?.lines[mood.name] ??
+      (lang == 'en' ? pack?.lines[mood.name] : null) ??
+      voices[character.id]?.lines[mood.name] ??
+      voices['generic']?.lines[mood.name] ??
       _table[character.id]?[mood] ??
       _table['generic']![mood] ??
       const <CharacterLine>[(title: '{name}', body: 'Doing fine.')];

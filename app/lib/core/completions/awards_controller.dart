@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../catalog/catalog_controller.dart';
 import '../chores/chore.dart';
 import '../chores/chores_controller.dart';
 import '../subjects/subject.dart';
@@ -15,14 +14,13 @@ part 'awards_controller.g.dart';
 /// One per-member weekly award - Early Bird, Night Owl, etc. A null
 /// [winnerUserId] means nobody qualified this week (no matching
 /// completions, or a tie for first).
+///
+/// Carries no display strings - the widget layer maps [id] to its localized
+/// title/description/emoji (see `awards_section.dart`), keeping this
+/// provider's output pure, locale-independent data.
 class MemberAward {
-  /// Stable slug, e.g. `early_bird` - useful for show/hide prefs later.
+  /// Stable slug, e.g. `early_bird` - the key the widget layer localizes by.
   final String id;
-  final String emoji;
-  final String title;
-
-  /// One-line explanation of how it's won.
-  final String description;
 
   final String? winnerUserId;
 
@@ -35,9 +33,6 @@ class MemberAward {
 
   const MemberAward({
     required this.id,
-    required this.emoji,
-    required this.title,
-    required this.description,
     required this.winnerUserId,
     required this.value,
   });
@@ -46,18 +41,15 @@ class MemberAward {
 /// An award handed out by one of the household's own subjects, in its
 /// character's voice - "Kiko's Best Human". Winner is whoever completed
 /// the most of that subject's chores this week.
+///
+/// The award title + thank-you line are resolved at the widget layer
+/// (pack `messages` override → localized bundled voice), not here.
 class CharacterAward {
   final String subjectId;
   final String subjectName;
 
   /// Character id (drives the artwork + the title flavour).
   final String characterId;
-
-  /// The character-voiced award name, e.g. "Least Disappointing Human".
-  final String title;
-
-  /// The thank-you line shown under the featured award title.
-  final String thanks;
 
   final String? winnerUserId;
   final int count;
@@ -66,8 +58,6 @@ class CharacterAward {
     required this.subjectId,
     required this.subjectName,
     required this.characterId,
-    required this.title,
-    required this.thanks,
     required this.winnerUserId,
     required this.count,
   });
@@ -115,27 +105,6 @@ class WeeklyAwards {
   );
 }
 
-/// Award titles per character id - the voice each subject hands its
-/// weekly prize out in.
-const characterAwardTitles = <String, String>{
-  'dog': 'Best Human 🩵',
-  'cat': 'Least Disappointing Human',
-  'plant': 'Greenest Thumb',
-  'bin': 'Lord of the Kerb',
-  'fish': 'Keeper of the Tank',
-  'generic': 'Star Helper',
-};
-
-/// Thank-you line per character id, shown under the featured award title.
-const characterAwardThanks = <String, String>{
-  'dog': 'Thanks for being paws-itively amazing last week!',
-  'cat': 'Gracious enough to accept your service last week.',
-  'plant': 'Thanks for keeping things growing last week!',
-  'bin': 'Thanks for keeping things rolling last week!',
-  'fish': 'Thanks for making a splash last week!',
-  'generic': 'Thanks for being amazing last week!',
-};
-
 @riverpod
 WeeklyAwards weeklyAwards(Ref ref) {
   final history =
@@ -145,10 +114,6 @@ WeeklyAwards weeklyAwards(Ref ref) {
       ref.watch(choresControllerProvider).valueOrNull ?? const <Chore>[];
   final subjects =
       ref.watch(subjectsControllerProvider).valueOrNull ?? const <Subject>[];
-  // Resolves each subject's character (bundled or remote) so pack characters
-  // can voice custom award title/thanks. Synchronous, bundled-first; re-emits
-  // once the remote catalog lands.
-  final catalog = ref.watch(catalogProvider);
   if (history.isEmpty) return WeeklyAwards.empty;
 
   final window = WeekWindow.current();
@@ -184,23 +149,14 @@ WeeklyAwards weeklyAwards(Ref ref) {
     _comebackKid(thisWeek: tally(thisWeek), lastWeek: tally(lastWeek)),
     _award(
       id: 'early_bird',
-      emoji: '🌅',
-      title: 'Early Bird',
-      description: 'Most chores done before 9am',
       tallies: tally(thisWeek.where((c) => c.completedAt.hour < 9)),
     ),
     _award(
       id: 'night_owl',
-      emoji: '🦉',
-      title: 'Night Owl',
-      description: 'Most chores done after 8pm',
       tallies: tally(thisWeek.where((c) => c.completedAt.hour >= 20)),
     ),
     _award(
       id: 'on_the_dot',
-      emoji: '🎯',
-      title: 'On the Dot',
-      description: 'Most chores done within 15 minutes of schedule',
       tallies: tally(
         thisWeek.where((c) {
           final chore = c.choreId == null ? null : choreById[c.choreId];
@@ -213,9 +169,6 @@ WeeklyAwards weeklyAwards(Ref ref) {
     ),
     _award(
       id: 'weekend_warrior',
-      emoji: '💪',
-      title: 'Weekend Warrior',
-      description: 'Most chores done on Saturday and Sunday',
       tallies: tally(
         thisWeek.where(
           (c) =>
@@ -226,9 +179,6 @@ WeeklyAwards weeklyAwards(Ref ref) {
     ),
     _award(
       id: 'tag_champion',
-      emoji: '🏷️',
-      title: 'Tag Champion',
-      description: 'Most chores logged with an NFC tap',
       tallies: tally(thisWeek.where((c) => c.source == CompletionSource.nfc)),
     ),
   ];
@@ -277,23 +227,11 @@ WeeklyAwards weeklyAwards(Ref ref) {
   for (final s in subjects) {
     final tallies = tally(awardWeek.where((c) => c.subjectId == s.id));
     final winner = _uniqueMax(tallies);
-    final characterId = s.icon ?? 'generic';
-    // Pack characters can override the award voice via their `messages`;
-    // bundled ones (messages == null) fall through to the hardcoded tables.
-    final messages = catalog.lookupCharacter(characterId).messages;
     characterAwards.add(
       CharacterAward(
         subjectId: s.id,
         subjectName: s.name,
-        characterId: characterId,
-        title:
-            messages?.awardTitle ??
-            characterAwardTitles[characterId] ??
-            characterAwardTitles['generic']!,
-        thanks:
-            messages?.awardThanks ??
-            characterAwardThanks[characterId] ??
-            characterAwardThanks['generic']!,
+        characterId: s.icon ?? 'generic',
         winnerUserId: winner?.userId,
         count: winner?.value ?? 0,
       ),
@@ -323,19 +261,10 @@ WeeklyAwards weeklyAwards(Ref ref) {
 
 /// Builds a [MemberAward] from per-user tallies. The winner must be a
 /// **unique** maximum - ties hand out nothing (siblings would riot).
-MemberAward _award({
-  required String id,
-  required String emoji,
-  required String title,
-  required String description,
-  required Map<String, int> tallies,
-}) {
+MemberAward _award({required String id, required Map<String, int> tallies}) {
   final winner = _uniqueMax(tallies);
   return MemberAward(
     id: id,
-    emoji: emoji,
-    title: title,
-    description: description,
     winnerUserId: winner?.userId,
     value: winner?.value ?? 0,
   );
@@ -355,9 +284,6 @@ MemberAward _comebackKid({
   final winner = _uniqueMax(deltas);
   return MemberAward(
     id: 'comeback_kid',
-    emoji: '📈',
-    title: 'Comeback Kid',
-    description: 'Biggest improvement on last week',
     winnerUserId: winner?.userId,
     value: winner?.value ?? 0,
   );

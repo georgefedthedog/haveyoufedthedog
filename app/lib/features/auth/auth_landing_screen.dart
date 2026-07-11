@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/deeplink/pending_deep_link.dart';
+import '../../l10n/l10n.dart';
 import 'login_form.dart';
 import 'signup_form.dart';
 
@@ -78,7 +79,9 @@ class _AuthLandingScreenState extends ConsumerState<AuthLandingScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _showLogin ? 'Welcome back!' : 'Join the family',
+                    _showLogin
+                        ? context.l10n.authWelcomeBack
+                        : context.l10n.authJoinFamily,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: scheme.primary,
@@ -88,9 +91,8 @@ class _AuthLandingScreenState extends ConsumerState<AuthLandingScreen> {
                   const SizedBox(height: 6),
                   Text(
                     _showLogin
-                        ? 'Log in to keep your pup happy and well-fed.'
-                        : 'Sign up and never wonder who fed '
-                              'the dog again.',
+                        ? context.l10n.authLoginTagline
+                        : context.l10n.authSignupTagline,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
@@ -107,14 +109,18 @@ class _AuthLandingScreenState extends ConsumerState<AuthLandingScreen> {
                     children: [
                       Text(
                         _showLogin
-                            ? "Don't have an account?"
-                            : 'Already have an account?',
+                            ? context.l10n.authNoAccount
+                            : context.l10n.authHaveAccount,
                         style: theme.textTheme.bodyMedium,
                       ),
                       TextButton(
                         onPressed: () =>
                             setState(() => _showLogin = !_showLogin),
-                        child: Text(_showLogin ? 'Sign up' : 'Log in'),
+                        child: Text(
+                          _showLogin
+                              ? context.l10n.authSignUp
+                              : context.l10n.authLogIn,
+                        ),
                       ),
                     ],
                   ),

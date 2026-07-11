@@ -1,0 +1,1746 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Have You Fed The Dog?",
+  "@appTitle": {
+    "description": "App title shown in the OS task switcher. Brand name - keep in English in every locale."
+  },
+
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Primary button label to save changes on an edit form."
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Button label to dismiss a dialog without acting."
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Button label confirming a destructive delete."
+  },
+  "commonDone": "Done",
+  "@commonDone": {
+    "description": "Button label to close a completed flow."
+  },
+  "commonRequired": "Required",
+  "@commonRequired": {
+    "description": "Validation message under an empty form field that must be filled in."
+  },
+  "commonTryAgain": "Try again",
+  "@commonTryAgain": {
+    "description": "Button label to retry a failed action."
+  },
+
+  "confirmByTypingWord": "DELETE",
+  "@confirmByTypingWord": {
+    "description": "The word the user must type to confirm an irreversible delete. ALL CAPS. Translate to the local equivalent of DELETE (e.g. German LÖSCHEN)."
+  },
+  "confirmByTypingHint": "Type {word} to confirm",
+  "@confirmByTypingHint": {
+    "description": "Hint inside the type-to-confirm text field. {word} is confirmByTypingWord.",
+    "placeholders": {
+      "word": {"type": "String", "example": "DELETE"}
+    }
+  },
+
+  "passwordFieldLabel": "Password",
+  "@passwordFieldLabel": {
+    "description": "Default label above a password input field."
+  },
+  "passwordFieldShow": "Show password",
+  "@passwordFieldShow": {
+    "description": "Tooltip on the eye icon that reveals the typed password."
+  },
+  "passwordFieldHide": "Hide password",
+  "@passwordFieldHide": {
+    "description": "Tooltip on the eye icon that masks the typed password."
+  },
+
+  "profileLanguageLabel": "Language",
+  "@profileLanguageLabel": {
+    "description": "Label above the app-language dropdown on the Edit Profile screen."
+  },
+  "profileLanguageSystemDefault": "System default",
+  "@profileLanguageSystemDefault": {
+    "description": "Dropdown option meaning: follow the phone's language setting. The language names themselves (English, Deutsch, ...) are endonyms and never translated."
+  },
+
+  "authWelcomeBack": "Welcome back!",
+  "@authWelcomeBack": {
+    "description": "Headline over the login form."
+  },
+  "authJoinFamily": "Join the family",
+  "@authJoinFamily": {
+    "description": "Headline over the signup form."
+  },
+  "authLoginTagline": "Log in to keep your pup happy and well-fed.",
+  "@authLoginTagline": {
+    "description": "Playful subtitle under the login headline. Dog-themed brand voice."
+  },
+  "authSignupTagline": "Sign up and never wonder who fed the dog again.",
+  "@authSignupTagline": {
+    "description": "Playful subtitle under the signup headline. References the app name's joke (did anyone feed the dog?)."
+  },
+  "authNoAccount": "Don't have an account?",
+  "@authNoAccount": {
+    "description": "Text before the Sign up link at the foot of the login form."
+  },
+  "authHaveAccount": "Already have an account?",
+  "@authHaveAccount": {
+    "description": "Text before the Log in link at the foot of the signup form."
+  },
+  "authLogIn": "Log in",
+  "@authLogIn": {
+    "description": "Login submit button, and the footer link that switches to the login form."
+  },
+  "authSignUp": "Sign up",
+  "@authSignUp": {
+    "description": "Signup submit button, and the footer link that switches to the signup form."
+  },
+  "authEmailLabel": "Email",
+  "@authEmailLabel": {
+    "description": "Label above the email field."
+  },
+  "authEmailHint": "Enter your email",
+  "@authEmailHint": {
+    "description": "Hint inside the email field; also the validation message when it's empty on login."
+  },
+  "authEmailInvalid": "Enter a valid email",
+  "@authEmailInvalid": {
+    "description": "Validation message for a malformed email address."
+  },
+  "authPasswordHint": "Enter your password",
+  "@authPasswordHint": {
+    "description": "Hint inside the login password field; also its empty-field validation message."
+  },
+  "authForgotPassword": "Forgot password?",
+  "@authForgotPassword": {
+    "description": "Link under the login password field to the reset-password screen."
+  },
+  "authLoginFailed": "Login failed",
+  "@authLoginFailed": {
+    "description": "Snackbar when login fails and the server gave no message."
+  },
+  "authLoginFailedDetails": "Login failed: {details}",
+  "@authLoginFailedDetails": {
+    "description": "Snackbar when login fails unexpectedly. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "authYourNameLabel": "Your name",
+  "@authYourNameLabel": {
+    "description": "Label above the display-name field on signup."
+  },
+  "authNameHint": "Seen by your housemates",
+  "@authNameHint": {
+    "description": "Hint inside the signup name field: this name is visible to other household members."
+  },
+  "authNameHintClaim": "Leave blank to keep your current name",
+  "@authNameHintClaim": {
+    "description": "Hint inside the name field when claiming an existing managed member, whose name is already set."
+  },
+  "authPasswordRule": "At least 8 characters",
+  "@authPasswordRule": {
+    "description": "Password requirement, shown as helper text under the field and as its validation message."
+  },
+  "authChoosePasswordHint": "Choose a password",
+  "@authChoosePasswordHint": {
+    "description": "Hint inside the signup password field."
+  },
+  "authClaimCodeToggle": "I have a claim code",
+  "@authClaimCodeToggle": {
+    "description": "Disclosure button on signup that reveals the claim-code field. A claim code lets someone take over a managed (loginless) household member."
+  },
+  "authClaimCodeLabel": "Claim code",
+  "@authClaimCodeLabel": {
+    "description": "Label above the claim-code field."
+  },
+  "authClaimCodeHint": "Joining as an existing member?",
+  "@authClaimCodeHint": {
+    "description": "Hint inside the claim-code field."
+  },
+  "authClaimAccount": "Claim account",
+  "@authClaimAccount": {
+    "description": "Submit button label when signing up with a claim code."
+  },
+  "authCouldNotClaim": "Could not claim account",
+  "@authCouldNotClaim": {
+    "description": "Snackbar when claiming fails and the server gave no message."
+  },
+  "authSignupFailed": "Signup failed",
+  "@authSignupFailed": {
+    "description": "Snackbar when signup fails and the server gave no message."
+  },
+  "authSignupFailedDetails": "Signup failed: {details}",
+  "@authSignupFailedDetails": {
+    "description": "Snackbar when signup fails unexpectedly. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "authResetPasswordTitle": "Reset password",
+  "@authResetPasswordTitle": {
+    "description": "App bar title of the forgot-password screen."
+  },
+  "authResetIntro": "No worries - it happens to the best of us.\nWe'll email you a link to set a new one.",
+  "@authResetIntro": {
+    "description": "Reassuring intro on the forgot-password screen. Keep the line break."
+  },
+  "authSendResetLink": "Send reset link",
+  "@authSendResetLink": {
+    "description": "Submit button on the forgot-password screen."
+  },
+  "authCheckInbox": "Check your inbox!",
+  "@authCheckInbox": {
+    "description": "Headline after the reset email was requested."
+  },
+  "authResetSent": "If there's an account for {email}, a reset link is on its way. Follow it to set a new password, then log in here.",
+  "@authResetSent": {
+    "description": "Confirmation text after requesting a password reset. Deliberately does not confirm whether the account exists.",
+    "placeholders": {
+      "email": {"type": "String", "example": "sam@example.com"}
+    }
+  },
+  "authResetEmailFailed": "Could not send the reset email: {details}",
+  "@authResetEmailFailed": {
+    "description": "Snackbar when requesting the reset email fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "authBackToLogin": "Back to log in",
+  "@authBackToLogin": {
+    "description": "Button returning from the reset-sent confirmation to the login screen."
+  },
+
+  "startupErrorTitle": "We couldn't start up",
+  "@startupErrorTitle": {
+    "description": "Headline when the app fails to reach the server at startup."
+  },
+  "startupErrorBody": "Check your connection and try again.",
+  "@startupErrorBody": {
+    "description": "Body text under the startup error headline."
+  },
+
+  "commonAdd": "Add",
+  "@commonAdd": {
+    "description": "Short label under the dashed add-slot chip."
+  },
+  "commonSaveChanges": "Save changes",
+  "@commonSaveChanges": {
+    "description": "Primary button that saves edits on a form screen."
+  },
+  "commonCouldNotSave": "Could not save: {details}",
+  "@commonCouldNotSave": {
+    "description": "Snackbar when saving fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "commonCouldNotDelete": "Could not delete: {details}",
+  "@commonCouldNotDelete": {
+    "description": "Snackbar when deleting fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "commonDeleteTitle": "Delete {name}?",
+  "@commonDeleteTitle": {
+    "description": "Confirm-dialog title for deleting a named item (a thing, a chore, a member). {name} is user content.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Kiko"}
+    }
+  },
+  "commonErrorDetails": "Error: {details}",
+  "@commonErrorDetails": {
+    "description": "Bare error line when a screen can't load. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+
+  "homeErrorTitle": "Hmm, something went sideways",
+  "@homeErrorTitle": {
+    "description": "Empty-state headline when the home screen fails to load the things list."
+  },
+  "homeErrorBody": "Could not load your things. {details}",
+  "@homeErrorBody": {
+    "description": "Empty-state body under homeErrorTitle. {details} is a raw technical error, untranslated. 'Things' are the pets/plants/objects being cared for.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "homeNothingDueToday": "Nothing due today 🎉",
+  "@homeNothingDueToday": {
+    "description": "Celebration line when no chores are scheduled today. Keep the emoji."
+  },
+  "homeTodaysChores": "Today's chores",
+  "@homeTodaysChores": {
+    "description": "Section header over the list of chores due today."
+  },
+  "homeTapToComplete": "Tap to complete",
+  "@homeTapToComplete": {
+    "description": "Hint under the Today's chores header: tapping a row logs the chore as done."
+  },
+  "homeSummaryAllDone": "All chores done today!",
+  "@homeSummaryAllDone": {
+    "description": "Summary-card title when every chore today is complete."
+  },
+  "homeSummaryStart": "Let's get started!",
+  "@homeSummaryStart": {
+    "description": "Summary-card title when no chores are done yet today."
+  },
+  "homeSummaryKeepUp": "Good progress. Keep it up!",
+  "@homeSummaryKeepUp": {
+    "description": "Summary-card title when some but not all chores are done."
+  },
+  "homeSummaryCount": "{done} of {total} completed",
+  "@homeSummaryCount": {
+    "description": "Progress line on the summary card, e.g. '2 of 5 completed'.",
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "subjectsEmptyTitle": "No things yet",
+  "@subjectsEmptyTitle": {
+    "description": "Empty-state headline when the household has no things (pets/plants/objects) yet."
+  },
+  "subjectsEmptyBody": "Add a dog, cat, plant, or whatever else needs looking after.",
+  "@subjectsEmptyBody": {
+    "description": "Empty-state body inviting the user to add their first thing."
+  },
+  "subjectsAddThing": "Add a thing",
+  "@subjectsAddThing": {
+    "description": "Button that opens the new-thing form. 'Thing' is the app's word for a pet/plant/object being cared for."
+  },
+  "subjectsTabTitle": "Things",
+  "@subjectsTabTitle": {
+    "description": "Title of the Things tab."
+  },
+  "subjectsTabSubtitle": "Sometimes friends, often just stuff. These are the things you look after or don't want to forget.",
+  "@subjectsTabSubtitle": {
+    "description": "Playful subtitle under the Things tab title."
+  },
+  "subjectsLoadFailed": "Could not load things: {details}",
+  "@subjectsLoadFailed": {
+    "description": "Error line when the things list fails to load. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+
+  "subjectNothingDueToday": "Nothing due today",
+  "@subjectNothingDueToday": {
+    "description": "Status line on a thing's card when it has chores, but none due today."
+  },
+  "subjectNoChoresYet": "No chores yet",
+  "@subjectNoChoresYet": {
+    "description": "Status line on a thing's card when it has no chores at all."
+  },
+  "subjectDoneToday": "{done} of {total} done today",
+  "@subjectDoneToday": {
+    "description": "Progress line on a thing's card, e.g. '1 of 3 done today'.",
+    "placeholders": {
+      "done": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "subjectStreakDays": "{count}-day streak",
+  "@subjectStreakDays": {
+    "description": "Streak pill on the thing's page, e.g. '5-day streak'. Only shown for 3+.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "subjectNfcTagWritten": "NFC tag written",
+  "@subjectNfcTagWritten": {
+    "description": "Tooltip on the NFC icon showing this thing has a physical tag."
+  },
+  "subjectManageChoresLink": "Manage chores →",
+  "@subjectManageChoresLink": {
+    "description": "Link from a thing's page to the chore-management section on its edit page. Keep the arrow."
+  },
+  "subjectCompletedChores": "Completed chores",
+  "@subjectCompletedChores": {
+    "description": "Section header over a thing's recent completion history."
+  },
+  "subjectSeeAll": "See all →",
+  "@subjectSeeAll": {
+    "description": "Link to the full activity feed filtered to this thing. Keep the arrow."
+  },
+  "subjectHistoryLoadFailed": "Could not load history: {details}",
+  "@subjectHistoryLoadFailed": {
+    "description": "Error line when a thing's history fails to load. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "subjectNoCompletions": "No completions logged yet.",
+  "@subjectNoCompletions": {
+    "description": "Placeholder when a thing has no completion history."
+  },
+
+  "editSubjectTitle": "Edit {name}",
+  "@editSubjectTitle": {
+    "description": "App bar title when editing a thing. {name} is the thing's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Kiko"}
+    }
+  },
+  "editSubjectNewTitle": "New thing",
+  "@editSubjectNewTitle": {
+    "description": "App bar title when creating a thing."
+  },
+  "editSubjectDeleteTooltip": "Delete thing",
+  "@editSubjectDeleteTooltip": {
+    "description": "Tooltip on the delete icon in the edit-thing app bar."
+  },
+  "editSubjectDeleteBody": "All chores and history for this thing will be permanently removed. This cannot be undone.",
+  "@editSubjectDeleteBody": {
+    "description": "Body of the type-to-confirm dialog when deleting a thing."
+  },
+  "editSubjectNameLabel": "Name",
+  "@editSubjectNameLabel": {
+    "description": "Label above the thing's name field."
+  },
+  "editSubjectNameHint": "e.g. Kiko",
+  "@editSubjectNameHint": {
+    "description": "Hint inside the thing's name field - an example pet name. Swap for a name common in the locale."
+  },
+  "editSubjectAdd": "Add thing",
+  "@editSubjectAdd": {
+    "description": "Submit button when creating a thing."
+  },
+  "editSubjectManageChores": "Manage chores",
+  "@editSubjectManageChores": {
+    "description": "Header of the chore-chip section on the edit-thing page."
+  },
+  "editSubjectDeleteChoreBody": "Its schedule and reminders go with it. Past completions stay in the history.",
+  "@editSubjectDeleteChoreBody": {
+    "description": "Body of the confirm dialog when deleting a chore."
+  },
+  "editSubjectTagWritten": "Tag written",
+  "@editSubjectTagWritten": {
+    "description": "NFC card status when a physical tag exists for this thing."
+  },
+  "editSubjectNoTag": "No tag yet",
+  "@editSubjectNoTag": {
+    "description": "NFC card status when no tag has been written for this thing."
+  },
+  "editSubjectTapCompletes": "On this phone, a tap ticks off the current chore. Change this in",
+  "@editSubjectTapCompletes": {
+    "description": "NFC card subtitle (tap-completes mode). Followed by a tappable 'Edit Profile' link and a period, so end mid-sentence."
+  },
+  "editSubjectTapOpens": "On this phone, a tap opens this thing's page. Change this in",
+  "@editSubjectTapOpens": {
+    "description": "NFC card subtitle (tap-opens mode). Followed by a tappable 'Edit Profile' link and a period, so end mid-sentence."
+  },
+  "editSubjectEditProfileLink": "Edit Profile",
+  "@editSubjectEditProfileLink": {
+    "description": "The tappable link text inside the NFC card subtitle. Should match the Edit Profile screen's name."
+  },
+  "editSubjectWriteTagPrompt": "Write a tag so a tap logs this thing.",
+  "@editSubjectWriteTagPrompt": {
+    "description": "NFC card subtitle when no tag exists yet."
+  },
+  "editSubjectWriteTag": "Write an NFC tag",
+  "@editSubjectWriteTag": {
+    "description": "Button starting the NFC tag write flow."
+  },
+  "editSubjectWriteAnotherTag": "Write another NFC tag",
+  "@editSubjectWriteAnotherTag": {
+    "description": "Button label when a tag already exists and the user wants to write an additional one."
+  },
+  "editSubjectForgetTag": "Forget tag",
+  "@editSubjectForgetTag": {
+    "description": "Button clearing the 'tag written' marker for this thing."
+  },
+  "editSubjectSaveTagFailed": "Could not save tag: {details}",
+  "@editSubjectSaveTagFailed": {
+    "description": "Snackbar when recording the written NFC tag fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "editSubjectForgetTagFailed": "Could not forget: {details}",
+  "@editSubjectForgetTagFailed": {
+    "description": "Snackbar when clearing the NFC tag marker fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "browseMoreCharacters": "Get more characters →",
+  "@browseMoreCharacters": {
+    "description": "Link under the character picker to the store's character packs. Keep the arrow."
+  },
+
+  "commonToday": "Today",
+  "@commonToday": {
+    "description": "Day header for today in the history timeline."
+  },
+  "commonYesterday": "Yesterday",
+  "@commonYesterday": {
+    "description": "Day header for yesterday in the history timeline."
+  },
+
+  "scheduleDaily": "Every day at {time}",
+  "@scheduleDaily": {
+    "description": "Schedule line for a daily chore. {time} is a pre-formatted clock like '6:30 pm' or '18:30'.",
+    "placeholders": {
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+  "scheduleWeeklyAt": "{days} at {time}",
+  "@scheduleWeeklyAt": {
+    "description": "Schedule line for a weekly chore. {days} is a comma-joined list of short weekday names like 'Mon, Wed'.",
+    "placeholders": {
+      "days": {"type": "String", "example": "Mon, Wed"},
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+  "scheduleNever": "Never",
+  "@scheduleNever": {
+    "description": "Schedule line for a weekly chore with no weekdays selected."
+  },
+  "scheduleFortnightly": "Fortnightly on {days} at {time} · {phase}",
+  "@scheduleFortnightly": {
+    "description": "Schedule line for an every-two-weeks chore. {phase} is scheduleThisWeek or scheduleNextWeek. Keep the middle dot separator or use a natural equivalent.",
+    "placeholders": {
+      "days": {"type": "String", "example": "Mon, Wed"},
+      "time": {"type": "String", "example": "6:30 pm"},
+      "phase": {"type": "String", "example": "this week"}
+    }
+  },
+  "scheduleThisWeek": "this week",
+  "@scheduleThisWeek": {
+    "description": "Fortnightly phase suffix: the chore is due in the current calendar week. Lowercase, mid-sentence."
+  },
+  "scheduleNextWeek": "next week",
+  "@scheduleNextWeek": {
+    "description": "Fortnightly phase suffix: the chore is due next calendar week. Lowercase, mid-sentence."
+  },
+  "scheduleMonthlyOnDayAt": "Monthly on the {day} at {time}",
+  "@scheduleMonthlyOnDayAt": {
+    "description": "Schedule line for a monthly chore on a fixed day. {day} is a pre-formatted ordinal like '1st' / '1.' / '1er'.",
+    "placeholders": {
+      "day": {"type": "String", "example": "15th"},
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+  "scheduleMonthlyLastDayAt": "Monthly on the last day at {time}",
+  "@scheduleMonthlyLastDayAt": {
+    "description": "Schedule line for a monthly chore on the last day of the month.",
+    "placeholders": {
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+  "scheduleMonthlyOnWeekdayAt": "Monthly on the {position} {weekday} at {time}",
+  "@scheduleMonthlyOnWeekdayAt": {
+    "description": "Schedule line for a monthly chore on the Nth weekday. {position} is one of the schedulePosition* words; {weekday} is a short weekday name.",
+    "placeholders": {
+      "position": {"type": "String", "example": "first"},
+      "weekday": {"type": "String", "example": "Mon"},
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+  "schedulePositionFirst": "first",
+  "@schedulePositionFirst": {
+    "description": "Ordinal word used only inside scheduleMonthlyOnWeekdayAt ('the first Mon'). Inflect to fit that sentence."
+  },
+  "schedulePositionSecond": "second",
+  "@schedulePositionSecond": {
+    "description": "See schedulePositionFirst."
+  },
+  "schedulePositionThird": "third",
+  "@schedulePositionThird": {
+    "description": "See schedulePositionFirst."
+  },
+  "schedulePositionFourth": "fourth",
+  "@schedulePositionFourth": {
+    "description": "See schedulePositionFirst."
+  },
+  "schedulePositionLast": "last",
+  "@schedulePositionLast": {
+    "description": "See schedulePositionFirst - 'the last Mon' of the month."
+  },
+  "scheduleOnceAt": "One time at {time}",
+  "@scheduleOnceAt": {
+    "description": "Schedule line for a one-off task with no date set.",
+    "placeholders": {
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+  "scheduleOnceOn": "One time on {date} at {time}",
+  "@scheduleOnceOn": {
+    "description": "Schedule line for a one-off task. {date} is a pre-formatted short date like '30 Jun'.",
+    "placeholders": {
+      "date": {"type": "String", "example": "30 Jun"},
+      "time": {"type": "String", "example": "6:30 pm"}
+    }
+  },
+
+  "overdueMinutes": "{count, plural, one{1 minute overdue} other{{count} minutes overdue}}",
+  "@overdueMinutes": {
+    "description": "Red status line on a chore row that is under an hour late.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "overdueHours": "{count, plural, one{1 hour overdue} other{over {count} hours overdue}}",
+  "@overdueHours": {
+    "description": "Red status line on a chore row that is an hour or more late. The 'other' form deliberately reads 'over N hours'.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "dueIn": "Due in",
+  "@dueIn": {
+    "description": "Top line of the small stacked 'Due in / 15 / mins' status on a chore row. Keep very short."
+  },
+  "dueInUnitHours": "{count, plural, one{hour} other{hrs}}",
+  "@dueInUnitHours": {
+    "description": "Bottom line of the stacked due-in status when counting hours. Abbreviate the plural if natural.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "dueInUnitMins": "{count, plural, one{min} other{mins}}",
+  "@dueInUnitMins": {
+    "description": "Bottom line of the stacked due-in status when counting minutes. Abbreviated.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "editChorePickDate": "Pick a date",
+  "@editChorePickDate": {
+    "description": "Placeholder on the one-off date tile before a date is chosen."
+  },
+  "editChoreMonthDayItem": "The {day}",
+  "@editChoreMonthDayItem": {
+    "description": "Dropdown item for a monthly day-of-month. {day} is a pre-formatted ordinal like '15th'.",
+    "placeholders": {
+      "day": {"type": "String", "example": "15th"}
+    }
+  },
+  "editChoreLastDay": "The last day",
+  "@editChoreLastDay": {
+    "description": "Dropdown item: the last day of the month."
+  },
+
+  "commonYou": "You",
+  "@commonYou": {
+    "description": "Label for the signed-in user's own entries in the history timeline."
+  },
+  "commonSomeone": "Someone",
+  "@commonSomeone": {
+    "description": "Fallback display name when a member can't be resolved."
+  },
+
+  "choreCouldNotLog": "Could not log: {details}",
+  "@choreCouldNotLog": {
+    "description": "Snackbar when logging a completion fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "choreCouldNotUndo": "Could not undo: {details}",
+  "@choreCouldNotUndo": {
+    "description": "Snackbar when undoing a completion fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "choreRemoved": "Removed: {name}",
+  "@choreRemoved": {
+    "description": "Snackbar after undoing a completion. {name} is the chore's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Breakfast"}
+    }
+  },
+  "choreUndoNotAllowed": "Switch to whoever logged this (or ask an owner) to undo it.",
+  "@choreUndoNotAllowed": {
+    "description": "Snackbar when trying to undo a completion logged by someone else. 'Switch to' refers to the Act-as picker."
+  },
+  "undoDialogTitle": "Undo \"{name}\"?",
+  "@undoDialogTitle": {
+    "description": "Confirm-dialog title before un-logging a completion. {name} is the chore's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Breakfast"}
+    }
+  },
+  "undoDialogBody": "This marks the chore as not done again, and the rest of the household is told.",
+  "@undoDialogBody": {
+    "description": "Body of the undo-completion confirm dialog."
+  },
+  "undoDialogAction": "Undo it",
+  "@undoDialogAction": {
+    "description": "Destructive button confirming the undo."
+  },
+  "choreUsuallyDoneAround": "Usually done around",
+  "@choreUsuallyDoneAround": {
+    "description": "Habit line on a chore row; followed by a clock time on the same row, so end mid-sentence."
+  },
+  "choreOneTimePill": "One-time",
+  "@choreOneTimePill": {
+    "description": "Small pill marking a one-off (non-recurring) chore. Keep short."
+  },
+  "choreCompletedBy": "Completed by {name}",
+  "@choreCompletedBy": {
+    "description": "Footer of a completed chore row. {name} is the member who logged it.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Sam"}
+    }
+  },
+
+  "editChoreTitle": "Edit chore",
+  "@editChoreTitle": {
+    "description": "App bar title when editing a chore."
+  },
+  "editChoreNewTitle": "New chore",
+  "@editChoreNewTitle": {
+    "description": "App bar title when creating a chore; also the preview card's placeholder name."
+  },
+  "editChoreDeleteTooltip": "Delete chore",
+  "@editChoreDeleteTooltip": {
+    "description": "Tooltip on the delete icon in the edit-chore app bar."
+  },
+  "editChoreDeleteBody": "All completion history for this chore will be permanently removed. This cannot be undone.",
+  "@editChoreDeleteBody": {
+    "description": "Body of the confirm dialog when deleting a chore from its edit screen."
+  },
+  "editChoreNameLabel": "Name",
+  "@editChoreNameLabel": {
+    "description": "Label above the chore's name field."
+  },
+  "editChoreNameHint": "e.g. Breakfast",
+  "@editChoreNameHint": {
+    "description": "Hint inside the chore name field - an example chore. Swap for a natural example in the locale."
+  },
+  "editChoreScheduleLabel": "Schedule",
+  "@editChoreScheduleLabel": {
+    "description": "Label above the Repeats / One time toggle."
+  },
+  "editChoreRepeats": "Repeats",
+  "@editChoreRepeats": {
+    "description": "Toggle segment: the chore recurs."
+  },
+  "editChoreOneTime": "One time",
+  "@editChoreOneTime": {
+    "description": "Toggle segment: a single dated task."
+  },
+  "editChoreFrequencyLabel": "Frequency",
+  "@editChoreFrequencyLabel": {
+    "description": "Label above the daily/weekly/monthly frequency segments."
+  },
+  "editChoreFreqDaily": "Every day",
+  "@editChoreFreqDaily": {
+    "description": "Frequency segment: daily."
+  },
+  "editChoreFreqWeekly": "Some days",
+  "@editChoreFreqWeekly": {
+    "description": "Frequency segment: weekly on chosen days."
+  },
+  "editChoreFreqMonthly": "Monthly",
+  "@editChoreFreqMonthly": {
+    "description": "Frequency segment: monthly."
+  },
+  "editChoreOnTheseDays": "On these days",
+  "@editChoreOnTheseDays": {
+    "description": "Label above the weekday chips for a weekly chore."
+  },
+  "editChorePickOneDay": "Pick at least one day.",
+  "@editChorePickOneDay": {
+    "description": "Validation line when no weekday is selected."
+  },
+  "editChoreHowOften": "How often",
+  "@editChoreHowOften": {
+    "description": "Label above the every-week / fortnightly segments."
+  },
+  "editChoreEveryWeek": "Every week",
+  "@editChoreEveryWeek": {
+    "description": "Cadence segment: weekly."
+  },
+  "editChoreFortnightly": "Fortnightly",
+  "@editChoreFortnightly": {
+    "description": "Cadence segment: every two weeks."
+  },
+  "editChoreStarting": "Starting",
+  "@editChoreStarting": {
+    "description": "Label above the this-week / next-week chips for a fortnightly chore."
+  },
+  "editChoreThisWeek": "This week",
+  "@editChoreThisWeek": {
+    "description": "Chip: the fortnightly cadence starts this week."
+  },
+  "editChoreNextWeek": "Next week",
+  "@editChoreNextWeek": {
+    "description": "Chip: the fortnightly cadence starts next week."
+  },
+  "editChoreOnThe": "On the",
+  "@editChoreOnThe": {
+    "description": "Label above the monthly Exact Day / First / Second... chips - reads as 'On the [first Monday]'."
+  },
+  "editChoreExactDay": "Exact Day",
+  "@editChoreExactDay": {
+    "description": "Chip switching the monthly schedule to a fixed day of the month."
+  },
+  "editChorePosFirst": "First",
+  "@editChorePosFirst": {
+    "description": "Monthly ordinal chip - 'the First [weekday] of the month'."
+  },
+  "editChorePosSecond": "Second",
+  "@editChorePosSecond": {
+    "description": "See editChorePosFirst."
+  },
+  "editChorePosThird": "Third",
+  "@editChorePosThird": {
+    "description": "See editChorePosFirst."
+  },
+  "editChorePosFourth": "Fourth",
+  "@editChorePosFourth": {
+    "description": "See editChorePosFirst."
+  },
+  "editChorePosLast": "Last",
+  "@editChorePosLast": {
+    "description": "See editChorePosFirst - the last such weekday of the month."
+  },
+  "editChoreDayLabel": "Day",
+  "@editChoreDayLabel": {
+    "description": "Label above the day-of-month dropdown."
+  },
+  "editChoreWeekdayLabel": "Weekday",
+  "@editChoreWeekdayLabel": {
+    "description": "Label above the single-weekday picker for a monthly chore."
+  },
+  "editChoreOnDateLabel": "On",
+  "@editChoreOnDateLabel": {
+    "description": "Label above the date tile for a one-off task - reads as 'On [Wed, 30 Jun]'."
+  },
+  "editChoreAtTimeLabel": "At",
+  "@editChoreAtTimeLabel": {
+    "description": "Label above the time tile - reads as 'At [6:30 pm]'."
+  },
+  "editChoreAddChore": "Add chore",
+  "@editChoreAddChore": {
+    "description": "Submit button when creating a chore."
+  },
+
+  "timelineLogged": "Logged",
+  "@timelineLogged": {
+    "description": "Fallback timeline entry name when the chore was deleted and no name was stored."
+  },
+
+  "historyAwardsTitle": "Awards",
+  "@historyAwardsTitle": {
+    "description": "Title of the Awards tab."
+  },
+  "historyDayStreak": "Day streak",
+  "@historyDayStreak": {
+    "description": "Stat label under the household's current daily streak count."
+  },
+  "historyThisWeek": "This week",
+  "@historyThisWeek": {
+    "description": "Stat label under this week's completion count; also the leaderboard section header."
+  },
+  "historyCleanSweeps": "{count, plural, one{Clean sweep} other{Clean sweeps}}",
+  "@historyCleanSweeps": {
+    "description": "Stat label under the count of days where every chore got done.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "historyAllActivity": "All activity",
+  "@historyAllActivity": {
+    "description": "Header of the household-wide completion feed."
+  },
+  "historyFilterAll": "All",
+  "@historyFilterAll": {
+    "description": "Filter chip showing activity for every thing (no filter)."
+  },
+  "historyEmptyTitle": "Nothing here yet!",
+  "@historyEmptyTitle": {
+    "description": "Empty-state headline for the activity feed."
+  },
+  "historyEmptyBody": "Be the first one to complete a chore.",
+  "@historyEmptyBody": {
+    "description": "Empty-state body for the activity feed."
+  },
+
+  "leaderboardEmpty": "No chores completed yet this week!",
+  "@leaderboardEmpty": {
+    "description": "Placeholder card when the weekly leaderboard has no entries."
+  },
+  "leaderboardYouSuffix": "{name} (you)",
+  "@leaderboardYouSuffix": {
+    "description": "The signed-in user's own leaderboard entry - their name plus a 'that's you' marker.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Sam"}
+    }
+  },
+
+  "awardsBadges": "Badges",
+  "@awardsBadges": {
+    "description": "Header of the badge cabinet section on the Awards tab."
+  },
+  "awardsTeamEffort": "Team Effort",
+  "@awardsTeamEffort": {
+    "description": "Title of the household-wide fairness badge."
+  },
+  "awardsTeamEffortDesc": "Everyone pulled their weight - the load was shared fairly",
+  "@awardsTeamEffortDesc": {
+    "description": "Description under the Team Effort badge."
+  },
+  "awardsUnclaimed": "Unclaimed",
+  "@awardsUnclaimed": {
+    "description": "Footer of an award nobody has earned this week."
+  },
+  "awardsLastWeeksWinner": "LAST WEEK'S WINNER",
+  "@awardsLastWeeksWinner": {
+    "description": "All-caps pill on the featured award card. Keep it shouty/celebratory."
+  },
+  "awardsSubjectPossessive": "{name}'s",
+  "@awardsSubjectPossessive": {
+    "description": "Possessive line stacked directly above the award title on the featured card - reads as e.g. \"Kiko's / Best Human\". Use the locale's natural possessive (German: {name}s, French: might invert to 'de {name}').",
+    "placeholders": {
+      "name": {"type": "String", "example": "Kiko"}
+    }
+  },
+  "awardsNoWinnerYet": "No winner last week - do the most of {name}'s chores to take it next time!",
+  "@awardsNoWinnerYet": {
+    "description": "Featured award card body when nobody won. {name} is the thing/pet's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Kiko"}
+    }
+  },
+  "awardsChoreCount": "{count, plural, one{{count} chore} other{{count} chores}}",
+  "@awardsChoreCount": {
+    "description": "Winning tally under the featured award winner's name.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "commonLogOut": "Log out",
+  "@commonLogOut": {
+    "description": "Log-out action label (menu item and drop-target caption)."
+  },
+
+  "householdTitle": "Household",
+  "@householdTitle": {
+    "description": "Fallback app bar title when the household can't be shown."
+  },
+  "householdNoLonger": "You're no longer a member of this household.",
+  "@householdNoLonger": {
+    "description": "Full-screen message when opening a household you've been removed from."
+  },
+  "householdDeleteTooltip": "Delete household",
+  "@householdDeleteTooltip": {
+    "description": "Tooltip on the delete icon in the household app bar (owner only)."
+  },
+  "householdDeleteBody": "All subjects, chores and history for this household will be permanently removed for everyone in it. This cannot be undone.",
+  "@householdDeleteBody": {
+    "description": "Body of the type-to-confirm dialog when deleting a household."
+  },
+  "householdLeaveTitle": "Leave {name}?",
+  "@householdLeaveTitle": {
+    "description": "Confirm-dialog title before leaving a household. {name} is the household's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Paihia House"}
+    }
+  },
+  "householdLeaveBody": "You won't see this household's chores or completions any more. You can re-join later with an invite code.",
+  "@householdLeaveBody": {
+    "description": "Body of the leave-household confirm dialog."
+  },
+  "householdLeave": "Leave",
+  "@householdLeave": {
+    "description": "Leave-household action button; also the caption under the leave drop-target."
+  },
+  "householdDeleteManagedBody": "{name} is a managed member and this removes them completely. Their past completions still count but will show as \"Someone\".",
+  "@householdDeleteManagedBody": {
+    "description": "Body of the type-to-confirm dialog when deleting a managed (loginless) member. \"Someone\" refers to the commonSomeone fallback name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Grandma"}
+    }
+  },
+  "browseMoreHomes": "Get more homes →",
+  "@browseMoreHomes": {
+    "description": "Link under the house-picture picker to the store. Keep the arrow."
+  },
+  "browseMoreAvatars": "Get more avatars →",
+  "@browseMoreAvatars": {
+    "description": "Link under the avatar picker to the store. Keep the arrow."
+  },
+  "householdNameLabel": "Household name",
+  "@householdNameLabel": {
+    "description": "Label above the household name field."
+  },
+  "householdNameHint": "e.g. \"Paihia House\" or \"Home\"",
+  "@householdNameHint": {
+    "description": "Hint inside the household name field on the create form."
+  },
+  "householdResidentsLabel": "Who lives here?",
+  "@householdResidentsLabel": {
+    "description": "Label above the optional residents line (a family nickname like 'The Goodchilds')."
+  },
+  "householdResidentsHint": "The Goodchilds",
+  "@householdResidentsHint": {
+    "description": "Example family nickname inside the residents field. Swap for a natural example in the locale."
+  },
+  "householdTimezone": "Timezone: {tz}",
+  "@householdTimezone": {
+    "description": "Info line showing the household's IANA timezone id (untranslated technical value).",
+    "placeholders": {
+      "tz": {"type": "String", "example": "Europe/London"}
+    }
+  },
+  "householdUsePhoneTz": "Use this phone's",
+  "@householdUsePhoneTz": {
+    "description": "Button applying this phone's timezone to the household. Short - sits at the end of the timezone row."
+  },
+  "householdMembersFallback": "Members",
+  "@householdMembersFallback": {
+    "description": "Members-card header when no residents nickname is set."
+  },
+  "householdSaveFailed": "Save failed",
+  "@householdSaveFailed": {
+    "description": "Snackbar fallback when a save fails and the server gave no message."
+  },
+  "householdRoleOwner": "owner",
+  "@householdRoleOwner": {
+    "description": "Role line on a household tile, lowercase."
+  },
+  "householdRoleMember": "member",
+  "@householdRoleMember": {
+    "description": "Role line on a household tile, lowercase."
+  },
+
+  "addSomeoneTitle": "Add someone",
+  "@addSomeoneTitle": {
+    "description": "Title of the add-member chooser sheet."
+  },
+  "addInviteTitle": "Invite someone with a login",
+  "@addInviteTitle": {
+    "description": "Chooser option: invite a real member with their own account."
+  },
+  "addInviteSubtitle": "Family or flatmates who sign in on their own phone. They join with a code and log their own chores.",
+  "@addInviteSubtitle": {
+    "description": "Explanation under addInviteTitle."
+  },
+  "addManagedTitle": "Add someone without a login",
+  "@addManagedTitle": {
+    "description": "Chooser option: create a managed (loginless) member."
+  },
+  "addManagedSubtitle": "For anyone without their own login. You manage their profile, and log their chores by switching to them with 'Whose turn?' on the You tab.",
+  "@addManagedSubtitle": {
+    "description": "Explanation under addManagedTitle. 'Whose turn?' must match the whoseTurn key."
+  },
+
+  "inviteSomeone": "Invite someone",
+  "@inviteSomeone": {
+    "description": "Header of the invite-code card."
+  },
+  "inviteSubtitle": "Invite family or flatmates",
+  "@inviteSubtitle": {
+    "description": "Subtitle under the invite-code card header."
+  },
+  "invitesOn": "Invites are on",
+  "@invitesOn": {
+    "description": "Label next to the invite toggle when open."
+  },
+  "invitesOff": "Invites are off",
+  "@invitesOff": {
+    "description": "Label next to the invite toggle when closed."
+  },
+  "inviteLiveUntil": "Live until you turn invites off",
+  "@inviteLiveUntil": {
+    "description": "Note under the invite code: it stays valid while invites are on."
+  },
+  "shareCode": "Share code",
+  "@shareCode": {
+    "description": "Button opening the system share sheet with the invite/claim code."
+  },
+  "generateNewCode": "Generate new code",
+  "@generateNewCode": {
+    "description": "Button rotating the invite/claim code, invalidating the old one."
+  },
+  "inviteShareText": "Join our household on Have You Fed The Dog?\nhttps://haveyoufedthedog.com/join?code={code}\n\nIf the link doesn't open the app, open it and enter invite code {code}",
+  "@inviteShareText": {
+    "description": "Share-sheet text for a household invite. Keep the URL exactly as is; the app name stays in English.",
+    "placeholders": {
+      "code": {"type": "String", "example": "KIKO-7H4P"}
+    }
+  },
+  "inviteShareSubject": "Have You Fed The Dog? - household invite",
+  "@inviteShareSubject": {
+    "description": "Share-sheet subject line for a household invite. App name stays in English."
+  },
+  "membersLoadFailed": "Could not load members: {details}",
+  "@membersLoadFailed": {
+    "description": "Error line when the member list fails to load. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "memberRemoveTitle": "Remove {name}?",
+  "@memberRemoveTitle": {
+    "description": "Confirm-dialog title before kicking a member. {name} is their display name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Sam"}
+    }
+  },
+  "memberRemoveBody": "{name} will lose access to this household immediately. They can re-join later with an invite code.",
+  "@memberRemoveBody": {
+    "description": "Body of the kick-member confirm dialog.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Sam"}
+    }
+  },
+  "memberRemove": "Remove",
+  "@memberRemove": {
+    "description": "Kick-member action button; also the caption under the remove drop-target."
+  },
+  "memberOwner": "Owner",
+  "@memberOwner": {
+    "description": "Caption under the household owner's avatar in the members cloud."
+  },
+  "editMemberTitle": "Edit member",
+  "@editMemberTitle": {
+    "description": "App bar title when editing a managed member."
+  },
+  "addMemberTitle": "Add member",
+  "@addMemberTitle": {
+    "description": "App bar title when creating a managed member."
+  },
+  "deleteMemberTooltip": "Delete member",
+  "@deleteMemberTooltip": {
+    "description": "Tooltip on the delete icon in the edit-member app bar."
+  },
+  "displayNameLabel": "Display name",
+  "@displayNameLabel": {
+    "description": "Label above a display-name field (profile and managed member)."
+  },
+  "memberNameHint": "How this member appears to everyone",
+  "@memberNameHint": {
+    "description": "Hint inside the managed member's name field."
+  },
+  "claimLoginTitle": "Give them their own login",
+  "@claimLoginTitle": {
+    "description": "Header of the claim-code card on the edit-member screen."
+  },
+  "claimLoginSubtitle": "Let them claim this account and sign in themselves",
+  "@claimLoginSubtitle": {
+    "description": "Subtitle under claimLoginTitle."
+  },
+  "claimCodeInfo": "They enter this on Sign up. Live until you turn it off.",
+  "@claimCodeInfo": {
+    "description": "Note under the claim code. 'Sign up' refers to the signup screen."
+  },
+  "claimShareText": "Claim your account on Have You Fed The Dog?\nhttps://haveyoufedthedog.com/claim?code={code}\n\nIf the link doesn't open the app, open it, tap Sign up, and enter claim code {code}",
+  "@claimShareText": {
+    "description": "Share-sheet text for a claim code. Keep the URL exactly as is; the app name stays in English.",
+    "placeholders": {
+      "code": {"type": "String", "example": "KIKO-7H4P"}
+    }
+  },
+  "claimShareSubject": "Have You Fed The Dog? - claim your account",
+  "@claimShareSubject": {
+    "description": "Share-sheet subject line for a claim code. App name stays in English."
+  },
+
+  "householdsYourTitle": "Your households",
+  "@householdsYourTitle": {
+    "description": "App bar title of the household picker."
+  },
+  "menuTooltip": "Menu",
+  "@menuTooltip": {
+    "description": "Tooltip on the overflow menu for users with no household."
+  },
+  "menuEditProfile": "Edit profile",
+  "@menuEditProfile": {
+    "description": "Overflow menu item opening the profile editor."
+  },
+  "householdsEmpty": "You're not in any households yet. Create one or join with an invite code below.",
+  "@householdsEmpty": {
+    "description": "Empty state on the household picker."
+  },
+  "householdsCreateNew": "Create a new household",
+  "@householdsCreateNew": {
+    "description": "Button opening the create-household form."
+  },
+  "householdsJoinWithCode": "Join with invite code",
+  "@householdsJoinWithCode": {
+    "description": "Button opening the join-household form."
+  },
+  "createHouseholdTitle": "Create household",
+  "@createHouseholdTitle": {
+    "description": "App bar title and submit button of the create-household form."
+  },
+  "createHouseholdFailed": "Could not create",
+  "@createHouseholdFailed": {
+    "description": "Snackbar fallback when creating a household fails and the server gave no message."
+  },
+  "createHouseholdIntro": "Start a new household - for your family, flatmates, or anyone you share chores with.",
+  "@createHouseholdIntro": {
+    "description": "Intro line on the create-household form."
+  },
+  "joinHouseholdTitle": "Join household",
+  "@joinHouseholdTitle": {
+    "description": "App bar title and submit button of the join-household form."
+  },
+  "joinHouseholdFailed": "Could not join",
+  "@joinHouseholdFailed": {
+    "description": "Snackbar fallback when joining fails and the server gave no message."
+  },
+  "joinIntro": "Got a code from a family member? Paste it here to join their household.",
+  "@joinIntro": {
+    "description": "Intro line on the join-household form."
+  },
+  "inviteCodeLabel": "Invite code",
+  "@inviteCodeLabel": {
+    "description": "Label above the invite-code field."
+  },
+  "inviteCodeHint": "e.g. KIKO-7H4P",
+  "@inviteCodeHint": {
+    "description": "Example invite code inside the field. Keep the format; the code itself is arbitrary."
+  },
+
+  "youTabTitle": "You",
+  "@youTabTitle": {
+    "description": "Title of the You tab (the user's own profile page)."
+  },
+  "youNoName": "(no name set)",
+  "@youNoName": {
+    "description": "Placeholder on the You tab when the user has no display name."
+  },
+  "movingDay": "Moving day?",
+  "@movingDay": {
+    "description": "Playful header over the switch-household / log-out drag card."
+  },
+  "switchHousehold": "Switch household",
+  "@switchHousehold": {
+    "description": "Caption under the switch-household drop-target."
+  },
+  "whoseTurn": "Whose turn?",
+  "@whoseTurn": {
+    "description": "Header of the act-as picker. Must match the mention in addManagedSubtitle."
+  },
+  "whoseTurnSubtitle": "Log chores on behalf of another member",
+  "@whoseTurnSubtitle": {
+    "description": "Subtitle under the act-as header."
+  },
+  "actingTurn": "{name}'s turn",
+  "@actingTurn": {
+    "description": "Banner while acting as a managed member. Use the locale's natural possessive.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Grandma"}
+    }
+  },
+  "myTurnAgain": "My turn again",
+  "@myTurnAgain": {
+    "description": "Button reverting the act-as picker back to yourself."
+  },
+
+  "editProfileTitle": "Edit Profile",
+  "@editProfileTitle": {
+    "description": "App bar title of the profile editor. Should match editSubjectEditProfileLink."
+  },
+  "deleteAccountTooltip": "Delete account",
+  "@deleteAccountTooltip": {
+    "description": "Tooltip on the delete icon in the profile app bar."
+  },
+  "deleteAccountTitle": "Delete your account?",
+  "@deleteAccountTitle": {
+    "description": "Title of the type-to-confirm dialog for account deletion."
+  },
+  "deleteAccountBody": "This permanently deletes your account and signs you out. Chores you completed stay with your household, without your name on them. Households left with nobody in them are deleted entirely.\n\nThis cannot be undone.",
+  "@deleteAccountBody": {
+    "description": "Body of the account-deletion confirm dialog. Keep the blank line."
+  },
+  "deleteForever": "Delete forever",
+  "@deleteForever": {
+    "description": "Destructive button on the account-deletion dialog."
+  },
+  "couldNotDeleteAccount": "Could not delete account: {details}",
+  "@couldNotDeleteAccount": {
+    "description": "Snackbar when account deletion fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "profileNameHint": "How others in your household see you",
+  "@profileNameHint": {
+    "description": "Hint inside the profile display-name field."
+  },
+  "emailCantChange": "Email can't be changed.",
+  "@emailCantChange": {
+    "description": "Helper under the read-only email field."
+  },
+  "nfcCompleteOnTap": "Complete chore on tap",
+  "@nfcCompleteOnTap": {
+    "description": "Title of the per-device NFC behaviour toggle."
+  },
+  "nfcTapCompletesDesc": "Tapping a tag completes the current chore.",
+  "@nfcTapCompletesDesc": {
+    "description": "Toggle subtitle when tap-completes is on."
+  },
+  "nfcTapOpensDesc": "Tapping a tag opens the thing's page.",
+  "@nfcTapOpensDesc": {
+    "description": "Toggle subtitle when tap-completes is off."
+  },
+
+  "avatarDragOrTap": "Drag or tap",
+  "@avatarDragOrTap": {
+    "description": "Hint on the avatar picker tray."
+  },
+  "avatarSurpriseMe": "Surprise me",
+  "@avatarSurpriseMe": {
+    "description": "Tooltip on the random shuffle button (avatar picker and rewards stage)."
+  },
+
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom-nav tab label."
+  },
+  "navThings": "Things",
+  "@navThings": {
+    "description": "Bottom-nav tab label - the pets/plants/objects being cared for."
+  },
+  "navAwards": "Awards",
+  "@navAwards": {
+    "description": "Bottom-nav tab label."
+  },
+  "navAddChore": "Add a chore",
+  "@navAddChore": {
+    "description": "Tooltip on the central + floating action button."
+  },
+  "navAddChoreFor": "Add a chore for…",
+  "@navAddChoreFor": {
+    "description": "Title of the pick-a-thing sheet opened by the + button. Keep the ellipsis."
+  },
+
+  "storeTitle": "Image packs",
+  "@storeTitle": {
+    "description": "App bar title of the pack shop."
+  },
+  "storeRestoreTooltip": "Restore purchases",
+  "@storeRestoreTooltip": {
+    "description": "Tooltip on the restore-purchases icon."
+  },
+  "storeLoadFailed": "Couldn't load the shop.\n{details}",
+  "@storeLoadFailed": {
+    "description": "Error when the product list fails to load. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+  "storeNoPacks": "No packs available yet.\nCheck back soon!",
+  "@storeNoPacks": {
+    "description": "Placeholder when the shop has no products. Keep the line break."
+  },
+  "storeSupportNote": "Made by one man and his dog. No ads. No subscriptions. Packs support the app.",
+  "@storeSupportNote": {
+    "description": "Warm supporter note at the top of the store. The app really is made by one person and their dog."
+  },
+  "storeAppliesTo": "Packs you buy or redeem and rewards are unlocked for all members of",
+  "@storeAppliesTo": {
+    "description": "Scope note; followed by the bolded household name and a period, so end mid-sentence."
+  },
+  "storeRedeemTitle": "Redeem a code",
+  "@storeRedeemTitle": {
+    "description": "Header of the gift-code accordion."
+  },
+  "storeRedeemSubtitle": "Unlock a pack with a gift code",
+  "@storeRedeemSubtitle": {
+    "description": "Subtitle under the redeem header."
+  },
+  "storePackCodeLabel": "Pack code",
+  "@storePackCodeLabel": {
+    "description": "Label above the gift-code field."
+  },
+  "storePackCodeHint": "WOOF-2026",
+  "@storePackCodeHint": {
+    "description": "Example gift code inside the field. Keep as is - codes are arbitrary."
+  },
+  "storeApplyPack": "Apply pack",
+  "@storeApplyPack": {
+    "description": "Caption under the drop-target circle the gift chip is dragged onto."
+  },
+  "storeApplied": "{name} applied!",
+  "@storeApplied": {
+    "description": "Snackbar after redeeming a pack code. {name} is the pack's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Robot Pack"}
+    }
+  },
+  "storeAlreadyApplied": "{name} is already applied.",
+  "@storeAlreadyApplied": {
+    "description": "Snackbar when the redeemed pack was already on the household.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Robot Pack"}
+    }
+  },
+  "storeCodeFailed": "Could not apply that code",
+  "@storeCodeFailed": {
+    "description": "Snackbar fallback when redeeming fails and the server gave no message."
+  },
+  "storeWorking": "Working…",
+  "@storeWorking": {
+    "description": "Buy-button label while a purchase is in flight."
+  },
+  "storeBuy": "Buy  {price}",
+  "@storeBuy": {
+    "description": "Buy-button label. {price} is the store-formatted price (e.g. £1.99). Keep the double space.",
+    "placeholders": {
+      "price": {"type": "String", "example": "£1.99"}
+    }
+  },
+  "storeOwned": "Owned",
+  "@storeOwned": {
+    "description": "Pill replacing the Buy button once the household owns the product."
+  },
+
+  "purchaseCouldNotStart": "Couldn't start the purchase.",
+  "@purchaseCouldNotStart": {
+    "description": "Snackbar when the store refuses to open the purchase flow."
+  },
+  "purchaseFailed": "The purchase failed.",
+  "@purchaseFailed": {
+    "description": "Snackbar fallback when the store reports a purchase error without a message."
+  },
+  "purchaseNeedHousehold": "Choose a household before buying packs.",
+  "@purchaseNeedHousehold": {
+    "description": "Snackbar when buying with no active household to grant the pack to."
+  },
+  "purchaseVerifyFailed": "Couldn't verify that purchase.",
+  "@purchaseVerifyFailed": {
+    "description": "Snackbar fallback when server-side receipt verification fails without a message."
+  },
+  "purchaseUnlocked": "{name} unlocked!",
+  "@purchaseUnlocked": {
+    "description": "Snackbar after a successful purchase. {name} is the product's name.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Everything Pack"}
+    }
+  },
+  "purchaseAlreadyUnlocked": "{name} is already unlocked.",
+  "@purchaseAlreadyUnlocked": {
+    "description": "Snackbar when a purchase/restore re-granted something the household already had.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Everything Pack"}
+    }
+  },
+
+  "rewardsTitle": "Free rewards",
+  "@rewardsTitle": {
+    "description": "App bar title of the streak-reward claim page."
+  },
+  "rewardsCharacters": "Characters",
+  "@rewardsCharacters": {
+    "description": "Segment: show claimable characters."
+  },
+  "rewardsHouses": "Houses",
+  "@rewardsHouses": {
+    "description": "Segment: show claimable house pictures."
+  },
+  "rewardsStreakToClaim": "Streak {streak} / {threshold} to claim",
+  "@rewardsStreakToClaim": {
+    "description": "Claim-button label while the streak is below the threshold.",
+    "placeholders": {
+      "streak": {"type": "int"},
+      "threshold": {"type": "int"}
+    }
+  },
+  "rewardsNothingToClaim": "Nothing to claim",
+  "@rewardsNothingToClaim": {
+    "description": "Claim-button label when no art is left to earn."
+  },
+  "rewardsClaim": "Claim",
+  "@rewardsClaim": {
+    "description": "Claim-button label when a reward can be claimed."
+  },
+  "rewardsChooseCharacter": "Choose a character",
+  "@rewardsChooseCharacter": {
+    "description": "Header over the earnable characters tray."
+  },
+  "rewardsChooseHouse": "Choose a house",
+  "@rewardsChooseHouse": {
+    "description": "Header over the earnable house pictures tray."
+  },
+  "rewardsAllUnlocked": "You've unlocked everything here - more art lands over time.",
+  "@rewardsAllUnlocked": {
+    "description": "Note when there's nothing left to earn in the current kind."
+  },
+  "rewardsYourCollection": "Your Collection",
+  "@rewardsYourCollection": {
+    "description": "Header of the already-unlocked shelf."
+  },
+  "rewardsCollectionEmpty": "Nothing yet - build a streak and claim your first.",
+  "@rewardsCollectionEmpty": {
+    "description": "Note when nothing has been unlocked yet."
+  },
+  "rewardsAlreadyYours": "{name} is already yours.",
+  "@rewardsAlreadyYours": {
+    "description": "Snackbar when claiming something the household already unlocked.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Golden Retriever"}
+    }
+  },
+  "rewardsClaimFailed": "Could not claim that reward.",
+  "@rewardsClaimFailed": {
+    "description": "Snackbar fallback when a claim fails and the server gave no message."
+  },
+  "rewardsClaimYourReward": "Claim your reward below!",
+  "@rewardsClaimYourReward": {
+    "description": "Progress header when the streak has reached the threshold."
+  },
+  "rewardsYourStreak": "Your reward streak",
+  "@rewardsYourStreak": {
+    "description": "Progress header while the streak is still building."
+  },
+  "rewardsRedeemedToday": "Congratulations! Start again and earn another reward.",
+  "@rewardsRedeemedToday": {
+    "description": "Progress note on a day a reward was already claimed."
+  },
+  "rewardsPickReward": "Pick a reward to add it to your collection.",
+  "@rewardsPickReward": {
+    "description": "Progress note when a reward is claimable."
+  },
+  "rewardsKeepStreak": "Keep your daily streak going to earn a free character or house.",
+  "@rewardsKeepStreak": {
+    "description": "Progress note while the streak builds."
+  },
+  "rewardsCantWait": "Can't wait?",
+  "@rewardsCantWait": {
+    "description": "Prefix before the rewardsGetMoreHere store link, with a space between them."
+  },
+  "rewardsGetMoreHere": "Get more here",
+  "@rewardsGetMoreHere": {
+    "description": "Underlined link to the pack shop, following rewardsCantWait."
+  },
+  "rewardsUnlockedBang": "Unlocked!",
+  "@rewardsUnlockedBang": {
+    "description": "Headline of the claim celebration splash."
+  },
+  "rewardsViewCollection": "View Collection",
+  "@rewardsViewCollection": {
+    "description": "Button dismissing the claim celebration."
+  },
+  "rewardsBarAvailable": "Free reward available!",
+  "@rewardsBarAvailable": {
+    "description": "Reward-streak bar title when a reward is claimable."
+  },
+  "rewardsBarStreak": "Free reward streak",
+  "@rewardsBarStreak": {
+    "description": "Reward-streak bar title while the streak builds."
+  },
+
+  "nfcWriteTagTitle": "Write NFC tag",
+  "@nfcWriteTagTitle": {
+    "description": "Title of the tag-writing dialog."
+  },
+  "nfcHoldTag": "Hold a tag to the top of your phone…",
+  "@nfcHoldTag": {
+    "description": "Prompt while waiting for a tag during writing. Keep the ellipsis."
+  },
+  "nfcUnavailable": "NFC is off or unavailable on this device. Turn NFC on and try again.",
+  "@nfcUnavailable": {
+    "description": "Shown when the device has no NFC or it's disabled."
+  },
+  "nfcNotMemberHousehold": "You're not a member of this tag's household.",
+  "@nfcNotMemberHousehold": {
+    "description": "Snackbar when a tapped tag belongs to a household the user isn't in."
+  },
+  "nfcTagNotInHousehold": "That tag points to something that isn't in this household.",
+  "@nfcTagNotInHousehold": {
+    "description": "Snackbar when a tapped tag's thing can't be found."
+  },
+  "nfcSignInFirst": "Sign in and pick a household to use NFC tags.",
+  "@nfcSignInFirst": {
+    "description": "Snackbar when a tag is tapped while signed out / no household."
+  },
+  "nfcLogFailed": "NFC log failed: {details}",
+  "@nfcLogFailed": {
+    "description": "Snackbar when an NFC-triggered log fails. {details} is a raw technical error, untranslated.",
+    "placeholders": {
+      "details": {"type": "String"}
+    }
+  },
+
+  "celebrationChoreDone": "{name}\nAll done!",
+  "@celebrationChoreDone": {
+    "description": "Headline of the chore-complete celebration: the chore's name, then 'All done!' on a new line.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Breakfast"}
+    }
+  },
+  "celebrationStreakStarted": "🔥 Streak started!",
+  "@celebrationStreakStarted": {
+    "description": "Streak pill on the celebration for a 1-day streak. Keep the emoji."
+  },
+  "celebrationStreakDays": "🔥 {count} day streak!",
+  "@celebrationStreakDays": {
+    "description": "Streak pill on the celebration. Keep the emoji.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "celebrationLoggedBy": "Logged by {name}",
+  "@celebrationLoggedBy": {
+    "description": "Attribution pill on the celebration when logging as someone else.",
+    "placeholders": {
+      "name": {"type": "String", "example": "Grandma"}
+    }
+  },
+  "celebrationNice": "Nice!",
+  "@celebrationNice": {
+    "description": "Button dismissing the chore-complete celebration."
+  },
+  "dayCelebrationBody": "The whole house is happy. Nice work, team!",
+  "@dayCelebrationBody": {
+    "description": "Body of the all-chores-done-today celebration."
+  },
+  "dayCelebrationThanks": "Thanks!",
+  "@dayCelebrationThanks": {
+    "description": "Header over the avatars of everyone who completed chores today."
+  },
+  "dayCelebrationSeeAwards": "See awards",
+  "@dayCelebrationSeeAwards": {
+    "description": "Button from the day celebration to the Awards tab."
+  },
+
+  "claimSignedInTitle": "You're already signed in",
+  "@claimSignedInTitle": {
+    "description": "Dialog title when a signed-in user opens a claim link."
+  },
+  "claimSignedInBody": "Claim links set up a brand-new sign-in for a member someone created for you. They can't be added to an account you're already signed in to - we don't merge accounts.",
+  "@claimSignedInBody": {
+    "description": "First paragraph of the claim-while-signed-in dialog."
+  },
+  "claimSignedInIfForYou": "If this code is for you:",
+  "@claimSignedInIfForYou": {
+    "description": "Lead-in to the two bullet options."
+  },
+  "claimSignedInKeepOption": "• Keep this account - stay signed in as you, and ask whoever sent the link for a household join link instead.",
+  "@claimSignedInKeepOption": {
+    "description": "Bullet option one. Keep the leading bullet."
+  },
+  "claimSignedInBecomeOption": "• Become that member - delete this account, then the claim opens automatically. Your completed chores stay with the household.",
+  "@claimSignedInBecomeOption": {
+    "description": "Bullet option two. Keep the leading bullet."
+  },
+  "claimKeepAccount": "Keep my account",
+  "@claimKeepAccount": {
+    "description": "Dialog button: keep the current account."
+  },
+  "claimDeleteAndClaim": "Delete account & claim",
+  "@claimDeleteAndClaim": {
+    "description": "Dialog button: delete this account and proceed with the claim."
+  },
+  "claimDeleteBody": "This permanently deletes your account and signs you out, then opens the claim sign-up. Chores you completed stay with your household, without your name on them.\n\nThis cannot be undone.",
+  "@claimDeleteBody": {
+    "description": "Body of the type-to-confirm dialog when deleting the account to claim another. Keep the blank line."
+  },
+
+  "awardComebackKidTitle": "Comeback Kid",
+  "@awardComebackKidTitle": {
+    "description": "Personality badge title: biggest week-on-week improvement. Punchy two-or-three-word badge names - find a natural equivalent, not a literal translation."
+  },
+  "awardComebackKidDesc": "Biggest improvement on last week",
+  "@awardComebackKidDesc": {
+    "description": "How the Comeback Kid badge is won."
+  },
+  "awardEarlyBirdTitle": "Early Bird",
+  "@awardEarlyBirdTitle": {
+    "description": "Personality badge title: most chores before 9am."
+  },
+  "awardEarlyBirdDesc": "Most chores done before 9am",
+  "@awardEarlyBirdDesc": {
+    "description": "How the Early Bird badge is won."
+  },
+  "awardNightOwlTitle": "Night Owl",
+  "@awardNightOwlTitle": {
+    "description": "Personality badge title: most chores after 8pm."
+  },
+  "awardNightOwlDesc": "Most chores done after 8pm",
+  "@awardNightOwlDesc": {
+    "description": "How the Night Owl badge is won."
+  },
+  "awardOnTheDotTitle": "On the Dot",
+  "@awardOnTheDotTitle": {
+    "description": "Personality badge title: most chores done closest to schedule."
+  },
+  "awardOnTheDotDesc": "Most chores done within 15 minutes of schedule",
+  "@awardOnTheDotDesc": {
+    "description": "How the On the Dot badge is won."
+  },
+  "awardWeekendWarriorTitle": "Weekend Warrior",
+  "@awardWeekendWarriorTitle": {
+    "description": "Personality badge title: most weekend chores."
+  },
+  "awardWeekendWarriorDesc": "Most chores done on Saturday and Sunday",
+  "@awardWeekendWarriorDesc": {
+    "description": "How the Weekend Warrior badge is won."
+  },
+  "awardTagChampionTitle": "Tag Champion",
+  "@awardTagChampionTitle": {
+    "description": "Personality badge title: most NFC-tap completions."
+  },
+  "awardTagChampionDesc": "Most chores logged with an NFC tap",
+  "@awardTagChampionDesc": {
+    "description": "How the Tag Champion badge is won."
+  },
+
+  "characterAwardTitleDog": "Best Human 🩵",
+  "@characterAwardTitleDog": {
+    "description": "The dog character's weekly award name, in its adoring voice. Keep the emoji."
+  },
+  "characterAwardTitleCat": "Least Disappointing Human",
+  "@characterAwardTitleCat": {
+    "description": "The cat character's weekly award name - dry, backhanded cat humour."
+  },
+  "characterAwardTitlePlant": "Greenest Thumb",
+  "@characterAwardTitlePlant": {
+    "description": "The plant character's weekly award name - use the locale's 'good gardener' idiom."
+  },
+  "characterAwardTitleBin": "Lord of the Kerb",
+  "@characterAwardTitleBin": {
+    "description": "The wheelie bin character's weekly award name - mock-grandiose."
+  },
+  "characterAwardTitleFish": "Keeper of the Tank",
+  "@characterAwardTitleFish": {
+    "description": "The fish character's weekly award name."
+  },
+  "characterAwardTitleGeneric": "Star Helper",
+  "@characterAwardTitleGeneric": {
+    "description": "The fallback weekly award name for characters without their own voice."
+  },
+  "characterAwardThanksDog": "Thanks for being paws-itively amazing last week!",
+  "@characterAwardThanksDog": {
+    "description": "The dog's thank-you line. The paws/positively pun need not survive - any warm dog pun works."
+  },
+  "characterAwardThanksCat": "Gracious enough to accept your service last week.",
+  "@characterAwardThanksCat": {
+    "description": "The cat's thank-you line - aloof, as if the human serves the cat."
+  },
+  "characterAwardThanksPlant": "Thanks for keeping things growing last week!",
+  "@characterAwardThanksPlant": {
+    "description": "The plant's thank-you line."
+  },
+  "characterAwardThanksBin": "Thanks for keeping things rolling last week!",
+  "@characterAwardThanksBin": {
+    "description": "The bin's thank-you line - a rolling-wheels pun if the locale has one."
+  },
+  "characterAwardThanksFish": "Thanks for making a splash last week!",
+  "@characterAwardThanksFish": {
+    "description": "The fish's thank-you line - a water pun if the locale has one."
+  },
+  "characterAwardThanksGeneric": "Thanks for being amazing last week!",
+  "@characterAwardThanksGeneric": {
+    "description": "The fallback thank-you line."
+  }
+}

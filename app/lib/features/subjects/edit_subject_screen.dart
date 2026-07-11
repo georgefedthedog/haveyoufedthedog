@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/chores/chore.dart';
 import '../../core/chores/chore_actions.dart';
 import '../../core/chores/chores_controller.dart';
+import '../../core/chores/schedule_labels.dart';
 import '../../core/chores/manage_chores_highlight_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/nfc_setting_highlight_controller.dart';
@@ -14,6 +15,7 @@ import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_actions.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/confirm_by_typing.dart';
 import '../../widgets/dashed_circle_painter.dart';
@@ -119,11 +121,15 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     if (ok != true || !mounted) return;
     setState(() => _hasTag = true);
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       await ref.read(subjectActionsProvider).setNfcTag(widget.subjectId!, url);
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not save tag: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.editSubjectSaveTagFailed('$e')),
+        ),
       );
     }
   }
@@ -135,7 +141,10 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text('Could not forget: $e')),
+          SnackBar(
+            showCloseIcon: true,
+            content: Text(context.l10n.editSubjectForgetTagFailed('$e')),
+          ),
         );
       }
     }
@@ -148,6 +157,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     try {
       final actions = ref.read(subjectActionsProvider);
       if (_isEdit) {
@@ -169,7 +179,10 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       }
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotSave('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -178,10 +191,8 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   Future<void> _delete() async {
     final confirmed = await confirmByTyping(
       context,
-      title: 'Delete ${_nameCtrl.text}?',
-      body:
-          'All chores and history for this thing will be permanently '
-          'removed. This cannot be undone.',
+      title: context.l10n.commonDeleteTitle(_nameCtrl.text),
+      body: context.l10n.editSubjectDeleteBody,
     );
     if (!confirmed) return;
 
@@ -189,6 +200,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     try {
       await ref.read(subjectActionsProvider).deleteSubject(widget.subjectId!);
       // Wait for the invalidated subjects list to refetch so the home
@@ -201,7 +213,10 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
       if (mounted) router.go(Routes.home);
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotDelete('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -256,12 +271,16 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit ${existing!.name}' : 'New thing'),
+        title: Text(
+          _isEdit
+              ? context.l10n.editSubjectTitle(existing!.name)
+              : context.l10n.editSubjectNewTitle,
+        ),
         actions: [
           if (_isEdit)
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete thing',
+              tooltip: context.l10n.editSubjectDeleteTooltip,
               onPressed: _busy ? null : _delete,
             ),
         ],
@@ -279,7 +298,7 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                   onChanged: (id) => setState(() => _icon = id),
                 ),
               ),
-              const BrowsePacksButton(label: 'Get more characters →'),
+              BrowsePacksButton(label: context.l10n.browseMoreCharacters),
               const SizedBox(height: 24),
               Card(
                 child: Padding(
@@ -288,13 +307,13 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       LabeledField(
-                        label: 'Name',
+                        label: context.l10n.editSubjectNameLabel,
                         child: TextField(
                           controller: _nameCtrl,
                           autofocus: !_isEdit,
                           enabled: !_busy,
-                          decoration: const InputDecoration(
-                            hintText: 'e.g. Kiko',
+                          decoration: InputDecoration(
+                            hintText: context.l10n.editSubjectNameHint,
                           ),
                           textInputAction: TextInputAction.done,
                           onSubmitted: (_) => _save(),
@@ -312,7 +331,11 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                 ),
                               )
                             : Icon(_isEdit ? Icons.check : Icons.pets),
-                        label: Text(_isEdit ? 'Save changes' : 'Add thing'),
+                        label: Text(
+                          _isEdit
+                              ? context.l10n.commonSaveChanges
+                              : context.l10n.editSubjectAdd,
+                        ),
                         onPressed: (_busy || !_isDirty(existing))
                             ? null
                             : _save,
@@ -349,7 +372,9 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        _hasTag ? 'Tag written' : 'No tag yet',
+                                        _hasTag
+                                            ? context.l10n.editSubjectTagWritten
+                                            : context.l10n.editSubjectNoTag,
                                         style: theme.textTheme.titleSmall
                                             ?.copyWith(
                                               fontWeight: FontWeight.w700,
@@ -366,11 +391,13 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                             children: [
                                               TextSpan(
                                                 text: completesChore
-                                                    ? 'On this phone, a tap ticks off the current chore. Change this in '
-                                                    : "On this phone, a tap opens this thing's page. Change this in ",
+                                                    ? '${context.l10n.editSubjectTapCompletes} '
+                                                    : '${context.l10n.editSubjectTapOpens} ',
                                               ),
                                               TextSpan(
-                                                text: 'Edit Profile',
+                                                text: context
+                                                    .l10n
+                                                    .editSubjectEditProfileLink,
                                                 style: TextStyle(
                                                   color: scheme.primary,
                                                   fontWeight: FontWeight.w600,
@@ -383,8 +410,9 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                         )
                                       else
                                         Text(
-                                          'Write a tag so a tap logs this '
-                                          'thing.',
+                                          context
+                                              .l10n
+                                              .editSubjectWriteTagPrompt,
                                           style: theme.textTheme.bodySmall
                                               ?.copyWith(
                                                 color: scheme.onSurfaceVariant,
@@ -400,15 +428,15 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                               icon: const Icon(Icons.nfc),
                               label: Text(
                                 _hasTag
-                                    ? 'Write another NFC tag'
-                                    : 'Write an NFC tag',
+                                    ? context.l10n.editSubjectWriteAnotherTag
+                                    : context.l10n.editSubjectWriteTag,
                               ),
                               onPressed: _busy ? null : _writeTag,
                             ),
                             if (_hasTag)
                               TextButton(
                                 onPressed: _busy ? null : _forgetTag,
-                                child: const Text('Forget tag'),
+                                child: Text(context.l10n.editSubjectForgetTag),
                               ),
                           ],
                         );
@@ -440,18 +468,16 @@ class _ChoresSectionState extends ConsumerState<_ChoresSection> {
 
   Future<void> _confirmAndDelete(Chore chore) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Delete ${chore.name}?'),
-        content: const Text(
-          'Its schedule and reminders go with it. Past completions stay '
-          'in the history.',
-        ),
+        title: Text(ctx.l10n.commonDeleteTitle(chore.name)),
+        content: Text(ctx.l10n.editSubjectDeleteChoreBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -459,7 +485,7 @@ class _ChoresSectionState extends ConsumerState<_ChoresSection> {
               foregroundColor: Theme.of(ctx).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(ctx.l10n.commonDelete),
           ),
         ],
       ),
@@ -470,7 +496,10 @@ class _ChoresSectionState extends ConsumerState<_ChoresSection> {
     } catch (e) {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotDelete('$e')),
+        ),
       );
     }
   }
@@ -494,7 +523,7 @@ class _ChoresSectionState extends ConsumerState<_ChoresSection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Manage chores',
+              context.l10n.editSubjectManageChores,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
@@ -549,7 +578,8 @@ class _ChoreChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final chip = _chipBody(theme, scheme);
+    final scheduleLabel = describeSchedule(chore.rule, context.l10n);
+    final chip = _chipBody(theme, scheme, scheduleLabel);
     return LongPressDraggable<Chore>(
       data: chore,
       onDragStarted: () => onDragChanged(true),
@@ -558,7 +588,7 @@ class _ChoreChip extends StatelessWidget {
       // carrying it toward the bin, not editing it.
       feedback: Material(
         color: Colors.transparent,
-        child: _chipBody(theme, scheme, removing: true),
+        child: _chipBody(theme, scheme, scheduleLabel, removing: true),
       ),
       childWhenDragging: Opacity(opacity: 0.3, child: chip),
       child: GestureDetector(
@@ -571,7 +601,8 @@ class _ChoreChip extends StatelessWidget {
 
   Widget _chipBody(
     ThemeData theme,
-    ColorScheme scheme, {
+    ColorScheme scheme,
+    String scheduleLabel, {
     bool removing = false,
   }) {
     return SizedBox(
@@ -626,7 +657,7 @@ class _ChoreChip extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            chore.rule.humanLabel(),
+            scheduleLabel,
             textAlign: TextAlign.center,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
@@ -676,7 +707,7 @@ class _RemoveChoreChip extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Delete',
+                context.l10n.commonDelete,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: red,
@@ -720,7 +751,7 @@ class _AddChoreChip extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Add',
+              context.l10n.commonAdd,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: accent,

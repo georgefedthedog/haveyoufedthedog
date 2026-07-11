@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/catalog/catalog_controller.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
+import '../../l10n/l10n.dart';
 import '../profile/avatar_artwork.dart';
 import 'celebration_args.dart';
 
@@ -121,7 +122,7 @@ class _CompletionCelebrationState extends ConsumerState<CompletionCelebration>
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    '${args.choreName}\nAll done!',
+                    context.l10n.celebrationChoreDone(args.choreName),
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w800,
@@ -141,8 +142,8 @@ class _CompletionCelebrationState extends ConsumerState<CompletionCelebration>
                       ),
                       child: Text(
                         args.streak == 1
-                            ? '🔥 Streak started!'
-                            : '🔥 ${args.streak} day streak!',
+                            ? context.l10n.celebrationStreakStarted
+                            : context.l10n.celebrationStreakDays(args.streak),
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: Colors.black87,
                           fontWeight: FontWeight.w800,
@@ -169,7 +170,7 @@ class _CompletionCelebrationState extends ConsumerState<CompletionCelebration>
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Logged by ${args.whoName}',
+                            context.l10n.celebrationLoggedBy(args.whoName!),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.black87,
                               fontWeight: FontWeight.w600,
@@ -190,7 +191,7 @@ class _CompletionCelebrationState extends ConsumerState<CompletionCelebration>
                         vertical: 16,
                       ),
                     ),
-                    child: const Text('Nice!'),
+                    child: Text(context.l10n.celebrationNice),
                   ),
                 ],
               ),

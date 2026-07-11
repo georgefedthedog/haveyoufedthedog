@@ -6,6 +6,7 @@ import '../../core/completions/household_history_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/empty_state.dart';
 import 'completion_timeline.dart';
 
@@ -64,7 +65,7 @@ class _AllActivitySectionState extends ConsumerState<AllActivitySection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'All activity',
+          context.l10n.historyAllActivity,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w800,
@@ -81,7 +82,7 @@ class _AllActivitySectionState extends ConsumerState<AllActivitySection> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _filterChip(label: 'All', value: null),
+                _filterChip(label: context.l10n.historyFilterAll, value: null),
                 for (final s in subjects)
                   _filterChip(label: s.name, value: s.id),
               ],
@@ -113,8 +114,8 @@ class _AllActivitySectionState extends ConsumerState<AllActivitySection> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: EmptyState(
                   character: character,
-                  title: 'Nothing here yet!',
-                  message: 'Be the first one to complete a chore.',
+                  title: context.l10n.historyEmptyTitle,
+                  message: context.l10n.historyEmptyBody,
                 ),
               );
             },

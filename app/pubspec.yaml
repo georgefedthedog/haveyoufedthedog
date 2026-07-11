@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any # version is pinned by flutter_localizations
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
@@ -60,7 +63,9 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  generate: true # gen_l10n: lib/l10n/*.arb -> lib/l10n/app_localizations*.dart
   assets:
+    - assets/l10n/characters/
     - assets/households/terrace/
     - assets/subjects/dog/
     - assets/subjects/cat/

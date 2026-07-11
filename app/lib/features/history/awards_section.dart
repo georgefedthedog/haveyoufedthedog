@@ -9,8 +9,89 @@ import '../../core/subjects/character.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/subjects/character_artwork.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/dashed_circle_painter.dart';
+import '../../widgets/marquee_text.dart';
 import '../profile/avatar_artwork.dart';
+
+/// Localized copy for a personality award id. The controller hands out pure
+/// ids ([MemberAward.id]); the display strings live here + in the ARB. A new
+/// award id must be added to both.
+({String title, String description, String emoji}) _memberAwardCopy(
+  AppLocalizations l10n,
+  String id,
+) => switch (id) {
+  'comeback_kid' => (
+    title: l10n.awardComebackKidTitle,
+    description: l10n.awardComebackKidDesc,
+    emoji: '📈',
+  ),
+  'early_bird' => (
+    title: l10n.awardEarlyBirdTitle,
+    description: l10n.awardEarlyBirdDesc,
+    emoji: '🌅',
+  ),
+  'night_owl' => (
+    title: l10n.awardNightOwlTitle,
+    description: l10n.awardNightOwlDesc,
+    emoji: '🦉',
+  ),
+  'on_the_dot' => (
+    title: l10n.awardOnTheDotTitle,
+    description: l10n.awardOnTheDotDesc,
+    emoji: '🎯',
+  ),
+  'weekend_warrior' => (
+    title: l10n.awardWeekendWarriorTitle,
+    description: l10n.awardWeekendWarriorDesc,
+    emoji: '💪',
+  ),
+  'tag_champion' => (
+    title: l10n.awardTagChampionTitle,
+    description: l10n.awardTagChampionDesc,
+    emoji: '🏷️',
+  ),
+  // Unknown id (shouldn't happen) - show the slug rather than crash.
+  _ => (title: id, description: '', emoji: '🏅'),
+};
+
+/// The character-voiced award title. Chain: the pack character's own voice
+/// translated into the app language → its top-level (English) voice when
+/// the app *is* English → the localized bundled voice by character id
+/// (unknown ids read in the generic voice). An untranslated pack in a
+/// non-English app deliberately falls to the localized generic rather than
+/// mixing languages.
+String characterAwardTitle(AppLocalizations l10n, Character character) {
+  final lang = l10n.localeName.split('_').first;
+  final pack = character.messages;
+  return pack?.translations[lang]?.awardTitle ??
+      (lang == 'en' ? pack?.awardTitle : null) ??
+      switch (character.id) {
+        'dog' => l10n.characterAwardTitleDog,
+        'cat' => l10n.characterAwardTitleCat,
+        'plant' => l10n.characterAwardTitlePlant,
+        'bin' => l10n.characterAwardTitleBin,
+        'fish' => l10n.characterAwardTitleFish,
+        _ => l10n.characterAwardTitleGeneric,
+      };
+}
+
+/// The thank-you line under the featured award title - same chain as
+/// [characterAwardTitle].
+String characterAwardThanks(AppLocalizations l10n, Character character) {
+  final lang = l10n.localeName.split('_').first;
+  final pack = character.messages;
+  return pack?.translations[lang]?.awardThanks ??
+      (lang == 'en' ? pack?.awardThanks : null) ??
+      switch (character.id) {
+        'dog' => l10n.characterAwardThanksDog,
+        'cat' => l10n.characterAwardThanksCat,
+        'plant' => l10n.characterAwardThanksPlant,
+        'bin' => l10n.characterAwardThanksBin,
+        'fish' => l10n.characterAwardThanksFish,
+        _ => l10n.characterAwardThanksGeneric,
+      };
+}
 
 /// The character-voiced featured awards - one card per subject in a
 /// swipeable carousel. Renders nothing when there's nothing to show.
@@ -83,7 +164,7 @@ class BadgesSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Badges',
+          context.l10n.awardsBadges,
           textAlign: TextAlign.center,
           style: Theme.of(
             context,
@@ -149,7 +230,7 @@ class _TeamEffortCard extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Team Effort',
+              context.l10n.awardsTeamEffort,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w800,
@@ -157,7 +238,7 @@ class _TeamEffortCard extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Everyone pulled their weight - the load was shared fairly',
+              context.l10n.awardsTeamEffortDesc,
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.onSurfaceVariant,
@@ -196,7 +277,7 @@ class _TeamEffortCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Unclaimed',
+                    context.l10n.awardsUnclaimed,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -496,7 +577,7 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        "LAST WEEK'S WINNER",
+                        context.l10n.awardsLastWeeksWinner,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -506,19 +587,17 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                     ),
                     const SizedBox(height: 14),
                   ],
-                  Text(
-                    "${award.subjectName}'s",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  MarqueeText(
+                    context.l10n.awardsSubjectPossessive(award.subjectName),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: inkColor,
                     ),
                   ),
-                  Text(
-                    award.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  // Auto-scrolls when a long localized title doesn't fit -
+                  // clipping would hide the punchline.
+                  MarqueeText(
+                    characterAwardTitle(context.l10n, character),
                     // headlineSmall carries the display font (Knewave).
                     style: theme.textTheme.headlineSmall?.copyWith(
                       color: inkColor,
@@ -527,9 +606,8 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                   const SizedBox(height: 6),
                   Text(
                     winner != null
-                        ? award.thanks
-                        : 'No winner last week - do the most of '
-                              "${award.subjectName}'s chores to take it next time!",
+                        ? characterAwardThanks(context.l10n, character)
+                        : context.l10n.awardsNoWinnerYet(award.subjectName),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(color: mutedInk),
@@ -549,17 +627,15 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              MarqueeText(
                                 winner!.displayName,
-                                overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: inkColor,
                                 ),
                               ),
                               Text(
-                                '${award.count} '
-                                '${award.count == 1 ? "chore" : "chores"}',
+                                context.l10n.awardsChoreCount(award.count),
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   color: mutedInk,
                                 ),
@@ -579,7 +655,7 @@ class _FeaturedAwardCardState extends ConsumerState<_FeaturedAwardCard> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Unclaimed',
+                          context.l10n.awardsUnclaimed,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: mutedInk,
                             fontWeight: FontWeight.w600,
@@ -610,6 +686,7 @@ class MemberAwardCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = _memberAwardCopy(context.l10n, award.id);
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -627,13 +704,13 @@ class MemberAwardCard extends ConsumerWidget {
                   height: 108,
                   fit: BoxFit.contain,
                   errorBuilder: (_, _, _) =>
-                      Text(award.emoji, style: const TextStyle(fontSize: 48)),
+                      Text(copy.emoji, style: const TextStyle(fontSize: 48)),
                 ),
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              award.title,
+              copy.title,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w800,
@@ -641,7 +718,7 @@ class MemberAwardCard extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              award.description,
+              copy.description,
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.onSurfaceVariant,
@@ -688,7 +765,7 @@ class MemberAwardCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Unclaimed',
+                    context.l10n.awardsUnclaimed,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),

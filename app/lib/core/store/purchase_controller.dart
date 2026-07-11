@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../household/current_household_controller.dart';
 import '../household/household_actions.dart';
+import '../l10n/app_localizations_provider.dart';
 import 'store_product.dart';
 
 part 'purchase_controller.g.dart';
@@ -64,7 +65,9 @@ class PurchaseController extends _$PurchaseController {
         state = PurchaseProgress(
           PurchasePhase.error,
           sku: product.sku,
-          message: "Couldn't start the purchase.",
+          // Purchase events arrive with no widget in scope, so this
+          // controller resolves copy via appLocalizationsProvider.
+          message: ref.read(appLocalizationsProvider).purchaseCouldNotStart,
         );
       }
     } catch (e) {
@@ -101,7 +104,9 @@ class PurchaseController extends _$PurchaseController {
           state = PurchaseProgress(
             PurchasePhase.error,
             sku: p.productID,
-            message: p.error?.message ?? 'The purchase failed.',
+            message:
+                p.error?.message ??
+                ref.read(appLocalizationsProvider).purchaseFailed,
           );
           finalize = true; // dead transaction - clear it
         case PurchaseStatus.canceled:
@@ -135,7 +140,7 @@ class PurchaseController extends _$PurchaseController {
       state = PurchaseProgress(
         PurchasePhase.error,
         sku: p.productID,
-        message: 'Choose a household before buying packs.',
+        message: ref.read(appLocalizationsProvider).purchaseNeedHousehold,
       );
       return false;
     }
@@ -151,12 +156,13 @@ class PurchaseController extends _$PurchaseController {
             // For Android this is the purchase token; for iOS, the receipt.
             purchaseToken: p.verificationData.serverVerificationData,
           );
+      final l10n = ref.read(appLocalizationsProvider);
       state = PurchaseProgress(
         PurchasePhase.success,
         sku: p.productID,
         message: result.alreadyApplied
-            ? '${result.name} is already unlocked.'
-            : '${result.name} unlocked!',
+            ? l10n.purchaseAlreadyUnlocked(result.name)
+            : l10n.purchaseUnlocked(result.name),
       );
       return true;
     } on ClientException catch (e) {
@@ -164,7 +170,8 @@ class PurchaseController extends _$PurchaseController {
         PurchasePhase.error,
         sku: p.productID,
         message:
-            e.response['message'] as String? ?? "Couldn't verify that purchase.",
+            e.response['message'] as String? ??
+            ref.read(appLocalizationsProvider).purchaseVerifyFailed,
       );
       return false;
     } catch (e) {

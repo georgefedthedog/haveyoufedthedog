@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/chores/schedule_labels.dart';
 import '../../core/chores/weekdays.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/single_select_chips.dart';
 
 /// Row of 7 toggleable day chips (Mon→Sun). State is a bitmask using
@@ -14,13 +16,14 @@ class WeekdayPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = context.l10n.localeName;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
         for (var i = 0; i < 7; i++)
           FilterChip(
-            label: Text(Weekdays.labels[i]),
+            label: Text(weekdayShort(i + 1, locale)),
             selected: (mask & Weekdays.bits[i]) != 0,
             // Our own fixed-size check avatar (see chipCheck) instead of the
             // built-in checkmark, which would widen the chip on selection.
@@ -50,11 +53,13 @@ class SingleWeekdayPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = context.l10n.localeName;
     return SingleSelectChips<int>(
       selected: selected,
       onChanged: onChanged,
       options: [
-        for (var i = 0; i < 7; i++) (value: i + 1, label: Weekdays.labels[i]),
+        for (var i = 0; i < 7; i++)
+          (value: i + 1, label: weekdayShort(i + 1, locale)),
       ],
     );
   }

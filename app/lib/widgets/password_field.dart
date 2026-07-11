@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'labeled_field.dart';
 
 /// A `TextFormField` for passwords with a built-in eye toggle. Use this in
 /// place of a raw `TextFormField` anywhere we ask for a password.
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
-  final String labelText;
+
+  /// Label above the field; null = the localized "Password".
+  final String? labelText;
   final String? helperText;
   final String? hintText;
   final Widget? prefixIcon;
@@ -18,7 +21,7 @@ class PasswordField extends StatefulWidget {
   const PasswordField({
     super.key,
     required this.controller,
-    this.labelText = 'Password',
+    this.labelText,
     this.helperText,
     this.hintText,
     this.prefixIcon,
@@ -38,7 +41,7 @@ class _PasswordFieldState extends State<PasswordField> {
   @override
   Widget build(BuildContext context) {
     return LabeledField(
-      label: widget.labelText,
+      label: widget.labelText ?? context.l10n.passwordFieldLabel,
       child: TextFormField(
         controller: widget.controller,
         obscureText: _obscured,
@@ -56,7 +59,9 @@ class _PasswordFieldState extends State<PasswordField> {
                   ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
             ),
-            tooltip: _obscured ? 'Show password' : 'Hide password',
+            tooltip: _obscured
+                ? context.l10n.passwordFieldShow
+                : context.l10n.passwordFieldHide,
             onPressed: () => setState(() => _obscured = !_obscured),
           ),
         ),

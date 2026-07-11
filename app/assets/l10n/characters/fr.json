@@ -1,0 +1,151 @@
+{
+  "dog": {
+    "lines": {
+      "allDone": [
+        {"title": "Repu, heureux, il ronfle.", "body": "{name} a passé une super journée 🐶"},
+        {"title": "Caresses méritées.", "body": "Bravo pour avoir bichonné {name}."},
+        {"title": "Meilleur humain du monde.", "body": "C'est ce que {name} pense de toi 🩵"}
+      ],
+      "overdue": [
+        {"title": "La queue attend pour remuer.", "body": "Au boulot ! 🐾"},
+        {"title": "Tu as droit au regard.", "body": "{name} te fixe 👀"},
+        {"title": "La gamelle est vide.", "body": "{name} n'arrête pas de vérifier…"}
+      ],
+      "upcoming": [
+        {"title": "Oreilles dressées !", "body": "{name} a entendu le placard s'ouvrir 🐾"},
+        {"title": "La queue s'échauffe.", "body": "{name} le sent venir."},
+        {"title": "Assis, bien sage.", "body": "{name} attend près de la gamelle."}
+      ],
+      "happyForNow": [
+        {"title": "Tranquille.", "body": "{name} passe une journée pépère."},
+        {"title": "Queue au repos, cœur content.", "body": "{name} est bien pour l'instant."},
+        {"title": "Il rêve du dîner.", "body": "{name} est roulé en boule sur le tapis."}
+      ],
+      "none": [
+        {"title": "Jour de repos !", "body": "{name} approuve 🐶"},
+        {"title": "Ne pas déranger.", "body": "{name} fait la sieste sur le tapis."}
+      ]
+    }
+  },
+  "cat": {
+    "lines": {
+      "allDone": [
+        {"title": "Pas impressionné, mais repu.", "body": "{name} veut bien l'accepter 🐱"},
+        {"title": "C'est noté.", "body": "{name} te tolérera aujourd'hui."},
+        {"title": "Ronronne. Légèrement.", "body": "Un grand compliment venant de {name}."}
+      ],
+      "overdue": [
+        {"title": "Tu es jugé.", "body": "{name} observe depuis le canapé."},
+        {"title": "Tu as oublié quelque chose.", "body": "{name} en est certain."},
+        {"title": "La gamelle est vide.", "body": "{name} le fait savoir."}
+      ],
+      "upcoming": [
+        {"title": "Sur le plan de travail. En attente.", "body": "Coïncidence ? {name} ne croit pas."},
+        {"title": "Timing parfait.", "body": "{name} vient d'apparaître dans la cuisine."},
+        {"title": "La queue frémit.", "body": "{name} sent le repas approcher."}
+      ],
+      "happyForNow": [
+        {"title": "En mode pain de mie.", "body": "Tout va bien pour {name}."},
+        {"title": "Aucune urgence.", "body": "{name} ronronne doucement."},
+        {"title": "Coin de soleil réservé.", "body": "{name} y dort profondément."}
+      ],
+      "none": [
+        {"title": "Pas besoin de toi aujourd'hui.", "body": "{name} te congédie. Circule."},
+        {"title": "Un jour de repos.", "body": "{name} approuve en silence."}
+      ]
+    }
+  },
+  "plant": {
+    "lines": {
+      "allDone": [
+        {"title": "En pleine forme.", "body": "{name} adore la vie 🌿"},
+        {"title": "Feuilles bien droites.", "body": "{name} est arrosé et content."},
+        {"title": "Poussée de croissance en vue.", "body": "{name} se sent déjà plus grand."}
+      ],
+      "overdue": [
+        {"title": "Un peu soif.", "body": "{name} prendrait bien un verre."},
+        {"title": "Les feuilles retombent.", "body": "{name} a besoin d'un coup de main."}
+      ],
+      "upcoming": [
+        {"title": "Quelque chose dans l'air.", "body": "{name} sent l'arrosoir arriver 🌱"},
+        {"title": "Penché vers le robinet.", "body": "{name} est prêt quand tu l'es."}
+      ],
+      "happyForNow": [
+        {"title": "Photosynthèse en paix.", "body": "Aucun souci avec {name}."},
+        {"title": "Feuilles hautes, bonnes ondes.", "body": "{name} se porte bien."}
+      ],
+      "none": [
+        {"title": "Pas d'arrosage aujourd'hui.", "body": "{name} est content."}
+      ]
+    }
+  },
+  "bin": {
+    "lines": {
+      "allDone": [
+        {"title": "Vide et fier.", "body": "{name} te salue 🗑️"},
+        {"title": "Sorti à l'heure.", "body": "Monde sauvé, poubelles sorties."}
+      ],
+      "overdue": [
+        {"title": "C'est l'heure.", "body": "{name} déborde…"},
+        {"title": "Le jour de collecte approche.", "body": "{name} commence à stresser."}
+      ],
+      "upcoming": [
+        {"title": "Camion en approche.", "body": "{name} roule vers le trottoir."},
+        {"title": "Préparation mentale.", "body": "{name} sait ce qui l'attend."}
+      ],
+      "happyForNow": [
+        {"title": "Petite pause tranquille.", "body": "Rien ne presse pour {name}."},
+        {"title": "Couvercle fermé, ambiance calme.", "body": "{name} attend patiemment."}
+      ],
+      "none": [
+        {"title": "Pas de collecte aujourd'hui.", "body": "{name} somnole près du portail."}
+      ]
+    }
+  },
+  "fish": {
+    "lines": {
+      "allDone": [
+        {"title": "Il glisse, bien nourri.", "body": "{name} fait des bulles d'approbation 🐟"},
+        {"title": "La belle vie d'aquarium.", "body": "{name} enchaîne les longueurs, ravi."}
+      ],
+      "overdue": [
+        {"title": "À la surface. Plein d'espoir.", "body": "{name} te regarde."},
+        {"title": "C'est l'heure du repas !", "body": "{name} a remarqué le retard."}
+      ],
+      "upcoming": [
+        {"title": "Il rôde près de la surface.", "body": "Au cas où. {name} est prêt."},
+        {"title": "Nageoires frémissantes.", "body": "{name} sent la nourriture."}
+      ],
+      "happyForNow": [
+        {"title": "Longueurs tranquilles.", "body": "{name} est tout détendu."},
+        {"title": "Bulles à la dérive.", "body": "{name} se porte bien."}
+      ],
+      "none": [
+        {"title": "Journée calme dans l'aquarium.", "body": "Rien au programme pour {name}."}
+      ]
+    }
+  },
+  "generic": {
+    "lines": {
+      "allDone": [
+        {"title": "Tout est fait !", "body": "{name} est heureux et choyé 🎉"},
+        {"title": "Beau travail.", "body": "Tout est fait pour {name} aujourd'hui."}
+      ],
+      "overdue": [
+        {"title": "Ça t'attend…", "body": "Il reste des choses à faire pour {name}."},
+        {"title": "Toujours en attente.", "body": "{name} a besoin d'un coup de main."}
+      ],
+      "upcoming": [
+        {"title": "Ça arrive bientôt.", "body": "{name} a quelque chose au programme."},
+        {"title": "C'est presque l'heure.", "body": "Bientôt quelque chose pour {name}."}
+      ],
+      "happyForNow": [
+        {"title": "Ça va pour l'instant.", "body": "{name} a des choses prévues plus tard."},
+        {"title": "Tout va bien.", "body": "Rien d'urgent pour {name}."}
+      ],
+      "none": [
+        {"title": "Rien sur la liste.", "body": "Journée libre pour {name}."}
+      ]
+    }
+  }
+}

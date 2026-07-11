@@ -6,7 +6,7 @@ part of 'routing_phase.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$routingPhaseHash() => r'13f262af698cbeea5b04dfb7e089d2fb6373e0ca';
+String _$routingPhaseHash() => r'86dbc59369dca3b8c8a1f4bf655ae4844235c878';
 
 /// Derives the current [RoutingPhase] from auth + households + current.
 ///

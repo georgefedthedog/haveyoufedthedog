@@ -8,7 +8,9 @@ import '../../core/auth/auth_state.dart';
 import '../../core/diagnostics/debug_log.dart';
 import '../../core/household/nfc_setting_highlight_controller.dart';
 import '../../core/profile/avatars.dart';
+import '../../core/storage/app_locale_controller.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/confirm_by_typing.dart';
@@ -16,6 +18,15 @@ import '../../widgets/glow_highlight.dart';
 import '../../widgets/labeled_field.dart';
 import '../store/browse_packs_button.dart';
 import 'avatar_picker.dart';
+
+/// Endonyms for the language dropdown - each language named in itself, so
+/// they are deliberately not localized.
+const _languageNames = {
+  'en': 'English',
+  'de': 'Deutsch',
+  'fr': 'Français',
+  'es': 'Español',
+};
 
 /// Edit the current user's profile - email is read-only, name is editable.
 /// Also hosts the Log out action.
@@ -57,6 +68,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     try {
       await ref
           .read(authControllerProvider.notifier)
@@ -67,7 +79,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) router.go(Routes.youTab);
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotSave('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -78,24 +93,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _deleteAccount() async {
     final confirmed = await confirmByTyping(
       context,
-      title: 'Delete your account?',
-      body:
-          'This permanently deletes your account and signs you out. '
-          'Chores you completed stay with your household, without '
-          'your name on them. Households left with nobody in them '
-          'are deleted entirely.\n\nThis cannot be undone.',
-      actionLabel: 'Delete forever',
+      title: context.l10n.deleteAccountTitle,
+      body: context.l10n.deleteAccountBody,
+      actionLabel: context.l10n.deleteForever,
     );
     if (!confirmed || !mounted) return;
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       await ref.read(authControllerProvider.notifier).deleteAccount();
     } catch (e) {
       messenger.showSnackBar(
         SnackBar(
           showCloseIcon: true,
-          content: Text('Could not delete account: $e'),
+          content: Text(l10n.couldNotDeleteAccount('$e')),
         ),
       );
       if (mounted) setState(() => _busy = false);
@@ -146,10 +158,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: Text(context.l10n.editProfileTitle),
         actions: [
           IconButton(
-            tooltip: 'Delete account',
+            tooltip: context.l10n.deleteAccountTooltip,
             icon: const Icon(Icons.delete_outline),
             onPressed: _busy ? null : _deleteAccount,
           ),
@@ -168,7 +180,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   onChanged: (id) => setState(() => _avatar = id),
                 ),
               ),
-              const BrowsePacksButton(label: 'Get more avatars →'),
+              BrowsePacksButton(label: context.l10n.browseMoreAvatars),
               const SizedBox(height: 16),
               Card(
                 child: Padding(
@@ -177,15 +189,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       LabeledField(
-                        label: 'Display name',
+                        label: context.l10n.displayNameLabel,
                         child: TextFormField(
                           controller: _nameCtrl,
-                          decoration: const InputDecoration(
-                            hintText: 'How others in your household see you',
+                          decoration: InputDecoration(
+                            hintText: context.l10n.profileNameHint,
                           ),
                           textInputAction: TextInputAction.done,
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Required'
+                              ? context.l10n.commonRequired
                               : null,
                           onChanged: (_) => setState(() {}),
                           onFieldSubmitted: (_) => _save(),
@@ -193,23 +205,74 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                       const SizedBox(height: 16),
                       LabeledField(
-                        label: 'Email',
+                        label: context.l10n.authEmailLabel,
                         child: TextFormField(
                           key: const ValueKey('email-field'),
                           initialValue: auth.email ?? '',
                           readOnly: true,
-                          decoration: const InputDecoration(
-                            helperText: "Email can't be changed.",
+                          decoration: InputDecoration(
+                            helperText: context.l10n.emailCantChange,
                           ),
                         ),
                       ),
                       const SizedBox(height: 24),
                       FilledButton.icon(
                         icon: const Icon(Icons.check),
-                        label: const Text('Save changes'),
+                        label: Text(context.l10n.commonSaveChanges),
                         onPressed: (_isDirty(auth) && !_busy) ? _save : null,
                       ),
                     ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Builder(
+                    builder: (context) {
+                      final stored = ref
+                          .watch(appLocaleControllerProvider)
+                          .valueOrNull
+                          ?.languageCode;
+                      return LabeledField(
+                        label: context.l10n.profileLanguageLabel,
+                        child: DropdownButtonFormField<String>(
+                          // Recreate when the stored value changes so a
+                          // late prefs load still shows the right pick.
+                          key: ValueKey('language-${stored ?? ''}'),
+                          initialValue: stored ?? '',
+                          items: [
+                            DropdownMenuItem(
+                              value: '',
+                              child: Text(
+                                context.l10n.profileLanguageSystemDefault,
+                              ),
+                            ),
+                            for (final locale
+                                in AppLocalizations.supportedLocales)
+                              DropdownMenuItem(
+                                value: locale.languageCode,
+                                child: Text(
+                                  _languageNames[locale.languageCode] ??
+                                      locale.languageCode,
+                                ),
+                              ),
+                          ],
+                          // Saves immediately - device preference, not
+                          // part of the profile Save.
+                          onChanged: _busy
+                              ? null
+                              : (code) => ref
+                                    .read(appLocaleControllerProvider.notifier)
+                                    .setLocale(
+                                      (code == null || code.isEmpty)
+                                          ? null
+                                          : Locale(code),
+                                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -240,15 +303,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Complete chore on tap',
+                                    context.l10n.nfcCompleteOnTap,
                                     style: theme.textTheme.titleSmall?.copyWith(
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   Text(
                                     completesChore
-                                        ? 'Tapping a tag completes the current chore.'
-                                        : "Tapping a tag opens the thing's page.",
+                                        ? context.l10n.nfcTapCompletesDesc
+                                        : context.l10n.nfcTapOpensDesc,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: scheme.onSurfaceVariant,
                                     ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 /// Shown when a signed-in user taps a *claim* link. Claiming is a fresh
 /// sign-up that takes over a managed member, so it can't be applied to an
 /// account you're already in (we don't merge accounts). This explains the two
@@ -10,42 +12,31 @@ Future<bool> showClaimWhileSignedInDialog(BuildContext context) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text("You're already signed in"),
-      content: const SingleChildScrollView(
+      title: Text(ctx.l10n.claimSignedInTitle),
+      content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Claim links set up a brand-new sign-in for a member someone "
-              "created for you. They can't be added to an account you're "
-              "already signed in to - we don't merge accounts.",
-            ),
-            SizedBox(height: 14),
-            Text('If this code is for you:'),
-            SizedBox(height: 10),
-            Text(
-              "• Keep this account - stay signed in as you, and ask whoever "
-              "sent the link for a household join link instead.",
-            ),
-            SizedBox(height: 8),
-            Text(
-              "• Become that member - delete this account, then the claim "
-              "opens automatically. Your completed chores stay with the "
-              "household.",
-            ),
+            Text(ctx.l10n.claimSignedInBody),
+            const SizedBox(height: 14),
+            Text(ctx.l10n.claimSignedInIfForYou),
+            const SizedBox(height: 10),
+            Text(ctx.l10n.claimSignedInKeepOption),
+            const SizedBox(height: 8),
+            Text(ctx.l10n.claimSignedInBecomeOption),
           ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('Keep my account'),
+          child: Text(ctx.l10n.claimKeepAccount),
         ),
         TextButton(
           style: TextButton.styleFrom(foregroundColor: scheme.error),
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('Delete account & claim'),
+          child: Text(ctx.l10n.claimDeleteAndClaim),
         ),
       ],
     ),

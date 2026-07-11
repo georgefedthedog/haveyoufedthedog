@@ -5,6 +5,7 @@ import '../../core/completions/awards_controller.dart';
 import '../../core/completions/household_history_controller.dart';
 import '../../core/completions/stats_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/page_title.dart';
 import '../rewards/streak_reward_bar.dart';
 import 'awards_section.dart';
@@ -35,17 +36,17 @@ class HistoryTabScreen extends ConsumerWidget {
           error: (e, _) => ListView(
             padding: EdgeInsets.fromLTRB(16, topInset, 16, 0),
             children: [
-              const PageTitle(text: 'Awards'),
+              PageTitle(text: context.l10n.historyAwardsTitle),
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Could not load history: $e'),
+                child: Text(context.l10n.subjectHistoryLoadFailed('$e')),
               ),
             ],
           ),
           data: (_) => ListView(
             padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
             children: [
-              const PageTitle(text: 'Awards'),
+              PageTitle(text: context.l10n.historyAwardsTitle),
               const _StatsStrip(),
               const SizedBox(height: 20),
               if (hh != null) ...[
@@ -87,7 +88,7 @@ class _StatsStrip extends ConsumerWidget {
                   _StatSegment(
                     glyph: const Text('🔥', style: TextStyle(fontSize: 20)),
                     value: '$streak',
-                    label: streak == 1 ? 'Day streak' : 'Day streak',
+                    label: context.l10n.historyDayStreak,
                   ),
                   const VerticalDivider(width: 1),
                   _StatSegment(
@@ -97,13 +98,13 @@ class _StatsStrip extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                     value: '${thisWeek.total}',
-                    label: 'This week',
+                    label: context.l10n.historyThisWeek,
                   ),
                   const VerticalDivider(width: 1),
                   _StatSegment(
                     glyph: const Text('✨', style: TextStyle(fontSize: 20)),
                     value: '$sweeps',
-                    label: sweeps == 1 ? 'Clean sweep' : 'Clean sweeps',
+                    label: context.l10n.historyCleanSweeps(sweeps),
                   ),
                 ],
               ),
@@ -136,23 +137,29 @@ class _StatSegment extends StatelessWidget {
         children: [
           glyph,
           const SizedBox(width: 8),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
+          // Flexible + ellipsis so a long localized label squeezes instead
+          // of overflowing the fixed-width segment.
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-              ),
-              Text(
-                label,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

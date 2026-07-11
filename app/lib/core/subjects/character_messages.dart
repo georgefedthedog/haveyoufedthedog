@@ -22,10 +22,18 @@ class CharacterMessages {
   /// Override for the thank-you line under the featured award; null = generic.
   final String? awardThanks;
 
+  /// Per-language translations of this voice, parsed from a sibling `i18n`
+  /// key: `{"lines": {...}, "i18n": {"de": {"lines": {...}}, ...}}`. Keyed
+  /// by bare language code. The released (pre-i18n) app's parser reads only
+  /// the three keys above, so adding `i18n` to live rows is backward
+  /// compatible. Always empty on the nested translations themselves.
+  final Map<String, CharacterMessages> translations;
+
   const CharacterMessages({
     this.lines = const {},
     this.awardTitle,
     this.awardThanks,
+    this.translations = const {},
   });
 
   /// Parses the decoded `messages` JSON value (a `Map`, or anything else /
@@ -56,13 +64,28 @@ class CharacterMessages {
     final awardTitle = str(raw['awardTitle']);
     final awardThanks = str(raw['awardThanks']);
 
-    if (lines.isEmpty && awardTitle == null && awardThanks == null) {
+    final translations = <String, CharacterMessages>{};
+    final i18nRaw = raw['i18n'];
+    if (i18nRaw is Map) {
+      i18nRaw.forEach((lang, payload) {
+        if (lang is! String || lang.isEmpty) return;
+        // A nested i18n inside a translation is ignored by this same parse.
+        final parsed = fromJson(payload);
+        if (parsed != null) translations[lang] = parsed;
+      });
+    }
+
+    if (lines.isEmpty &&
+        awardTitle == null &&
+        awardThanks == null &&
+        translations.isEmpty) {
       return null;
     }
     return CharacterMessages(
       lines: lines,
       awardTitle: awardTitle,
       awardThanks: awardThanks,
+      translations: translations,
     );
   }
 }

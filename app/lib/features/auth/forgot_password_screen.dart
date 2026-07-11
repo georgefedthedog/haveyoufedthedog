@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/labeled_field.dart';
 
 /// "Forgot password?" - takes an email, asks PB to send a reset link,
@@ -50,7 +51,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             showCloseIcon: true,
-            content: Text('Could not send the reset email: $e'),
+            content: Text(context.l10n.authResetEmailFailed('$e')),
           ),
         );
       }
@@ -65,7 +66,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final scheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset password'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(context.l10n.authResetPasswordTitle),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Align(
           alignment: const Alignment(0, -0.4),
@@ -98,8 +102,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No worries - it happens to the best of us.\n'
-            "We'll email you a link to set a new one.",
+            context.l10n.authResetIntro,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: scheme.onSurfaceVariant,
@@ -107,7 +110,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 24),
           LabeledField(
-            label: 'Email',
+            label: context.l10n.authEmailLabel,
             child: TextFormField(
               controller: _emailCtrl,
               enabled: !_busy,
@@ -115,12 +118,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               autofillHints: const [AutofillHints.email],
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.mail_outline),
+              decoration: InputDecoration(
+                hintText: context.l10n.authEmailHint,
+                prefixIcon: const Icon(Icons.mail_outline),
               ),
-              validator: (v) =>
-                  (v == null || !v.contains('@')) ? 'Enter your email' : null,
+              validator: (v) => (v == null || !v.contains('@'))
+                  ? context.l10n.authEmailHint
+                  : null,
             ),
           ),
           const SizedBox(height: 24),
@@ -132,7 +136,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Send reset link'),
+                : Text(context.l10n.authSendResetLink),
           ),
         ],
       ),
@@ -147,7 +151,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         Icon(Icons.mark_email_read_outlined, size: 64, color: scheme.primary),
         const SizedBox(height: 16),
         Text(
-          'Check your inbox!',
+          context.l10n.authCheckInbox,
           textAlign: TextAlign.center,
           style: theme.textTheme.titleLarge?.copyWith(
             color: scheme.primary,
@@ -156,9 +160,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          "If there's an account for ${_emailCtrl.text.trim()}, "
-          'a reset link is on its way. Follow it to set a new '
-          'password, then log in here.',
+          context.l10n.authResetSent(_emailCtrl.text.trim()),
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: scheme.onSurfaceVariant,
@@ -167,7 +169,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         const SizedBox(height: 24),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Back to log in'),
+          child: Text(context.l10n.authBackToLogin),
         ),
       ],
     );

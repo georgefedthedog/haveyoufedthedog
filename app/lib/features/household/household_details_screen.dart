@@ -12,6 +12,7 @@ import '../../core/household/household_actions.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/household/households_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/confirm_by_typing.dart';
 import '../../widgets/dashed_circle_painter.dart';
@@ -44,19 +45,19 @@ class HouseholdDetailsScreen extends ConsumerWidget {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
-        appBar: AppBar(title: const Text('Household')),
-        body: Center(child: Text('Error: $e')),
+        appBar: AppBar(title: Text(context.l10n.householdTitle)),
+        body: Center(child: Text(context.l10n.commonErrorDetails('$e'))),
       ),
       data: (households) {
         final household = _findHousehold(households);
         if (household == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Household')),
-            body: const Center(
+            appBar: AppBar(title: Text(context.l10n.householdTitle)),
+            body: Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Text(
-                  "You're no longer a member of this household.",
+                  context.l10n.householdNoLonger,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -70,7 +71,7 @@ class HouseholdDetailsScreen extends ConsumerWidget {
               if (household.isOwner)
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Delete household',
+                  tooltip: context.l10n.householdDeleteTooltip,
                   onPressed: () => _confirmAndDelete(context, ref, household),
                 ),
             ],
@@ -89,10 +90,8 @@ Future<void> _confirmAndDelete(
 ) async {
   final confirmed = await confirmByTyping(
     context,
-    title: 'Delete ${household.name}?',
-    body:
-        'All subjects, chores and history for this household will be '
-        'permanently removed for everyone in it. This cannot be undone.',
+    title: context.l10n.commonDeleteTitle(household.name),
+    body: context.l10n.householdDeleteBody,
   );
   if (!confirmed) return;
   try {
@@ -116,11 +115,9 @@ Future<void> _confirmAndLeave(
 ) async {
   final confirmed = await _confirm(
     context,
-    title: 'Leave ${household.name}?',
-    body:
-        "You won't see this household's chores or completions any more. "
-        'You can re-join later with an invite code.',
-    action: 'Leave',
+    title: context.l10n.householdLeaveTitle(household.name),
+    body: context.l10n.householdLeaveBody,
+    action: context.l10n.householdLeave,
   );
   if (!confirmed) return;
   try {
@@ -151,7 +148,7 @@ Future<bool> _confirm(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('Cancel'),
+          child: Text(ctx.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -172,10 +169,8 @@ Future<bool> _confirm(
 Future<bool> _confirmDeleteManaged(BuildContext context, String name) {
   return confirmByTyping(
     context,
-    title: 'Delete $name?',
-    body:
-        '$name is a managed member and this removes them completely. '
-        'Their past completions still count but will show as "Someone".',
+    title: context.l10n.commonDeleteTitle(name),
+    body: context.l10n.householdDeleteManagedBody(name),
   );
 }
 
@@ -288,6 +283,7 @@ class _BodyState extends ConsumerState<_Body> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
     final newName = _nameCtrl.text.trim();
     try {
       await ref
@@ -306,7 +302,9 @@ class _BodyState extends ConsumerState<_Body> {
       messenger.showSnackBar(
         SnackBar(
           showCloseIcon: true,
-          content: Text(e.response['message'] as String? ?? 'Save failed'),
+          content: Text(
+            e.response['message'] as String? ?? l10n.householdSaveFailed,
+          ),
         ),
       );
       if (mounted) setState(() => _busy = false);
@@ -399,7 +397,7 @@ class _BodyState extends ConsumerState<_Body> {
                   setState(() => _stagedPicture = pictureId),
             ),
           ),
-          const BrowsePacksButton(label: 'Get more homes →'),
+          BrowsePacksButton(label: context.l10n.browseMoreHomes),
           const SizedBox(height: 24),
           Card(
             child: Padding(
@@ -408,7 +406,7 @@ class _BodyState extends ConsumerState<_Body> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   LabeledField(
-                    label: 'Household name',
+                    label: context.l10n.householdNameLabel,
                     child: TextField(
                       controller: _nameCtrl,
                       enabled: isOwner && !_busy,
@@ -418,13 +416,13 @@ class _BodyState extends ConsumerState<_Body> {
                   ),
                   const SizedBox(height: 16),
                   LabeledField(
-                    label: 'Who lives here?',
+                    label: context.l10n.householdResidentsLabel,
                     child: TextField(
                       controller: _residentsCtrl,
                       enabled: isOwner && !_busy,
                       textInputAction: TextInputAction.done,
-                      decoration: const InputDecoration(
-                        hintText: 'The Goodchilds',
+                      decoration: InputDecoration(
+                        hintText: context.l10n.householdResidentsHint,
                       ),
                       onChanged: (_) => setState(() {}),
                       onSubmitted: (_) {
@@ -441,7 +439,7 @@ class _BodyState extends ConsumerState<_Body> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.check),
-                    label: const Text('Save changes'),
+                    label: Text(context.l10n.commonSaveChanges),
                     onPressed: (_isDirty && !_busy) ? _save : null,
                   ),
                   const SizedBox(height: 10),
@@ -465,7 +463,7 @@ class _BodyState extends ConsumerState<_Body> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'Timezone: $tz',
+                              context.l10n.householdTimezone(tz),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: scheme.onSurfaceVariant,
                               ),
@@ -474,7 +472,7 @@ class _BodyState extends ConsumerState<_Body> {
                           if (mismatch)
                             TextButton(
                               onPressed: _busy ? null : _setTimezoneToPhone,
-                              child: const Text("Use this phone's"),
+                              child: Text(context.l10n.householdUsePhoneTz),
                             ),
                         ],
                       );
@@ -495,7 +493,7 @@ class _BodyState extends ConsumerState<_Body> {
                   // plain 'Members' otherwise. The getter already maps
                   // blank to null.
                   Text(
-                    h.residents ?? 'Members',
+                    h.residents ?? context.l10n.householdMembersFallback,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -535,7 +533,7 @@ class _AddSomeoneSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Add someone',
+              context.l10n.addSomeoneTitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
@@ -544,10 +542,8 @@ class _AddSomeoneSheet extends StatelessWidget {
             const SizedBox(height: 16),
             _AddOptionCard(
               icon: Icons.group_add_outlined,
-              title: 'Invite someone with a login',
-              subtitle:
-                  'Family or flatmates who sign in on their own phone. They '
-                  'join with a code and log their own chores.',
+              title: context.l10n.addInviteTitle,
+              subtitle: context.l10n.addInviteSubtitle,
               onTap: () {
                 Navigator.of(context).pop();
                 onInvite();
@@ -556,11 +552,8 @@ class _AddSomeoneSheet extends StatelessWidget {
             const SizedBox(height: 12),
             _AddOptionCard(
               icon: Icons.manage_accounts_outlined,
-              title: 'Add someone without a login',
-              subtitle:
-                  'For anyone without their own login. You manage their '
-                  "profile, and log their chores by switching to them with "
-                  "'Whose turn?' on the You tab.",
+              title: context.l10n.addManagedTitle,
+              subtitle: context.l10n.addManagedSubtitle,
               onTap: () {
                 Navigator.of(context).pop();
                 onManaged();
@@ -688,11 +681,10 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
   /// kept in the text as a fallback for manual entry. The sheet's own "Copy"
   /// action covers the old copy-to-clipboard behaviour.
   Future<void> _share(String code) async {
+    final l10n = context.l10n;
     await Share.share(
-      'Join our household on Have You Fed The Dog?\n'
-      'https://haveyoufedthedog.com/join?code=$code\n\n'
-      "If the link doesn't open the app, open it and enter invite code $code",
-      subject: 'Have You Fed The Dog? - household invite',
+      l10n.inviteShareText(code),
+      subject: l10n.inviteShareSubject,
     );
   }
 
@@ -721,13 +713,13 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Invite someone',
+                          context.l10n.inviteSomeone,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         Text(
-                          'Invite family or flatmates',
+                          context.l10n.inviteSubtitle,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
@@ -745,7 +737,9 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          isOpen ? 'Invites are on' : 'Invites are off',
+                          isOpen
+                              ? context.l10n.invitesOn
+                              : context.l10n.invitesOff,
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -783,7 +777,7 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Live until you turn invites off',
+                      context.l10n.inviteLiveUntil,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -794,14 +788,14 @@ class _InviteSettingsState extends ConsumerState<_InviteSettings> {
                 Center(
                   child: FilledButton.icon(
                     icon: const Icon(Icons.share),
-                    label: const Text('Share code'),
+                    label: Text(context.l10n.shareCode),
                     onPressed: _busy ? null : () => _share(code),
                   ),
                 ),
                 if (isOwner)
                   TextButton.icon(
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Generate new code'),
+                    label: Text(context.l10n.generateNewCode),
                     onPressed: _busy ? null : _rotate,
                   ),
               ],
@@ -891,15 +885,12 @@ class _MembersListState extends ConsumerState<_MembersList> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Remove ${m.displayName}?'),
-        content: Text(
-          '${m.displayName} will lose access to this household immediately. '
-          'They can re-join later with an invite code.',
-        ),
+        title: Text(ctx.l10n.memberRemoveTitle(m.displayName)),
+        content: Text(ctx.l10n.memberRemoveBody(m.displayName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -907,7 +898,7 @@ class _MembersListState extends ConsumerState<_MembersList> {
               foregroundColor: Theme.of(ctx).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
+            child: Text(ctx.l10n.memberRemove),
           ),
         ],
       ),
@@ -944,7 +935,7 @@ class _MembersListState extends ConsumerState<_MembersList> {
       error: (e, _) => Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Text('Could not load members: $e'),
+          child: Text(context.l10n.membersLoadFailed('$e')),
         ),
       ),
       data: (members) {
@@ -979,7 +970,7 @@ class _MembersListState extends ConsumerState<_MembersList> {
             if (!widget.viewerIsOwner)
               Builder(
                 builder: (binContext) => _RemoveBinChip(
-                  label: 'Leave',
+                  label: context.l10n.householdLeave,
                   onDrop: (_) =>
                       _confirmAndLeave(binContext, ref, widget.household),
                   onTap: _wiggle.poke,
@@ -990,8 +981,8 @@ class _MembersListState extends ConsumerState<_MembersList> {
                 builder: (binContext) {
                   // Owners can't drag their own chip, so it's never a "leave".
                   final label = _draggingMember!.isManaged
-                      ? 'Delete'
-                      : 'Remove';
+                      ? context.l10n.commonDelete
+                      : context.l10n.memberRemove;
                   return _RemoveBinChip(
                     label: label,
                     onDrop: (m) => m.isManaged
@@ -1026,7 +1017,7 @@ class _RemoveBinChip extends StatelessWidget {
 
   const _RemoveBinChip({
     required this.onDrop,
-    this.label = 'Remove',
+    required this.label,
     this.onTap,
   });
 
@@ -1092,7 +1083,9 @@ class _MemberChip extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final avatar = ref.watch(catalogProvider).lookupAvatar(member.avatar);
-    final label = isMe ? '${member.displayName} (you)' : member.displayName;
+    final label = isMe
+        ? context.l10n.leaderboardYouSuffix(member.displayName)
+        : member.displayName;
 
     // Corner badge: a red cross while being dragged to the bin (matches the
     // manage-chores chip), else an owner star or a managed-member marker.
@@ -1142,7 +1135,7 @@ class _MemberChip extends ConsumerWidget {
           ),
           if (member.isOwner)
             Text(
-              'Owner',
+              context.l10n.memberOwner,
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: scheme.primary,
@@ -1223,7 +1216,7 @@ class _AddMemberChip extends StatelessWidget {
           SizedBox(
             width: 80,
             child: Text(
-              'Add',
+              context.l10n.commonAdd,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
@@ -1283,6 +1276,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context);
+    final l10n = context.l10n;
     final actions = ref.read(householdActionsProvider);
     final name = _nameCtrl.text.trim();
     try {
@@ -1305,13 +1299,18 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
       messenger.showSnackBar(
         SnackBar(
           showCloseIcon: true,
-          content: Text(e.response['message'] as String? ?? 'Save failed'),
+          content: Text(
+            e.response['message'] as String? ?? l10n.householdSaveFailed,
+          ),
         ),
       );
       if (mounted) setState(() => _busy = false);
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not save: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotSave('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -1327,6 +1326,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context);
+    final l10n = context.l10n;
     try {
       await ref
           .read(householdActionsProvider)
@@ -1337,7 +1337,10 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
       if (mounted) nav.pop();
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(showCloseIcon: true, content: Text('Could not delete: $e')),
+        SnackBar(
+          showCloseIcon: true,
+          content: Text(l10n.commonCouldNotDelete('$e')),
+        ),
       );
       if (mounted) setState(() => _busy = false);
     }
@@ -1369,12 +1372,10 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
   /// Shares a tappable claim link (opens the app to a pre-filled Sign-up in
   /// claim mode), with the literal code kept as a manual fallback.
   Future<void> _shareClaim(String code) async {
+    final l10n = context.l10n;
     await Share.share(
-      'Claim your account on Have You Fed The Dog?\n'
-      'https://haveyoufedthedog.com/claim?code=$code\n\n'
-      "If the link doesn't open the app, open it, tap Sign up, and enter "
-      'claim code $code',
-      subject: 'Have You Fed The Dog? - claim your account',
+      l10n.claimShareText(code),
+      subject: l10n.claimShareSubject,
     );
   }
 
@@ -1399,13 +1400,13 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Give them their own login',
+                        context.l10n.claimLoginTitle,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
-                        'Let them claim this account and sign in themselves',
+                        context.l10n.claimLoginSubtitle,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -1433,7 +1434,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'They enter this on Sign up. Live until you turn it off.',
+                context.l10n.claimCodeInfo,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
@@ -1443,13 +1444,13 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
               Center(
                 child: FilledButton.icon(
                   icon: const Icon(Icons.share),
-                  label: const Text('Share code'),
+                  label: Text(context.l10n.shareCode),
                   onPressed: _claimBusy ? null : () => _shareClaim(_claimCode),
                 ),
               ),
               TextButton.icon(
                 icon: const Icon(Icons.refresh),
-                label: const Text('Generate new code'),
+                label: Text(context.l10n.generateNewCode),
                 onPressed: _claimBusy ? null : () => _setClaimOpen(true),
               ),
             ],
@@ -1477,11 +1478,15 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit member' : 'Add member'),
+        title: Text(
+          _isEdit
+              ? context.l10n.editMemberTitle
+              : context.l10n.addMemberTitle,
+        ),
         actions: [
           if (_isEdit)
             IconButton(
-              tooltip: 'Delete member',
+              tooltip: context.l10n.deleteMemberTooltip,
               icon: const Icon(Icons.delete_outline),
               onPressed: _busy ? null : _delete,
             ),
@@ -1500,7 +1505,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
                   onChanged: (id) => setState(() => _avatar = id),
                 ),
               ),
-              const BrowsePacksButton(label: 'Get more avatars →'),
+              BrowsePacksButton(label: context.l10n.browseMoreAvatars),
               const SizedBox(height: 16),
               Card(
                 child: Padding(
@@ -1509,16 +1514,16 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       LabeledField(
-                        label: 'Display name',
+                        label: context.l10n.displayNameLabel,
                         child: TextFormField(
                           controller: _nameCtrl,
-                          decoration: const InputDecoration(
-                            hintText: 'How this member appears to everyone',
+                          decoration: InputDecoration(
+                            hintText: context.l10n.memberNameHint,
                           ),
                           textCapitalization: TextCapitalization.words,
                           textInputAction: TextInputAction.done,
                           validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Required'
+                              ? context.l10n.commonRequired
                               : null,
                           onChanged: (_) => setState(() {}),
                           onFieldSubmitted: (_) => _save(),
@@ -1535,7 +1540,7 @@ class _ManagedMemberScreenState extends ConsumerState<_ManagedMemberScreen> {
                                 ),
                               )
                             : const Icon(Icons.check),
-                        label: const Text('Save changes'),
+                        label: Text(context.l10n.commonSaveChanges),
                         onPressed: (_isDirty && !_busy) ? _save : null,
                       ),
                     ],

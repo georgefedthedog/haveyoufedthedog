@@ -13,6 +13,7 @@ import '../../core/completions/reward_streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_actions.dart';
 import '../../core/household/picture.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../core/subjects/character.dart';
 import '../../core/subjects/character_artwork.dart';
@@ -124,7 +125,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
     final canClaim = ready && focused != null && !_busy;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Free rewards')),
+      appBar: AppBar(title: Text(context.l10n.rewardsTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -141,16 +142,16 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
             ),
             const SizedBox(height: 20),
             SegmentedButton<RewardKind>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: RewardKind.character,
-                  label: Text('Characters'),
-                  icon: Icon(Icons.pets),
+                  label: Text(context.l10n.rewardsCharacters),
+                  icon: const Icon(Icons.pets),
                 ),
                 ButtonSegment(
                   value: RewardKind.picture,
-                  label: Text('Houses'),
-                  icon: Icon(Icons.home_outlined),
+                  label: Text(context.l10n.rewardsHouses),
+                  icon: const Icon(Icons.home_outlined),
                 ),
               ],
               selected: {_kind},
@@ -197,23 +198,21 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                   : const Icon(Icons.card_giftcard),
               label: Text(
                 !ready
-                    ? 'Streak $streak / $threshold to claim'
+                    ? context.l10n.rewardsStreakToClaim(streak, threshold)
                     : focused == null
-                    ? 'Nothing to claim'
-                    : 'Claim',
+                    ? context.l10n.rewardsNothingToClaim
+                    : context.l10n.rewardsClaim,
               ),
             ),
             const SizedBox(height: 28),
             _SectionHeader(
               _kind == RewardKind.character
-                  ? 'Choose a character'
-                  : 'Choose a house',
+                  ? context.l10n.rewardsChooseCharacter
+                  : context.l10n.rewardsChooseHouse,
             ),
             const SizedBox(height: 12),
             if (earnable.isEmpty)
-              _EmptyNote(
-                "You've unlocked everything here - more art lands over time.",
-              )
+              _EmptyNote(context.l10n.rewardsAllUnlocked)
             else
               _Tray(
                 items: earnable,
@@ -233,12 +232,10 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _SectionHeader('Your Collection'),
+                      _SectionHeader(context.l10n.rewardsYourCollection),
                       const SizedBox(height: 12),
                       if (collectedChars.isEmpty && collectedPics.isEmpty)
-                        _EmptyNote(
-                          'Nothing yet - build a streak and claim your first.',
-                        )
+                        _EmptyNote(context.l10n.rewardsCollectionEmpty)
                       else
                         _CollectedWrap(
                           items: [...collectedChars, ...collectedPics],
@@ -257,6 +254,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
   Future<void> _claim(String householdId, _RewardItem item) async {
     setState(() => _busy = true);
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       final res = await ref
           .read(householdActionsProvider)
@@ -272,7 +270,7 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
       });
       if (res.alreadyUnlocked) {
         messenger.showSnackBar(
-          SnackBar(content: Text('${item.displayName} is already yours.')),
+          SnackBar(content: Text(l10n.rewardsAlreadyYours(item.displayName))),
         );
       } else {
         // Confetti splash with the claimed item, then reveal it landing in
@@ -284,8 +282,8 @@ class _RewardsScreenState extends ConsumerState<RewardsScreen> {
       if (!mounted) return;
       setState(() => _busy = false);
       final msg = e is ClientException
-          ? (e.response['message'] as String? ?? 'Could not claim that reward.')
-          : 'Could not claim that reward.';
+          ? (e.response['message'] as String? ?? l10n.rewardsClaimFailed)
+          : l10n.rewardsClaimFailed;
       messenger.showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
     }
   }
@@ -529,7 +527,7 @@ class _StageState extends State<_Stage> with SingleTickerProviderStateMixin {
                     shape: const CircleBorder(),
                     elevation: 2,
                     child: IconButton(
-                      tooltip: 'Surprise me',
+                      tooltip: context.l10n.avatarSurpriseMe,
                       color: scheme.onSecondaryContainer,
                       icon: const Icon(Icons.casino),
                       onPressed: widget.onSurprise,
@@ -778,7 +776,9 @@ class _ProgressHeader extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                ready ? 'Claim your reward below!' : 'Your reward streak',
+                ready
+                    ? context.l10n.rewardsClaimYourReward
+                    : context.l10n.rewardsYourStreak,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -806,10 +806,10 @@ class _ProgressHeader extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           redeemedToday
-              ? 'Congratulations! Start again and earn another reward.'
+              ? context.l10n.rewardsRedeemedToday
               : ready
-              ? 'Pick a reward to add it to your collection.'
-              : 'Keep your daily streak going to earn a free character or house.',
+              ? context.l10n.rewardsPickReward
+              : context.l10n.rewardsKeepStreak,
           style: theme.textTheme.bodySmall?.copyWith(
             color: scheme.onSurfaceVariant,
           ),
@@ -824,13 +824,13 @@ class _ProgressHeader extends StatelessWidget {
             onTap: () => context.push(Routes.store),
             child: Text.rich(
               TextSpan(
-                text: "Can't wait? ",
+                text: '${context.l10n.rewardsCantWait} ',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
                 children: [
                   TextSpan(
-                    text: 'Get more here',
+                    text: context.l10n.rewardsGetMoreHere,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: scheme.primary,
                       fontWeight: FontWeight.w700,
@@ -946,7 +946,7 @@ class _ClaimCelebrationState extends State<_ClaimCelebration>
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Unlocked!',
+                      context.l10n.rewardsUnlockedBang,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w800,
@@ -973,7 +973,7 @@ class _ClaimCelebrationState extends State<_ClaimCelebration>
                           vertical: 16,
                         ),
                       ),
-                      child: const Text('View Collection'),
+                      child: Text(context.l10n.rewardsViewCollection),
                     ),
                   ],
                 ),

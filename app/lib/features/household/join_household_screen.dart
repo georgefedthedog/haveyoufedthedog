@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
 import 'join_household_form.dart';
 
 /// Standalone "Join by invite code" screen, reachable from the picker or from
@@ -14,7 +15,7 @@ class JoinHouseholdScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Join household')),
+      appBar: AppBar(title: Text(context.l10n.joinHouseholdTitle)),
       body: SafeArea(child: JoinHouseholdForm(initialCode: initialCode)),
     );
   }

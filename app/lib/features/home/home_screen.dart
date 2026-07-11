@@ -23,6 +23,7 @@ import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/wiggle.dart';
@@ -125,7 +126,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final asyncSubjects = ref.watch(subjectsControllerProvider);
 
     final householdName =
-        asyncCurrent.valueOrNull?.name ?? 'Have You Fed The Dog?';
+        asyncCurrent.valueOrNull?.name ?? context.l10n.appTitle;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -205,9 +206,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: EmptyState(
                         character: CharacterRegistry.generic,
-                        title: 'Hmm, something went sideways',
-                        message: 'Could not load your things. $e',
-                        actionLabel: 'Try again',
+                        title: context.l10n.homeErrorTitle,
+                        message: context.l10n.homeErrorBody('$e'),
+                        actionLabel: context.l10n.commonTryAgain,
                         onAction: () => ref
                             .read(subjectsControllerProvider.notifier)
                             .refresh(),
@@ -234,11 +235,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           child: EmptyState(
                             character: greeter,
-                            title: 'No things yet',
-                            message:
-                                'Add a dog, cat, plant, or whatever else needs '
-                                'looking after.',
-                            actionLabel: 'Add a thing',
+                            title: context.l10n.subjectsEmptyTitle,
+                            message: context.l10n.subjectsEmptyBody,
+                            actionLabel: context.l10n.subjectsAddThing,
                             actionIcon: Icons.pets,
                             onAction: () => context.push(Routes.subjectNew),
                           ),
@@ -321,7 +320,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         ),
                                         const SizedBox(height: 16),
                                         Text(
-                                          'Nothing due today 🎉',
+                                          context.l10n.homeNothingDueToday,
                                           textAlign: TextAlign.center,
                                           style: Theme.of(
                                             context,
@@ -334,7 +333,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               )
                             else ...[
                               Text(
-                                "Today's chores",
+                                context.l10n.homeTodaysChores,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(fontWeight: FontWeight.w800),
@@ -343,7 +342,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: Text(
-                                  'Tap to complete',
+                                  context.l10n.homeTapToComplete,
                                   textAlign: TextAlign.center,
                                   style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
@@ -569,11 +568,11 @@ class _TodaySummaryCard extends StatelessWidget {
     final allDone = total > 0 && done == total;
 
     final title = allDone
-        ? 'All chores done today!'
+        ? context.l10n.homeSummaryAllDone
         : done == 0
-        ? "Let's get started!"
-        : 'Good progress. Keep it up!';
-    final subtitle = '$done of $total completed';
+        ? context.l10n.homeSummaryStart
+        : context.l10n.homeSummaryKeepUp;
+    final subtitle = context.l10n.homeSummaryCount(done, total);
 
     // Fixed lavender pair (rather than scheme.primaryContainer) so the
     // card reads as the same soft purple in light AND dark mode - matches

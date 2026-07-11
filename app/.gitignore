@@ -1,5 +1,6 @@
 # Flutter / Dart
 .dart_tool/
+untranslated.json
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/

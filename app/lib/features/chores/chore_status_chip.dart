@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/chores/chore.dart';
-import '../../core/chores/schedule_rule.dart';
+import '../../core/chores/schedule_labels.dart';
 import '../../core/completions/completion.dart';
+import '../../l10n/l10n.dart';
 
 /// Pill showing one chore's status for today. Outlined when outstanding
 /// (shows scheduled time); filled green when completed (shows the actual
@@ -31,11 +32,15 @@ class ChoreStatusChip extends StatelessWidget {
         ? Colors.green.shade900
         : scheme.onSurfaceVariant;
 
+    final locale = context.l10n.localeName;
     final time = _isCompleted
-        ? ScheduleRule.formatClock(completion!.completedAt.hour,
-            completion!.completedAt.minute)
-        : ScheduleRule.formatClock(
-            chore.rule.timeOfDay.hour, chore.rule.timeOfDay.minute);
+        ? formatClock(
+            completion!.completedAt.hour,
+            completion!.completedAt.minute,
+            locale,
+          )
+        : formatClock(chore.rule.timeOfDay.hour, chore.rule.timeOfDay.minute,
+            locale);
     final label = '${chore.name} · $time';
 
     return InkWell(

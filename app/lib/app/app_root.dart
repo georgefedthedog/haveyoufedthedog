@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/auth/auth_controller.dart';
 import '../core/deeplink/pending_deep_link.dart';
+import '../core/l10n/app_localizations_provider.dart';
 import '../core/notifications/fcm_token_sync.dart';
+import '../core/profile/locale_sync.dart';
+import '../core/storage/app_locale_controller.dart';
 import '../core/store/purchase_controller.dart';
 import '../features/deeplink/claim_signed_in_dialog.dart';
 import '../features/deeplink/deep_link_handler.dart';
 import '../features/nfc/nfc_launch_handler.dart';
+import '../l10n/l10n.dart';
 import '../router/app_router.dart';
 import '../router/routes.dart';
 import '../router/routing_phase.dart';
@@ -117,12 +121,9 @@ class _AppRootState extends ConsumerState<AppRoot> {
       }
       final confirmed = await confirmByTyping(
         ctx,
-        title: 'Delete your account?',
-        body:
-            'This permanently deletes your account and signs you out, then '
-            'opens the claim sign-up. Chores you completed stay with your '
-            'household, without your name on them.\n\nThis cannot be undone.',
-        actionLabel: 'Delete forever',
+        title: ctx.l10n.deleteAccountTitle,
+        body: ctx.l10n.claimDeleteBody,
+        actionLabel: ctx.l10n.deleteForever,
       );
       if (!confirmed) {
         notifier.clear(); // backed out - don't let it resurface
@@ -136,7 +137,9 @@ class _AppRootState extends ConsumerState<AppRoot> {
       rootMessengerKey.currentState?.showSnackBar(
         SnackBar(
           showCloseIcon: true,
-          content: Text('Could not delete account: $e'),
+          content: Text(
+            ref.read(appLocalizationsProvider).couldNotDeleteAccount('$e'),
+          ),
         ),
       );
     } finally {
@@ -154,6 +157,9 @@ class _AppRootState extends ConsumerState<AppRoot> {
     // auth changes and pushes the FCM token to PB whenever it should.
     ref.watch(fcmTokenSyncProvider);
 
+    // Same trick for users.locale - the server localizes pushes with it.
+    ref.watch(localeSyncProvider);
+
     // Mount the purchase controller for the app's lifetime so out-of-band
     // purchase completions (slow card auth, Restore) are always handled.
     ref.watch(purchaseControllerProvider);
@@ -168,7 +174,11 @@ class _AppRootState extends ConsumerState<AppRoot> {
 
     final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
-      title: 'Have You Fed The Dog?',
+      onGenerateTitle: (context) => context.l10n.appTitle,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      // null = follow the device language (the controller's default).
+      locale: ref.watch(appLocaleControllerProvider).valueOrNull,
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: rootMessengerKey,
       theme: lightTheme,

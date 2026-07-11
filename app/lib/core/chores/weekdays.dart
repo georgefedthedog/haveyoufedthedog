@@ -18,6 +18,7 @@ class Weekdays {
   /// True if [mask] includes [day]'s weekday.
   static bool contains(int mask, DateTime day) => (mask & bitFor(day)) != 0;
 
-  static const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // Weekday display names come from `schedule_labels.dart`
+  // (weekdayShort / weekdayFull) - they're locale-aware.
   static const bits = [mon, tue, wed, thu, fri, sat, sun];
 }

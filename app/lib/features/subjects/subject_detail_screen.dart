@@ -13,9 +13,11 @@ import '../../core/completions/streak_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/character_artwork.dart';
 import '../../core/subjects/character_message.dart';
+import '../../core/subjects/character_voice_provider.dart';
 import '../../core/subjects/subject.dart';
 import '../../core/subjects/subject_mood_controller.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../chores/chore_row.dart';
 import '../history/completion_timeline.dart';
@@ -35,7 +37,7 @@ class SubjectDetailScreen extends ConsumerWidget {
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         appBar: AppBar(),
-        body: Center(child: Text('Error: $e')),
+        body: Center(child: Text(context.l10n.commonErrorDetails('$e'))),
       ),
       data: (subjects) {
         Subject? subject;
@@ -117,6 +119,9 @@ class _Hero extends ConsumerWidget {
       character: character,
       mood: mood,
       subjectName: subject.name,
+      locale: context.l10n.localeName,
+      // Empty while the locale file loads - the English table covers the gap.
+      voices: ref.watch(bundledCharacterVoicesProvider).valueOrNull ?? const {},
     );
 
     final streak = ref.watch(subjectStreakProvider(subject.id));
@@ -146,7 +151,7 @@ class _Hero extends ConsumerWidget {
                   top: 0,
                   right: 0,
                   child: Tooltip(
-                    message: 'NFC tag written',
+                    message: context.l10n.subjectNfcTagWritten,
                     child: Icon(
                       Icons.nfc,
                       size: 20,
@@ -261,7 +266,7 @@ class _StreakPill extends StatelessWidget {
           const Text('🔥', style: TextStyle(fontSize: 16)),
           const SizedBox(width: 4),
           Text(
-            '$streak-day streak',
+            context.l10n.subjectStreakDays(streak),
             style: const TextStyle(
               color: AppColors.streakOrange,
               fontWeight: FontWeight.w800,
@@ -306,7 +311,7 @@ class _TodaySection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          "Today's chores",
+          context.l10n.homeTodaysChores,
           textAlign: TextAlign.center,
           style: Theme.of(
             context,
@@ -314,7 +319,7 @@ class _TodaySection extends ConsumerWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          'Tap to complete',
+          context.l10n.homeTapToComplete,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -323,7 +328,7 @@ class _TodaySection extends ConsumerWidget {
         const SizedBox(height: 12),
         if (dueToday.isEmpty)
           Text(
-            'Nothing due today 🎉',
+            context.l10n.homeNothingDueToday,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           )
@@ -349,7 +354,7 @@ class _TodaySection extends ConsumerWidget {
               ref.read(manageChoresHighlightProvider.notifier).request();
               context.push(Routes.subjectEdit(subject.id));
             },
-            child: const Text('Manage chores →'),
+            child: Text(context.l10n.subjectManageChoresLink),
           ),
         ),
       ],
@@ -371,7 +376,7 @@ class _HistorySection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Completed chores',
+          context.l10n.subjectCompletedChores,
           textAlign: TextAlign.center,
           style: Theme.of(
             context,
@@ -380,7 +385,7 @@ class _HistorySection extends ConsumerWidget {
         Center(
           child: TextButton(
             onPressed: () => context.go('${Routes.home}?subject=${subject.id}'),
-            child: const Text('See all →'),
+            child: Text(context.l10n.subjectSeeAll),
           ),
         ),
         const SizedBox(height: 8),
@@ -391,14 +396,14 @@ class _HistorySection extends ConsumerWidget {
           ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text('Could not load history: $e'),
+            child: Text(context.l10n.subjectHistoryLoadFailed('$e')),
           ),
           data: (list) {
             if (list.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'No completions logged yet.',
+                  context.l10n.subjectNoCompletions,
                   textAlign: TextAlign.center,
                 ),
               );

@@ -9,6 +9,7 @@ import '../../core/completions/streak_controller.dart';
 import '../../core/household/acting_user_controller.dart';
 import '../../core/household/current_household_controller.dart';
 import '../../core/household/households_controller.dart';
+import '../../core/l10n/app_localizations_provider.dart';
 import '../../core/nfc/nfc_service.dart';
 import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../core/subjects/subject.dart';
@@ -53,10 +54,14 @@ class NfcLaunchHandler {
         final households = await _ref.read(householdsControllerProvider.future);
         if (!households.any((h) => h.id == householdId)) {
           messenger?.showSnackBar(
-            const SnackBar(
+            SnackBar(
               showCloseIcon: true,
-              duration: Duration(seconds: 5),
-              content: Text("You're not a member of this tag's household."),
+              duration: const Duration(seconds: 5),
+              // No widget context on this path - resolve copy via the
+              // context-less localizations provider.
+              content: Text(
+                _ref.read(appLocalizationsProvider).nfcNotMemberHousehold,
+              ),
             ),
           );
           return;
@@ -72,14 +77,14 @@ class NfcLaunchHandler {
       }
       await _run(
         (actions) => actions.findById(subjectId),
-        notFound: "That tag points to something that isn't in this household.",
+        notFound: _ref.read(appLocalizationsProvider).nfcTagNotInHousehold,
       );
     } catch (e) {
       messenger?.showSnackBar(
         SnackBar(
           showCloseIcon: true,
           duration: const Duration(seconds: 5),
-          content: Text('NFC log failed: $e'),
+          content: Text(_ref.read(appLocalizationsProvider).nfcLogFailed('$e')),
         ),
       );
     }
@@ -101,10 +106,12 @@ class NfcLaunchHandler {
       final hh = await _ref.read(currentHouseholdControllerProvider.future);
       if (hh == null) {
         messenger?.showSnackBar(
-          const SnackBar(
+          SnackBar(
             showCloseIcon: true,
-            duration: Duration(seconds: 5),
-            content: Text('Sign in and pick a household to use NFC tags.'),
+            duration: const Duration(seconds: 5),
+            content: Text(
+              _ref.read(appLocalizationsProvider).nfcSignInFirst,
+            ),
           ),
         );
         return;

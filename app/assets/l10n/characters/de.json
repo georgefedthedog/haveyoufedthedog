@@ -1,0 +1,151 @@
+{
+  "dog": {
+    "lines": {
+      "allDone": [
+        {"title": "Satt, glücklich, am Schnarchen.", "body": "{name} hatte einen tollen Tag 🐶"},
+        {"title": "Streicheleinheiten verdient.", "body": "Gut gemacht - {name} ist bestens versorgt."},
+        {"title": "Bester Mensch überhaupt.", "body": "Das denkt {name} über dich 🩵"}
+      ],
+      "overdue": [
+        {"title": "Schwanzwedeln in Warteschleife.", "body": "Ran an die Arbeit! 🐾"},
+        {"title": "Du bekommst den Blick.", "body": "{name} starrt dich an 👀"},
+        {"title": "Der Napf ist leer.", "body": "{name} schaut immer wieder nach…"}
+      ],
+      "upcoming": [
+        {"title": "Ohren gespitzt!", "body": "{name} hat gerade den Schrank gehört 🐾"},
+        {"title": "Gleich wedelt was.", "body": "{name} spürt es kommen."},
+        {"title": "Sitzt ganz brav.", "body": "{name} wartet am Napf."}
+      ],
+      "happyForNow": [
+        {"title": "Alles entspannt.", "body": "{name} hat einen ruhigen Tag."},
+        {"title": "Rute auf Halbmast, Herz zufrieden.", "body": "{name} ist erstmal zufrieden."},
+        {"title": "Träumt vom Abendessen.", "body": "{name} liegt eingerollt auf dem Teppich."}
+      ],
+      "none": [
+        {"title": "Freier Tag!", "body": "{name} ist einverstanden 🐶"},
+        {"title": "Bitte nicht stören.", "body": "{name} macht ein Nickerchen auf dem Teppich."}
+      ]
+    }
+  },
+  "cat": {
+    "lines": {
+      "allDone": [
+        {"title": "Unbeeindruckt, aber satt.", "body": "{name} lässt es durchgehen 🐱"},
+        {"title": "Zur Kenntnis genommen.", "body": "{name} duldet dich heute."},
+        {"title": "Schnurrt. Ein bisschen.", "body": "Ein Riesenlob von {name}."}
+      ],
+      "overdue": [
+        {"title": "Du wirst beurteilt.", "body": "{name} beobachtet vom Sofa aus."},
+        {"title": "Du hast etwas vergessen.", "body": "{name} ist sich ganz sicher."},
+        {"title": "Der Napf ist leer.", "body": "{name} macht es unmissverständlich klar."}
+      ],
+      "upcoming": [
+        {"title": "Auf der Arbeitsplatte. Wartet.", "body": "Zufall? {name} glaubt nicht daran."},
+        {"title": "Perfektes Timing.", "body": "{name} ist gerade in der Küche aufgetaucht."},
+        {"title": "Die Schwanzspitze zuckt.", "body": "{name} spürt: Essen naht."}
+      ],
+      "happyForNow": [
+        {"title": "Entspannt in Brotform.", "body": "Bei {name} ist alles gut."},
+        {"title": "Keine Notfälle.", "body": "{name} schnurrt leise."},
+        {"title": "Sonnenfleck gesichert.", "body": "{name} schläft mittendrin."}
+      ],
+      "none": [
+        {"title": "Heute nicht gebraucht.", "body": "{name} entlässt dich. Weitergehen."},
+        {"title": "Ein Ruhetag.", "body": "{name} nickt stumm."}
+      ]
+    }
+  },
+  "plant": {
+    "lines": {
+      "allDone": [
+        {"title": "Blüht richtig auf.", "body": "{name} genießt das Leben 🌿"},
+        {"title": "Blätter stehen stramm.", "body": "{name} ist gegossen und glücklich."},
+        {"title": "Wachstumsschub im Anmarsch.", "body": "{name} fühlt sich jetzt schon größer."}
+      ],
+      "overdue": [
+        {"title": "Etwas durstig.", "body": "{name} hätte gern einen Schluck."},
+        {"title": "Die Blätter hängen.", "body": "{name} braucht Hilfe."}
+      ],
+      "upcoming": [
+        {"title": "Etwas liegt in der Luft.", "body": "{name} spürt die Gießkanne kommen 🌱"},
+        {"title": "Lehnt Richtung Wasserhahn.", "body": "{name} ist bereit, wenn du es bist."}
+      ],
+      "happyForNow": [
+        {"title": "Photosynthese in Frieden.", "body": "Kein Stress mit {name}."},
+        {"title": "Blätter hoch, Stimmung gut.", "body": "{name} geht es prima."}
+      ],
+      "none": [
+        {"title": "Heute kein Gießen.", "body": "{name} ist zufrieden."}
+      ]
+    }
+  },
+  "bin": {
+    "lines": {
+      "allDone": [
+        {"title": "Leer und stolz.", "body": "{name} salutiert 🗑️"},
+        {"title": "Pünktlich draußen.", "body": "Welt gerettet, Tonne raus."}
+      ],
+      "overdue": [
+        {"title": "Es ist so weit.", "body": "{name} quillt über…"},
+        {"title": "Der Abfuhrtag naht.", "body": "{name} wird langsam nervös."}
+      ],
+      "upcoming": [
+        {"title": "Müllwagen im Anflug.", "body": "{name} rollt zur Bordsteinkante."},
+        {"title": "Mentale Vorbereitung.", "body": "{name} weiß, was kommt."}
+      ],
+      "happyForNow": [
+        {"title": "Kurze Verschnaufpause.", "body": "Für {name} eilt heute nichts."},
+        {"title": "Deckel zu, alles ruhig.", "body": "{name} wartet geduldig."}
+      ],
+      "none": [
+        {"title": "Heute keine Abfuhr.", "body": "{name} döst am Tor."}
+      ]
+    }
+  },
+  "fish": {
+    "lines": {
+      "allDone": [
+        {"title": "Gleitet satt durchs Wasser.", "body": "{name} blubbert zustimmend 🐟"},
+        {"title": "Aquarienleben vom Feinsten.", "body": "{name} dreht fröhliche Runden."}
+      ],
+      "overdue": [
+        {"title": "An der Oberfläche. Erwartungsvoll.", "body": "{name} beobachtet dich."},
+        {"title": "Fütterungszeit!", "body": "{name} hat die Verspätung bemerkt."}
+      ],
+      "upcoming": [
+        {"title": "Lauert nahe der Oberfläche.", "body": "Nur für den Fall. {name} ist bereit."},
+        {"title": "Flossen zucken.", "body": "{name} wittert Futter."}
+      ],
+      "happyForNow": [
+        {"title": "Gemütliche Runden.", "body": "{name} ist tiefenentspannt."},
+        {"title": "Blubberblasen treiben.", "body": "{name} geht es gut."}
+      ],
+      "none": [
+        {"title": "Ein ruhiger Tag im Becken.", "body": "Nichts los für {name}."}
+      ]
+    }
+  },
+  "generic": {
+    "lines": {
+      "allDone": [
+        {"title": "Alles erledigt!", "body": "{name} ist glücklich und versorgt 🎉"},
+        {"title": "Gut gemacht.", "body": "Heute ist alles für {name} erledigt."}
+      ],
+      "overdue": [
+        {"title": "Wartet auf dich…", "body": "Für {name} ist noch etwas offen."},
+        {"title": "Noch nicht erledigt.", "body": "{name} braucht Hilfe."}
+      ],
+      "upcoming": [
+        {"title": "Steht bald an.", "body": "{name} hat gleich etwas auf dem Plan."},
+        {"title": "Fast so weit.", "body": "Bald ist etwas für {name} dran."}
+      ],
+      "happyForNow": [
+        {"title": "Erstmal alles gut.", "body": "{name} hat später noch etwas."},
+        {"title": "Alles bestens.", "body": "Nichts Dringendes für {name}."}
+      ],
+      "none": [
+        {"title": "Nichts auf der Liste.", "body": "Ein freier Tag für {name}."}
+      ]
+    }
+  }
+}

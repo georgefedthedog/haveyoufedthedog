@@ -10,6 +10,7 @@ import '../core/subjects/character_artwork.dart';
 import '../core/subjects/subject.dart';
 import '../core/subjects/subjects_controller.dart';
 import '../features/profile/avatar_artwork.dart';
+import '../l10n/l10n.dart';
 import '../router/routes.dart';
 import '../widgets/dashed_circle_painter.dart';
 
@@ -37,16 +38,25 @@ class RootNavShell extends ConsumerStatefulWidget {
 
 class _RootNavShellState extends ConsumerState<RootNavShell> {
   // All solid glyphs: there's no hollow paw in any icon font, so the
-  // other three match it rather than the paw sticking out.
-  static const _items = <_NavItem>[
-    _NavItem(label: 'Home', icon: Icons.home, path: Routes.home),
-    _NavItem(label: 'Things', icon: Icons.pets, path: Routes.subjectsTab),
+  // other three match it rather than the paw sticking out. Built per
+  // build because the labels are localized.
+  List<_NavItem> _items(BuildContext context) => [
+    _NavItem(label: context.l10n.navHome, icon: Icons.home, path: Routes.home),
     _NavItem(
-      label: 'Awards',
+      label: context.l10n.navThings,
+      icon: Icons.pets,
+      path: Routes.subjectsTab,
+    ),
+    _NavItem(
+      label: context.l10n.navAwards,
       icon: Icons.emoji_events,
       path: Routes.historyTab,
     ),
-    _NavItem(label: 'You', icon: Icons.person, path: Routes.youTab),
+    _NavItem(
+      label: context.l10n.youTabTitle,
+      icon: Icons.person,
+      path: Routes.youTab,
+    ),
   ];
 
   late final PageController _controller = PageController(
@@ -122,12 +132,12 @@ class _RootNavShellState extends ConsumerState<RootNavShell> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _quickAddChore,
-        tooltip: 'Add a chore',
+        tooltip: context.l10n.navAddChore,
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _BottomBar(
-        items: _items,
+        items: _items(context),
         currentIndex: widget.shell.currentIndex,
         onTap: _goBranch,
       ),
@@ -303,7 +313,7 @@ class _SubjectPickerSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Add a chore for…',
+              context.l10n.navAddChoreFor,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
@@ -416,7 +426,7 @@ class _NewThingTile extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'New thing',
+              context.l10n.editSubjectNewTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,

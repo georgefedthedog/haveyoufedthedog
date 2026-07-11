@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/completions/reward_streak_controller.dart';
 import '../../core/household/current_household_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import 'wiggling_present.dart';
 
@@ -56,8 +57,8 @@ class StreakRewardBar extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               ready
-                                  ? 'Free reward available!'
-                                  : 'Free reward streak',
+                                  ? context.l10n.rewardsBarAvailable
+                                  : context.l10n.rewardsBarStreak,
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
                               ),

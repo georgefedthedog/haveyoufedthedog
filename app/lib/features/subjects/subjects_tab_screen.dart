@@ -6,6 +6,7 @@ import '../../core/chores/chores_controller.dart';
 import '../../core/completions/today_completions_controller.dart';
 import '../../core/subjects/characters.dart';
 import '../../core/subjects/subjects_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/page_title.dart';
@@ -22,10 +23,9 @@ class SubjectsTabScreen extends ConsumerWidget {
 
     // Title lives inside the scroll views (PageTitle) so it scrolls out
     // of the way instead of content sliding under a fixed bar.
-    const title = PageTitle(
-      text: 'Things',
-      subtitle:
-          "Sometimes friends, often just stuff. These are the things you look after or don't want to forget.",
+    final title = PageTitle(
+      text: context.l10n.subjectsTabTitle,
+      subtitle: context.l10n.subjectsTabSubtitle,
     );
 
     // Status-bar inset as scroll padding, not SafeArea: content starts
@@ -50,7 +50,7 @@ class SubjectsTabScreen extends ConsumerWidget {
               title,
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: Text('Could not load things: $e'),
+                child: Text(context.l10n.subjectsLoadFailed('$e')),
               ),
             ],
           ),
@@ -64,11 +64,9 @@ class SubjectsTabScreen extends ConsumerWidget {
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: EmptyState(
                       character: CharacterRegistry.cat,
-                      title: 'No things yet',
-                      message:
-                          'Add a dog, cat, plant, or whatever else needs '
-                          'looking after.',
-                      actionLabel: 'Add a thing',
+                      title: context.l10n.subjectsEmptyTitle,
+                      message: context.l10n.subjectsEmptyBody,
+                      actionLabel: context.l10n.subjectsAddThing,
                       actionIcon: Icons.pets,
                       onAction: () => context.push(Routes.subjectNew),
                     ),
@@ -91,7 +89,7 @@ class SubjectsTabScreen extends ConsumerWidget {
                       child: FilledButton.icon(
                         onPressed: () => context.push(Routes.subjectNew),
                         icon: const Icon(Icons.pets),
-                        label: const Text('Add a thing'),
+                        label: Text(context.l10n.subjectsAddThing),
                       ),
                     ),
                   );

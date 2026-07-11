@@ -10,6 +10,7 @@ import '../../core/household/current_household_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/drop_target_circle.dart';
 import '../../widgets/glow_highlight.dart';
@@ -42,7 +43,7 @@ class YouTabScreen extends ConsumerWidget {
       body: ListView(
         padding: EdgeInsets.fromLTRB(16, topInset + 8, 16, 96),
         children: [
-          const PageTitle(text: 'You'),
+          PageTitle(text: context.l10n.youTabTitle),
           Card(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
@@ -77,7 +78,7 @@ class YouTabScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    name.isEmpty ? '(no name set)' : name,
+                    name.isEmpty ? context.l10n.youNoName : name,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -98,7 +99,7 @@ class YouTabScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           const _ActAsCard(),
           Text(
-            'Moving day?',
+            context.l10n.movingDay,
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
@@ -107,7 +108,7 @@ class YouTabScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           _AccountActionsCard(
             avatar: avatar,
-            name: name.isEmpty ? 'You' : name,
+            name: name.isEmpty ? context.l10n.commonYou : name,
             onSwitchHousehold: () => context.push(Routes.householdPicker),
             onLogout: () => ref.read(authControllerProvider.notifier).logout(),
           ),
@@ -202,7 +203,7 @@ class _AccountActionsCardState extends State<_AccountActionsCard> {
               children: [
                 DropTargetCircle<bool>(
                   icon: Icons.swap_horiz,
-                  label: 'Switch household',
+                  label: context.l10n.switchHousehold,
                   baseColor: theme.colorScheme.primary,
                   labelWidth: 110,
                   onDrop: (_) => widget.onSwitchHousehold(),
@@ -211,7 +212,7 @@ class _AccountActionsCardState extends State<_AccountActionsCard> {
                 const SizedBox(height: 16),
                 DropTargetCircle<bool>(
                   icon: Icons.logout,
-                  label: 'Log out',
+                  label: context.l10n.commonLogOut,
                   baseColor: Colors.red.shade300,
                   hoverColor: Colors.red,
                   labelWidth: 110,
@@ -319,7 +320,7 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Whose turn?',
+          context.l10n.whoseTurn,
           textAlign: TextAlign.center,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w800,
@@ -327,7 +328,7 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Log chores on behalf of another member',
+          context.l10n.whoseTurnSubtitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall?.copyWith(
             color: scheme.onSurfaceVariant,
@@ -359,7 +360,9 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              "${actingName ?? 'Someone'}'s turn",
+                              context.l10n.actingTurn(
+                                actingName ?? context.l10n.commonSomeone,
+                              ),
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: scheme.onSecondaryContainer,
                                 fontWeight: FontWeight.w600,
@@ -369,7 +372,7 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
                           TextButton(
                             onPressed: () =>
                                 _run(() => notifier.revertToSelf()),
-                            child: const Text('My turn again'),
+                            child: Text(context.l10n.myTurnAgain),
                           ),
                         ],
                       ),
@@ -380,7 +383,7 @@ class _ActAsCardState extends ConsumerState<_ActAsCard> {
                     children: [
                       _ActAsChip(
                         avatar: catalog.lookupAvatar(auth?.avatar),
-                        label: 'You',
+                        label: context.l10n.commonYou,
                         selected: !actingIsOther,
                         onTap: () => _run(() => notifier.revertToSelf()),
                       ),

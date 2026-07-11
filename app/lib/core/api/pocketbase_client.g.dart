@@ -6,7 +6,7 @@ part of 'pocketbase_client.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$pocketbaseClientHash() => r'c900560531629b042433d9c981bc3c8316043f2e';
+String _$pocketbaseClientHash() => r'53f9e1a860b64fb26ed7753f3e99dc158aa7d57b';
 
 /// Async-initialised PocketBase client. Reads any persisted auth token
 /// from secure storage so the user stays signed in across launches.

@@ -7,6 +7,8 @@ import '../../core/completions/stats_controller.dart';
 import '../../core/household/household_member.dart';
 import '../../core/household/household_members_controller.dart';
 import '../../core/profile/avatar.dart';
+import '../../l10n/l10n.dart';
+import '../../widgets/marquee_text.dart';
 import '../profile/avatar_artwork.dart';
 
 /// Renders the current week's per-member completion counts as a podium for
@@ -44,7 +46,7 @@ class Leaderboard extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'No chores completed yet this week!',
+                  context.l10n.leaderboardEmpty,
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               ),
@@ -65,8 +67,10 @@ class Leaderboard extends ConsumerWidget {
 
     String nameFor(String userId) {
       final m = memberByUserId[userId];
-      if (m == null) return 'Someone';
-      return userId == myUserId ? '${m.displayName} (you)' : m.displayName;
+      if (m == null) return context.l10n.commonSomeone;
+      return userId == myUserId
+          ? context.l10n.leaderboardYouSuffix(m.displayName)
+          : m.displayName;
     }
 
     final catalog = ref.watch(catalogProvider);
@@ -78,7 +82,7 @@ class Leaderboard extends ConsumerWidget {
       children: [
         if (!dense) ...[
           Text(
-            'This week',
+            context.l10n.historyThisWeek,
             textAlign: TextAlign.center,
             style: Theme.of(
               context,
@@ -232,11 +236,10 @@ class _PodiumColumn extends StatelessWidget {
       children: [
         avatarArt,
         const SizedBox(height: 4),
-        Text(
+        // Scrolls when a name + "(you)" suffix outgrows the narrow podium
+        // column; the parent Column still centres it when it fits.
+        MarqueeText(
           slot.userId == null ? '-' : nameOf(slot.userId!),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall?.copyWith(
             fontWeight: FontWeight.w700,
           ),

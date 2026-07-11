@@ -11,6 +11,7 @@ import '../../core/household/household_actions.dart';
 import '../../core/store/purchase_controller.dart';
 import '../../core/store/store_controller.dart';
 import '../../core/store/store_product.dart';
+import '../../l10n/l10n.dart';
 import '../../widgets/drop_target_circle.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/wiggle.dart';
@@ -45,11 +46,11 @@ class StoreScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Image packs'),
+        title: Text(context.l10n.storeTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.restore),
-            tooltip: 'Restore purchases',
+            tooltip: context.l10n.storeRestoreTooltip,
             onPressed: busy
                 ? null
                 : () => ref.read(purchaseControllerProvider.notifier).restore(),
@@ -70,9 +71,9 @@ class StoreScreen extends ConsumerWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
             ],
-            error: (e, _) => [_Message("Couldn't load the shop.\n$e")],
+            error: (e, _) => [_Message(context.l10n.storeLoadFailed('$e'))],
             data: (products) => products.isEmpty
-                ? [const _Message('No packs available yet.\nCheck back soon!')]
+                ? [_Message(context.l10n.storeNoPacks)]
                 : [
                     for (var i = 0; i < products.length; i++) ...[
                       if (i > 0) const SizedBox(height: 16),
@@ -210,7 +211,7 @@ class _SupportNote extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Made by one man and his dog. No ads. No subscriptions. Packs support the app.',
+                    context.l10n.storeSupportNote,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -252,9 +253,7 @@ class _AppliesToNote extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(
-                text:
-                    'Packs you buy or redeem and rewards are unlocked for all '
-                    'members of ',
+                text: '${context.l10n.storeAppliesTo} ',
                 children: [
                   TextSpan(
                     text: householdName,
@@ -312,6 +311,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
 
   Future<void> _apply() async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     setState(() => _busy = true);
     try {
       final result = await ref
@@ -330,8 +330,8 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
           showCloseIcon: true,
           content: Text(
             result.alreadyApplied
-                ? '${result.name} is already applied.'
-                : '${result.name} applied!',
+                ? l10n.storeAlreadyApplied(result.name)
+                : l10n.storeApplied(result.name),
           ),
         ),
       );
@@ -340,7 +340,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
         SnackBar(
           showCloseIcon: true,
           content: Text(
-            e.response['message'] as String? ?? 'Could not apply that code',
+            e.response['message'] as String? ?? l10n.storeCodeFailed,
           ),
         ),
       );
@@ -447,13 +447,13 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Redeem a code',
+                          context.l10n.storeRedeemTitle,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         Text(
-                          'Unlock a pack with a gift code',
+                          context.l10n.storeRedeemSubtitle,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
@@ -522,14 +522,14 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                       children: [
                         const SizedBox(height: 16),
                         LabeledField(
-                          label: 'Pack code',
+                          label: context.l10n.storePackCodeLabel,
                           child: TextField(
                             controller: _codeCtrl,
                             enabled: !_busy,
                             textCapitalization: TextCapitalization.characters,
                             textInputAction: TextInputAction.done,
-                            decoration: const InputDecoration(
-                              hintText: 'WOOF-2026',
+                            decoration: InputDecoration(
+                              hintText: context.l10n.storePackCodeHint,
                             ),
                             onChanged: (_) => setState(() {}),
                           ),
@@ -547,7 +547,7 @@ class _PackSettingsState extends ConsumerState<_PackSettings> {
                               ),
                               DropTargetCircle<String>(
                                 icon: Icons.redeem,
-                                label: 'Apply pack',
+                                label: context.l10n.storeApplyPack,
                                 baseColor: theme.colorScheme.primary,
                                 labelWidth: 110,
                                 labelMaxLines: 1,
@@ -661,7 +661,11 @@ class _ProductCard extends ConsumerWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.shopping_bag_outlined),
-                label: Text(thisPending ? 'Working…' : 'Buy  ${product.price}'),
+                label: Text(
+                  thisPending
+                      ? context.l10n.storeWorking
+                      : context.l10n.storeBuy(product.price),
+                ),
                 onPressed: busy
                     ? null
                     : () => ref
@@ -687,7 +691,7 @@ class _OwnedPill extends StatelessWidget {
         Icon(Icons.check_circle, size: 18, color: scheme.primary),
         const SizedBox(width: 6),
         Text(
-          'Owned',
+          context.l10n.storeOwned,
           style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700),
         ),
       ],

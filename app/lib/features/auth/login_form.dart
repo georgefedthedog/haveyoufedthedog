@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/labeled_field.dart';
 import '../../widgets/password_field.dart';
@@ -43,8 +44,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       TextInput.finishAutofillContext();
       // Router will redirect to /home automatically because auth state changed.
     } on ClientException catch (e) {
-      final msg = e.response['message'] as String? ?? 'Login failed';
       if (mounted) {
+        final msg =
+            e.response['message'] as String? ?? context.l10n.authLoginFailed;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(showCloseIcon: true, content: Text(msg)));
@@ -52,7 +54,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(showCloseIcon: true, content: Text('Login failed: $e')),
+          SnackBar(
+            showCloseIcon: true,
+            content: Text(context.l10n.authLoginFailedDetails('$e')),
+          ),
         );
       }
     } finally {
@@ -69,28 +74,30 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             LabeledField(
-              label: 'Email',
+              label: context.l10n.authEmailLabel,
               child: TextFormField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your email',
-                  prefixIcon: Icon(Icons.mail_outline),
+                decoration: InputDecoration(
+                  hintText: context.l10n.authEmailHint,
+                  prefixIcon: const Icon(Icons.mail_outline),
                 ),
-                validator: (v) =>
-                    (v == null || !v.contains('@')) ? 'Enter your email' : null,
+                validator: (v) => (v == null || !v.contains('@'))
+                    ? context.l10n.authEmailHint
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
             PasswordField(
               controller: _passwordCtrl,
-              hintText: 'Enter your password',
+              hintText: context.l10n.authPasswordHint,
               prefixIcon: const Icon(Icons.lock_outline),
               onFieldSubmitted: (_) => _submit(),
-              validator: (v) =>
-                  (v == null || v.isEmpty) ? 'Enter your password' : null,
+              validator: (v) => (v == null || v.isEmpty)
+                  ? context.l10n.authPasswordHint
+                  : null,
             ),
             Align(
               alignment: Alignment.centerRight,
@@ -99,7 +106,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   Routes.forgotPassword,
                   extra: _emailCtrl.text.trim(),
                 ),
-                child: const Text('Forgot password?'),
+                child: Text(context.l10n.authForgotPassword),
               ),
             ),
             const SizedBox(height: 8),
@@ -111,7 +118,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                       width: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Log in'),
+                  : Text(context.l10n.authLogIn),
             ),
           ],
         ),
