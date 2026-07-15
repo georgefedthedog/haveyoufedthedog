@@ -596,7 +596,16 @@ instructions when making a schema change.
   Saved = live (next app launch); there's no per-row draft state.
 - **Household picture:** new `catalog_pictures` row - all five
   time-of-day PNGs are required (morning / midday / afternoon / evening /
-  night), same framing as the bundled sets.
+  night), same framing as the bundled sets. Generate them from `image_packs/`
+  (needs `OPENAI_API_KEY`): `python generate_house_sheet.py --slug <slug>
+  --house "..." --setting "..."` renders one 3x2 six-scene contact sheet via
+  the OpenAI images API (default model `gpt-image-2`; built-in softened
+  semi-real style, `--style-text` to override; `--dry-run` to preview the
+  prompt; run with no args for an interactive prompt) - and auto-pads a white
+  outer border so the split step's gutter detection works. Then
+  `python split_house_sheets.py <slug>` cuts the sheet into the five tiles
+  (dropping the 6th "rainy" cell). Naming a real famous building works well
+  but note the trademark/likeness caveat for paid catalog art.
 - **Character:** new `catalog_characters` row - `idle` PNG and
   `base_color` (#RRGGBB pastel; the app derives the stage gradient) are
   required; `happy`, `sad`, `celebrate`, `sleeping`, `award` are optional

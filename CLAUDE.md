@@ -52,6 +52,25 @@ domain root, e.g. `.well-known/assetlinks.json`); PB only serves that dir
 because the systemd unit sets `--publicDir` to the per-instance path - its
 default is the _binary_ dir, a documented gotcha (README → "Static files").
 
+**House picture art** (the five time-of-day tiles per household) is generated
+from `image_packs/` (needs `OPENAI_API_KEY`; `pip install openai pillow`):
+
+```bash
+cd image_packs
+python generate_house_sheet.py --slug <slug> \
+  --house "<building description>" --setting "<location>"   # 3x2 six-scene sheet
+python split_house_sheets.py <slug>                          # -> the 5 tile PNGs
+```
+
+`generate_house_sheet.py` wraps the OpenAI images API (default model
+`gpt-image-2`, `--model gpt-image-1` to fall back; `--style-text` overrides the
+built-in softened-semi-real style). It renders one 3x2 contact sheet, upscales
+to 1500, and auto-pads a white outer border so `split_house_sheets.py` detects
+the gutters. Run with no args for an interactive prompt; `--dry-run` prints the
+prompt only. Naming real famous buildings works well but carries a
+trademark/likeness caveat for anything sold in the paid catalog. Then upload the
+tiles as a `catalog_pictures` row (README → "Publishing new design assets").
+
 ## Architecture
 
 - `app/lib/core/<domain>/` - models + Riverpod controllers. Models are thin
