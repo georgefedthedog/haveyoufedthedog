@@ -101,7 +101,7 @@ class Household {
     return n > 0 ? n : _defaultRewardThreshold;
   }
 
-  static const _defaultRewardThreshold = 28;
+  static const _defaultRewardThreshold = 14;
 
   bool get isOwner => role == 'owner';
 }

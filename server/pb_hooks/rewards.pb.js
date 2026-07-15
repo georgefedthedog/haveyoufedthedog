@@ -30,7 +30,9 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
   const info = e.requestInfo();
   const body = (info && info.body) || {};
   const householdId = String(body.householdId || "").trim();
-  const kind = String(body.kind || "").trim().toLowerCase();
+  const kind = String(body.kind || "")
+    .trim()
+    .toLowerCase();
   const slug = String(body.slug || "").trim();
 
   if (!householdId) return e.json(400, { code: "household_required", message: "householdId is required." });
@@ -59,11 +61,7 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
   // streak can't unlock vaulted or reserved art.
   let row;
   try {
-    row = $app.findFirstRecordByFilter(
-      collection,
-      "slug = {:slug} && reward_excluded != true && (packs:length = 0 || packs.enabled ?= true)",
-      { slug: slug },
-    );
+    row = $app.findFirstRecordByFilter(collection, "slug = {:slug} && reward_excluded != true && (packs:length = 0 || packs.enabled ?= true)", { slug: slug });
   } catch (_) {
     return e.json(404, { code: "reward_unavailable", message: "That item isn't available to unlock." });
   }
@@ -109,7 +107,7 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
 
   // Threshold is admin-set per household; empty/0 means the default of 28
   // (mirrors Household.rewardStreakThreshold in the app).
-  let threshold = 28;
+  let threshold = 14;
   const t = household.getFloat("reward_streak_threshold");
   if (t && t > 0) threshold = Math.round(t);
 
