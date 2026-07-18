@@ -58,12 +58,19 @@ class StoreScreen extends ConsumerWidget {
           ),
         ],
       ),
-      // A short support note, then the purchasable packs, then redeem-a-code,
-      // the reward-streak nudge, and finally the household scope note.
+      // A short support note, the "or earn one free" streak nudge, then the
+      // purchasable packs, redeem-a-code, and the household scope note.
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
         children: [
           const _SupportNote(),
+          if (household != null) ...[
+            const SizedBox(height: 24),
+            const Card(
+              clipBehavior: Clip.antiAlias,
+              child: StreakRewardBar(leadingDivider: false),
+            ),
+          ],
           const SizedBox(height: 24),
           ...asyncProducts.when(
             loading: () => const [
@@ -85,13 +92,6 @@ class StoreScreen extends ConsumerWidget {
           if (household != null) ...[
             const SizedBox(height: 24),
             _PackSettings(household: household),
-            // Secondary "or earn one free" nudge, below the packs so it
-            // doesn't compete with the buy CTAs.
-            const SizedBox(height: 24),
-            const Card(
-              clipBehavior: Clip.antiAlias,
-              child: StreakRewardBar(leadingDivider: false),
-            ),
             const SizedBox(height: 24),
             _AppliesToNote(householdName: household.name),
           ],
