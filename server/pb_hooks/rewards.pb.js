@@ -12,7 +12,7 @@
 /// Flow: confirm the caller is a member, resolve the slug to a *resolvable*
 /// catalog row (so vaulted/disabled art can't be earned), ask the worker for
 /// the household's current reward streak, require it to clear the household's
-/// `reward_streak_threshold` (default 28), then append the slug to the
+/// `reward_streak_threshold` (default 14), then append the slug to the
 /// household's `unlocked_characters` / `unlocked_pictures` and stamp
 /// `last_free_redemption` = now. That anchor re-zeros the streak counter, so
 /// each free unlock costs a fresh run of due-days.
@@ -105,7 +105,7 @@ routerAdd("POST", "/api/custom/claim-streak-reward", e => {
     return e.json(503, { code: "streak_check_failed", message: "Couldn't check your streak just now - try again shortly." });
   }
 
-  // Threshold is admin-set per household; empty/0 means the default of 28
+  // Threshold is admin-set per household; empty/0 means the default of 14
   // (mirrors Household.rewardStreakThreshold in the app).
   let threshold = 14;
   const t = household.getFloat("reward_streak_threshold");

@@ -150,7 +150,7 @@ tiles as a `catalog_pictures` row (README → "Publishing new design assets").
   household-wide (any due subject fed that day) and resets after each claim
   (the `households.last_free_redemption` anchor); the bar to clear is
   `households.reward_streak_threshold` (admin-set per household; empty/0 = the
-  in-code default of 28, in both the app and the hook). Claiming calls
+  in-code default of 14, in both the app and the hook). Claiming calls
   `/api/custom/claim-streak-reward` (`rewards.pb.js`), which recomputes the
   streak server-side (see Data conventions) and appends the slug to
   `households.unlocked_characters` / `unlocked_pictures` - a household-scoped
@@ -360,7 +360,7 @@ tiles as a `catalog_pictures` row (README → "Publishing new design assets").
   walks the household's due-days in its IANA timezone and only grants past the
   threshold. Keep the two in sync if you touch the rules - the lenient
   any-subject-fed predicate, the grace-today exception, the
-  `last_free_redemption` anchor, the default-28 threshold, and the **one-off
+  `last_free_redemption` anchor, the default-14 threshold, and the **one-off
   exclusion** (a `once` chore never makes a day "due", so a missed one can't
   break the streak; completing it still counts like any completion) all live in
   both `reward_streak_controller.dart` and `reward-streak.js`. Because the app

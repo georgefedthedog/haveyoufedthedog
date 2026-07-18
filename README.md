@@ -150,7 +150,7 @@ server" below) - ask Claude for step-by-step instructions.
   `{householdId, kind, slug}`. The **free** counterpart to verify-purchase:
   checks membership, resolves the slug to a resolvable, non-`reward_excluded`
   catalog row, asks the worker (`/reward-streak`) to recompute the household's
-  reward streak, requires it to clear `reward_streak_threshold` (default 28),
+  reward streak, requires it to clear `reward_streak_threshold` (default 14),
   then appends the slug to `households.unlocked_characters` /
   `unlocked_pictures` and stamps `last_free_redemption`. Idempotent
   (`alreadyUnlocked: true`).
@@ -772,7 +772,7 @@ Caveats:
   `households.unlocked_characters`/`unlocked_pictures`, which the
   `selectableCatalogProvider` gate ORs into the pickers. The streak is lenient
   + household-wide and resets per claim (`last_free_redemption`); the bar is
-  `reward_streak_threshold` (default 28). Computed twice like the awards: the
+  `reward_streak_threshold` (default 14). Computed twice like the awards: the
   app's `reward_streak_controller.dart` is advisory (progress bar), the
   worker's `reward-streak.js` (via the `claim-streak-reward` hook) is the
   authority that gates the grant.
