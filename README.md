@@ -354,12 +354,13 @@ pushes. The moving parts, from the inside out:
   as `app/assets/l10n/characters/<lang>.json`. Pack characters carry copy on
   `catalog_characters.messages`, with translations nested under its `i18n`
   key (authored as `messages.<lang>.json` beside each character's
-  `messages.json`; `upload_pack.py` merges them). An untranslated pack falls
+  `messages.json`; the `haveyoufedthedog-assets` repo's `upload_pack.py`
+  merges them). An untranslated pack falls
   back to the localized generic voice rather than mixing languages.
 - **Catalog names** - flat `{lang: text}` JSON columns, base field =
   English fallback: `display_name_i18n` on characters/pictures, `name_i18n`
-  on packs/products, `description_i18n` on products. Authored in
-  `image_packs/pack_manifest.json`, pushed by `upload_pack.py`.
+  on packs/products, `description_i18n` on products. Authored in the assets
+  repo's `pack_manifest.json`, pushed by its `upload_pack.py`.
 - **Server pushes** - composed per recipient from `users.locale` (empty =
   English, so pre-i18n clients see the exact old strings). Templates live in
   the worker's `l10n.js` (overdue + award) and the hooks' `_l10n_helper.js`
@@ -371,7 +372,8 @@ pushes. The moving parts, from the inside out:
   client-side from inline dictionaries keyed on `navigator.language`;
   the English markup is the fallback.
 - **Store listings** - translated Play/ASC listing + IAP copy is drafted in
-  `store_listings_i18n.md`, pasted into the consoles by hand.
+  the assets repo's `app-stores/store_listings_i18n.md`, pasted into the
+  consoles by hand.
 
 Deliberately English: the PocketBase password-reset email (PB's built-in
 template, configured in the admin UI) and `catalog_avatars` display names
@@ -596,16 +598,11 @@ instructions when making a schema change.
   Saved = live (next app launch); there's no per-row draft state.
 - **Household picture:** new `catalog_pictures` row - all five
   time-of-day PNGs are required (morning / midday / afternoon / evening /
-  night), same framing as the bundled sets. Generate them from `image_packs/`
-  (needs `OPENAI_API_KEY`): `python generate_house_sheet.py --slug <slug>
-  --house "..." --setting "..."` renders one 3x2 six-scene contact sheet via
-  the OpenAI images API (default model `gpt-image-2`; built-in softened
-  semi-real style, `--style-text` to override; `--dry-run` to preview the
-  prompt; run with no args for an interactive prompt) - and auto-pads a white
-  outer border so the split step's gutter detection works. Then
-  `python split_house_sheets.py <slug>` cuts the sheet into the five tiles
-  (dropping the 6th "rainy" cell). Naming a real famous building works well
-  but note the trademark/likeness caveat for paid catalog art.
+  night), same framing as the bundled sets. The generation + splitting
+  tooling (`generate_house_sheet.py` / `split_house_sheets.py`) lives in the
+  `haveyoufedthedog-assets` repo - see its CLAUDE.md for the workflow.
+  Naming a real famous building works well but note the trademark/likeness
+  caveat for paid catalog art.
 - **Character:** new `catalog_characters` row - `idle` PNG and
   `base_color` (#RRGGBB pastel; the app derives the stage gradient) are
   required; `happy`, `sad`, `celebrate`, `sleeping`, `award` are optional
@@ -685,8 +682,8 @@ Caveats:
 
 - Translations ride along with the uploader: `messages.<lang>.json` beside a
   character's `messages.json` (merged under the `messages.i18n` key) and
-  `display_name_i18n` / `name_i18n` / `description_i18n` keys in
-  `pack_manifest.json` (pushed to the matching catalog columns). All
+  `display_name_i18n` / `name_i18n` / `description_i18n` keys in the assets
+  repo's `pack_manifest.json` (pushed to the matching catalog columns). All
   additive - publishing them never affects released clients; an
   untranslated pack simply speaks the localized generic voice in non-English
   UIs (see "Localization").

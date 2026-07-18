@@ -52,24 +52,12 @@ domain root, e.g. `.well-known/assetlinks.json`); PB only serves that dir
 because the systemd unit sets `--publicDir` to the per-instance path - its
 default is the _binary_ dir, a documented gotcha (README → "Static files").
 
-**House picture art** (the five time-of-day tiles per household) is generated
-from `image_packs/` (needs `OPENAI_API_KEY`; `pip install openai pillow`):
-
-```bash
-cd image_packs
-python generate_house_sheet.py --slug <slug> \
-  --house "<building description>" --setting "<location>"   # 3x2 six-scene sheet
-python split_house_sheets.py <slug>                          # -> the 5 tile PNGs
-```
-
-`generate_house_sheet.py` wraps the OpenAI images API (default model
-`gpt-image-2`, `--model gpt-image-1` to fall back; `--style-text` overrides the
-built-in softened-semi-real style). It renders one 3x2 contact sheet, upscales
-to 1500, and auto-pads a white outer border so `split_house_sheets.py` detects
-the gutters. Run with no args for an interactive prompt; `--dry-run` prints the
-prompt only. Naming real famous buildings works well but carries a
-trademark/likeness caveat for anything sold in the paid catalog. Then upload the
-tiles as a `catalog_pictures` row (README → "Publishing new design assets").
+**Catalog art and store assets live in the separate `haveyoufedthedog-assets`
+repo** (same GitHub account): the house/character/avatar art sources, the
+generation + splitting scripts, `pack_manifest.json`, `upload_pack.py` (the
+publisher that pushes rows to the live server) and the store listing
+collateral. See that repo's CLAUDE.md for the art workflow; nothing in this
+repo's build reads any of it.
 
 ## Architecture
 
@@ -111,9 +99,9 @@ tiles as a `catalog_pictures` row (README → "Publishing new design assets").
   `ref.watch(catalogProvider).lookupX(id)` - never the static registries -
   and render through the models' `imageProvider` getters
   (cached_network_image disk cache); the three pickers read
-  `selectableCatalogProvider` instead. Publishing new catalog rows is a
-  by-hand process in the PB admin UI (no committed doc/script) - provide the
-  user step-by-step instructions when they want to publish. **Pack characters
+  `selectableCatalogProvider` instead. Publishing new catalog rows happens
+  from the `haveyoufedthedog-assets` repo (`pack_manifest.json` +
+  `upload_pack.py` - see its CLAUDE.md). **Pack characters
   can carry their own
   personality copy:** the optional `messages` JSON field on `catalog_characters`
   (parsed into `Character.messages`) overrides the mood status lines and the
@@ -267,14 +255,14 @@ tiles as a `catalog_pictures` row (README → "Publishing new design assets").
   layer via `localizedCharacterName` (`characters.dart` - bundled ids read
   ARB keys), `StoreProduct.localizedName/-Description`, and
   `catalog.packName(id, localeName:)`. Authored as `display_name_i18n` /
-  `name_i18n` / `description_i18n` keys in `image_packs/pack_manifest.json`
-  and pushed by `upload_pack.py`. `catalog_avatars` has no i18n column -
-  avatar names never render.
+  `name_i18n` / `description_i18n` keys in `pack_manifest.json` and pushed by
+  `upload_pack.py` (both in the `haveyoufedthedog-assets` repo).
+  `catalog_avatars` has no i18n column - avatar names never render.
 - The landing page's `join.html` / `claim.html` / `index.html` swap copy
   client-side from inline `L10N` dictionaries keyed on `navigator.language`
   (English markup is the fallback). Play/App Store listing + IAP
-  translations live in `store_listings_i18n.md` (hand-pasted into the
-  consoles).
+  translations live in the assets repo's `app-stores/store_listings_i18n.md`
+  (hand-pasted into the consoles).
 - iOS: `CFBundleLocalizations` in Info.plist + per-language
   `<lang>.lproj/InfoPlist.strings` (NFC usage description), wired as a
   `PBXVariantGroup` in `project.pbxproj`; verifiable only on a Codemagic
