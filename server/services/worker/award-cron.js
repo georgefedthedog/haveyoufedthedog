@@ -97,13 +97,14 @@ function startAwardCron({ pbUrl, identity, password, sendPush }) {
     const tokenByUser = {};
     for (const m of members) {
       const u = m.expand?.user;
-      if (u?.fcm_token) tokenByUser[m.user] = { token: u.fcm_token, locale: u.locale || "" };
+      // mute_awards: the per-user "Award wins" switch; missing = false = send.
+      if (u?.fcm_token && !u.mute_awards) tokenByUser[m.user] = { token: u.fcm_token, locale: u.locale || "" };
     }
 
     for (const [userId, awards] of wins) {
       const rec = tokenByUser[userId];
       if (!rec) {
-        console.log(`[awards] ${hid} winner ${userId} has no fcm_token - skip`);
+        console.log(`[awards] ${hid} winner ${userId} has no fcm_token or muted awards - skip`);
         continue;
       }
       const first = awards[0];

@@ -53,26 +53,26 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
   final _manageChoresGlowKey = GlobalKey<GlowHighlightState>();
   bool _handledChoresHighlight = false;
 
-  // Tappable "Edit Profile" link in the tag card subtitle - owned here so it
-  // can be disposed.
-  late final TapGestureRecognizer _editProfileTap;
+  // Tappable "the You tab" link in the tag card subtitle - owned here so it
+  // can be disposed. Lands on the You tab's NFC card with a glow cue.
+  late final TapGestureRecognizer _youTabTap;
 
   bool get _isEdit => widget.subjectId != null;
 
   @override
   void initState() {
     super.initState();
-    _editProfileTap = TapGestureRecognizer()
+    _youTabTap = TapGestureRecognizer()
       ..onTap = () {
         ref.read(nfcSettingHighlightProvider.notifier).request();
-        context.push(Routes.profile);
+        context.go(Routes.youTab);
       };
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _editProfileTap.dispose();
+    _youTabTap.dispose();
     super.dispose();
   }
 
@@ -397,12 +397,12 @@ class _EditSubjectScreenState extends ConsumerState<EditSubjectScreen> {
                                               TextSpan(
                                                 text: context
                                                     .l10n
-                                                    .editSubjectEditProfileLink,
+                                                    .editSubjectYouTabLink,
                                                 style: TextStyle(
                                                   color: scheme.primary,
                                                   fontWeight: FontWeight.w600,
                                                 ),
-                                                recognizer: _editProfileTap,
+                                                recognizer: _youTabTap,
                                               ),
                                               const TextSpan(text: '.'),
                                             ],

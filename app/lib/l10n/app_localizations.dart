@@ -174,17 +174,53 @@ abstract class AppLocalizations {
   /// **'Hide password'**
   String get passwordFieldHide;
 
-  /// Label above the app-language dropdown on the Edit Profile screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Language'**
-  String get profileLanguageLabel;
-
   /// Dropdown option meaning: follow the phone's language setting. The language names themselves (English, Deutsch, ...) are endonyms and never translated.
   ///
   /// In en, this message translates to:
   /// **'System default'**
   String get profileLanguageSystemDefault;
+
+  /// Header of the Edit Profile card holding the three push-notification switches.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get profileNotificationsTitle;
+
+  /// Title of the switch for overdue-chore reminder pushes.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get profileNotifyReminders;
+
+  /// Subtitle under the reminders switch.
+  ///
+  /// In en, this message translates to:
+  /// **'A nudge when a chore goes overdue.'**
+  String get profileNotifyRemindersDesc;
+
+  /// Title of the switch for pushes sent when another member logs a chore.
+  ///
+  /// In en, this message translates to:
+  /// **'Chores logged'**
+  String get profileNotifyCompletions;
+
+  /// Subtitle under the chores-logged switch.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone in your household logs or undoes a chore.'**
+  String get profileNotifyCompletionsDesc;
+
+  /// Title of the switch for weekly award-win pushes.
+  ///
+  /// In en, this message translates to:
+  /// **'Award wins'**
+  String get profileNotifyAwards;
+
+  /// Subtitle under the award-wins switch.
+  ///
+  /// In en, this message translates to:
+  /// **'When you win a weekly award.'**
+  String get profileNotifyAwardsDesc;
 
   /// Headline over the login form.
   ///
@@ -654,23 +690,23 @@ abstract class AppLocalizations {
   /// **'No tag yet'**
   String get editSubjectNoTag;
 
-  /// NFC card subtitle (tap-completes mode). Followed by a tappable 'Edit Profile' link and a period, so end mid-sentence.
+  /// NFC card subtitle (tap-completes mode). Followed by a tappable 'the You tab' link and a period, so end mid-sentence.
   ///
   /// In en, this message translates to:
-  /// **'On this phone, a tap ticks off the current chore. Change this in'**
+  /// **'On this phone, a tap ticks off the current chore. Change this on'**
   String get editSubjectTapCompletes;
 
-  /// NFC card subtitle (tap-opens mode). Followed by a tappable 'Edit Profile' link and a period, so end mid-sentence.
+  /// NFC card subtitle (tap-opens mode). Followed by a tappable 'the You tab' link and a period, so end mid-sentence.
   ///
   /// In en, this message translates to:
-  /// **'On this phone, a tap opens this thing\'s page. Change this in'**
+  /// **'On this phone, a tap opens this thing\'s page. Change this on'**
   String get editSubjectTapOpens;
 
-  /// The tappable link text inside the NFC card subtitle. Should match the Edit Profile screen's name.
+  /// The tappable link text inside the NFC card subtitle, naming where the tap-behaviour setting lives. Should name the You tab (youTabTitle).
   ///
   /// In en, this message translates to:
-  /// **'Edit Profile'**
-  String get editSubjectEditProfileLink;
+  /// **'the You tab'**
+  String get editSubjectYouTabLink;
 
   /// NFC card subtitle when no tag exists yet.
   ///
@@ -1741,19 +1777,19 @@ abstract class AppLocalizations {
   /// Title of the per-device NFC behaviour toggle.
   ///
   /// In en, this message translates to:
-  /// **'Complete chore on tap'**
+  /// **'Complete chore on NFC tap'**
   String get nfcCompleteOnTap;
 
   /// Toggle subtitle when tap-completes is on.
   ///
   /// In en, this message translates to:
-  /// **'Tapping a tag completes the current chore.'**
+  /// **'Tapping an NFC tag completes the current chore.'**
   String get nfcTapCompletesDesc;
 
   /// Toggle subtitle when tap-completes is off.
   ///
   /// In en, this message translates to:
-  /// **'Tapping a tag opens the thing\'s page.'**
+  /// **'Tapping an NFC tag opens the thing\'s page.'**
   String get nfcTapOpensDesc;
 
   /// Hint on the avatar picker tray.

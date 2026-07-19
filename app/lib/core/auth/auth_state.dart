@@ -23,6 +23,12 @@ class AuthState {
     return (v is String && v.trim().isNotEmpty) ? v : null;
   }
 
+  /// Per-user push-mute flags (stored muted-polarity so the missing-field
+  /// default of `false` means "notifications on" for every existing record).
+  bool get muteOverdue => user?.data['mute_overdue'] == true;
+  bool get muteCompletions => user?.data['mute_completions'] == true;
+  bool get muteAwards => user?.data['mute_awards'] == true;
+
   // Equality on identity (signed-in-ness + user id), not record contents.
   // Note this does NOT throttle watchers by itself: AsyncNotifier notifies
   // on every data→data emission regardless of equality, and

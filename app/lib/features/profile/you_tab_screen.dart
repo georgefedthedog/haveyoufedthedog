@@ -17,6 +17,8 @@ import '../../widgets/glow_highlight.dart';
 import '../../widgets/page_title.dart';
 import '../../widgets/wiggle.dart';
 import 'avatar_artwork.dart';
+import 'nfc_setting_card.dart';
+import 'notifications_card.dart';
 
 /// "You" bottom-nav branch: a polished profile + settings landing surface.
 /// Edit lives in [EditProfileScreen]; this surface just summarises and
@@ -98,6 +100,11 @@ class YouTabScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           const _ActAsCard(),
+          _SectionHeader(text: context.l10n.profileNotificationsTitle),
+          const NotificationsCard(),
+          const SizedBox(height: 16),
+          const NfcSettingCard(),
+          const SizedBox(height: 24),
           Text(
             context.l10n.movingDay,
             textAlign: TextAlign.center,
@@ -113,6 +120,28 @@ class YouTabScreen extends ConsumerWidget {
             onLogout: () => ref.read(authControllerProvider.notifier).logout(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Centred section header above each settings card, matching the "Moving
+/// day" / "Whose turn?" headers.
+class _SectionHeader extends StatelessWidget {
+  final String text;
+
+  const _SectionHeader({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
       ),
     );
   }

@@ -38,6 +38,9 @@ function notifyHousehold(record, action) {
         const user = $app.findRecordById("_pb_users_auth_", userId);
         const token = user.get("fcm_token");
         if (!token) continue;
+        // mute_completions: the per-user "Chores logged" switch (covers both
+        // done and undone pushes); missing = false = send.
+        if (user.get("mute_completions")) continue;
         const l = lang(user.get("locale"));
         (tokensByLang[l] = tokensByLang[l] || []).push(token);
         total += 1;

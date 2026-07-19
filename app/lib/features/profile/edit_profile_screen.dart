@@ -1,35 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../../core/auth/auth_state.dart';
-import '../../core/diagnostics/debug_log.dart';
-import '../../core/household/nfc_setting_highlight_controller.dart';
 import '../../core/profile/avatars.dart';
-import '../../core/storage/app_locale_controller.dart';
-import '../../core/storage/nfc_tap_action_controller.dart';
 import '../../l10n/l10n.dart';
 import '../../router/routes.dart';
 import '../../widgets/build_label.dart';
 import '../../widgets/confirm_by_typing.dart';
-import '../../widgets/glow_highlight.dart';
 import '../../widgets/labeled_field.dart';
 import '../store/browse_packs_button.dart';
 import 'avatar_picker.dart';
+import 'debug_log_card.dart';
+import 'language_card.dart';
 
-/// Endonyms for the language dropdown - each language named in itself, so
-/// they are deliberately not localized.
-const _languageNames = {
-  'en': 'English',
-  'de': 'Deutsch',
-  'fr': 'Français',
-  'es': 'Español',
-};
-
-/// Edit the current user's profile - email is read-only, name is editable.
-/// Also hosts the Log out action.
+/// Edit the current user's profile - avatar and name, with a dirty-tracked
+/// Save - plus the instant-save language override and the debug-log dragon.
+/// The NFC and notification settings live on the You tab; account deletion
+/// is the app-bar action here.
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -40,12 +29,9 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _form = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
-  final _nfcGlowKey = GlobalKey<GlowHighlightState>();
   String? _avatar;
   bool _seeded = false;
   bool _busy = false;
-  // Guards re-handling the same NFC-setting highlight request across rebuilds.
-  bool _handled = false;
 
   @override
   void dispose() {
@@ -114,22 +100,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
-  void _handleHighlight() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      ref.read(nfcSettingHighlightProvider.notifier).consume();
-      final ctx = _nfcGlowKey.currentContext;
-      if (ctx != null) {
-        await Scrollable.ensureVisible(
-          ctx,
-          duration: const Duration(milliseconds: 400),
-          alignment: 0.2,
-        );
-      }
-      _nfcGlowKey.currentState?.flash();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final authAsync = ref.watch(authControllerProvider);
@@ -145,15 +115,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       // should store what's visibly selected.
       _avatar = auth.avatar ?? AvatarRegistry.all.first.id;
       _seeded = true;
-    }
-
-    // One-shot highlight requested from a subject's NFC card (mirrors the
-    // Home→You act-as cue): flash the tap-behaviour setting into view. Only
-    // act once it's actually showing; consuming resets the guard for next time.
-    final wantNfcHighlight = ref.watch(nfcSettingHighlightProvider);
-    if (wantNfcHighlight && !_handled) {
-      _handled = true;
-      _handleHighlight();
     }
 
     return Scaffold(
@@ -226,240 +187,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Builder(
-                    builder: (context) {
-                      final stored = ref
-                          .watch(appLocaleControllerProvider)
-                          .valueOrNull
-                          ?.languageCode;
-                      return LabeledField(
-                        label: context.l10n.profileLanguageLabel,
-                        child: DropdownButtonFormField<String>(
-                          // Recreate when the stored value changes so a
-                          // late prefs load still shows the right pick.
-                          key: ValueKey('language-${stored ?? ''}'),
-                          initialValue: stored ?? '',
-                          items: [
-                            DropdownMenuItem(
-                              value: '',
-                              child: Text(
-                                context.l10n.profileLanguageSystemDefault,
-                              ),
-                            ),
-                            for (final locale
-                                in AppLocalizations.supportedLocales)
-                              DropdownMenuItem(
-                                value: locale.languageCode,
-                                child: Text(
-                                  _languageNames[locale.languageCode] ??
-                                      locale.languageCode,
-                                ),
-                              ),
-                          ],
-                          // Saves immediately - device preference, not
-                          // part of the profile Save.
-                          onChanged: _busy
-                              ? null
-                              : (code) => ref
-                                    .read(appLocaleControllerProvider.notifier)
-                                    .setLocale(
-                                      (code == null || code.isEmpty)
-                                          ? null
-                                          : Locale(code),
-                                    ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
+              const LanguageCard(),
               const SizedBox(height: 16),
-              GlowHighlight(
-                key: _nfcGlowKey,
-                borderRadius: 20,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Builder(
-                      builder: (context) {
-                        final theme = Theme.of(context);
-                        final scheme = theme.colorScheme;
-                        final completesChore =
-                            ref
-                                .watch(nfcTapActionControllerProvider)
-                                .valueOrNull ??
-                            true;
-                        // Mirrors the invite card's header row on household
-                        // details: icon, titleSmall + bodySmall copy, switch.
-                        return Row(
-                          children: [
-                            const Icon(Icons.nfc),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    context.l10n.nfcCompleteOnTap,
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(
-                                    completesChore
-                                        ? context.l10n.nfcTapCompletesDesc
-                                        : context.l10n.nfcTapOpensDesc,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: scheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Switch(
-                              value: completesChore,
-                              // Saves immediately - device preference, not
-                              // part of the profile Save.
-                              onChanged: _busy
-                                  ? null
-                                  : (v) => ref
-                                        .read(
-                                          nfcTapActionControllerProvider
-                                              .notifier,
-                                        )
-                                        .setCompletesChore(v),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const _DebugLogCard(),
+              const DebugLogCard(),
             ],
           ),
         ),
       ),
       bottomNavigationBar: const SafeArea(child: BuildLabel()),
-    );
-  }
-}
-
-/// TEMPORARY: the live on-device debug log (all `debugPrint` output, captured
-/// via [installDebugLogCapture]) so we can read logs on a console-less
-/// TestFlight build. Hidden behind a "Here be dragons" link so it's out of the
-/// way for normal use; tap to reveal. Newest line first, fixed-height scroll,
-/// capped buffer. Copy shares the whole log; Clear empties it for a fresh
-/// repro. Remove once no longer needed.
-class _DebugLogCard extends StatefulWidget {
-  const _DebugLogCard();
-
-  @override
-  State<_DebugLogCard> createState() => _DebugLogCardState();
-}
-
-class _DebugLogCardState extends State<_DebugLogCard> {
-  bool _revealed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (!_revealed) {
-      return Center(
-        child: TextButton.icon(
-          onPressed: () => setState(() => _revealed = true),
-          icon: const Text('🐉'),
-          label: Text(
-            'Here be dragons',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ValueListenableBuilder<List<String>>(
-          valueListenable: debugLog,
-          builder: (context, lines, _) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Debug log (${lines.length})',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Copy',
-                      icon: const Icon(Icons.copy, size: 18),
-                      onPressed: lines.isEmpty
-                          ? null
-                          : () {
-                              Clipboard.setData(
-                                ClipboardData(text: lines.join('\n')),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Copied')),
-                              );
-                            },
-                    ),
-                    IconButton(
-                      tooltip: 'Clear',
-                      icon: const Icon(Icons.delete_outline, size: 18),
-                      onPressed: lines.isEmpty
-                          ? null
-                          : () => debugLog.value = const [],
-                    ),
-                    IconButton(
-                      tooltip: 'Hide',
-                      icon: const Icon(Icons.expand_less, size: 18),
-                      onPressed: () => setState(() => _revealed = false),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (lines.isEmpty)
-                  Text('No debug output yet.', style: theme.textTheme.bodySmall)
-                else
-                  SizedBox(
-                    height: 260,
-                    child: Scrollbar(
-                      child: ListView.builder(
-                        primary: false,
-                        itemCount: lines.length,
-                        itemBuilder: (context, i) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          // Newest first.
-                          child: Text(
-                            lines[lines.length - 1 - i],
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-      ),
     );
   }
 }

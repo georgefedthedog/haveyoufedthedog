@@ -47,10 +47,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordFieldHide => 'Hide password';
 
   @override
-  String get profileLanguageLabel => 'Language';
+  String get profileLanguageSystemDefault => 'System default';
 
   @override
-  String get profileLanguageSystemDefault => 'System default';
+  String get profileNotificationsTitle => 'Notifications';
+
+  @override
+  String get profileNotifyReminders => 'Reminders';
+
+  @override
+  String get profileNotifyRemindersDesc => 'A nudge when a chore goes overdue.';
+
+  @override
+  String get profileNotifyCompletions => 'Chores logged';
+
+  @override
+  String get profileNotifyCompletionsDesc =>
+      'When someone in your household logs or undoes a chore.';
+
+  @override
+  String get profileNotifyAwards => 'Award wins';
+
+  @override
+  String get profileNotifyAwardsDesc => 'When you win a weekly award.';
 
   @override
   String get authWelcomeBack => 'Welcome back!';
@@ -324,14 +343,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editSubjectTapCompletes =>
-      'On this phone, a tap ticks off the current chore. Change this in';
+      'On this phone, a tap ticks off the current chore. Change this on';
 
   @override
   String get editSubjectTapOpens =>
-      'On this phone, a tap opens this thing\'s page. Change this in';
+      'On this phone, a tap opens this thing\'s page. Change this on';
 
   @override
-  String get editSubjectEditProfileLink => 'Edit Profile';
+  String get editSubjectYouTabLink => 'the You tab';
 
   @override
   String get editSubjectWriteTagPrompt =>
@@ -991,14 +1010,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailCantChange => 'Email can\'t be changed.';
 
   @override
-  String get nfcCompleteOnTap => 'Complete chore on tap';
+  String get nfcCompleteOnTap => 'Complete chore on NFC tap';
 
   @override
   String get nfcTapCompletesDesc =>
-      'Tapping a tag completes the current chore.';
+      'Tapping an NFC tag completes the current chore.';
 
   @override
-  String get nfcTapOpensDesc => 'Tapping a tag opens the thing\'s page.';
+  String get nfcTapOpensDesc => 'Tapping an NFC tag opens the thing\'s page.';
 
   @override
   String get avatarDragOrTap => 'Drag or tap';

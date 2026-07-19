@@ -6,7 +6,7 @@ part of 'auth_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authControllerHash() => r'cfde3579526bce17344234a7db7557efdffa8da4';
+String _$authControllerHash() => r'887021790e96af70619172293cf091d28580293c';
 
 /// Tracks PocketBase auth state and exposes login / signup / logout.
 ///

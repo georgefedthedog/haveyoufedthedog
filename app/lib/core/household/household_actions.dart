@@ -140,7 +140,7 @@ class HouseholdActions {
             householdId: householdId,
             packs: [...?current?.packIds, packId],
           );
-      _ref.invalidate(remoteCatalogProvider);
+      _ref.invalidate(remoteCatalogControllerProvider);
     }
     return (name: name, alreadyApplied: alreadyApplied);
   }
@@ -250,7 +250,7 @@ class HouseholdActions {
       _ref
           .read(householdsControllerProvider.notifier)
           .updateOneInPlace(householdId: householdId, packs: merged);
-      _ref.invalidate(remoteCatalogProvider);
+      _ref.invalidate(remoteCatalogControllerProvider);
     }
     return (name: name, packIds: packIds, alreadyApplied: alreadyApplied);
   }

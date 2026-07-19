@@ -56,13 +56,37 @@
     "description": "Tooltip on the eye icon that masks the typed password."
   },
 
-  "profileLanguageLabel": "Language",
-  "@profileLanguageLabel": {
-    "description": "Label above the app-language dropdown on the Edit Profile screen."
-  },
   "profileLanguageSystemDefault": "System default",
   "@profileLanguageSystemDefault": {
     "description": "Dropdown option meaning: follow the phone's language setting. The language names themselves (English, Deutsch, ...) are endonyms and never translated."
+  },
+  "profileNotificationsTitle": "Notifications",
+  "@profileNotificationsTitle": {
+    "description": "Header of the Edit Profile card holding the three push-notification switches."
+  },
+  "profileNotifyReminders": "Reminders",
+  "@profileNotifyReminders": {
+    "description": "Title of the switch for overdue-chore reminder pushes."
+  },
+  "profileNotifyRemindersDesc": "A nudge when a chore goes overdue.",
+  "@profileNotifyRemindersDesc": {
+    "description": "Subtitle under the reminders switch."
+  },
+  "profileNotifyCompletions": "Chores logged",
+  "@profileNotifyCompletions": {
+    "description": "Title of the switch for pushes sent when another member logs a chore."
+  },
+  "profileNotifyCompletionsDesc": "When someone in your household logs or undoes a chore.",
+  "@profileNotifyCompletionsDesc": {
+    "description": "Subtitle under the chores-logged switch."
+  },
+  "profileNotifyAwards": "Award wins",
+  "@profileNotifyAwards": {
+    "description": "Title of the switch for weekly award-win pushes."
+  },
+  "profileNotifyAwardsDesc": "When you win a weekly award.",
+  "@profileNotifyAwardsDesc": {
+    "description": "Subtitle under the award-wins switch."
   },
 
   "authWelcomeBack": "Welcome back!",
@@ -430,17 +454,17 @@
   "@editSubjectNoTag": {
     "description": "NFC card status when no tag has been written for this thing."
   },
-  "editSubjectTapCompletes": "On this phone, a tap ticks off the current chore. Change this in",
+  "editSubjectTapCompletes": "On this phone, a tap ticks off the current chore. Change this on",
   "@editSubjectTapCompletes": {
-    "description": "NFC card subtitle (tap-completes mode). Followed by a tappable 'Edit Profile' link and a period, so end mid-sentence."
+    "description": "NFC card subtitle (tap-completes mode). Followed by a tappable 'the You tab' link and a period, so end mid-sentence."
   },
-  "editSubjectTapOpens": "On this phone, a tap opens this thing's page. Change this in",
+  "editSubjectTapOpens": "On this phone, a tap opens this thing's page. Change this on",
   "@editSubjectTapOpens": {
-    "description": "NFC card subtitle (tap-opens mode). Followed by a tappable 'Edit Profile' link and a period, so end mid-sentence."
+    "description": "NFC card subtitle (tap-opens mode). Followed by a tappable 'the You tab' link and a period, so end mid-sentence."
   },
-  "editSubjectEditProfileLink": "Edit Profile",
-  "@editSubjectEditProfileLink": {
-    "description": "The tappable link text inside the NFC card subtitle. Should match the Edit Profile screen's name."
+  "editSubjectYouTabLink": "the You tab",
+  "@editSubjectYouTabLink": {
+    "description": "The tappable link text inside the NFC card subtitle, naming where the tap-behaviour setting lives. Should name the You tab (youTabTitle)."
   },
   "editSubjectWriteTagPrompt": "Write a tag so a tap logs this thing.",
   "@editSubjectWriteTagPrompt": {
@@ -1280,15 +1304,15 @@
   "@emailCantChange": {
     "description": "Helper under the read-only email field."
   },
-  "nfcCompleteOnTap": "Complete chore on tap",
+  "nfcCompleteOnTap": "Complete chore on NFC tap",
   "@nfcCompleteOnTap": {
     "description": "Title of the per-device NFC behaviour toggle."
   },
-  "nfcTapCompletesDesc": "Tapping a tag completes the current chore.",
+  "nfcTapCompletesDesc": "Tapping an NFC tag completes the current chore.",
   "@nfcTapCompletesDesc": {
     "description": "Toggle subtitle when tap-completes is on."
   },
-  "nfcTapOpensDesc": "Tapping a tag opens the thing's page.",
+  "nfcTapOpensDesc": "Tapping an NFC tag opens the thing's page.",
   "@nfcTapOpensDesc": {
     "description": "Toggle subtitle when tap-completes is off."
   },

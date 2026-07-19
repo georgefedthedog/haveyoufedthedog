@@ -6,37 +6,12 @@ part of 'catalog_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$remoteCatalogHash() => r'5e3c952e411f71dfec4d84bbe1900cc02a8e95bf';
-
-/// Fetches the enabled rows of the three `catalog_*` collections once per
-/// session (rebuilds on auth change). **Fail-soft by design:** when the
-/// fetch fails - offline, old server without the collections - it falls
-/// back to the last successful fetch, persisted as a JSON snapshot in
-/// SharedPreferences. Image bytes live in the cached_network_image disk
-/// cache, so together the two caches make remote art fully offline-capable
-/// after it's been seen once. Only a fresh install that has never reached
-/// the server (or a snapshot that fails to parse) degrades to
-/// [RemoteCatalog.empty] / bundled-only.
-///
-/// Copied from [remoteCatalog].
-@ProviderFor(remoteCatalog)
-final remoteCatalogProvider = FutureProvider<RemoteCatalog>.internal(
-  remoteCatalog,
-  name: r'remoteCatalogProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$remoteCatalogHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef RemoteCatalogRef = FutureProviderRef<RemoteCatalog>;
-String _$catalogHash() => r'4dc75e61683439f69b1da291aee38ff18e0bd809';
+String _$catalogHash() => r'918c407623990bfc1e6ca84a0eb15edd42a0379d';
 
 /// Merged bundled + remote catalog. Synchronous and always usable: starts
-/// as bundled-only, re-emits once (if) the remote fetch lands.
+/// as bundled-only, re-emits as soon as the snapshot (then the live fetch)
+/// lands. Warmed from `AppRoot` so the snapshot is in place while the
+/// splash is still up - screens never see the bundled-only frame.
 ///
 /// Copied from [catalog].
 @ProviderFor(catalog)
@@ -88,5 +63,35 @@ final selectableCatalogProvider = Provider<SelectableCatalog>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SelectableCatalogRef = ProviderRef<SelectableCatalog>;
+String _$remoteCatalogControllerHash() =>
+    r'4ce16089297b2c34cc77d5c3215b1462d6a0323b';
+
+/// Fetches the enabled rows of the three `catalog_*` collections once per
+/// session (rebuilds on auth change). **Snapshot-first:** every successful
+/// fetch is persisted as a JSON snapshot in SharedPreferences, and on the
+/// next start the snapshot is served *immediately* while the live fetch
+/// refreshes in the background - so chosen remote art (house picture,
+/// avatars, characters) resolves on the very first frame instead of
+/// flashing the bundled defaults until the network answers. Image bytes
+/// live in the cached_network_image disk cache, so together the two caches
+/// also make remote art fully offline-capable after it's been seen once
+/// (a failed refresh just keeps the snapshot). Only a fresh install that
+/// has never reached the server (or a snapshot that fails to parse)
+/// degrades to [RemoteCatalog.empty] / bundled-only.
+///
+/// Copied from [RemoteCatalogController].
+@ProviderFor(RemoteCatalogController)
+final remoteCatalogControllerProvider =
+    AsyncNotifierProvider<RemoteCatalogController, RemoteCatalog>.internal(
+      RemoteCatalogController.new,
+      name: r'remoteCatalogControllerProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$remoteCatalogControllerHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$RemoteCatalogController = AsyncNotifier<RemoteCatalog>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -3,7 +3,8 @@
 // Once a minute, for each distinct household timezone, this works out that
 // zone's just-finished minute and asks PocketBase for active chores
 // scheduled at exactly that wall-clock time. Chores still uncompleted since
-// their household's local midnight get a push to every member.
+// their household's local midnight get a push to every member who hasn't
+// muted reminders (users.mute_overdue - the You tab's Notifications card).
 //
 // Lives in the Node service (not a PB hook) because chore times are stored
 // as wall-clock values with no timezone - converting "18:30 in
@@ -96,7 +97,9 @@ function startOverdueCron({ pbUrl, identity, password, sendPush }) {
         const tokensByLang = {};
         for (const m of members.items || []) {
           const u = m.expand?.user;
-          if (!u?.fcm_token) continue;
+          // mute_overdue: the per-user "Reminders" switch; missing = false
+          // = send, so pre-setting users are unaffected.
+          if (!u?.fcm_token || u.mute_overdue) continue;
           const l = lang(u.locale);
           (tokensByLang[l] = tokensByLang[l] || []).push(u.fcm_token);
         }

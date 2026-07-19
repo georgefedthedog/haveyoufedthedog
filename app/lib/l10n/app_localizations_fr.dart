@@ -47,10 +47,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get passwordFieldHide => 'Masquer le mot de passe';
 
   @override
-  String get profileLanguageLabel => 'Langue';
+  String get profileLanguageSystemDefault => 'Langue du système';
 
   @override
-  String get profileLanguageSystemDefault => 'Langue du système';
+  String get profileNotificationsTitle => 'Notifications';
+
+  @override
+  String get profileNotifyReminders => 'Rappels';
+
+  @override
+  String get profileNotifyRemindersDesc =>
+      'Un petit rappel quand une corvée est en retard.';
+
+  @override
+  String get profileNotifyCompletions => 'Corvées enregistrées';
+
+  @override
+  String get profileNotifyCompletionsDesc =>
+      'Quand quelqu\'un de ton foyer enregistre ou annule une corvée.';
+
+  @override
+  String get profileNotifyAwards => 'Récompenses';
+
+  @override
+  String get profileNotifyAwardsDesc =>
+      'Quand tu gagnes une récompense hebdomadaire.';
 
   @override
   String get authWelcomeBack => 'Content de te revoir !';
@@ -332,7 +353,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Sur ce téléphone, un tap ouvre la page du protégé. Modifiable dans';
 
   @override
-  String get editSubjectEditProfileLink => 'Modifier le profil';
+  String get editSubjectYouTabLink => 'l\'onglet Toi';
 
   @override
   String get editSubjectWriteTagPrompt =>
@@ -995,13 +1016,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailCantChange => 'L\'e-mail ne peut pas être modifié.';
 
   @override
-  String get nfcCompleteOnTap => 'Valider la corvée d\'un tap';
+  String get nfcCompleteOnTap => 'Valider la corvée d\'un tap NFC';
 
   @override
-  String get nfcTapCompletesDesc => 'Taper un tag valide la corvée en cours.';
+  String get nfcTapCompletesDesc =>
+      'Taper un tag NFC valide la corvée en cours.';
 
   @override
-  String get nfcTapOpensDesc => 'Taper un tag ouvre la page du protégé.';
+  String get nfcTapOpensDesc => 'Taper un tag NFC ouvre la page du protégé.';
 
   @override
   String get avatarDragOrTap => 'Glisse ou touche';

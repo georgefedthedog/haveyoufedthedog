@@ -86,7 +86,12 @@ repo's build reads any of it.
   release. `catalogProvider` (`core/catalog/`) merges bundled + enabled
   remote rows and sorts them together by `sortOrder` (bundled entries carry
   their own in the registries, so they interleave into the right group;
-  bundled wins slug collisions and ties; fail-soft to bundled-only offline). **Resolution and selection are split.**
+  bundled wins slug collisions and ties). **Snapshot-first fetch:** the last
+  successful fetch is persisted (SharedPreferences) and served immediately on
+  the next start while the live fetch refreshes in the background - warmed
+  from `AppRoot` during splash so chosen remote art resolves on the first
+  frame instead of flashing bundled defaults; offline keeps the snapshot,
+  and only a first run that can't reach the server is bundled-only. **Resolution and selection are split.**
   `catalogProvider` is ungated: the fetch pulls every row with no pack or
   _any_ enabled pack, so chosen art resolves in _any_ household the viewer is
   in - a packed avatar/picture renders even where the pack isn't owned.
@@ -173,8 +178,8 @@ repo's build reads any of it.
   intent's data URI on both platforms), `AppRoot` routes to
   `NfcLaunchHandler.handleNfcTap` - which auto-switches to the tag's household
   (if the tapper is a member, so a multi-household dog-walker logs against the
-  right house) then logs the best chore, or opens the subject per the Edit
-  Profile per-device toggle. **The two platforms auto-open by different
+  right house) then logs the best chore, or opens the subject per the You
+  tab's per-device toggle. **The two platforms auto-open by different
   mechanisms, and a tag carries the records for both:** the app writes an NDEF
   URI record (iOS Universal Link) **plus an Android Application Record (AAR)**
   naming `com.haveyoufedthedog`. iOS uses the URI record and ignores the AAR;
@@ -240,6 +245,11 @@ repo's build reads any of it.
   templates) group tokens by `users.locale`; empty locale = byte-identical
   English, keeping pre-i18n clients unaffected. Keep those two template
   tables and the app ARBs in the same voice.
+- **Per-user push muting**: `users.mute_overdue` / `mute_completions` /
+  `mute_awards` (the You tab's Notifications card → `updateNotificationPrefs`
+  on `AuthController`; stored muted-polarity so missing = false = send) are
+  honored at send time - `overdue-cron.js` (reminders), `_notify_helper.js`
+  (done + undone), `award-cron.js` (award wins).
 - **Hook errors carry a stable `code`** (snake_case) alongside their English
   `message`; the app maps codes to ARB strings in
   `core/api/server_messages.dart` (unknown code → raw message). New hook

@@ -47,10 +47,31 @@ class AppLocalizationsDe extends AppLocalizations {
   String get passwordFieldHide => 'Passwort verbergen';
 
   @override
-  String get profileLanguageLabel => 'Sprache';
+  String get profileLanguageSystemDefault => 'Systemsprache';
 
   @override
-  String get profileLanguageSystemDefault => 'Systemsprache';
+  String get profileNotificationsTitle => 'Benachrichtigungen';
+
+  @override
+  String get profileNotifyReminders => 'Erinnerungen';
+
+  @override
+  String get profileNotifyRemindersDesc =>
+      'Ein Stupser, wenn eine Aufgabe überfällig ist.';
+
+  @override
+  String get profileNotifyCompletions => 'Erledigte Aufgaben';
+
+  @override
+  String get profileNotifyCompletionsDesc =>
+      'Wenn jemand in deinem Haushalt eine Aufgabe abhakt oder rückgängig macht.';
+
+  @override
+  String get profileNotifyAwards => 'Auszeichnungen';
+
+  @override
+  String get profileNotifyAwardsDesc =>
+      'Wenn du eine Wochen-Auszeichnung gewinnst.';
 
   @override
   String get authWelcomeBack => 'Schön, dass du wieder da bist!';
@@ -327,14 +348,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get editSubjectTapCompletes =>
-      'Auf diesem Handy hakt ein Tipp die aktuelle Aufgabe ab. Ändern kannst du das unter';
+      'Auf diesem Handy hakt ein Tipp die aktuelle Aufgabe ab. Ändern kannst du das im Tab';
 
   @override
   String get editSubjectTapOpens =>
-      'Auf diesem Handy öffnet ein Tipp die Seite des Schützlings. Ändern kannst du das unter';
+      'Auf diesem Handy öffnet ein Tipp die Seite des Schützlings. Ändern kannst du das im Tab';
 
   @override
-  String get editSubjectEditProfileLink => 'Profil bearbeiten';
+  String get editSubjectYouTabLink => 'Du';
 
   @override
   String get editSubjectWriteTagPrompt =>
@@ -996,15 +1017,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get emailCantChange => 'Die E-Mail lässt sich nicht ändern.';
 
   @override
-  String get nfcCompleteOnTap => 'Aufgabe per Tipp abhaken';
+  String get nfcCompleteOnTap => 'Aufgabe per NFC-Tipp abhaken';
 
   @override
   String get nfcTapCompletesDesc =>
-      'Ein Tipp auf einen Tag hakt die aktuelle Aufgabe ab.';
+      'Ein Tipp auf einen NFC-Tag hakt die aktuelle Aufgabe ab.';
 
   @override
   String get nfcTapOpensDesc =>
-      'Ein Tipp auf einen Tag öffnet die Seite des Schützlings.';
+      'Ein Tipp auf einen NFC-Tag öffnet die Seite des Schützlings.';
 
   @override
   String get avatarDragOrTap => 'Ziehen oder tippen';

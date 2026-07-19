@@ -171,6 +171,36 @@
         "type": "text"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "bool925002809",
+        "name": "mute_overdue",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "bool2157413417",
+        "name": "mute_completions",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "bool2488713994",
+        "name": "mute_awards",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created",

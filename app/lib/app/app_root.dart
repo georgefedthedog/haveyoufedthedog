@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/auth/auth_controller.dart';
+import '../core/catalog/catalog_controller.dart';
 import '../core/deeplink/pending_deep_link.dart';
 import '../core/l10n/app_localizations_provider.dart';
 import '../core/notifications/fcm_token_sync.dart';
@@ -163,6 +164,12 @@ class _AppRootState extends ConsumerState<AppRoot> {
     // Mount the purchase controller for the app's lifetime so out-of-band
     // purchase completions (slow card auth, Restore) are always handled.
     ref.watch(purchaseControllerProvider);
+
+    // Warm the catalog while the splash is still up: mounting it loads the
+    // last catalog snapshot (then refreshes live), so remote art - house
+    // picture, avatars, characters - resolves before the first real screen
+    // builds instead of flashing the bundled defaults.
+    ref.watch(catalogProvider);
 
     // A deep link can land either before or after the routing phase settles,
     // so react to whichever changes last. `_consumePendingDeepLink` is

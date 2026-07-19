@@ -47,10 +47,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String get passwordFieldHide => 'Ocultar contraseña';
 
   @override
-  String get profileLanguageLabel => 'Idioma';
+  String get profileLanguageSystemDefault => 'Idioma del sistema';
 
   @override
-  String get profileLanguageSystemDefault => 'Idioma del sistema';
+  String get profileNotificationsTitle => 'Notificaciones';
+
+  @override
+  String get profileNotifyReminders => 'Recordatorios';
+
+  @override
+  String get profileNotifyRemindersDesc =>
+      'Un toque cuando una tarea está atrasada.';
+
+  @override
+  String get profileNotifyCompletions => 'Tareas registradas';
+
+  @override
+  String get profileNotifyCompletionsDesc =>
+      'Cuando alguien de tu hogar registra o deshace una tarea.';
+
+  @override
+  String get profileNotifyAwards => 'Premios';
+
+  @override
+  String get profileNotifyAwardsDesc => 'Cuando ganas un premio semanal.';
 
   @override
   String get authWelcomeBack => '¡Qué bueno verte de nuevo!';
@@ -333,7 +353,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'En este teléfono, un toque abre la página del protegido. Cámbialo en';
 
   @override
-  String get editSubjectEditProfileLink => 'Editar perfil';
+  String get editSubjectYouTabLink => 'la pestaña Tú';
 
   @override
   String get editSubjectWriteTagPrompt =>
@@ -994,15 +1014,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get emailCantChange => 'El correo no se puede cambiar.';
 
   @override
-  String get nfcCompleteOnTap => 'Completar tarea al tocar';
+  String get nfcCompleteOnTap => 'Completar tarea con un toque NFC';
 
   @override
   String get nfcTapCompletesDesc =>
-      'Tocar una etiqueta completa la tarea actual.';
+      'Tocar una etiqueta NFC completa la tarea actual.';
 
   @override
   String get nfcTapOpensDesc =>
-      'Tocar una etiqueta abre la página del protegido.';
+      'Tocar una etiqueta NFC abre la página del protegido.';
 
   @override
   String get avatarDragOrTap => 'Arrastra o toca';

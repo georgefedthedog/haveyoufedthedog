@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -26,42 +27,75 @@ import 'catalog.dart';
 part 'catalog_controller.g.dart';
 
 /// Fetches the enabled rows of the three `catalog_*` collections once per
-/// session (rebuilds on auth change). **Fail-soft by design:** when the
-/// fetch fails - offline, old server without the collections - it falls
-/// back to the last successful fetch, persisted as a JSON snapshot in
-/// SharedPreferences. Image bytes live in the cached_network_image disk
-/// cache, so together the two caches make remote art fully offline-capable
-/// after it's been seen once. Only a fresh install that has never reached
-/// the server (or a snapshot that fails to parse) degrades to
-/// [RemoteCatalog.empty] / bundled-only.
+/// session (rebuilds on auth change). **Snapshot-first:** every successful
+/// fetch is persisted as a JSON snapshot in SharedPreferences, and on the
+/// next start the snapshot is served *immediately* while the live fetch
+/// refreshes in the background - so chosen remote art (house picture,
+/// avatars, characters) resolves on the very first frame instead of
+/// flashing the bundled defaults until the network answers. Image bytes
+/// live in the cached_network_image disk cache, so together the two caches
+/// also make remote art fully offline-capable after it's been seen once
+/// (a failed refresh just keeps the snapshot). Only a fresh install that
+/// has never reached the server (or a snapshot that fails to parse)
+/// degrades to [RemoteCatalog.empty] / bundled-only.
 @Riverpod(keepAlive: true)
-Future<RemoteCatalog> remoteCatalog(Ref ref) async {
-  final pbFuture = ref.watch(pocketbaseClientProvider.future);
-  // Identity-scoped watch - see HouseholdsController for why not `.future`.
-  final userIdFuture = ref.watch(
-    authControllerProvider.selectAsync((a) => a.userId),
-  );
-  final prefsFuture = ref.watch(sharedPreferencesProvider.future);
+class RemoteCatalogController extends _$RemoteCatalogController {
+  @override
+  Future<RemoteCatalog> build() async {
+    final pbFuture = ref.watch(pocketbaseClientProvider.future);
+    // Identity-scoped watch - see HouseholdsController for why not `.future`.
+    final userIdFuture = ref.watch(
+      authControllerProvider.selectAsync((a) => a.userId),
+    );
+    final prefsFuture = ref.watch(sharedPreferencesProvider.future);
 
-  final pb = await pbFuture;
-  final userId = await userIdFuture;
-  final prefs = await prefsFuture;
+    final pb = await pbFuture;
+    final userId = await userIdFuture;
+    final prefs = await prefsFuture;
 
-  if (userId == null) return RemoteCatalog.empty;
+    if (userId == null) return RemoteCatalog.empty;
 
-  try {
-    final results = await Future.wait([
-      _rows(pb, 'catalog_avatars'),
-      _rows(pb, 'catalog_pictures'),
-      _rows(pb, 'catalog_characters'),
-      pb.collection('catalog_packs').getFullList(filter: 'enabled = true'),
-    ]);
-    await _saveSnapshot(prefs, results);
-    return _catalogFrom(pb, results);
-  } catch (e) {
-    debugPrint('Remote catalog unavailable, trying last snapshot: $e');
-    return _loadSnapshot(prefs, pb) ?? RemoteCatalog.empty;
+    final snapshot = _loadSnapshot(prefs, pb);
+    if (snapshot != null) {
+      unawaited(_refreshLive(pb, prefs));
+      return snapshot;
+    }
+
+    // First run on this device - nothing cached, block on the live fetch.
+    try {
+      return await _fetchLive(pb, prefs);
+    } catch (e) {
+      debugPrint('Remote catalog unavailable (no snapshot yet): $e');
+      return RemoteCatalog.empty;
+    }
   }
+
+  /// Replaces the snapshot-seeded state with live data once the fetch lands.
+  /// On failure (offline start) the snapshot state simply stands. If the
+  /// provider was rebuilt mid-flight (auth change, invalidate), the stale
+  /// state assignment throws and is swallowed here - the rebuild started its
+  /// own refresh.
+  Future<void> _refreshLive(PocketBase pb, SharedPreferences prefs) async {
+    try {
+      final live = await _fetchLive(pb, prefs);
+      state = AsyncData(live);
+    } catch (e) {
+      debugPrint('Remote catalog refresh failed, keeping snapshot: $e');
+    }
+  }
+}
+
+/// One live round-trip: fetch all four collections, persist the snapshot,
+/// map to models. Shared by the blocking first run and background refresh.
+Future<RemoteCatalog> _fetchLive(PocketBase pb, SharedPreferences prefs) async {
+  final results = await Future.wait([
+    _rows(pb, 'catalog_avatars'),
+    _rows(pb, 'catalog_pictures'),
+    _rows(pb, 'catalog_characters'),
+    pb.collection('catalog_packs').getFullList(filter: 'enabled = true'),
+  ]);
+  await _saveSnapshot(prefs, results);
+  return _catalogFrom(pb, results);
 }
 
 RemoteCatalog _catalogFrom(PocketBase pb, List<List<RecordModel>> results) {
@@ -129,11 +163,14 @@ RemoteCatalog? _loadSnapshot(SharedPreferences prefs, PocketBase pb) {
 }
 
 /// Merged bundled + remote catalog. Synchronous and always usable: starts
-/// as bundled-only, re-emits once (if) the remote fetch lands.
+/// as bundled-only, re-emits as soon as the snapshot (then the live fetch)
+/// lands. Warmed from `AppRoot` so the snapshot is in place while the
+/// splash is still up - screens never see the bundled-only frame.
 @Riverpod(keepAlive: true)
 Catalog catalog(Ref ref) {
   final remote =
-      ref.watch(remoteCatalogProvider).valueOrNull ?? RemoteCatalog.empty;
+      ref.watch(remoteCatalogControllerProvider).valueOrNull ??
+      RemoteCatalog.empty;
   return Catalog(
     avatars: _merge(
       AvatarRegistry.all,

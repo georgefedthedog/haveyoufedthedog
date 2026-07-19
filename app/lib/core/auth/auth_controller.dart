@@ -146,4 +146,28 @@ class AuthController extends _$AuthController {
     await pb.collection('users').update(userId, body: body);
     ref.invalidate(householdMembersControllerProvider);
   }
+
+  /// Flips the per-user push-mute flags (the immediate-save Notifications
+  /// switches on Edit Profile). Null means "don't touch". The PB SDK syncs
+  /// the auth record on save, so `authStore.onChange` re-emits and the
+  /// switches repaint - nothing else reads these fields client-side.
+  Future<void> updateNotificationPrefs({
+    bool? muteOverdue,
+    bool? muteCompletions,
+    bool? muteAwards,
+  }) async {
+    final pb = await ref.read(pocketbaseClientProvider.future);
+    final auth = await ref.read(authControllerProvider.future);
+    final userId = auth.userId;
+    if (userId == null) {
+      throw StateError('Cannot update notification settings when signed out.');
+    }
+    final body = <String, dynamic>{
+      'mute_overdue': ?muteOverdue,
+      'mute_completions': ?muteCompletions,
+      'mute_awards': ?muteAwards,
+    };
+    if (body.isEmpty) return;
+    await pb.collection('users').update(userId, body: body);
+  }
 }
