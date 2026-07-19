@@ -94,18 +94,14 @@ class _RootNavShellState extends ConsumerState<RootNavShell> {
   }
 
   /// Quick-add a chore from the central FAB. A chore needs a subject, so pick
-  /// the thing first: none → add a thing; exactly one → straight to its New
-  /// Chore form (no needless picker); several → a bottom sheet of character
-  /// tiles, then the form for whichever was tapped.
+  /// the thing first: none → add a thing; otherwise a bottom sheet of
+  /// character tiles (even with one, so it's clear who the chore is for),
+  /// then the form for whichever was tapped.
   Future<void> _quickAddChore() async {
     final subjects =
         ref.read(subjectsControllerProvider).valueOrNull ?? const <Subject>[];
     if (subjects.isEmpty) {
       context.push(Routes.subjectNew);
-      return;
-    }
-    if (subjects.length == 1) {
-      context.push(Routes.choreNew(subjects.first.id));
       return;
     }
     final picked = await showModalBottomSheet<Subject>(

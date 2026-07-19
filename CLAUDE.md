@@ -211,8 +211,9 @@ repo's build reads any of it.
   flashes that section via `GlowHighlight` (same one-shot pattern as the
   NFC-setting cue); creating a new thing lands on its Edit screen. A central
   quick-add-chore FAB on `RootNavShell` works from any tab - it picks the thing
-  first (one thing → straight to New Chore; several → a bottom-sheet character
-  picker). Grave deletes (account / household / subject / managed member) gate
+  first via a bottom-sheet character picker (shown even with a single thing, so
+  it's always clear who the chore is for; no things → add a thing). Grave
+  deletes (account / household / subject / managed member) gate
   behind the shared `confirmByTyping` (type DELETE - the word itself is the
   localized `confirmByTypingWord` key).
 
